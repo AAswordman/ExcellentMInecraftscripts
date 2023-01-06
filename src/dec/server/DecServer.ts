@@ -60,17 +60,16 @@ function taskUi(p: Player, i: ItemStack) {
 function taskUiChoose(p: Player, id: string) {
     let ui_ch = new ActionFormData()
     ui_ch.button("text.dec:task_complete_button.name")
-    let title = ""
-    let body = ""
     let commands: string[] = [];
-    if (tasks.findIndex(t => t.id === id) !== -1) {
+    const index = tasks.findIndex(t => t.id === id);
+    if (index === -1) {
         return;
     }
-    ui_ch = ui_ch.title(title)
-    ui_ch = ui_ch.body(body)
+    ui_ch = ui_ch.title(tasks[index].title())
+    ui_ch = ui_ch.body(tasks[index].body())
     ui_ch.show(p).then(s => {
         if (s.selection == 0) {
-            ExPlayer.getInstance(p).command.run(commands);
+            ExPlayer.getInstance(p).command.run(tasks[index].commands);
         }
     })
 }
