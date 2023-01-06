@@ -1,5 +1,4 @@
-
-import PomServer from "./main/server/PomServer.js";
+import PomServer from "./pom/server/PomServer.js";
 import ExConfig from "./modules/exmc/ExConfig.js";
 
 let config = new ExConfig();

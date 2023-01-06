@@ -16,17 +16,27 @@ export default class ExCommand {
         this.runner = runner;
     }
 
-    run(str: string, ...entities: (Entity | ExEntity)[]): Promise<CommandResult> {
-        const p = new Promise<CommandResult>((resolve, reject) => {
-            ExCommand.queue.push([this.runner, str, entities, resolve, reject]);
-        });
-        return p;
+    run(str: string, ...entities: (Entity | ExEntity)[]): Promise<CommandResult>
+    run(str: string[], ...entities: (Entity | ExEntity)[]): Promise<CommandResult>[]
+    run(str: string | string[], ...entities: (Entity | ExEntity)[]) {
+        if (typeof str === "string") {
+            const p = new Promise<CommandResult>((resolve, reject) => {
+                ExCommand.queue.push([this.runner, str, entities, resolve, reject]);
+            });
+            return p;
+        } else {
+            let arr: Promise<CommandResult>[] = [];
+            for (let i of str) {
+                this.run(i, ...entities);
+            }
+            return arr;
+        }
     }
 
     public static init(server: ExGameServer) {
         this.queue = new Queue();
         this.delay = new TickDelayTask(server.getEvents(), () => {
-            
+
             let i = 0;
             while (ExCommand.queue.length > 0 && i < 100) {
                 const a = ExCommand.queue.shift();

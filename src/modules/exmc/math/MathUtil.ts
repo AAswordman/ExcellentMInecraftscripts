@@ -10,4 +10,8 @@ export default class MathUtil{
 	static zeroIfNaN(num:number){
 		return isNaN(num) ? 0 : num;
 	}
+    static randomInteger(min: number, max: number) {
+        let length = Math.floor(Math.random() * (max - min + 1));
+        return min + length;
+    }
 }
