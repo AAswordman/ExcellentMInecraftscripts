@@ -101,10 +101,10 @@ export default class DecServer extends ExGameServer {
                 let errMsg = "";
                 switch (cmds[0]) {
                     case "help":
-                        cmdRunner.command.run("function help");
+                        sender.command.run("function help");
                         break;
                     case "creators":
-                        cmdRunner.command.run("function test/creator_list");
+                        sender.command.run("function test/creator_list");
                         break;
                     case "diemode":
                         if (cmds[1] === "open") {
