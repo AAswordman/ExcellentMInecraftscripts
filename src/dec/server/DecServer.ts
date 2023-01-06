@@ -103,6 +103,9 @@ export default class DecServer extends ExGameServer {
                     case "help":
                         cmdRunner.command.run("function help");
                         break;
+                    case "creators":
+                        cmdRunner.command.run("function test/creator_list");
+                        break;
                     case "diemode":
                         if (cmds[1] === "open") {
                             sender.command.run("function diemode/open");
