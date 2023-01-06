@@ -9,3 +9,4 @@ function taskTranToNum(t: string) {
     return n;
 }
 console.log(taskTranToNum("Jf Ao"));
+console.log([1].toString());

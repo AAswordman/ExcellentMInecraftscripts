@@ -12,7 +12,7 @@ import ExEntity from '../../modules/exmc/server/entity/ExEntity.js';
 import commandAnalysis from '../../modules/exmc/utils/commandAnalysis.js';
 import format from '../../modules/exmc/utils/format.js';
 
-export function taskTranToNum(t: string) {
+function taskTranToNum(t: string) {
     let task_arr = ["Ao", "Jf", "Sk", "Ch", "Om", "Bs", "Hd", "Oa", "Gx", "Xe"]
     let n = ""
     while (t.length >= 2) {
