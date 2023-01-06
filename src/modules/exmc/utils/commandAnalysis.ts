@@ -8,19 +8,10 @@ export default function(command:string) {
         command = command.substring(1, command.length);
     }
     let arr = command.split(" ");
-    let res = [];
+    let res:string[] = [];
 
-    for (let i in arr) {
-        let s = arr[i];
-        if (s != "") {
-            if (MathUtil.isNumber(s)) {
-                res.push(parseFloat(s));
-            } else if (s == "false" || s == "true") {
-                res.push(eval(s));
-            } else {
-                res.push(s);
-            }
-        }
+    for (let i of arr) {
+        res.push(i);
     }
     return res;
 }
