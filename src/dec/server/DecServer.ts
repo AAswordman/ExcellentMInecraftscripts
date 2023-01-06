@@ -12,15 +12,15 @@ import ExEntity from '../../modules/exmc/server/entity/ExEntity.js';
 import commandAnalysis from '../../modules/exmc/utils/commandAnalysis.js';
 import format from '../../modules/exmc/utils/format.js';
 
-function taskTranToNum(t: string) {
+export function taskTranToNum(t: string) {
     let task_arr = ["Ao", "Jf", "Sk", "Ch", "Om", "Bs", "Hd", "Oa", "Gx", "Xe"]
     let n = ""
     while (t.length >= 2) {
         let msg = t.slice(0, 2);
-        n = n + (task_arr.filter((e) => e === msg)).toString()
+        n = n + (task_arr.findIndex(e => e===msg))
         t = t.slice(3);
     }
-    return n
+    return n;
 }
 
 function numTranToTask(n: number) {
