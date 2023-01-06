@@ -58,20 +58,18 @@ function taskUi(p: Player, i: ItemStack) {
     })
 }
 function taskUiChoose(p: Player, id: string) {
-    let ui_ch = new ActionFormData()
-    ui_ch.button("text.dec:task_complete_button.name")
-    let commands: string[] = [];
+    let ui_ch = new ActionFormData().button("text.dec:task_complete_button.name");
     const index = tasks.findIndex(t => t.id === id);
     if (index === -1) {
         return;
     }
-    ui_ch = ui_ch.title(tasks[index].title())
-    ui_ch = ui_ch.body(tasks[index].body())
-    ui_ch.show(p).then(s => {
-        if (s.selection == 0) {
-            ExPlayer.getInstance(p).command.run(tasks[index].commands);
-        }
-    })
+    ui_ch.title(tasks[index].title())
+        .body(tasks[index].body())
+        .show(p).then(s => {
+            if (s.selection == 0) {
+                ExPlayer.getInstance(p).command.run(tasks[index].commands);
+            }
+        });
 }
 
 
