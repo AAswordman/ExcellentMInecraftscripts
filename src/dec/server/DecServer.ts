@@ -105,9 +105,9 @@ export default class DecServer extends ExGameServer {
                         break;
                     case "diemode":
                         if (cmds[1] === "open") {
-                            cmdRunner.command.run("function diemode/open");
+                            sender.command.run("function diemode/open");
                         } else if (cmds[1] === "test") {
-                            cmdRunner.command.run("function diemode/test");
+                            sender.command.run("function diemode/test");
                         } else {
                             errMsg = "Invalid command " + cmds[1];
                         }
