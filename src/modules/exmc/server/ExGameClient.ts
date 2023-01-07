@@ -159,3 +159,9 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
     }
 
 }
+
+export function registerEvent(eventName:string) {
+    return function<T extends ExGameClient>(target: T, propertyName: string, descriptor: PropertyDescriptor) {
+        target.getEvents().register(eventName,(target as any)[propertyName].bind(target));
+    }
+}

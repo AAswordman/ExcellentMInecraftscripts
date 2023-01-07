@@ -24,11 +24,11 @@ export default class EventHandle {
             p.pattern(registerName, k);
         }
     }
-    monitorMap: { [event: string]: Map<Entity, ((...args: any[]) => void)[]> } = {
+    monitorMap: { [event: string]: Map<Entity, ((args: unknown) => void)[]> } = {
 
     }
 
-    subscribe(entity: Entity, name: string, callback: (...arg: any[]) => void) {
+    subscribe(entity: Entity, name: string, callback: (args: unknown) => void) {
         let e = this.monitorMap[name];
         if (!e.has(entity)) {
             e.set(entity, []);
@@ -38,7 +38,7 @@ export default class EventHandle {
 
     }
 
-    unsubscribe(entity: Entity, name: string, callback: (...arg: any[]) => void) {
+    unsubscribe(entity: Entity, name: string, callback: (args: unknown) => void) {
         let e = this.monitorMap[name];
         let arr = e.get(entity);
         if (arr) {

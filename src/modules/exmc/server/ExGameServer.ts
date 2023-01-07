@@ -10,11 +10,27 @@ import SetTimeOutSupport from "../interface/SetTimeOutSupport.js";
 import ExConfig from '../ExConfig.js';
 import ExTickQueue from "./ExTickQueue.js";
 import ExCommand from './env/ExCommand.js';
+import ExClientEvents from "./events/ExClientEvents.js";
+import ExEntityController from './entity/ExEntityController.js';
+import ExEntityEvents from "./entity/ExEntityEvents.js";
+
+import "../../reflect-metadata/Reflect.js"
+import format from '../utils/format.js';
+
+const rigisterData:[string,string][] = [];
+export function registerEvent(eventName: string) {
+    return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
+        rigisterData.push([propertyName,eventName]);
+        //Reflect.defineMetadata("eventName", eventName, ExGameServer, propertyName);
+        //console.warn(format(`Reflect.defineMetadata("eventName", {0}, ExGameServer, {1});`,eventName,propertyName))
+    }
+}
 
 export default class ExGameServer implements SetTimeOutSupport {
     clients;
     clients_nameMap;
     _events;
+    entityControllers: Map<string, typeof ExEntityController> = new Map();
 
     constructor(config: ExConfig) {
         ExGameConfig.config = config;
@@ -34,9 +50,17 @@ export default class ExGameServer implements SetTimeOutSupport {
         ExErrorQueue.init(this);
         ExTickQueue.init(this);
         ExCommand.init(this);
+        ExClientEvents.init(this);
+        ExEntityEvents.init(this);
 
-        this._events.events.playerJoin.subscribe(this.onClientJoin.bind(this));
-        this._events.events.playerLeave.subscribe(this.onClientLeave.bind(this));
+        for (let [propertyName,eventName] of rigisterData) {
+            // const v = Reflect.getMetadata("eventName", ExGameServer, k);
+            // console.warn(v);
+            this.getEvents().register(eventName,(this as any)[propertyName].bind(this));
+        }
+    }
+    addEntityController(id: string, ec: typeof ExEntityController) {
+        this.entityControllers.set(id, ec);
     }
 
     getDimension(dimensionId: string) {
@@ -76,6 +100,7 @@ export default class ExGameServer implements SetTimeOutSupport {
         return undefined;
     }
 
+    @registerEvent("playerJoin")
     onClientJoin(event: PlayerJoinEvent) {
         let player = event.player;
         let id = UUID.randomUUID();
@@ -84,6 +109,7 @@ export default class ExGameServer implements SetTimeOutSupport {
         this.clients_nameMap.set(player.name, client);
     }
 
+    @registerEvent("playerLeave")
     onClientLeave(event: PlayerLeaveEvent) {
         let client = this.findClientByName(event.playerName);
         if (client === undefined) {

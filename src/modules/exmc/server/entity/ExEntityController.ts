@@ -8,5 +8,6 @@ export default class ExEntityController extends ExEntity{
         super(e);
         this.server = server;
     }
+    
 }
 
