@@ -1,6 +1,6 @@
 import ExGameServer from "./ExGameServer.js";
 import ExGameConfig from "./ExGameConfig.js";
-import ExClientEvents from "./ExClientEvents.js";
+import ExClientEvents from "./events/ExClientEvents.js";
 import { ChatEvent, Dimension, Player, TickEvent, world } from '@minecraft/server';
 import ExPlayer from "./entity/ExPlayer.js";
 import SetTimeOutSupport from "../interface/SetTimeOutSupport.js";

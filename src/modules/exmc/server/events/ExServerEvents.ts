@@ -1,8 +1,8 @@
 import { world, Events, TickEvent } from '@minecraft/server';
-import ExEventManager from "../interface/ExEventManager.js";
-import ExGameServer from "./ExGameServer.js";
-import ExGameConfig from './ExGameConfig.js';
-import ExErrorQueue from './ExErrorQueue.js';
+import ExEventManager from "../../interface/ExEventManager.js";
+import ExGameServer from "../ExGameServer.js";
+import ExGameConfig from '../ExGameConfig.js';
+import ExErrorQueue from '../ExErrorQueue.js';
 
 export default class ExServerEvents implements ExEventManager {
 	public events: Events;
