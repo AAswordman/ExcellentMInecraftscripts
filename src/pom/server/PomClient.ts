@@ -19,6 +19,7 @@ import PomDimRuinsSystem from "./func/PomDimRuinsSystem.js";
 import PomServer from "./PomServer.js";
 import Random from "../../modules/exmc/utils/Random.js";
 import ExSystem from "../../modules/exmc/utils/ExSystem.js";
+import { eventDecoratorFactory } from "../../modules/exmc/server/events/EventDecoratorFactory.js";
 
 
 export default class PomClient extends ExGameClient<PomTransmission> {
@@ -47,18 +48,20 @@ export default class PomClient extends ExGameClient<PomTransmission> {
         this.looper.start();
         this.data = this.cache.get(new PomData());
 
+        if (!this.globalSettings.ownerExists) {
+            player.addTag("owner");
+            this.globalSettings.ownerExists = true;
+        }
         this.addCtrller(this.enchantSystem);
         this.addCtrller(this.magicSystem);
         this.addCtrller(this.talentSystem);
         this.addCtrller(this.itemUseFunc);
         this.addCtrller(this.ruinsSystem);
 
-        this.gameControllers.forEach(controller => controller.onJoin());
-
-        if (!this.globalSettings.ownerExists) {
-            player.addTag("owner");
-            this.globalSettings.ownerExists = true;
-        }
+        this.gameControllers.forEach(controller => {
+            eventDecoratorFactory(this.getEvents(), controller);
+            controller.onJoin();
+        });
     }
 
     override onJoin(): void {
@@ -67,6 +70,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
                 // process in client
             }
         });
+
     }
 
     addCtrller(system: GameController) {

@@ -16,15 +16,8 @@ import ExEntityEvents from "./entity/ExEntityEvents.js";
 
 import "../../reflect-metadata/Reflect.js"
 import format from '../utils/format.js';
+import { eventDecoratorFactory, registerEvent } from "./events/EventDecoratorFactory.js";
 
-const rigisterData:[string,string][] = [];
-export function registerEvent(eventName: string) {
-    return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
-        rigisterData.push([propertyName,eventName]);
-        //Reflect.defineMetadata("eventName", eventName, ExGameServer, propertyName);
-        //console.warn(format(`Reflect.defineMetadata("eventName", {0}, ExGameServer, {1});`,eventName,propertyName))
-    }
-}
 
 export default class ExGameServer implements SetTimeOutSupport {
     clients;
@@ -53,11 +46,7 @@ export default class ExGameServer implements SetTimeOutSupport {
         ExClientEvents.init(this);
         ExEntityEvents.init(this);
 
-        for (let [propertyName,eventName] of rigisterData) {
-            // const v = Reflect.getMetadata("eventName", ExGameServer, k);
-            // console.warn(v);
-            this.getEvents().register(eventName,(this as any)[propertyName].bind(this));
-        }
+        eventDecoratorFactory(this.getEvents(), this);
     }
     addEntityController(id: string, ec: typeof ExEntityController) {
         this.entityControllers.set(id, ec);

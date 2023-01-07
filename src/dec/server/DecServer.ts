@@ -1,7 +1,6 @@
-import { Player, MinecraftDimensionTypes, Entity, ItemStack, MinecraftEffectTypes } from '@minecraft/server';
+import { Player, MinecraftDimensionTypes, Entity, ItemStack, MinecraftEffectTypes, ChatEvent } from '@minecraft/server';
 import ExConfig from "../../modules/exmc/ExConfig.js";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
-import ExGameServer from "../../modules/exmc/server/ExGameServer.js";
 import DecClient from "./DecClient.js";
 import ExPlayer from '../../modules/exmc/server/entity/ExPlayer.js';
 import MathUtil from '../../modules/exmc/math/MathUtil.js';
@@ -11,6 +10,7 @@ import { Objective } from '../../modules/exmc/server/entity/ExScoresManager.js';
 import ExEntity from '../../modules/exmc/server/entity/ExEntity.js';
 import commandAnalysis from '../../modules/exmc/utils/commandAnalysis.js';
 import format from '../../modules/exmc/utils/format.js';
+import ExGameServer from '../../modules/exmc/server/ExGameServer.js';
 
 function taskTranToNum(t: string) {
     let task_arr = ["Ao", "Jf", "Sk", "Ch", "Om", "Bs", "Hd", "Oa", "Gx", "Xe"]
@@ -79,6 +79,7 @@ export default class DecServer extends ExGameServer {
     i_inviolable: Objective;
     i_damp: Objective;
     i_soft: Objective;
+
     constructor(config: ExConfig) {
         super(config);
 
@@ -135,7 +136,7 @@ export default class DecServer extends ExGameServer {
                 }
                 e.cancel = true;
             }
-        })
+        });
 
         this.getEvents().events.blockBreak.subscribe(e => {
             const entity = ExPlayer.getInstance(e.player);

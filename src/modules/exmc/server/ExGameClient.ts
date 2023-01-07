@@ -9,8 +9,9 @@ import ExErrorQueue from "./ExErrorQueue.js";
 import ExActionAlert from "./ui/ExActionAlert.js";
 import ExInterworkingPool from '../interface/ExInterworkingPool.js';
 import { basicFinalType } from "../interface/types.js";
-import ExSystem from "../utils/ExSystem.js";
-import ExCommand from "./env/ExCommand.js";
+
+import "../../reflect-metadata/Reflect.js"
+import { eventDecoratorFactory } from "./events/EventDecoratorFactory.js";
 
 export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingPool> implements SetTimeOutSupport {
     private _events: ExClientEvents;
@@ -51,6 +52,7 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
         } else {
             this.notDebugger();
         }
+
         let func = () => {
             this.exPlayer.command.run(`testfor @s`)
                 .then(e => {
@@ -66,6 +68,8 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
         this.setTimeout(func, 100);
 
         this.onJoin();
+
+        eventDecoratorFactory(this.getEvents(), this);
     }
 
     getDimension(type?: string) {
@@ -158,10 +162,4 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
         this.getEvents().exEvents.tick.subscribe(method);
     }
 
-}
-
-export function registerEvent(eventName:string) {
-    return function<T extends ExGameClient>(target: T, propertyName: string, descriptor: PropertyDescriptor) {
-        target.getEvents().register(eventName,(target as any)[propertyName].bind(target));
-    }
 }
