@@ -1,4 +1,4 @@
-import { Entity, MinecraftDimensionTypes, MinecraftEntityTypes, Player, MinecraftBlockTypes, Location } from '@minecraft/server';
+import { Entity, MinecraftDimensionTypes, MinecraftEntityTypes, Player, MinecraftBlockTypes, Location, ChatEvent, BlockLocation } from '@minecraft/server';
 import ExConfig from "../../modules/exmc/ExConfig.js";
 import { Objective } from "../../modules/exmc/server/entity/ExScoresManager.js";
 import ExDimension from "../../modules/exmc/server/ExDimension.js";
@@ -20,10 +20,16 @@ import ExEntity from '../../modules/exmc/server/entity/ExEntity.js';
 import { GameMode } from '@minecraft/server';
 import ExEntityController from '../../modules/exmc/server/entity/ExEntityController.js';
 import PomMagicStoneBoss from './entities/PomMagicStoneBoss.js';
+import PomFakePlayer from './entities/PomFakePlayer.js';
+import { registerEvent } from '../../modules/exmc/server/events/EventDecoratorFactory.js';
+import * as gt from "@minecraft/server-gametest";
+import ExPlayer from '../../modules/exmc/server/entity/ExPlayer.js';
 
 
 export default class PomServer extends ExGameServer {
     setting;
+
+    //实体清理
     entityCleaner: TimeLoopTask;
     tpsListener: TimeLoopTask;
     tps = 20;
@@ -34,12 +40,16 @@ export default class PomServer extends ExGameServer {
     entityCleanerStrength!: number;
     entityCleanerDelay!: number;
 
+    //遗迹沙漠
     ruin_desertBoss: PomDesertBossRuin;
     portal_desertBoss: ExBlockStructure;
     ruinFuncLooper: TickDelayTask;
     desertRuinRandomRules;
     ruinDesertGuardPos: Vector3;
     ruinDesertGuardRule: TickDelayTask;
+
+    //虚拟玩家
+    fakeplayers: PomFakePlayer[] = [];
 
     sayTo(str: string) {
         this.getExDimension(MinecraftDimensionTypes.theEnd).command.run(`tellraw @a {"rawtext": [{"text": "${str}"}]}`);
@@ -197,16 +207,16 @@ export default class PomServer extends ExGameServer {
                         tmpP.set(loc);
                         tmpV.set(this.ruinDesertGuardPos);
                         tmpP.sub(tmpV);
-                        if(tmpP.len() < 2){
+                        if (tmpP.len() < 2) {
                             ExEntity.getInstance(entities[0]).damage(4);
                         }
-                        
+
                         tmpP.normalize();
 
                         tmpV.set(loc).sub(RuinsLoaction.DESERT_RUIN_LOCATION_START).div(16).floor();
-                        if(!this.ruin_desertBoss.isInRoom(`${tmpV.x},${tmpV.y},${tmpV.z}`)){
+                        if (!this.ruin_desertBoss.isInRoom(`${tmpV.x},${tmpV.y},${tmpV.z}`)) {
                             this.ruinDesertGuardPos.add(tmpP.scl(0.38));
-                        }else{
+                        } else {
                             this.ruinDesertGuardPos.add(tmpP.scl(0.2));
                         }
                     }
@@ -241,7 +251,14 @@ export default class PomServer extends ExGameServer {
         this.ruinFuncLooper.start();
 
 
-        this.addEntityController("wb:magic_stoneman",PomMagicStoneBoss);
+        this.addEntityController("wb:magic_stoneman", PomMagicStoneBoss);
+
+        gt.register("Pom", "fakeplayer", (test) => {
+            this.fakeplayers.push(new PomFakePlayer(
+                test.spawnSimulatedPlayer(this.fakePlayerSpawnLoc, "Steve1025", GameMode.survival), this)
+            );
+        })
+        .structureName("pom:camp_fire");
     }
     updateClearEntityNum() {
         this.entityCleanerStrength = this.setting.entityCleanerStrength;
@@ -255,6 +272,16 @@ export default class PomServer extends ExGameServer {
             this.entityCleaner.stop();
         }
     }
+
+    fakePlayerSpawnLoc = new BlockLocation(0, 0, 0);
+    @registerEvent<PomServer>("chat", (server, e: ChatEvent) => e.message === "create")
+    createFakePlayer(e: ChatEvent) {
+        this.fakePlayerSpawnLoc = new BlockLocation(e.sender.location.x, e.sender.location.y, e.sender.location.z);
+        ExPlayer.getInstance(e.sender).command.run("gametest run Pom:fakeplayer")
+    }
+
+
+
     override newClient(id: string, player: Player): PomClient {
         return new PomClient(this, id, player);
     }

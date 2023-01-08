@@ -8,13 +8,21 @@ export function eventDecoratorFactory<T extends Object>(manager: ExEventManager,
             const condition: ((obj: T, e: any) => boolean) | undefined = Reflect.getMetadata("eventCondition", target, i);
             if (condition) {
                 manager.register(v, (e) => {
-                    if (condition(target,e)) {
+                    if (condition(target, e)) {
                         (target as any)[i].call(target, e);
                     }
                 });
             } else {
                 manager.register(v, (target as any)[i].bind(target));
             }
+        }
+    }
+}
+export function eventDecoratorDispose<T extends Object>(manager: ExEventManager, target: T) {
+    for (let i of ExSystem.keys(target)) {
+        const v = Reflect.getMetadata("eventName", target, i);
+        if (v) {
+            manager.cancelAll();
         }
     }
 }

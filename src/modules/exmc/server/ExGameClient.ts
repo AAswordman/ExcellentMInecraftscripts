@@ -135,7 +135,7 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
     }
 
     onLeave() {
-        this._events.unsubscribeAll();
+        this._events.cancelAll();
     }
 
     getEvents() {

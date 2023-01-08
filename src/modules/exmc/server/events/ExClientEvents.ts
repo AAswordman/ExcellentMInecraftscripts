@@ -26,7 +26,7 @@ export default class ExClientEvents implements ExEventManager {
     _unsubscribe(arg0: string, callback: (arg: any) => void) {
         ExClientEvents.eventHandlers.unsubscribe(this._client.player, arg0, callback);
     }
-    unsubscribeAll() {
+    cancelAll() {
         ExClientEvents.eventHandlers.unsubscribeAll(this._client.player);
     }
 

@@ -27,7 +27,7 @@ export default class ExEntityEvents implements ExEventManager {
     _unsubscribe(arg0: string, callback: (arg: any) => void) {
         ExEntityEvents.eventHandlers.unsubscribe(this._ctrl.entity, arg0, callback);
     }
-    unsubscribeAll() {
+    cancelAll() {
         ExEntityEvents.eventHandlers.unsubscribeAll(this._ctrl.entity);
     }
 

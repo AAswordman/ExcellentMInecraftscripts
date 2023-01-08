@@ -8,8 +8,7 @@ export default class PomMagicStoneBoss extends ExEntityController{
         super(e,server);
     }
     override onSpawn(): void {
-        ExGameConfig.console.log("boss : 爷出来啦");
-        console.warn("boss : 爷出来啦");
+        super.onSpawn();
     }
     
 }

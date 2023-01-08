@@ -68,6 +68,9 @@ export default class ExServerEvents implements ExEventManager {
 		}
 
 	}
+    cancelAll(): void {
+        throw new Error('Method not implemented.');
+    }
 
 	register(name: string, fun: (arg: any) => void) {
 		let func: (arg: any) => void = fun;

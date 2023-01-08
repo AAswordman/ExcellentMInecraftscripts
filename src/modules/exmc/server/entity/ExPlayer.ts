@@ -77,7 +77,7 @@ export default class ExPlayer extends ExEntity {
         this.entity.selectedSlot = value;
     }
 
-    constructor(player: Player) {
+    protected constructor(player: Player) {
         super(player);
     }
 
