@@ -16,6 +16,10 @@ export default class ExPlayerController extends ExPlayer implements DisposeAble,
         super(e);
         this.init(server);
     }
+    [Symbol.hasInstance](obj:any){
+        return obj instanceof ExPlayerController || obj instanceof ExEntityController;
+    }
+
     init(server: ExGameServer): void {
         throw new Error("Method not implemented.");
     }
