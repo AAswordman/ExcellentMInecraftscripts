@@ -100,8 +100,8 @@ export default class ExEntityEvents implements ExEventManager {
         itemUse: new Listener<ItemUseEvent>(this, "itemUse"),
         tick: new Listener<TickEvent>(this, "tick"),
         entityHit: new Listener<EntityHitEvent>(this, "entityHit"),
-        onHitEntity: new Listener<EntityHurtEvent>(this, "playerHitEntity"),
-        onHurt: new Listener<EntityHurtEvent>(this, "playerHurt"),
+        onHitEntity: new Listener<EntityHurtEvent>(this, "onHitEntity"),
+        onHurt: new Listener<EntityHurtEvent>(this, "onHurt"),
         itemOnHandChange: new Listener<ItemOnHandChangeEvent>(this, "itemOnHandChange"),
         onLongTick: new Listener<TickEvent>(this, "onLongTick"),
         blockBreak: new Listener<BlockBreakEvent>(this, "blockBreak")

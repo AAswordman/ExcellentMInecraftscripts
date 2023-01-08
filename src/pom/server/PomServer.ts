@@ -15,11 +15,11 @@ import ExBlockStructure from '../../modules/exmc/server/block/structure/ExBlockS
 import ExBlockStructureNormal from '../../modules/exmc/server/block/structure/ExBlockStructureNormal.js';
 import TickDelayTask from '../../modules/exmc/utils/TickDelayTask.js';
 import Vector3 from '../../modules/exmc/math/Vector3.js';
-import { ExBlockArea } from '../../modules/exmc/server/block/ExBlockArea.js';
 import ExGameVector3 from '../../modules/exmc/server/math/ExGameVector3.js';
-import ExPlayer from '../../modules/exmc/server/entity/ExPlayer.js';
 import ExEntity from '../../modules/exmc/server/entity/ExEntity.js';
 import { GameMode } from '@minecraft/server';
+import ExEntityController from '../../modules/exmc/server/entity/ExEntityController.js';
+import PomMagicStoneBoss from './entities/PomMagicStoneBoss.js';
 
 
 export default class PomServer extends ExGameServer {
@@ -240,6 +240,8 @@ export default class PomServer extends ExGameServer {
         }).delay(20 * 12);
         this.ruinFuncLooper.start();
 
+
+        this.addEntityController("wb:magic_stoneman",PomMagicStoneBoss);
     }
     updateClearEntityNum() {
         this.entityCleanerStrength = this.setting.entityCleanerStrength;

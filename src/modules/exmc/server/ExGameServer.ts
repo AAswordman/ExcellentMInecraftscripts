@@ -1,6 +1,6 @@
 import ExGameClient from "./ExGameClient.js";
 import ExDimension from "./ExDimension.js";
-import { world, MinecraftDimensionTypes, PlayerJoinEvent, Player, TickEvent, PlayerLeaveEvent, system } from "@minecraft/server";
+import { world, MinecraftDimensionTypes, PlayerJoinEvent, Player, TickEvent, PlayerLeaveEvent, system, EntityCreateEvent } from "@minecraft/server";
 import ExGameConfig from "./ExGameConfig.js";
 import initConsole from "../utils/Console.js";
 import ExServerEvents from "./events/ExServerEvents.js";
@@ -48,8 +48,17 @@ export default class ExGameServer implements SetTimeOutSupport {
 
         eventDecoratorFactory(this.getEvents(), this);
     }
+
     addEntityController(id: string, ec: typeof ExEntityController) {
         this.entityControllers.set(id, ec);
+    }
+
+    @registerEvent("entityCreate")
+    onEntitySpawn(e:EntityCreateEvent){
+        const entityConstructor = this.entityControllers.get(e.entity.typeId);
+        if(entityConstructor){
+            new (entityConstructor)(e.entity,this);
+        }
     }
 
     getDimension(dimensionId: string) {
