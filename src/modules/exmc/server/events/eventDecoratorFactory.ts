@@ -18,14 +18,7 @@ export function eventDecoratorFactory<T extends Object>(manager: ExEventManager,
         }
     }
 }
-export function eventDecoratorDispose<T extends Object>(manager: ExEventManager, target: T) {
-    for (let i of ExSystem.keys(target)) {
-        const v = Reflect.getMetadata("eventName", target, i);
-        if (v) {
-            manager.cancelAll();
-        }
-    }
-}
+
 
 export function registerEvent<T>(eventName: string, condition?: (obj: T, e: any) => boolean) {
     return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
