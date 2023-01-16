@@ -1,6 +1,6 @@
 import { Player, ItemStack } from "@minecraft/server";
 import { ActionFormData } from "@minecraft/server-ui";
-import ExPlayer from "../../../modules/exmc/server/entity/ExPlayer";
+import ExPlayer from "../../../modules/exmc/server/entity/ExPlayer.js";
 
 export class Task {
     id: string;

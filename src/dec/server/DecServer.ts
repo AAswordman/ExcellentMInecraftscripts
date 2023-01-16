@@ -15,6 +15,7 @@ import DecGlobal from './DecGlobal.js';
 import { ArmorData, ArmorPlayerDec, ArmorPlayerPom } from './items/ArmorData.js';
 import Vector3 from '../../modules/exmc/math/Vector3.js';
 import { to } from '../../modules/exmc/server/ExErrorQueue.js';
+import { DecEverlastingWinterGhastBoss1, DecEverlastingWinterGhastBoss2 } from './entities/DecEverlastingWinterGhastBoss.js';
 
 
 export default class DecServer extends ExGameServer {
@@ -31,7 +32,6 @@ export default class DecServer extends ExGameServer {
         this.i_damp = new Objective("i_damp").create("i_damp");
         this.i_soft = new Objective("i_soft").create("i_soft");
         //new Objective("harmless").create("harmless");
-
 
         this.getEvents().events.beforeChat.subscribe(e => {
             let cmdRunner = this.getExDimension(MinecraftDimensionTypes.overworld);
@@ -99,7 +99,7 @@ export default class DecServer extends ExGameServer {
                 e.player.addEffect(MinecraftEffectTypes.hunger, 600, 1, true);
                 entity.command.run("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }")
             }
-        })
+        });
 
         this.getEvents().events.beforeExplosion.subscribe(e => {
             const entity = ExEntity.getInstance(e.source);
@@ -108,7 +108,7 @@ export default class DecServer extends ExGameServer {
                 entity.getExDimension().spawnParticle("dec:damp_explosion_particle", e.source.location);
                 e.cancel = true;
             }
-        })
+        });
 
         this.getEvents().events.beforeItemUseOn.subscribe(e => {
             const entity = ExEntity.getInstance(e.source);
@@ -116,10 +116,7 @@ export default class DecServer extends ExGameServer {
             if (entity.getScoresManager().getScore(this.i_soft) > 0 && e.item.typeId != "dec:iron_key" && e.item.typeId != "dec:frozen_power") {
                 e.cancel = true;
             }
-        })
-
-
-
+        });
 
         this.getEvents().events.tick.subscribe(e => {
             //诅咒时间减少
@@ -157,7 +154,7 @@ export default class DecServer extends ExGameServer {
                                         flag = true;
                                     }
                                 }
-                                if(!flag){
+                                if (!flag) {
                                     client.chooseArmor(undefined);
                                 }
                             }
@@ -173,6 +170,9 @@ export default class DecServer extends ExGameServer {
                 taskUi((<Player>e.source), e.item);
             }
         });
+
+        this.addEntityController("dec:everlasting_winter_ghast", DecEverlastingWinterGhastBoss1);
+        this.addEntityController("dec:everlasting_winter_ghast_1", DecEverlastingWinterGhastBoss2);
 
     }
 

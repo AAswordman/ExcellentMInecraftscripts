@@ -6,24 +6,36 @@ import { eventDecoratorDispose, eventDecoratorFactory, registerEvent } from "../
 import ExGameConfig from "../ExGameConfig.js";
 import DisposeAble from "../../interface/DisposeAble.js";
 
-export default class ExEntityController extends ExEntity implements DisposeAble {
+export default class ExEntityController implements DisposeAble {
     server!: ExGameServer;
+    private _entity: Entity;
+    public get entity(): Entity {
+        return this._entity;
+    }
+    public set entity(value: Entity) {
+        this._entity = value;
+    }
+    private _exEntity!: ExEntity;
+    public get exEntity(): ExEntity {
+        return this._exEntity;
+    }
+    public set exEntity(value: ExEntity) {
+        this._exEntity = value;
+    }
     _events!: ExEntityEvents;
     public constructor(e: Entity, server: ExGameServer) {
-        super(e);
-        this.init(server);
-    }
-    init(server: ExGameServer) {
+        this._entity = e;
         this.server = server;
         this._events = new ExEntityEvents(this);
-
+        this.init(server);
         this.onSpawn();
-
         eventDecoratorFactory(this.getEvents(), this);
+    }
+    init(server: ExGameServer) {
+        this.exEntity = ExEntity.getInstance(this.entity);
     }
 
     onSpawn() {
-
     }
     onDestroy() {
         this.dispose();
@@ -38,7 +50,7 @@ export default class ExEntityController extends ExEntity implements DisposeAble 
     onDespawn() {
         this.onDestroy();
     }
-    @registerEvent<ExEntityController>("onHurt", (ctrl, e) => ctrl.getHealth() <= 0)
+    @registerEvent<ExEntityController>("onHurt", (ctrl, e) => ctrl.exEntity.getHealth() <= 0)
     onKilled(e: EntityHurtEvent) {
         this.onDestroy();
     }

@@ -11,47 +11,24 @@ import applyMixins from "../../utils/applyMixins.js";
 
 import "../../../reflect-metadata/Reflect.js"
 
-export default class ExPlayerController extends ExPlayer implements DisposeAble,ExEntityController {
-    server!: ExGameServer;
-    _events!: ExEntityEvents;
+export default class ExPlayerController extends ExEntityController implements DisposeAble {
     public constructor(e: Player, server: ExGameServer) {
-        super(e);
+        super(e, server);
         this.init(server);
-        
-        console.warn(Reflect.getMetadata("eventName",this,"onKilled"));
     }
-    [Symbol.hasInstance](obj:any){
-        return obj instanceof ExPlayer || obj instanceof ExEntityController || obj.__proto__ === ExPlayerController.prototype;
+    override init(server: ExGameServer): void {
+        this.exEntity = ExPlayer.getInstance(this.entity);
     }
-
-    init(server: ExGameServer): void {
-        throw new Error("Method not implemented.");
+    override get entity(): Player {
+        return this.entity;
     }
-    onSpawn(): void {
-        throw new Error("Method not implemented.");
+    override set entity(e:Player) {
+        this.entity = e;
     }
-    onDestroy(): void {
-        throw new Error("Method not implemented.");
+    override get exEntity(): ExPlayer {
+        return this.exEntity;
     }
-    dispose(): void {
-        throw new Error("Method not implemented.");
+    override set exEntity(e:ExPlayer) {
+        this.exEntity = e;
     }
-    getEvents(): ExEntityEvents {
-        throw new Error("Method not implemented.");
-    }
-    onDespawn(): void {
-        throw new Error("Method not implemented.");
-    }
-    onKilled(e: EntityHurtEvent): void {
-        throw new Error("Method not implemented.");
-    }
-    // init!:(server: ExGameServer) => void;
-    // onSpawn!:() => void;
-    // onDestroy!:() => void;
-    // getEvents!:() => ExEntityEvents;
-    // onDespawn!:() => void;
-    // onKilled!:(e: EntityHurtEvent) => void;
-    // dispose!:() => void;
 }
-
-applyMixins(ExPlayerController,[ExEntityController]);
