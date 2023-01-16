@@ -67,17 +67,3 @@ export default class ExEntityBag {
         return this.searchItem(itemId) !== -1;
     }
 }
-
-export class ExPlayerBag extends ExEntityBag{
-    private _player: ExPlayer;
-    constructor(player: ExPlayer){
-        super(player);
-        this._player = player;
-    }
-    getItemOnHand() {
-        return this.getItem(this._player.selectedSlot);
-    }
-    setItemOnHand(i:ItemStack | undefined) {
-        return this.setItem(this._player.selectedSlot,i);
-    }
-}

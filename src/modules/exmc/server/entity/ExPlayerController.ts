@@ -9,15 +9,19 @@ import ExPlayer from './ExPlayer.js';
 import ExEntityController from "./ExEntityController.js";
 import applyMixins from "../../utils/applyMixins.js";
 
+import "../../../reflect-metadata/Reflect.js"
+
 export default class ExPlayerController extends ExPlayer implements DisposeAble,ExEntityController {
     server!: ExGameServer;
     _events!: ExEntityEvents;
     public constructor(e: Player, server: ExGameServer) {
         super(e);
         this.init(server);
+        
+        console.warn(Reflect.getMetadata("eventName",this,"onKilled"));
     }
     [Symbol.hasInstance](obj:any){
-        return obj instanceof ExPlayerController || obj instanceof ExEntityController;
+        return obj instanceof ExPlayer || obj instanceof ExEntityController || obj.__proto__ === ExPlayerController.prototype;
     }
 
     init(server: ExGameServer): void {

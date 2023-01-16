@@ -7,6 +7,7 @@ import ExEntityBag from './ExEntityBag.js';
 import SetTimeOutSupport from '../../interface/SetTimeOutSupport.js';
 import ExGameVector3 from '../math/ExGameVector3.js';
 import ExCommand from '../env/ExCommand.js';
+import ExDimension from '../ExDimension.js';
 
 
 export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
@@ -75,6 +76,9 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     getDimension() {
         return this._entity.dimension;
     }
+    getExDimension() {
+        return ExDimension.getInstance(this.getDimension());
+    }
 
     addTag(str: string) {
         this._entity.addTag(str);
@@ -93,6 +97,20 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     runCommandAsync(str: string) {
         return this._entity.runCommandAsync(str);
     }
+
+    async detectArmor(head: string, chest: string, legs: string, boots: string) {
+        try {
+            let res = await this.command.run("execute if entity @s[hasitem={location=slot.armor.head,item=" + head +
+                "}] if entity @s[hasitem={location=slot.armor.chest,item=" + chest +
+                "}] if entity @s[hasitem={location=slot.armor.legs,item=" + legs +
+                "}] if entity @s[hasitem={location=slot.armor.feet,item=" + boots +
+                "}] testfor @s");
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
     getScoresManager() {
         return new ExScoresManager(this._entity);
     }

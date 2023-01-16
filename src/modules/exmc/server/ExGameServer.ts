@@ -24,28 +24,29 @@ export default class ExGameServer implements SetTimeOutSupport {
     clients_nameMap;
     _events;
     entityControllers: Map<string, typeof ExEntityController> = new Map();
+    static isInitialized: boolean;
 
     constructor(config: ExConfig) {
-        ExGameConfig.config = config;
-
-        if (!config.watchDog) {
-            system.events.beforeWatchdogTerminate.subscribe((e) => {
-                e.cancel = true;
-            });
-        }
-
         this.clients = new Map<string, ExGameClient>();
         this.clients_nameMap = new Map<string, ExGameClient>();
-        ExGameConfig.console = initConsole(ExGameConfig);
 
         this._events = new ExServerEvents(this);
+        if (!ExGameServer.isInitialized) {
+            ExGameServer.isInitialized = true;
+            ExGameConfig.config = config;
 
-        ExErrorQueue.init(this);
-        ExTickQueue.init(this);
-        ExCommand.init(this);
-        ExClientEvents.init(this);
-        ExEntityEvents.init(this);
-
+            if (!config.watchDog) {
+                system.events.beforeWatchdogTerminate.subscribe((e) => {
+                    e.cancel = true;
+                });
+            }
+            ExGameConfig.console = initConsole(ExGameConfig);
+            ExErrorQueue.init(this);
+            ExTickQueue.init(this);
+            ExCommand.init(this);
+            ExClientEvents.init(this);
+            ExEntityEvents.init(this);
+        }
         eventDecoratorFactory(this.getEvents(), this);
     }
 

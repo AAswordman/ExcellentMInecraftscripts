@@ -3,8 +3,8 @@ import { Player, Entity } from '@minecraft/server';
 import ExCommand from '../env/ExCommand.js';
 import { to } from "../ExErrorQueue.js";
 import ExEntity from "./ExEntity.js";
-import { ExPlayerBag } from "./ExEntityBag.js";
 import ExGameVector3 from '../math/ExGameVector3.js';
+import ExPlayerBag from './ExPlayerBag.js';
 
 
 export default class ExPlayer extends ExEntity {
@@ -27,28 +27,28 @@ export default class ExPlayer extends ExEntity {
     getGameMode(): GameMode {
         this.entity
         let c = GameMode.creative;
-        c = (Array.from(this.getDimension().getEntities({
+        c = (Array.from(this.getDimension().getPlayers({
             location: ExGameVector3.getLocation(this.entity.location),
             type: MinecraftEntityTypes.player.id,
             closest: 1,
             maxDistance: 1,
             gameMode: GameMode.adventure
         }))?.[0] === this.entity ? GameMode.adventure : c);
-        c = (Array.from(this.getDimension().getEntities({
+        c = (Array.from(this.getDimension().getPlayers({
             location: ExGameVector3.getLocation(this.entity.location),
             type: MinecraftEntityTypes.player.id,
             closest: 1,
             maxDistance: 1,
             gameMode: GameMode.creative
         }))?.[0] === this.entity ? GameMode.creative : c);
-        c = (Array.from(this.getDimension().getEntities({
+        c = (Array.from(this.getDimension().getPlayers({
             location: ExGameVector3.getLocation(this.entity.location),
             type: MinecraftEntityTypes.player.id,
             closest: 1,
             maxDistance: 1,
             gameMode: GameMode.spectator
         }))?.[0] === this.entity ? GameMode.spectator : c);
-        c = (Array.from(this.getDimension().getEntities({
+        c = (Array.from(this.getDimension().getPlayers({
             location: ExGameVector3.getLocation(this.entity.location),
             type: MinecraftEntityTypes.player.id,
             closest: 1,

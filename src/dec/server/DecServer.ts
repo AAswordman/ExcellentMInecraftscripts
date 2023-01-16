@@ -11,13 +11,14 @@ import ExEntity from '../../modules/exmc/server/entity/ExEntity.js';
 import commandAnalysis from '../../modules/exmc/utils/commandAnalysis.js';
 import format from '../../modules/exmc/utils/format.js';
 import ExGameServer from '../../modules/exmc/server/ExGameServer.js';
+import DecGlobal from './DecGlobal.js';
 
 function taskTranToNum(t: string) {
     let task_arr = ["Ao", "Jf", "Sk", "Ch", "Om", "Bs", "Hd", "Oa", "Gx", "Xe"]
     let n = ""
     while (t.length >= 2) {
         let msg = t.slice(0, 2);
-        n = n + (task_arr.findIndex(e => e===msg))
+        n = n + (task_arr.findIndex(e => e === msg))
         t = t.slice(3);
     }
     return n;
@@ -102,7 +103,9 @@ export default class DecServer extends ExGameServer {
                         sender.command.run("function help");
                         break;
                     case "creators":
-                        sender.command.run("function test/creator_list");
+                        if (DecGlobal.isDec()) {
+                            sender.command.run("function test/creator_list");
+                        }
                         break;
                     case "diemode":
                         if (cmds[1] === "open") {
@@ -114,20 +117,22 @@ export default class DecServer extends ExGameServer {
                         }
                         break;
                     case "magic":
-                        if (cmds[1] === "display") {
-                            if (e.sender.isOp()) {
-                                if (cmds[2] === "true") {
-                                    cmdRunner.command.run("function magic/display_on");
-                                } else if (cmds[2] === "false") {
-                                    cmdRunner.command.run("function magic/display_off");
+                        if (DecGlobal.isDec()) {
+                            if (cmds[1] === "display") {
+                                if (e.sender.isOp()) {
+                                    if (cmds[2] === "true") {
+                                        cmdRunner.command.run("function magic/display_on");
+                                    } else if (cmds[2] === "false") {
+                                        cmdRunner.command.run("function magic/display_off");
+                                    } else {
+                                        errMsg = "Invalid command " + cmds[2];
+                                    }
                                 } else {
-                                    errMsg = "Invalid command " + cmds[2];
+                                    sender.command.run("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:command_fail.name\" } ] }");
                                 }
                             } else {
-                                sender.command.run("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:command_fail.name\" } ] }");
+                                errMsg = "Invalid command " + cmds[1];
                             }
-                        } else {
-                            errMsg = "Invalid command " + cmds[1];
                         }
                         break;
                 }
@@ -143,14 +148,14 @@ export default class DecServer extends ExGameServer {
             //防破坏方块 i_inviolable计分板控制
             if (entity.getScoresManager().getScore(this.i_inviolable) > 1) {
                 e.dimension.getBlock(e.block.location).setType(e.brokenBlockPermutation.type);
-                e.dimension.runCommandAsync("kill @e[type=item,r=2,x=" + e.block.x + ",y=" + e.block.y + ",z=" + e.block.z + "]")
+                entity.getExDimension().command.run("kill @e[type=item,r=2,x=" + e.block.x + ",y=" + e.block.y + ",z=" + e.block.z + "]")
                 e.player.addEffect(MinecraftEffectTypes.nausea, 200, 0, true);
                 e.player.addEffect(MinecraftEffectTypes.blindness, 200, 0, true);
                 e.player.addEffect(MinecraftEffectTypes.darkness, 400, 0, true);
                 e.player.addEffect(MinecraftEffectTypes.wither, 100, 0, true);
                 e.player.addEffect(MinecraftEffectTypes.miningFatigue, 600, 2, true);
                 e.player.addEffect(MinecraftEffectTypes.hunger, 600, 1, true);
-                e.player.runCommandAsync("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }")
+                entity.command.run("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }")
             }
         })
 
@@ -158,7 +163,7 @@ export default class DecServer extends ExGameServer {
             const entity = ExEntity.getInstance(e.source);
             //防爆 i_inviolable计分板控制
             if (entity.getScoresManager().getScore(this.i_damp) > 0) {
-                e.dimension.runCommandAsync(format("particle dec:damp_explosion_particle {0} {1} {2}", e.source.location.x, e.source.location.y, e.source.location.z));
+                entity.getExDimension().command.run(format("particle dec:damp_explosion_particle {0} {1} {2}", e.source.location.x, e.source.location.y, e.source.location.z));
                 e.cancel = true;
             }
         })
@@ -171,57 +176,7 @@ export default class DecServer extends ExGameServer {
             }
         })
 
-        this.getEvents().events.entityHurt.subscribe(e => {
-            let hurtEntity = ExEntity.getInstance(e.hurtEntity);
-            let ra = MathUtil.randomInteger(1, 100);
-            //鲁伯特套装受伤效果
-            if (1 <= ra && ra <= 20) {
-                equAddTag(e.hurtEntity, "dec:rupert_helmet", "dec:rupert_chestplate", "rupert_leggings", "rupert_boots", "rupert_armor_skill_1")
-                hurtEntity.command.run([
-                    "effect @s[tag=rupert_armor_skill_1] regeneration 10",
-                    "effect @s[tag=rupert_armor_skill_1] speed 5",
-                    "execute if entity @s[tag=rupert_armor_skill_1] run particle dec:tear_from_rupert ~~1~",
-                    "execute if entity @s[tag=rupert_armor_skill_1] run particle dec:tear_from_rupert ~~1~",
-                    "execute if entity @s[tag=rupert_armor_skill_1] run particle dec:tear_from_rupert ~~1~",
-                    "execute if entity @s[tag=rupert_armor_skill_1] run particle dec:tear_from_rupert ~~1~",
-                    "execute if entity @s[tag=rupert_armor_skill_1] run particle dec:tear_from_rupert ~~1~",
-                    "tag @s[tag=rupert_armor_skill_1] remove rupert_armor_skill_1"
-                ])
-            }
-            //岩浆套受伤效果
-            equAddTag(e.hurtEntity, "dec:lava_helmet", "dec:lava_chestplate", "dec:lava_leggings", "dec:lava_boots", "lava_armor_skill")
-            hurtEntity.command.run([
-                "execute if entity @s[tag=lava_armor_skill] run particle dec:fire_spurt_particle ~~1~",
-                "effect @s[tag=lava_armor_skill] fire_resistance 4",
-                "tag @s[tag=lava_armor_skill] remove lava_armor_skill"
-            ])
-
-            //哭泣套受伤效果
-            equAddTag(e.hurtEntity, "dec:crying_helmet", "dec:crying_chestplate", "dec:crying_leggings", "dec:crying_boots", "crying_armor_skill")
-            if (ra < 1) {
-
-            } else if (1 <= ra && ra <= 10) {
-                hurtEntity.command.run("effect @s[tag=crying_armor_skill] weakness 5");
-            } else if (ra <= 20) {
-                hurtEntity.command.run("effect @s[tag=crying_armor_skill] slowness 5");
-            } else if (ra <= 30) {
-                hurtEntity.command.run("effect @s[tag=crying_armor_skill] blindness 5");
-            } else if (ra <= 40) {
-                hurtEntity.command.run("effect @s[tag=crying_armor_skill] nausea 7");
-            }
-            e.hurtEntity.runCommandAsync("tag @s[tag=crying_armor_skill] remove crying_armor_skill");
-
-            //永冬套受伤效果
-            if (1 <= ra && ra <= 12) {
-                equAddTag(e.hurtEntity, "dec:everlasting_winter_helmet", "dec:everlasting_winter_chestplate", "dec:everlasting_winter_leggings", "dec:everlasting_winter_boots", "everlasting_winter_skill")
-                hurtEntity.command.run([
-                    "execute if entity @s[tag=everlasting_winter_skill] run effect @e[r=5,tag=!everlasting_winter_skill] slowness 3 1",
-                    "effect @s[tag=everlasting_winter_skill] health_boost 30 0",
-                    "execute if entity @s[tag=everlasting_winter_skill] run particle dec:everlasting_winter_spurt_particle ~~~",
-                    "tag @s[tag=everlasting_winter_skill] remove everlasting_winter_skill"
-                ])
-            }
-        });
+        
 
 
         this.getEvents().events.tick.subscribe(e => {

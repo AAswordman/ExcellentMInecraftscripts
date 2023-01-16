@@ -4,7 +4,6 @@ import GameConsole from '../interface/GameConsole.js';
 
 export default class ExGameConfig {
     static config: ExConfig;
-
     static console: GameConsole;
 
     static async runCommandAsync(str: string) {
