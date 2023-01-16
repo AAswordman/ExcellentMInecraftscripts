@@ -193,7 +193,6 @@ export default class DecClient extends ExGameClient {
         return this.useArmor ? (await this.useArmor.detect(this.exPlayer)) : false;
     }
     chooseArmor(a: ArmorData | undefined) {
-        ExGameConfig.console.log("chooseArmor " + a?.name);
         this.useArmor = a;
     }
 
