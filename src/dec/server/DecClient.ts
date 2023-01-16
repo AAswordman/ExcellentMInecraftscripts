@@ -1,7 +1,7 @@
 import { EffectType, MinecraftDimensionTypes, MinecraftEffectTypes, Player } from "@minecraft/server";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import ExGameServer from "../../modules/exmc/server/ExGameServer.js";
-import { ArmorData, ArmorPlayerDec } from "./items/ArmorData.js";
+import { ArmorData, ArmorPlayerDec, ArmorPlayerPom } from "./items/ArmorData.js";
 import MathUtil from "../../modules/exmc/math/MathUtil.js";
 import Vector3 from "../../modules/exmc/math/Vector3.js";
 import ExGameVector3 from "../../modules/exmc/server/math/ExGameVector3.js";
@@ -75,8 +75,45 @@ export default class DecClient extends ExGameClient {
             }
 
 
-            if (!DecGlobal.isDec()) {
-
+            if (!DecGlobal.isDec() && !this.player.hasTag("wbkjlq")) {
+                switch (this.useArmor) {
+                    case ArmorPlayerPom.bloodsucking:
+                        this.exPlayer.command.run("function armor/bloodsucking");
+                        break;
+                    case ArmorPlayerPom.senior_bloodsucking:
+                        this.exPlayer.command.run("function armor/bloodsucking2");
+                        break;
+                    case ArmorPlayerPom.ink:
+                        //this.exPlayer.command.run("function armor/ink");
+                        break;
+                    case ArmorPlayerPom.senior_ink:
+                        //this.exPlayer.command.run("function armor/ink2");
+                        break;
+                    case ArmorPlayerPom.senior_seal:
+                        this.exPlayer.command.run("function armor/seal2");
+                        break;
+                    case ArmorPlayerPom.seal:
+                        this.exPlayer.command.run("function armor/seal");
+                        break;
+                    case ArmorPlayerPom.senior_water:
+                        this.exPlayer.command.run("function armor/water2");
+                        break;
+                    case ArmorPlayerPom.water:
+                        this.exPlayer.command.run("function armor/water");
+                        break;
+                    case ArmorPlayerPom.senior_equipment:
+                        this.exPlayer.command.run("function armor/equipment2");
+                        break;
+                    case ArmorPlayerPom.equipment:
+                        this.exPlayer.command.run("function armor/equipment");
+                        break;
+                    case ArmorPlayerPom.senior_forget:
+                        this.exPlayer.command.run("function armor/forget2");
+                        break;
+                    case ArmorPlayerPom.forget:
+                        this.exPlayer.command.run("function armor/forget");
+                        break;
+                }
             }
         });
 
@@ -190,6 +227,15 @@ export default class DecClient extends ExGameClient {
     }
 
     async checkArmor() {
+        if (!DecGlobal.isDec()) {
+            if (this.useArmor === ArmorPlayerPom.ink) {
+                this.player.triggerEvent("armor_ink")
+            } else if (this.useArmor === ArmorPlayerPom.senior_ink) {
+                this.player.triggerEvent("armor_senior_ink")
+            } else {
+                this.player.triggerEvent("hostile_mode");
+            }
+        }
         return this.useArmor ? (await this.useArmor.detect(this.exPlayer)) : false;
     }
     chooseArmor(a: ArmorData | undefined) {

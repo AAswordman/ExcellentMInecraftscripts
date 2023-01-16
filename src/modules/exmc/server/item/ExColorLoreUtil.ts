@@ -5,10 +5,10 @@ export default class ExColorLoreUtil extends LoreUtil {
         super.setTag("§r§n§6" + key);
     }
     override hasTag(key: string): boolean {
-        let res = super.hasTag("§r§n§6" + key);
+        let res = super.hasTag(key.startsWith("§") ? key : "§r§n§6" + key);
         return res;
     }
-    override getValueUseMap(key: string, use: string): string | null {
+    override getValueUseMap(key: string, use: string): string | undefined {
         let res = super.getValueUseMap("§r§l§f" + key, "§r§o§b" + use);
         return res?.startsWith("§") ? res.substring(6) : res;
     }
@@ -20,7 +20,7 @@ export default class ExColorLoreUtil extends LoreUtil {
             yield [i[0].startsWith("§") ? i[0].substring(6) : i[0], i[1].startsWith("§") ? i[1].substring(6) : i[1]];
         }
     }
-    override search(key: string): Piece | null {
+    override search(key: string): Piece | undefined {
         let lore = this.getLore();
         key = (key.startsWith("§") ? key.substring(6) : key)
         for (let i = 0; i < lore.length; i++) {
@@ -29,7 +29,7 @@ export default class ExColorLoreUtil extends LoreUtil {
                 return new Piece(this.item, i);
             }
         }
-        return null;
+        return undefined;
 
     }
 }

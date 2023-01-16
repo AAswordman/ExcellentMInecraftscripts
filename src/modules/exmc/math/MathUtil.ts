@@ -7,7 +7,9 @@ export default class MathUtil{
 		var regNeg = /^(-(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*)))$/;
 		return regPos.test(val) && regNeg.test(val);
 	}
-	static zeroIfNaN(num:number){
+	static zeroIfNaN(num:number|string|undefined){
+        if(typeof num === "string") num = parseFloat(num);
+        if(num === undefined) return 0;
 		return isNaN(num) ? 0 : num;
 	}
     static randomInteger(min: number, max: number) {

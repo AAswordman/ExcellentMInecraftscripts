@@ -1,4 +1,4 @@
-import { Entity, MinecraftDimensionTypes, MinecraftEntityTypes, Player, MinecraftBlockTypes, Location, ChatEvent, BlockLocation } from '@minecraft/server';
+import { Entity, MinecraftDimensionTypes, MinecraftEntityTypes, Player, MinecraftBlockTypes, Location, ChatEvent, BlockLocation, EntityHurtEvent, EntityDamageCause } from '@minecraft/server';
 import ExConfig from "../../modules/exmc/ExConfig.js";
 import { Objective } from "../../modules/exmc/server/entity/ExScoresManager.js";
 import ExDimension from "../../modules/exmc/server/ExDimension.js";
@@ -24,6 +24,7 @@ import PomFakePlayer from './entities/PomFakePlayer.js';
 import { registerEvent } from '../../modules/exmc/server/events/EventDecoratorFactory.js';
 import * as gt from "@minecraft/server-gametest";
 import ExPlayer from '../../modules/exmc/server/entity/ExPlayer.js';
+import damageShow from './helper/damageShow.js';
 
 
 export default class PomServer extends ExGameServer {
@@ -59,6 +60,7 @@ export default class PomServer extends ExGameServer {
         super(config);
         this.setting = new GlobalSettings(new Objective("wpsetting"));
 
+        //实体清理
         (this.clearEntityNumUpdate = new TimeLoopTask(this.getEvents(), () => {
             this.updateClearEntityNum();
         }).delay(10000)).start();
@@ -121,7 +123,7 @@ export default class PomServer extends ExGameServer {
         this.tpsListener.start();
 
 
-
+        //沙漠遗迹
         this.portal_desertBoss = new ExBlockStructureNormal();
         this.portal_desertBoss.setDirection(ExBlockStructureNormal.DIRECTION_LAY)
             .setStructure([
@@ -251,14 +253,15 @@ export default class PomServer extends ExGameServer {
         this.ruinFuncLooper.start();
 
 
+        //实体监听
         this.addEntityController("wb:magic_stoneman", PomMagicStoneBoss);
 
-        gt.register("Pom", "fakeplayer", (test) => {
-            this.fakeplayers.push(new PomFakePlayer(
-                test.spawnSimulatedPlayer(this.fakePlayerSpawnLoc, "Steve1025", GameMode.survival), this)
-            );
-        })
-        .structureName("pom:camp_fire");
+        // gt.register("Pom", "fakeplayer", (test) => {
+        //     this.fakeplayers.push(new PomFakePlayer(
+        //         test.spawnSimulatedPlayer(this.fakePlayerSpawnLoc, "Steve1025", GameMode.survival), this)
+        //     );
+        // })
+        //     .structureName("pom:camp_fire");
     }
     updateClearEntityNum() {
         this.entityCleanerStrength = this.setting.entityCleanerStrength;
@@ -273,13 +276,17 @@ export default class PomServer extends ExGameServer {
         }
     }
 
-    fakePlayerSpawnLoc = new BlockLocation(0, 0, 0);
-    @registerEvent<PomServer>("chat", (server, e: ChatEvent) => e.message === "create")
-    createFakePlayer(e: ChatEvent) {
-        this.fakePlayerSpawnLoc = new BlockLocation(e.sender.location.x, e.sender.location.y, e.sender.location.z);
-        ExPlayer.getInstance(e.sender).command.run("gametest run Pom:fakeplayer")
-    }
+    // fakePlayerSpawnLoc = new BlockLocation(0, 0, 0);
+    // @registerEvent<PomServer>("chat", (server, e: ChatEvent) => e.message === "create")
+    // createFakePlayer(e: ChatEvent) {
+    //     this.fakePlayerSpawnLoc = new BlockLocation(e.sender.location.x, e.sender.location.y, e.sender.location.z);
+    //     ExPlayer.getInstance(e.sender).command.run("gametest run Pom:fakeplayer")
+    // }
 
+    @registerEvent<PomServer>("entityHurt", (server, e: EntityHurtEvent) => server.setting.damageShow && e.cause !== EntityDamageCause.suicide)
+    damageShow(e: EntityHurtEvent) {
+        damageShow(ExDimension.getInstance(e.hurtEntity.dimension), e.damage, e.hurtEntity.location);
+    }
 
 
     override newClient(id: string, player: Player): PomClient {

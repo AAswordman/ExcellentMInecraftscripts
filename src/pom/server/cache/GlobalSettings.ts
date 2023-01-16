@@ -34,6 +34,12 @@ export default class GlobalSettings extends GlobalScoreBoardCache {
     public set tpPointRecord(value: boolean) {
         this.setBoolean("tpPointRecord", value);
     }
+    public get damageShow() {
+        return this.getBoolean("damageShow");
+    }
+    public set damageShow(value: boolean) {
+        this.setBoolean("damageShow", value);
+    }
     public get ownerExists() {
         return this.getBoolean("ownerExists");
     }

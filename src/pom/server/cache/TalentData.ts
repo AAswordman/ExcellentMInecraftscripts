@@ -5,30 +5,30 @@ import ExLoreManager from "../../../modules/exmc/interface/ExLoreManager.js";
 import ExColorLoreUtil from "../../../modules/exmc/server/item/ExColorLoreUtil.js";
 import LoreUtil from "../../../modules/exmc/server/item/ExLoreUtil.js";
 export default class TalentData {
-	static getDescription(lang:langType, occupation: Occupation, id: number, level: number): string {
-		let s=TalentData.calculateTalent(occupation,id,level);
-        switch(id){
-            case Talent.VIENTIANE: return format(lang.talentWanxiangDesc,`§o§e${s}§r`);
-            case Talent.CLOAD_PIERCING: return format(lang.talentChuanyunDesc,`§o§b${s}％§r`);
-            case Talent.ARMOR_BREAKING: return format(lang.talentChuanjiaDesc,`§o§b${s}％§r`);
-            case Talent.SANCTION: return format(lang.talentZhicaiDesc,`§o§b${s}％§r`);
-            case Talent.DEFENSE: return format(lang.talentFangyuDesc,`§o§b${s}％§r`);
-            case Talent.CHARGING: return format(lang.talentChongnengDesc,`§o§b${s}％§r`);
-            case Talent.RELOAD: return format(lang.talentChongzhuangDesc,`§o§b${s}％§r`);
-            case Talent.SOURCE: return format(lang.talentYuanquanDesc,`§o§b${s}％§r`);
-            case Talent.SUDDEN_STRIKE: return format(lang.talentTuxiDesc,`§o§b${s}％§r`);
-            case Talent.REGENERATE: return format(lang.talentZaishengDesc,`§o§e${s}§r`);
+    static getDescription(lang: langType, occupation: Occupation, id: number, level: number): string {
+        let s = TalentData.calculateTalent(occupation, id, level);
+        switch (id) {
+            case Talent.VIENTIANE: return format(lang.talentWanxiangDesc, `§o§e${s}§r`);
+            case Talent.CLOAD_PIERCING: return format(lang.talentChuanyunDesc, `§o§b${s}％§r`);
+            case Talent.ARMOR_BREAKING: return format(lang.talentChuanjiaDesc, `§o§b${s}％§r`);
+            case Talent.SANCTION: return format(lang.talentZhicaiDesc, `§o§b${s}％§r`);
+            case Talent.DEFENSE: return format(lang.talentFangyuDesc, `§o§b${s}％§r`);
+            case Talent.CHARGING: return format(lang.talentChongnengDesc, `§o§b${s}％§r`);
+            case Talent.RELOAD: return format(lang.talentChongzhuangDesc, `§o§b${s}％§r`);
+            case Talent.SOURCE: return format(lang.talentYuanquanDesc, `§o§b${s}％§r`);
+            case Talent.SUDDEN_STRIKE: return format(lang.talentTuxiDesc, `§o§b${s}％§r`);
+            case Talent.REGENERATE: return format(lang.talentZaishengDesc, `§o§e${s}§r`);
             default: return "";
         }
-	}
-	static getLevel(data: TalentData,id: number): number {
-		for(let i of data.talents) {
-            if(i.id===id) return i.level;
+    }
+    static getLevel(data: TalentData, id: number): number {
+        for (let i of data.talents) {
+            if (i.id === id) return i.level;
         }
         return 0;
-	}
+    }
 
-	pointUsed: number | undefined = 0;
+    pointUsed: number | undefined = 0;
     static hasOccupation(data: TalentData) {
         return data.occupation.id !== Occupation.EMPTY.id;
     }
@@ -55,56 +55,56 @@ export default class TalentData {
             data.talents.push(new Talent(i, 0));
         });
     }
-    static calculateTalent(occupation:Occupation,talentId: number,level:number) {
+    static calculateTalent(occupation: Occupation, talentId: number, level: number) {
         switch (talentId) {
             case Talent.VIENTIANE:
-                return level * (TalentData.isOccupationTalent(occupation,talentId) ? 20 : 10) / 40;
+                return level * (TalentData.isOccupationTalent(occupation, talentId) ? 20 : 10) / 40;
                 break;
             case Talent.CLOAD_PIERCING:
-                return level * (TalentData.isOccupationTalent(occupation,talentId) ? 80 : 40) / 40;
+                return level * (TalentData.isOccupationTalent(occupation, talentId) ? 80 : 40) / 40;
                 break;
             case Talent.ARMOR_BREAKING:
-                return level * (TalentData.isOccupationTalent(occupation,talentId) ? 20 : 10) / 40;
+                return level * (TalentData.isOccupationTalent(occupation, talentId) ? 20 : 10) / 40;
                 break;
             case Talent.SANCTION:
-                return level * (TalentData.isOccupationTalent(occupation,talentId) ? 50 : 25) / 40;
+                return level * (TalentData.isOccupationTalent(occupation, talentId) ? 50 : 25) / 40;
                 break;
             case Talent.DEFENSE:
-                return level * (TalentData.isOccupationTalent(occupation,talentId) ? 45 : 25) / 40;
+                return level * (TalentData.isOccupationTalent(occupation, talentId) ? 45 : 25) / 40;
                 break;
             case Talent.CHARGING:
-                return level * (TalentData.isOccupationTalent(occupation,talentId) ? 30 : 15) / 40;
+                return level * (TalentData.isOccupationTalent(occupation, talentId) ? 30 : 15) / 40;
                 break;
             case Talent.RELOAD:
-                return level * (TalentData.isOccupationTalent(occupation,talentId) ? 25 : 15) / 40;
+                return level * (TalentData.isOccupationTalent(occupation, talentId) ? 25 : 15) / 40;
                 break;
             case Talent.SOURCE:
-                return level * (TalentData.isOccupationTalent(occupation,talentId) ? 100 : 40) / 40;
+                return level * (TalentData.isOccupationTalent(occupation, talentId) ? 100 : 40) / 40;
                 break;
             case Talent.SUDDEN_STRIKE:
-                return level * (TalentData.isOccupationTalent(occupation,talentId) ? 80 : 0) / 40;
+                return level * (TalentData.isOccupationTalent(occupation, talentId) ? 80 : 0) / 40;
                 break;
             case Talent.REGENERATE:
-                return level * (TalentData.isOccupationTalent(occupation,talentId) ? 20 : 0) / 40;
+                return level * (TalentData.isOccupationTalent(occupation, talentId) ? 20 : 0) / 40;
                 break;
             default:
                 return 0;
                 break;
         }
     }
-    static calculateTalentToLore(talents: Talent[],occupation:Occupation, manager: ExLoreManager,lang:langType) {
+    static calculateTalentToLore(talents: Talent[], occupation: Occupation, manager: ExLoreManager, lang: langType) {
         let lore = new ExColorLoreUtil(manager);
-        lore.setFlag(LoreUtil.LoreFlag.MAP);
-
+        lore.delete("addition");
         for (let t of talents) {
             let add = 0;
-            let level = MathUtil.zeroIfNaN(parseFloat(lore.get("enchanting", Talent.getCharacter(lang,t.id)))) + t.level;
-            
-            add = TalentData.calculateTalent(occupation,t.id ,level);
+            let level = MathUtil.zeroIfNaN(lore.getValueUseMap("enchanting", Talent.getCharacter(lang, t.id))) + t.level;
 
-            lore.set("addition", Talent.getCharacter(lang,t.id),MathUtil.zeroIfNaN(parseFloat(lore.get("enchanting", Talent.getCharacter(lang,t.id)))) + " -> " +
-                Math.round((MathUtil.zeroIfNaN(parseFloat(lore.get("enchanting", Talent.getCharacter(lang,t.id)))) + add) * 10) / 10
-            );
+            add = TalentData.calculateTalent(occupation, t.id, level);
+
+            let a = MathUtil.zeroIfNaN(lore.getValueUseMap("enchanting", Talent.getCharacter(lang, t.id)));
+            let b = Math.round(a + add * 10) / 10;
+
+            if (b !== 0) lore.setValueUseMap("addition", Talent.getCharacter(lang, t.id), a + " -> " + b);
         }
 
     }
@@ -133,8 +133,8 @@ export class Talent {
         this.level = level;
     }
 
-    
-    static getCharacter(lang:langType, id:number) {
+
+    static getCharacter(lang: langType, id: number) {
         switch (id) {
             case Talent.VIENTIANE:
                 return lang.talentWanxiang;
@@ -163,7 +163,7 @@ export class Talent {
 
 }
 
-export class Occupation{
+export class Occupation {
     public static readonly EMPTY = new Occupation(0, []);
     public static readonly GUARD = new Occupation(1, [Talent.VIENTIANE, Talent.ARMOR_BREAKING]);
     public static readonly WARRIOR = new Occupation(2, [Talent.SANCTION, Talent.DEFENSE]);
@@ -176,8 +176,8 @@ export class Occupation{
 
     id: number;
     talentId: number[];
-    public getCharacter(lang:langType): string {
-        switch(this.id){
+    public getCharacter(lang: langType): string {
+        switch (this.id) {
             case 0:
                 return lang.occupationEmpty;
             case 1:
