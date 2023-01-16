@@ -1,6 +1,6 @@
 import { Dimension, EntityQueryOptions, Block, ItemStack, Entity, BlockType, BlockLocation, ExplosionOptions, MolangVariableMap } from '@minecraft/server';
 import { ExCommandNativeRunner } from '../interface/ExCommandRunner.js';
-import Vector3 from "../math/Vector3.js";
+import Vector3, { IVector3 } from "../math/Vector3.js";
 import ExGameConfig from './ExGameConfig.js';
 import ExGameVector3 from './math/ExGameVector3.js';
 import ExCommand from './env/ExCommand.js';
@@ -8,10 +8,10 @@ import ExCommand from './env/ExCommand.js';
 export default class ExDimension implements ExCommandNativeRunner {
     public command = new ExCommand(this);
 
-    spawnParticle(p: string, v: Vector3) {
+    spawnParticle(p: string, v: IVector3) {
         this._dimension.spawnParticle(p, ExGameVector3.getLocation(v), new MolangVariableMap())
     }
-    createExplosion(location: Vector3, radius: number, explosionOptions?: ExplosionOptions): void {
+    createExplosion(location: IVector3, radius: number, explosionOptions?: ExplosionOptions): void {
         //console.warn(location, radius, explosionOptions);
         this._dimension.createExplosion(ExGameVector3.getLocation(location), radius, explosionOptions);
     }

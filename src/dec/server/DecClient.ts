@@ -1,11 +1,13 @@
-import { EffectType, MinecraftEffectTypes, Player } from "@minecraft/server";
+import { EffectType, MinecraftDimensionTypes, MinecraftEffectTypes, Player } from "@minecraft/server";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import ExGameServer from "../../modules/exmc/server/ExGameServer.js";
-import { ArmorData,ArmorPlayerDec } from "./items/ArmorData.js";
+import { ArmorData, ArmorPlayerDec } from "./items/ArmorData.js";
 import MathUtil from "../../modules/exmc/math/MathUtil.js";
 import Vector3 from "../../modules/exmc/math/Vector3.js";
 import ExGameVector3 from "../../modules/exmc/server/math/ExGameVector3.js";
 import DecGlobal from "./DecGlobal.js";
+import { numTranToTask } from "./helper/Task.js";
+import ExGameConfig from "../../modules/exmc/server/ExGameConfig.js";
 
 
 export default class DecClient extends ExGameClient {
@@ -73,16 +75,125 @@ export default class DecClient extends ExGameClient {
             }
 
 
-            if(!DecGlobal.isDec()){
-                
+            if (!DecGlobal.isDec()) {
+
             }
+        });
+
+        this.getEvents().exEvents.itemOnHandChange.subscribe((e) => {
+            //蓝魔法卷轴
+            let bag = this.exPlayer.getBag();
+            const itemOnHand = e.afterItem;
+            if (itemOnHand) {
+                if (itemOnHand.typeId == "dec:magic_scroll_blue" && itemOnHand.amount == 1 && itemOnHand.getLore().length == 0) {
+                    let t_n = MathUtil.randomInteger(1, 3);
+                    let c_n = itemOnHand;
+                    let lor: string[] = [];
+                    for (let i = 0; i < t_n; i++) {
+                        //lor.push(numTranToTask(randonNumber(0, 9)) + numTranToTask(randonNumber(0, 9)) + numTranToTask(randonNumber(0, 9)))
+                        lor.push("Ao Ao " + numTranToTask(MathUtil.randomInteger(0, 9)));
+                    }
+                    c_n.setLore(lor);
+                    bag.setItemOnHand(c_n);
+                }
+            }
+        });
+
+        this.getEvents().exEvents.tick.subscribe(e => {
+            const p = this.player;
+            const ep = this.exPlayer;
+            const scores = this.exPlayer.getScoresManager();
+
+            //潜行获得tag is_sneaking
+            if (p.isSneaking) {
+                p.addTag("is_sneaking")
+            } else {
+                p.removeTag("is_sneaking")
+            }
+
+            //根据维度添加tag
+            if (p.dimension.id === MinecraftDimensionTypes.overworld) {
+                p.addTag("dOverworld")
+                p.removeTag("dNether")
+                p.removeTag("dTheEnd")
+            } else if (p.dimension.id === MinecraftDimensionTypes.nether) {
+                p.addTag("dNether")
+                p.removeTag("dOverworld")
+                p.removeTag("dTheEnd")
+                if (e.currentTick % 80 === 0) ep.command.run("fog @s remove \"night_event\"");
+            } else if (p.dimension.id === MinecraftDimensionTypes.theEnd) {
+                p.addTag("dTheEnd")
+                p.removeTag("dNether")
+                p.removeTag("dOverworld")
+                if (e.currentTick % 80 === 0) ep.command.run("fog @s remove \"night_event\"");
+            }
+
+
+            if (e.currentTick % 20 === 0) {
+                //紫水晶套装效果
+                if (this.useArmor === ArmorPlayerDec.amethyst) {
+                    if (DecGlobal.isDec()) {
+                        let mg = scores.getScore("magicpoint");
+                        if (11 <= mg && mg <= 29) {
+                            this.getExDimension().spawnParticle("dec:amethyst_armor_magic_increase_particle", p.location);
+                            scores.addScoreAsync("magicpoint", 1);
+                        }
+                    } else {
+                        let mg = scores.getScore("wbfl");
+                        if (20 <= mg && mg <= 100) {
+                            this.getExDimension().spawnParticle("dec:amethyst_armor_magic_increase_particle", p.location);
+                            scores.addScoreAsync("wbfl", 1);
+                        }
+                    }
+                }
+            }
+
+            if (e.currentTick % 40 === 0) {
+                //鲁伯特套装效果
+                if (this.useArmor === ArmorPlayerDec.rupert) {
+                    this.getExDimension().spawnParticle("dec:tear_from_rupert", this.tmpV.set(p.location).add(0, 1, 0));
+                }
+                //海龟套效果
+                if (p.isSneaking) {
+                    if (this.useArmor === ArmorPlayerDec.turtle) {
+                        if (ep.getBag().getItemOnHand()?.typeId === "dec:turtle_sword") {
+                            p.addEffect(MinecraftEffectTypes.slowness, 5 * 20, 5);
+                            p.addEffect(MinecraftEffectTypes.slowness, 2 * 20, 3);
+                            p.addEffect(MinecraftEffectTypes.slowness, 2 * 20, 50);
+                        }
+                    }
+                }
+            }
+
+            if (e.currentTick % 100 == 0) {
+                //木叶套装效果
+                if (this.useArmor === ArmorPlayerDec.wood) {
+                    if (DecGlobal.isDec()) {
+                        let mg = scores.getScore("magicpoint");
+                        if (mg <= 15) {
+                            this.getExDimension().spawnParticle("dec:wood_armor_magic_increase_particle", p.location);
+                            scores.addScoreAsync("magicpoint", 1);
+                        }
+                    } else {
+                        let mg = scores.getScore("wbfl");
+                        if (mg <= 70) {
+                            this.getExDimension().spawnParticle("dec:wood_armor_magic_increase_particle", p.location);
+                            scores.addScoreAsync("wbfl", 1);
+                        }
+                    }
+                }
+            }
+            /*if (p.getItemCooldown("village_portal") > 10) {
+                p.startItemCooldown("village_portal",p.getItemCooldown("village_portal")-10)
+            }*/
         });
     }
 
     async checkArmor() {
-        return this.useArmor ? (await this.useArmor.detect(this.exPlayer)) : undefined;
+        return this.useArmor ? (await this.useArmor.detect(this.exPlayer)) : false;
     }
-    chooseArmor(a: ArmorData) {
+    chooseArmor(a: ArmorData | undefined) {
+        ExGameConfig.console.log("chooseArmor " + a?.name);
         this.useArmor = a;
     }
 

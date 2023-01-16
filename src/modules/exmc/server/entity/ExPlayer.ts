@@ -5,9 +5,13 @@ import { to } from "../ExErrorQueue.js";
 import ExEntity from "./ExEntity.js";
 import ExGameVector3 from '../math/ExGameVector3.js';
 import ExPlayerBag from './ExPlayerBag.js';
+import ExScoresManager from './ExScoresManager.js';
 
 
 export default class ExPlayer extends ExEntity {
+    private bag;
+    private scoresManager;
+
     override get entity(){
         return super.entity as Player;
     }
@@ -25,32 +29,31 @@ export default class ExPlayer extends ExEntity {
         
     }
     getGameMode(): GameMode {
-        this.entity
         let c = GameMode.creative;
         c = (Array.from(this.getDimension().getPlayers({
             location: ExGameVector3.getLocation(this.entity.location),
-            type: MinecraftEntityTypes.player.id,
+            //type: MinecraftEntityTypes.player.id,
             closest: 1,
             maxDistance: 1,
             gameMode: GameMode.adventure
         }))?.[0] === this.entity ? GameMode.adventure : c);
         c = (Array.from(this.getDimension().getPlayers({
             location: ExGameVector3.getLocation(this.entity.location),
-            type: MinecraftEntityTypes.player.id,
+            //type: MinecraftEntityTypes.player.id,
             closest: 1,
             maxDistance: 1,
             gameMode: GameMode.creative
         }))?.[0] === this.entity ? GameMode.creative : c);
         c = (Array.from(this.getDimension().getPlayers({
             location: ExGameVector3.getLocation(this.entity.location),
-            type: MinecraftEntityTypes.player.id,
+            //type: MinecraftEntityTypes.player.id,
             closest: 1,
             maxDistance: 1,
             gameMode: GameMode.spectator
         }))?.[0] === this.entity ? GameMode.spectator : c);
         c = (Array.from(this.getDimension().getPlayers({
             location: ExGameVector3.getLocation(this.entity.location),
-            type: MinecraftEntityTypes.player.id,
+            //type: MinecraftEntityTypes.player.id,
             closest: 1,
             maxDistance: 1,
             gameMode: GameMode.survival
@@ -79,10 +82,12 @@ export default class ExPlayer extends ExEntity {
 
     protected constructor(player: Player) {
         super(player);
+        this.bag = new ExPlayerBag(this);
+        this.scoresManager = super.getScoresManager();
     }
 
     public override getBag() {
-        return new ExPlayerBag(this);
+        return this.bag;
     }
 
     static override getInstance(source: Player): ExPlayer {
@@ -91,5 +96,9 @@ export default class ExPlayer extends ExEntity {
             return entity[this.propertyNameCache];
         }
         return (entity[this.propertyNameCache] = new ExPlayer(entity));
+    }
+
+    override getScoresManager(): ExScoresManager {
+        return this.scoresManager;
     }
 }

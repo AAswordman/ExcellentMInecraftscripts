@@ -5,75 +5,16 @@ import DecClient from "./DecClient.js";
 import ExPlayer from '../../modules/exmc/server/entity/ExPlayer.js';
 import MathUtil from '../../modules/exmc/math/MathUtil.js';
 import { ActionFormData } from '@minecraft/server-ui';
-import { tasks } from './helper/Task.js';
+import { Tasks, taskUi } from './helper/Task.js';
 import { Objective } from '../../modules/exmc/server/entity/ExScoresManager.js';
 import ExEntity from '../../modules/exmc/server/entity/ExEntity.js';
 import commandAnalysis from '../../modules/exmc/utils/commandAnalysis.js';
 import format from '../../modules/exmc/utils/format.js';
 import ExGameServer from '../../modules/exmc/server/ExGameServer.js';
 import DecGlobal from './DecGlobal.js';
-
-function taskTranToNum(t: string) {
-    let task_arr = ["Ao", "Jf", "Sk", "Ch", "Om", "Bs", "Hd", "Oa", "Gx", "Xe"]
-    let n = ""
-    while (t.length >= 2) {
-        let msg = t.slice(0, 2);
-        n = n + (task_arr.findIndex(e => e === msg))
-        t = t.slice(3);
-    }
-    return n;
-}
-
-function numTranToTask(n: number) {
-    let r = ""
-    let task_arr = ["Ao", "Jf", "Sk", "Ch", "Om", "Bs", "Hd", "Oa", "Gx", "Xe"]
-    for (let l = 0; l <= n.toString().length - 1; l++) {
-        r = r + task_arr.slice(parseInt(n.toString().charAt(l)), parseInt(n.toString().charAt(l)) + 1) + " "
-    }
-    while (r.charAt(-1) == " ") {
-        r = r.slice(0, r.length - 1)
-    }
-    return r
-}
-
-function equAddTag(tar: Entity | Player, head: string, chest: string, legs: string, boots: string, tag: string) {
-    tar.runCommandAsync("execute if entity @s[hasitem={location=slot.armor.head,item=" + head + "}] if entity @s[hasitem={location=slot.armor.chest,item=" + chest + "}] if entity @s[hasitem={location=slot.armor.legs,item=" + legs + "}] if entity @s[hasitem={location=slot.armor.feet,item=" + boots + "}] run tag @s add " + tag)
-}
-
-
-function taskUi(p: Player, i: ItemStack) {
-    let ui = new ActionFormData();
-    ui = ui.title("text.dec:task_choose_title.name")
-    ui = ui.body("text.dec:task_choose_body.name")
-    let lor = i.getLore()
-    lor.forEach(l => {
-        ui = ui.button(l)
-    })
-    ui.show(p).then(s => {
-        if (s.selection != undefined) {
-            let ch_t = lor[s.selection]
-            let ch_n = taskTranToNum(ch_t)
-            //p.runCommandAsync("say "+ch_n)
-            taskUiChoose(p, ch_n);
-        }
-    })
-}
-function taskUiChoose(p: Player, id: string) {
-    let ui_ch = new ActionFormData().button("text.dec:task_complete_button.name");
-    const index = tasks.findIndex(t => t.id === id);
-    if (index === -1) {
-        return;
-    }
-    ui_ch.title(tasks[index].title())
-        .body(tasks[index].body())
-        .show(p).then(s => {
-            if (s.selection == 0) {
-                ExPlayer.getInstance(p).command.run(tasks[index].commands);
-            }
-        });
-}
-
-
+import { ArmorData, ArmorPlayerDec, ArmorPlayerPom } from './items/ArmorData.js';
+import Vector3 from '../../modules/exmc/math/Vector3.js';
+import { to } from '../../modules/exmc/server/ExErrorQueue.js';
 
 
 export default class DecServer extends ExGameServer {
@@ -81,6 +22,7 @@ export default class DecServer extends ExGameServer {
     i_damp: Objective;
     i_soft: Objective;
 
+    tmpV = new Vector3();
     constructor(config: ExConfig) {
         super(config);
 
@@ -163,7 +105,7 @@ export default class DecServer extends ExGameServer {
             const entity = ExEntity.getInstance(e.source);
             //防爆 i_inviolable计分板控制
             if (entity.getScoresManager().getScore(this.i_damp) > 0) {
-                entity.getExDimension().command.run(format("particle dec:damp_explosion_particle {0} {1} {2}", e.source.location.x, e.source.location.y, e.source.location.z));
+                entity.getExDimension().spawnParticle("dec:damp_explosion_particle", e.source.location);
                 e.cancel = true;
             }
         })
@@ -176,7 +118,7 @@ export default class DecServer extends ExGameServer {
             }
         })
 
-        
+
 
 
         this.getEvents().events.tick.subscribe(e => {
@@ -188,93 +130,42 @@ export default class DecServer extends ExGameServer {
                 "scoreboard players remove @e[scores={harmless=1..}] harmless 1"
             ]);
 
-            for (const p of this.getPlayers()) {
-                const ep = ExPlayer.getInstance(p);
-
-                //蓝魔法卷轴
-                let bag = ep.getBag();
-                const itemOnHand = bag.getItemOnHand();
-                if (itemOnHand) {
-                    if (itemOnHand.typeId == "dec:magic_scroll_blue" && itemOnHand.amount == 1 && itemOnHand.getLore().length == 0) {
-                        let t_n = MathUtil.randomInteger(1, 3);
-                        let c_n = itemOnHand;
-                        let lor: string[] = [];
-                        for (let i = 0; i < t_n; i++) {
-                            //lor.push(numTranToTask(randonNumber(0, 9)) + numTranToTask(randonNumber(0, 9)) + numTranToTask(randonNumber(0, 9)))
-                            lor.push("Ao Ao " + numTranToTask(MathUtil.randomInteger(0, 9)));
+            if (e.currentTick % 100 === 0) {
+                let prom: Promise<boolean>[] = [];
+                for (const client of <IterableIterator<DecClient>>this.getClients()) {
+                    prom.push(client.checkArmor());
+                }
+                to(Promise.all(prom).then((e) => {
+                    if (!e.every(i => i)) {
+                        let prom2: Promise<unknown>[] = [];
+                        if (DecGlobal.isDec()) {
+                            for (let k in ArmorPlayerDec) {
+                                prom2.push((<ArmorData>(<any>ArmorPlayerDec)[k]).find(this.getExDimension(MinecraftDimensionTypes.overworld).command));
+                            }
+                        } else {
+                            for (let k in ArmorPlayerPom) {
+                                prom2.push((<ArmorData>(<any>ArmorPlayerPom)[k]).find(this.getExDimension(MinecraftDimensionTypes.overworld).command));
+                            }
                         }
-                        c_n.setLore(lor);
-                        bag.setItemOnHand(c_n);
+                        to(Promise.all(prom2).then((x) => {
+                            for (const client of <IterableIterator<DecClient>>this.getClients()) {
+                                let flag = false;
+                                for (let tag of client.player.getTags()) {
+                                    if (tag.startsWith("armorTest:")) {
+                                        client.player.removeTag(tag);
+                                        client.chooseArmor((<any>ArmorPlayerPom)[tag.split(":")[1]]);
+                                        flag = true;
+                                    }
+                                }
+                                if(!flag){
+                                    client.chooseArmor(undefined);
+                                }
+                            }
+                        }));
                     }
-                }
-                //潜行获得tag is_sneaking
-                if (p.isSneaking) {
-                    p.addTag("is_sneaking")
-                } else {
-                    p.removeTag("is_sneaking")
-                }
-
-                //根据维度添加tag
-                if (p.dimension.id == "minecraft:overworld") {
-                    p.addTag("dOverworld")
-                    p.removeTag("dNether")
-                    p.removeTag("dTheEnd")
-                } else if (p.dimension.id == "minecraft:nether") {
-                    p.addTag("dNether")
-                    p.removeTag("dOverworld")
-                    p.removeTag("dTheEnd")
-                    p.runCommandAsync("fog @a remove \"night_event\"")
-                } else if (p.dimension.id == "minecraft:the_end") {
-                    p.addTag("dTheEnd")
-                    p.removeTag("dNether")
-                    p.removeTag("dOverworld")
-                    p.runCommandAsync("fog @a remove \"night_event\"")
-                }
-
-                if (e.currentTick % 20 == 0) {
-                    //紫水晶套装效果
-                    equAddTag(p, "dec:amethyst_helmet", "dec:amethyst_chestplate", "dec:amethyst_leggings", "dec:amethyst_boots", "amethyst_armor_skill")
-                    ep.command.run([
-                        "execute if entity @s[tag=amethyst_armor_skill] run function armor/amethyst_armor",
-                        "tag @s[tag=amethyst_armor_skill] remove amethyst_armor_skill"
-                    ]);
-                }
-
-                if (e.currentTick % 40 == 0) {
-                    equAddTag(p, "dec:rupert_helmet", "dec:rupert_chestplate", "dec:rupert_leggings", "dec:rupert_boots", "rupert_armor_skill")
-                    ep.command.run([
-                        //鲁伯特套装效果
-                        "execute if entity @s[tag=rupert_armor_skill] run particle dec:tear_from_rupert ~~1~",
-                        "tag @s[tag=rupert_armor_skill] remove rupert_armor_skill"
-                    ])
-                    //海龟套效果
-                    if (p.isSneaking) {
-                        equAddTag(p, "minecraft:turtle_helmet", "dec:turtle_chestplate", "dec:turtle_leggings", "dec:turtle_boots", "turtle_armor_skill_b")
-                        ep.command.run([
-                            "execute if entity @s[hasitem={location=slot.weapon.mainhand,item=dec:turtle_sword},tag=turtle_armor_skill_b] run tag @s add turtle_armor_skill",
-                            "effect @s[tag=turtle_armor_skill] slowness 5 5",
-                            "effect @s[tag=turtle_armor_skill] resistance 2 3",
-                            "effect @s[tag=turtle_armor_skill] weakness 2 50",
-                            "tag @s[tag=turtle_armor_skill] remove turtle_armor_skill",
-                            "tag @s[tag=turtle_armor_skill_b] remove turtle_armor_skill_b"
-                        ])
-                    }
-                }
-
-                if (e.currentTick % 100 == 0) {
-                    //木叶套装效果
-                    equAddTag(p, "dec:wood_helmet", "dec:wood_chestplate", "dec:wood_leggings", "dec:wood_boots", "wood_armor_skill")
-                    ep.command.run([
-                        "scoreboard players add @s[scores={magicpoint=..15},tag=wood_armor_skill] magicpoint 1",
-                        "execute if entity @s[tag=wood_armor_skill,scores={magicpoint=..15}] run particle dec:wood_armor_magic_increase_particle ~~~",
-                        "tag @s[tag=wood_armor_skill] remove wood_armor_skill"
-                    ])
-                }
-                /*if (p.getItemCooldown("village_portal") > 10) {
-                    p.startItemCooldown("village_portal",p.getItemCooldown("village_portal")-10)
-                }*/
+                }));
             }
-        })
+        });
 
         this.getEvents().events.itemUse.subscribe(e => {
             //魔法纸张

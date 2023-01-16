@@ -104,7 +104,7 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
                 "}] if entity @s[hasitem={location=slot.armor.chest,item=" + chest +
                 "}] if entity @s[hasitem={location=slot.armor.legs,item=" + legs +
                 "}] if entity @s[hasitem={location=slot.armor.feet,item=" + boots +
-                "}] testfor @s");
+                "}] run testfor @s");
             return true;
         } catch (e) {
             return false;
