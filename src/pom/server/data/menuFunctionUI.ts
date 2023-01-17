@@ -1,7 +1,7 @@
 import PomClient from "../PomClient.js";
-import MenuUIAlert, { MenuUIAlertView } from '../ui/MenuUIAlert.js';
+import MenuUIAlert, { MenuUIAlertView, MenuUIJson } from '../ui/MenuUIAlert.js';
 import ExMessageAlert from "../../../modules/exmc/server/ui/ExMessageAlert.js";
-import { ItemStack } from "@minecraft/server";
+import { ItemStack, system } from '@minecraft/server';
 import TalentData, { Occupation, Talent } from "../cache/TalentData.js";
 import PomServer from '../PomServer.js';
 import { ModalFormData } from "@minecraft/server-ui";
@@ -11,7 +11,7 @@ import ExPlayer from "../../../modules/exmc/server/entity/ExPlayer.js";
 import ExErrorQueue from "../../../modules/exmc/server/ExErrorQueue.js";
 import ExGameConfig from "../../../modules/exmc/server/ExGameConfig.js";
 
-export default function menuFunctionUI(lang: langType) {
+export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
     return {
         "main": {
             "img": "textures/items/wet_paper",
@@ -36,8 +36,8 @@ export default function menuFunctionUI(lang: langType) {
                 },
                 "version": {
                     "text": lang.menuUIMsgBailan5,
-                    "page": (client: PomClient, ui: MenuUIAlert) => {
-                        return [
+                    "page": (client, ui) => {
+                        return (<MenuUIAlertView<PomClient>[]>[
                             {
                                 "type": "text_title",
                                 "msg": lang.menuUIMsgBanben1
@@ -83,7 +83,7 @@ export default function menuFunctionUI(lang: langType) {
                             {
                                 "type": "padding"
                             }
-                        ].concat(MenuUIAlert.getLabelViews(`
+                        ]).concat(MenuUIAlert.getLabelViews(`
 名字排序为随机排序
 
 Main creator:   - LiLeyi   AAswordsman
@@ -113,7 +113,7 @@ BunBun不是笨笨    在矿里的小金呀
                 },
                 "imp": {
                     "text": lang.menuUIMsgBailan6,
-                    "page": (client: PomClient, ui: MenuUIAlert) => {
+                    "page": (client, ui) => {
                         return MenuUIAlert.getLabelViews(`
 冬之纪行诗最终用户许可协议
 
@@ -243,7 +243,7 @@ You understand and agree that:
             "page": {
                 "info": {
                     "text": lang.menuUIMsgBailan14,
-                    "page": (client: PomClient, ui: MenuUIAlert) => {
+                    "page": (client, ui) => {
                         let source = client.player;
                         let scores = ExPlayer.getInstance(source).getScoresManager();
                         let msg = [`${lang.menuUIMsgBailan94}: ${client.gameId}`,
@@ -276,8 +276,8 @@ You understand and agree that:
                         {
                             "type": "toggle",
                             "msg": lang.menuUIMsgBailan22,
-                            "state": (client: PomClient, ui: MenuUIAlert) => client.player.hasTag("wbdjeff"),
-                            "function": (client: PomClient, ui: MenuUIAlert) => {
+                            "state": (client, ui) => client.player.hasTag("wbdjeff"),
+                            "function": (client, ui) => {
                                 if (!client.player.hasTag("wbdjeff")) {
                                     client.player.addTag("wbdjeff");
                                 } else {
@@ -306,7 +306,7 @@ You understand and agree that:
                         {
                             "type": "button",
                             "msg": lang.menuUIMsgBailan25,
-                            "function": (client: PomClient, ui: MenuUIAlert) => {
+                            "function": (client, ui) => {
                                 client.player.removeTag("pflame");
                                 return true;
                             }
@@ -314,7 +314,7 @@ You understand and agree that:
                         {
                             "type": "button",
                             "msg": lang.menuUIMsgBailan26,
-                            "function": (client: PomClient, ui: MenuUIAlert) => {
+                            "function": (client, ui) => {
                                 client.player.removeTag("phalo");
                                 return true;
                             }
@@ -322,7 +322,7 @@ You understand and agree that:
                         {
                             "type": "button",
                             "msg": lang.menuUIMsgBailan27,
-                            "function": (client: PomClient, ui: MenuUIAlert) => {
+                            "function": (client, ui) => {
                                 client.player.removeTag("prune");
                                 return true;
                             }
@@ -330,7 +330,7 @@ You understand and agree that:
                         {
                             "type": "button",
                             "msg": lang.menuUIMsgBailan28,
-                            "function": (client: PomClient, ui: MenuUIAlert) => {
+                            "function": (client, ui) => {
                                 client.player.removeTag("plove");
                                 return true;
                             }
@@ -339,8 +339,8 @@ You understand and agree that:
                 },
                 "talent": {
                     "text": lang.menuUIMsgBailan29,
-                    "page": (client: PomClient, ui: MenuUIAlert): MenuUIAlertView[] => {
-                        let arr: MenuUIAlertView[];
+                    "page": (client, ui): MenuUIAlertView<PomClient>[] => {
+                        let arr: MenuUIAlertView<PomClient>[];
                         if (TalentData.hasOccupation(client.data.talent)) {
                             const point = (client.exPlayer.getScoresManager().getScore("wbdjcg") * 2 - (client.data.talent.pointUsed ?? 0));
                             arr = [
@@ -350,43 +350,90 @@ You understand and agree that:
                                 }
                             ];
                             for (let i of client.data.talent.talents) {
-                                arr.push({
-                                    "type": point > 0 && i.level < 40 ? "textAndAddButton" : "textAndNoButton",
-                                    "msg": Talent.getCharacter(client.getLang(), i.id) + ": " + i.level + "\n" + (function () {
-                                        let useChr = "";
-                                        let a = Math.floor(i.level / 4);
-                                        let b = i.level % 4;
-                                        let c = 10 - a - 1;
-                                        let s = ""
-                                        while (a > 0) {
-                                            s += useChr[0];
-                                            a--;
-                                        }
-                                        s += useChr[4 - b];
-                                        while (c > 0) {
-                                            s += useChr[4];
-                                            c--;
-                                        }
-                                        return s;
-                                    })(),
-                                    "function": () => {
-                                        if (point > 0 && i.level < 40) {
-                                            i.level++;
-                                            client.data.talent.pointUsed = 1 + (client.data.talent.pointUsed ?? 0);
-                                            client.data.talent.talents.splice(client.data.talent.talents.findIndex(t => t.id === i.id), 1);
-                                            client.data.talent.talents.unshift(i);
-                                            client.talentSystem.updateTalentRes();
-                                        }
-                                        return true;
-                                    }
-                                },
+                                arr.push(
                                     {
                                         "type": "text",
                                         "msg": TalentData.getDescription(client.getLang(), client.data.talent.occupation, i.id, i.level)
                                     },
                                     {
+                                        "type": "textWithBg",
+                                        "msg": Talent.getCharacter(client.getLang(), i.id) + ": " + i.level + "\n" + (function () {
+                                            let useChr = "";
+                                            let a = Math.floor(i.level / 4);
+                                            let b = i.level % 4;
+                                            let c = 10 - a - 1;
+                                            let s = ""
+                                            while (a > 0) {
+                                                s += useChr[0];
+                                                a--;
+                                            }
+                                            s += useChr[4 - b];
+                                            while (c > 0) {
+                                                s += useChr[4];
+                                                c--;
+                                            }
+                                            return s;
+                                        }())
+                                    });
+                                arr.push(
+                                    {
+                                        "type": "buttonList3",
+                                        "msgs":["+1","+2","+5"],
+                                        "buttons": [() => {
+                                            if (point > 0 && i.level < 40) {
+                                                i.level+=1;
+                                                client.data.talent.pointUsed = 1 + (client.data.talent.pointUsed ?? 0);
+                                                client.data.talent.talents.splice(client.data.talent.talents.findIndex(t => t.id === i.id), 1);
+                                                client.data.talent.talents.unshift(i);
+                                                client.talentSystem.updateTalentRes();
+                                            }
+                                            return true;
+
+                                        },
+                                        () => {
+                                            if (point > 0 && i.level < 40) {
+                                                i.level+=2;
+                                                client.data.talent.pointUsed = 2 + (client.data.talent.pointUsed ?? 0);
+                                                client.data.talent.talents.splice(client.data.talent.talents.findIndex(t => t.id === i.id), 1);
+                                                client.data.talent.talents.unshift(i);
+                                                client.talentSystem.updateTalentRes();
+                                            }
+                                            return true;
+
+                                        },
+                                        () => {
+                                            if (point > 0 && i.level < 40) {
+                                                i.level+=5;
+                                                client.data.talent.pointUsed = 5 + (client.data.talent.pointUsed ?? 0);
+                                                client.data.talent.talents.splice(client.data.talent.talents.findIndex(t => t.id === i.id), 1);
+                                                client.data.talent.talents.unshift(i);
+                                                client.talentSystem.updateTalentRes();
+                                            }
+                                            return true;
+
+                                        }
+
+                                        ],
+                                    },
+                                    {
                                         "type": "padding"
                                     });
+                            }
+
+                            if (!client.data.occupationChooseDate || new Date().getTime() - client.data.occupationChooseDate >= 1000 * 60 * 60 * 24 * 14) {
+                                arr.push({
+                                    "type": "button",
+                                    "msg": "清空职业",
+                                    "function": (client, ui) => {
+                                        client.data.occupationChooseDate = new Date().getTime();
+                                        client.data.talent.occupation = Occupation.EMPTY;
+                                        client.data.talent.talents = [];
+                                        client.data.talent.pointUsed = 0;
+
+                                        client.talentSystem.updateTalentRes();
+                                        return true;
+                                    }
+                                });
                             }
                         } else {
                             arr = [
@@ -402,9 +449,9 @@ You understand and agree that:
                                 arr.push({
                                     "type": "button",
                                     "msg": i.getCharacter(client.getLang()),
-                                    "function": (client: PomClient, ui: MenuUIAlert) => {
+                                    "function": (client, ui) => {
                                         TalentData.chooseOccupation(client.data.talent, i);
-
+                                        client.talentSystem.updateTalentRes();
                                         return true;
                                     }
                                 });
@@ -415,12 +462,12 @@ You understand and agree that:
                 },
                 "deathback": {
                     "text": lang.menuUIMsgBailan32,
-                    "page": (client: PomClient, ui: MenuUIAlert): MenuUIAlertView[] => {
+                    "page": (client, ui): MenuUIAlertView<PomClient>[] => {
                         if (client.data.pointRecord == undefined) client.data.pointRecord = {
                             deathPoint: <[string, Vector3][]>[],
                             point: <[string, string, Vector3][]>[]
                         };
-                        let arr = <MenuUIAlertView[]>[
+                        let arr = <MenuUIAlertView<PomClient>[]>[
                             {
                                 "type": "text_title",
                                 "msg": lang.menuUIMsgBailan33
@@ -442,7 +489,7 @@ You understand and agree that:
                                     {
                                         "type": "button",
                                         "msg": lang.menuUIMsgBailan35 + (i[1] == "" ? (i[0] + v.toString()) : i[1]),
-                                        "function": (client: PomClient, ui: MenuUIAlert) => {
+                                        "function": (client, ui) => {
                                             let bag = client.exPlayer.getBag();
                                             if (!bag.hasItem("wb:conveyor_issue") && client.globalSettings.tpNeedItem) {
                                                 client.sayTo(lang.menuUIMsgBailan36);
@@ -462,7 +509,7 @@ You understand and agree that:
                                     {
                                         "type": "button",
                                         "msg": lang.menuUIMsgBailan38 + (i[1] == "" ? (i[0] + v.toString()) : i[1]),
-                                        "function": (client: PomClient, ui: MenuUIAlert) => {
+                                        "function": (client, ui) => {
                                             new ModalFormData().textField(lang.menuUIMsgBailan39, (i[0] + v.toString()))
                                                 .show(client.player)
                                                 .then(e => {
@@ -477,8 +524,8 @@ You understand and agree that:
                                     {
                                         "type": "button",
                                         "msg": lang.menuUIMsgBailan40 + (i[1] == "" ? (i[0] + v.toString()) : i[1]),
-                                        "function": (client: PomClient, ui: MenuUIAlert) => {
-                                            client.data.pointRecord.point.splice(j, 1);
+                                        "function": (client, ui) => {
+                                            client.data.pointRecord?.point.splice(j, 1);
                                             return true;
                                         }
 
@@ -491,8 +538,8 @@ You understand and agree that:
                             arr.push({
                                 "msg": lang.menuUIMsgBailan41 + client.exPlayer.getPosition().floor().toString(),
                                 "type": "button",
-                                "function": (client: PomClient, ui: MenuUIAlert) => {
-                                    client.data.pointRecord.point.push([client.exPlayer.getDimension().id, "", client.exPlayer.getPosition().floor()]);
+                                "function": (client, ui) => {
+                                    client.data.pointRecord?.point.push([client.exPlayer.getDimension().id, "", client.exPlayer.getPosition().floor()]);
                                     return true;
                                 }
                             });
@@ -566,7 +613,7 @@ You understand and agree that:
                         {
                             "type": "button",
                             "msg": lang.menuUIMsgBailan51,
-                            "function": (client: PomClient, ui: MenuUIAlert) => {
+                            "function": (client, ui) => {
                                 client.player.addTag("wbmsyh");
                                 if (client.player.nameTag.startsWith("§")) {
                                     client.player.nameTag = client.player.nameTag.substring(2);
@@ -578,7 +625,7 @@ You understand and agree that:
                         {
                             "type": "button",
                             "msg": lang.menuUIMsgBailan48,
-                            "function": (client: PomClient, ui: MenuUIAlert) => {
+                            "function": (client, ui) => {
                                 client.player.removeTag("wbmsyh");
                                 if (client.player.nameTag.startsWith("§")) {
                                     client.player.nameTag = client.player.nameTag.substring(2);
@@ -591,14 +638,14 @@ You understand and agree that:
                 },
                 "tp": {
                     "text": lang.menuUIMsgBailan53,
-                    "page": async (client: PomClient, ui: MenuUIAlert): Promise<MenuUIAlertView[]> => {
+                    "page": async (client, ui): Promise<MenuUIAlertView<PomClient>[]> => {
                         if (!client.globalSettings.playerCanTp || client.ruinsSystem.isInRuinJudge) {
                             return [{
                                 "type": "text",
                                 "msg": lang.menuUIMsgBailan54
                             }];
                         };
-                        let arr: MenuUIAlertView[] = [];
+                        let arr: MenuUIAlertView<PomClient>[] = [];
                         arr.push({
                             "msg": lang.menuUIMsgBailan55,
                             "type": "text_title"
@@ -612,7 +659,7 @@ You understand and agree that:
                             arr.push({
                                 "type": "button",
                                 "msg": `${p.nameTag} pos:${p.getPosition().floor()}`,
-                                "function": (client: PomClient, ui: MenuUIAlert) => {
+                                "function": (client, ui) => {
                                     let bag = client.exPlayer.getBag();
                                     if (!bag.hasItem("wb:conveyor_issue") && client.globalSettings.tpNeedItem) {
                                         client.sayTo(lang.menuUIMsgBailan36);
@@ -654,14 +701,14 @@ You understand and agree that:
                             arr.push({
                                 "type": "button",
                                 "msg": `${p.nameTag} (pos:${p.getPosition().floor()})`,
-                                "function": (client: PomClient, ui: MenuUIAlert) => {
+                                "function": (client, ui) => {
                                     let bag = client.exPlayer.getBag();
                                     if (!bag.hasItem("wb:conveyor_issue") && client.globalSettings.tpNeedItem) {
                                         client.sayTo(lang.menuUIMsgBailan36);
                                         return false;
                                     }
 
-                                    if((<PomClient>client.getServer().findClientByPlayer(i[0])).ruinsSystem.isInRuinJudge){
+                                    if ((<PomClient>client.getServer().findClientByPlayer(i[0])).ruinsSystem.isInRuinJudge) {
                                         client.sayTo("§b对方在遗迹中，申请失败");
                                         return false;
                                     }
@@ -705,7 +752,7 @@ You understand and agree that:
                         {
                             "type": "button",
                             "msg": lang.menuUIMsgBailan102,
-                            "function": (client: PomClient, ui: MenuUIAlert): boolean => {
+                            "function": (client, ui): boolean => {
                                 new ModalFormData()
                                     .title("Choose a language")
                                     .dropdown("Language List", ["English", "简体中文"], 0)
@@ -724,7 +771,7 @@ You understand and agree that:
                 },
                 "op": {
                     "text": lang.menuUIMsgBailan76,
-                    "page": (client: PomClient, ui: MenuUIAlert): MenuUIAlertView[] => {
+                    "page": (client, ui): MenuUIAlertView<PomClient>[] => {
                         if (client.player.hasTag("owner")) {
                             return [
                                 {
@@ -734,8 +781,8 @@ You understand and agree that:
                                 {
                                     "type": "toggle",
                                     "msg": lang.menuUIMsgBailan78,
-                                    "state": (client: PomClient, ui: MenuUIAlert) => client.globalSettings.playerCanTp,
-                                    "function": (client: PomClient, ui: MenuUIAlert) => {
+                                    "state": (client, ui) => client.globalSettings.playerCanTp,
+                                    "function": (client, ui) => {
                                         client.globalSettings.playerCanTp = !client.globalSettings.playerCanTp;
                                         return true;
                                     }
@@ -743,8 +790,8 @@ You understand and agree that:
                                 {
                                     "type": "toggle",
                                     "msg": lang.menuUIMsgBailan79,
-                                    "state": (client: PomClient, ui: MenuUIAlert) => client.globalSettings.tpNeedItem,
-                                    "function": (client: PomClient, ui: MenuUIAlert) => {
+                                    "state": (client, ui) => client.globalSettings.tpNeedItem,
+                                    "function": (client, ui) => {
                                         client.globalSettings.tpNeedItem = !client.globalSettings.tpNeedItem;
                                         return true;
                                     }
@@ -752,8 +799,8 @@ You understand and agree that:
                                 {
                                     "type": "toggle",
                                     "msg": lang.menuUIMsgBailan80,
-                                    "state": (client: PomClient, ui: MenuUIAlert) => client.globalSettings.entityCleaner,
-                                    "function": (client: PomClient, ui: MenuUIAlert) => {
+                                    "state": (client, ui) => client.globalSettings.entityCleaner,
+                                    "function": (client, ui) => {
                                         client.globalSettings.entityCleaner = !client.globalSettings.entityCleaner;
 
                                         (<PomServer>client.getServer()).upDateEntityCleaner();
@@ -765,8 +812,8 @@ You understand and agree that:
                                 // {
                                 // 	"type": "toggle",
                                 // 	"msg": lang.menuUIMsgBailan81,
-                                // 	"state": (client: PomClient, ui: MenuUIAlert) => client.globalSettings.deathRecord,
-                                // 	"function": (client: PomClient, ui: MenuUIAlert) => {
+                                // 	"state": (client, ui) => client.globalSettings.deathRecord,
+                                // 	"function": (client, ui) => {
                                 // 		client.globalSettings.deathRecord = !client.globalSettings.deathRecord;
                                 // 		return true;
                                 // 	}
@@ -774,8 +821,8 @@ You understand and agree that:
                                 {
                                     "type": "toggle",
                                     "msg": lang.menuUIMsgBailan82,
-                                    "state": (client: PomClient, ui: MenuUIAlert) => client.globalSettings.tpPointRecord,
-                                    "function": (client: PomClient, ui: MenuUIAlert) => {
+                                    "state": (client, ui) => client.globalSettings.tpPointRecord,
+                                    "function": (client, ui) => {
                                         client.globalSettings.tpPointRecord = !client.globalSettings.tpPointRecord;
                                         return true;
                                     }
@@ -783,8 +830,8 @@ You understand and agree that:
                                 {
                                     "type": "toggle",
                                     "msg": "伤害显示",
-                                    "state": (client: PomClient, ui: MenuUIAlert) => client.globalSettings.damageShow,
-                                    "function": (client: PomClient, ui: MenuUIAlert) => {
+                                    "state": (client, ui) => client.globalSettings.damageShow,
+                                    "function": (client, ui) => {
                                         client.globalSettings.damageShow = !client.globalSettings.damageShow;
                                         return true;
                                     }
@@ -800,12 +847,12 @@ You understand and agree that:
                 },
                 "set": {
                     "text": lang.menuUIMsgBailan84,
-                    "page": (client: PomClient, ui: MenuUIAlert): MenuUIAlertView[] => {
+                    "page": (client, ui): MenuUIAlertView<PomClient>[] => {
                         if (client.player.hasTag("owner")) {
                             return [{
                                 "type": "button",
                                 "msg": lang.menuUIMsgBailan85,
-                                "function": (client: PomClient, ui: MenuUIAlert) => {
+                                "function": (client, ui) => {
                                     new ModalFormData()
                                         .toggle(lang.menuUIMsgBailan80, client.globalSettings.entityCleaner)
                                         .slider(lang.menuUIMsgBailan91, 40, 1000, 20, client.globalSettings.entityCleanerLeastNum)

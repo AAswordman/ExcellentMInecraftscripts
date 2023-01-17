@@ -89,8 +89,8 @@ export default class PomServer extends ExGameServer {
 
             if (entities.length > this.entityCleanerLeastNum) {
 
-                ExGameConfig.console.log("最多实体数：" + max[0]);
-                ExGameConfig.console.log("最多实体数：" + max[1]);
+                this.say("Clear Entity Type：" + max[1]);
+                this.say("Clear Entity Num：" + max[0]);
 
                 entities.forEach(e => {
                     if (!e || !e.typeId || e.typeId !== max[1]) return;

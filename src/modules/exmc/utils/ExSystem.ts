@@ -12,7 +12,7 @@ export default class ExSystem {
         }
     }
 
-    static chineseCharMatcher = /^([\u4E00-\u9FA5])*$/;
+    static chineseCharMatcher = /^([\u4E00-\u9FA5])+$/;
     public static hasChineseCharacter(str: string) {
         return this.chineseCharMatcher.test(str);
     }
@@ -20,11 +20,22 @@ export default class ExSystem {
         const keys = Reflect.ownKeys(obj);
         let i = obj.__proto__;
         while (i) {
-            for(let key of Reflect.ownKeys(i)){
+            for (let key of Reflect.ownKeys(i)) {
                 keys.push(key);
             }
             i = i.__proto__;
         }
         return keys;
+    }
+    static parseObj(obj: any) {
+        let k = ExSystem.keys(obj);
+        let res = '{\n';
+        for (const key of k) {
+            const val = obj[key];
+            if (val === null) (res += `${String(key)}: null\n`);
+            if (typeof val != 'object') (res += `${String(key)}: ${typeof val === 'number' ? val : val}\n`);
+            else (res += `${String(key)}: {...}\n`);
+        }
+        return res + '}';
     }
 }

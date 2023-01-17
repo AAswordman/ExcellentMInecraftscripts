@@ -5,6 +5,7 @@ import Vector3, { IVector3 } from '../../math/Vector3.js';
 import ExGameVector3 from '../math/ExGameVector3.js';
 import { to } from '../ExErrorQueue.js';
 import ExDimension from '../ExDimension.js';
+import ExSystem from '../../utils/ExSystem.js';
 export default class ExSound {
     soundId: string;
     long: number;
@@ -29,6 +30,10 @@ export default class ExSound {
         // world.playSound(this.soundId, {
         //     location: ExGameVector3.getLocation(vec)
         // });
-        to(dim.command.run(`playsound ${this.soundId} @a[r=64,x=${vec.x},y=${vec.y},z=${vec.z}] ${vec.x} ${vec.y} ${vec.z} 0.6 1 0.6`));
+        to(dim.command.run(`playsound ${this.soundId} @a[r=64,x=${vec.x},y=${vec.y},z=${vec.z}] ${vec.x} ${vec.y} ${vec.z} 0.8 1 0.8`).then(
+            e => {
+                console.log(e);
+            }
+        ));
     }
 }

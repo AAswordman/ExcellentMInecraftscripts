@@ -4,18 +4,31 @@ import ExPlayer from "../../../modules/exmc/server/entity/ExPlayer.js";
 
 export class Task {
     id: string;
-    commands: string[];
-    constructor(id: string, xp_change: number | string, commands: string[]) {
+    commands?: string[];
+    conditions?: ((ep: ExPlayer) => boolean);
+    respond?: ((ep: ExPlayer) => void);
+    constructor(id: string, xp_change: number | string, condition: ((ep: ExPlayer) => boolean), respond: ((ep: ExPlayer) => void))
+    constructor(id: string, xp_change: number | string, condition: string[], respond?: string[])
+    constructor(id: string, xp_change: number | string, condition: string[] | ((ep: ExPlayer) => boolean), respond?: string[] | ((ep: ExPlayer) => void)) {
         this.id = id;
-        this.commands = commands;
-        this.commands.push(
-            "tellraw @s[tag=task_complete] { \"rawtext\" : [ { \"translate\" : \"text.dec:task_" + id + "_complete.name\" } ] }",
-            "tellraw @s[tag=!task_complete] { \"rawtext\" : [ { \"translate\" : \"text.dec:task_fail.name\" } ] }",
-            "loot give @s[tag=task_complete] loot \"tasks/" + id + "\"",
-            "xp @s[tag=task_complete] " + xp_change.toString(),
-            "replaceitem entity @s[tag=task_complete] slot.weapon.mainhand 0 air",
-            "tag @s remove task_complete"
-        );
+        if (condition instanceof Array) {
+            this.commands = condition;
+            if (respond && respond instanceof Array) {
+                this.commands = this.commands.concat(respond);
+            } else {
+                this.commands.push(
+                    "tellraw @s[tag=task_complete] { \"rawtext\" : [ { \"translate\" : \"text.dec:task_" + id + "_complete.name\" } ] }",
+                    "tellraw @s[tag=!task_complete] { \"rawtext\" : [ { \"translate\" : \"text.dec:task_fail.name\" } ] }",
+                    "loot give @s[tag=task_complete] loot \"tasks/" + id + "\"",
+                    "xp @s[tag=task_complete] " + xp_change.toString(),
+                    "replaceitem entity @s[tag=task_complete] slot.weapon.mainhand 0 air",
+                    "tag @s remove task_complete"
+                );
+            }
+        } else if (respond && !(respond instanceof Array)) {
+            this.conditions = condition;
+            this.respond = respond;
+        }
     }
     title() {
         let title = "text.dec:task_" + this.id + "_title.name";
@@ -25,10 +38,20 @@ export class Task {
         let body = "text.dec:task_" + this.id + "_body.name";
         return body;
     }
+    detect(ep: ExPlayer) {
+        if (this.commands) {
+            ep.command.run(this.commands);
+        }
+        if (this.conditions && this.respond) {
+            if (this.conditions(ep)) {
+                this.respond(ep);
+            }
+        }
+    }
 }
 
 //tag给符合条件加task_complete
-export let Tasks = [
+export let DecTasks = [
     new Task("000", 200, [
         "execute if entity @s[hasitem={location=slot.armor.head,item=dec:lava_helmet}] if entity @s[hasitem={location=slot.armor.chest,item=dec:lava_chestplate}] if entity @s[hasitem={location=slot.armor.legs,item=dec:lava_leggings}] if entity @s[hasitem={location=slot.armor.feet,item=dec:lava_boots}] run tag @s add task_complete",
     ]),
@@ -60,6 +83,11 @@ export let Tasks = [
         "execute if entity @s[hasitem={location=slot.armor.head,item=dec:witch_hat}] run tag @s add task_complete",
     ])
 ]
+
+export let PomTasks = DecTasks.concat([
+    new Task("500", 100, (ep) => true,(ep) => ep.damage(100))
+]);
+
 
 export function taskTranToNum(t: string) {
     let task_arr = ["Ao", "Jf", "Sk", "Ch", "Om", "Bs", "Hd", "Oa", "Gx", "Xe"]
@@ -103,15 +131,15 @@ export function taskUi(p: Player, i: ItemStack) {
 }
 export function taskUiChoose(p: Player, id: string) {
     let ui_ch = new ActionFormData().button("text.dec:task_complete_button.name");
-    const index = Tasks.findIndex(t => t.id === id);
+    const index = DecTasks.findIndex(t => t.id === id);
     if (index === -1) {
         return;
     }
-    ui_ch.title(Tasks[index].title())
-        .body(Tasks[index].body())
+    ui_ch.title(DecTasks[index].title())
+        .body(DecTasks[index].body())
         .show(p).then(s => {
             if (s.selection == 0) {
-                ExPlayer.getInstance(p).command.run(Tasks[index].commands);
+                DecTasks[index].detect(ExPlayer.getInstance(p));
             }
         });
 }
