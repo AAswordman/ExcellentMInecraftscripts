@@ -27,10 +27,12 @@ export default class MenuUIAlert<T extends ExGameClient> {
     }
 
     choose: string[] = [];
-    private _uiJson: any;
-    private _client: PomClient;
+    private _uiJson: MenuUIJson<T>;
+    private _client: T;
+    private pageNum = 0;
+    private readonly maxPageNum = 6;
 
-    constructor(client: PomClient, uiJson: MenuUIJson<T>) {
+    constructor(client: T, uiJson: MenuUIJson<T>) {
         this._uiJson = uiJson;
         this._client = client;
     }
@@ -41,14 +43,10 @@ export default class MenuUIAlert<T extends ExGameClient> {
     }
     async upDatePage() {
         let page = this._uiJson[this.choose[0]].page;
-        if (typeof (page) == "function") {
+        if (typeof (page) === "function") {
             page = page(this._client, this);
         }
         let subpage = page[this.choose[1]];
-
-        if (typeof (subpage) == "function") {
-            subpage = subpage(this._client, this);
-        }
 
         let alert = new ExActionAlert();
         alert.body(this.choose.join(" -> "));
@@ -62,18 +60,35 @@ export default class MenuUIAlert<T extends ExGameClient> {
                     //this._client.player.runCommand("title @s title Loading...");
                     this.choose[0] = id;
                     this.choose[1] = this._uiJson[this.choose[0]]["default"];
+                    this.pageNum = 0;
                     to(this.upDatePage());
                 }, this._uiJson[i].img);
             }
 
         }
-        for (let i in page) {
-            let text;
-            if (typeof (page[i]) == "function") {
-                text = page[i](this._client, this).text;
-            } else {
-                text = page[i].text;
+
+        let keys = Object.keys(page);
+        let nKeys: string[];
+        if (keys.length > this.maxPageNum) {
+            if (this.pageNum > 0)
+                alert.button("top2", () => {
+                    this.pageNum -= 1;
+                    to(this.upDatePage());
+                }, "-- ↑ --")
+
+            nKeys = keys.slice(this.pageNum * this.maxPageNum, Math.min(keys.length, (this.pageNum + 1) * this.maxPageNum));
+
+            let nPage: MenuUIPage<T> = {};
+            for (let k of nKeys) {
+                nPage[k] = page[k];
             }
+            page = nPage;
+        }
+
+
+        for (let i in page) {
+            let text = page[i].text;
+
             if (i == this.choose[1]) {
                 alert.button("top2_d", () => { }, text);
             } else {
@@ -85,45 +100,63 @@ export default class MenuUIAlert<T extends ExGameClient> {
                 }, text);
             }
         }
+        if (keys.length > this.maxPageNum && this.maxPageNum * this.pageNum + 1 < keys.length) {
+            alert.button("top2", () => {
+                this.pageNum += 1;
+                to(this.upDatePage());
+            }, "-- ↓ --");
+        }
+
         let views = subpage.page;
         if (typeof (views) == "function") {
-            views = views(this._client, this);
-            let err: any;
-            if (views instanceof Promise<MenuUIAlertView<T>>) {
-                [views, err] = await to(views);
+            let nViews = views(this._client, this);
+            if (nViews instanceof Promise) {
+                nViews = await nViews;
             }
+            views = nViews;
         }
 
         for (const v of views) {
             switch (v.type) {
                 case "toggle":
-                    alert.button(v.type + "_" + (v.state(this._client, this) ? "on" : "off"), () => {
-                        let res = v.function(this._client, this);
-                        if (res) { to(this.upDatePage()); }
-                    }, v.msg);
+                    if (v.state)
+                        alert.button(v.type + "_" + (v.state(this._client, this, v) ? "on" : "off"), () => {
+                            if (v.function) {
+                                let res = v.function(this._client, this, v);
+                                if (res) { to(this.upDatePage()); }
+                            }
+                        }, v.msg);
                     break;
                 case "buttonList3":
-                    alert.button(v.type + "_1", () => {
-                        let res = v.buttons[0](this._client, this);
-                        if (res) { to(this.upDatePage()); }
-                    }, v.msgs[0]);
-                    alert.button(v.type + "_2", () => {
-                        let res = v.buttons[1](this._client, this);
-                        if (res) { to(this.upDatePage()); }
-                    }, v.msgs[1]);
-                    alert.button(v.type + "_3", () => {
-                        let res = v.buttons[2](this._client, this);
-                        if (res) { to(this.upDatePage()); }
-                    }, v.msgs[2]);
-                    alert.button(v.type + "_4", () => {
-                        let res = v.function(this._client, this);
-                        if (res) { to(this.upDatePage()); }
-                    }, " ");
+                    if (v.msgs?.length === 3 && v.buttons?.length === 3) {
+                        alert.button(v.type + "_1", () => {
+                            if (v.buttons) {
+                                let res = v.buttons[0](this._client, this, v);
+                                if (res) { to(this.upDatePage()); }
+                            }
+                        }, v.msgs[0]);
+                        alert.button(v.type + "_2", () => {
+                            if (v.buttons) {
+                                let res = v.buttons[1](this._client, this, v);
+                                if (res) { to(this.upDatePage()); }
+                            }
+                        }, v.msgs[1]);
+                        alert.button(v.type + "_3", () => {
+                            if (v.buttons) {
+                                let res = v.buttons[2](this._client, this, v);
+                                if (res) { to(this.upDatePage()); }
+                            }
+                        }, v.msgs[2]);
+                        alert.button(v.type + "_4", () => {
+                        }, " ");
+                    }
                     break;
                 default:
                     alert.button(v.type, () => {
-                        let res = v.function(this._client, this);
-                        if (res) { to(this.upDatePage()); }
+                        if (v.function) {
+                            let res = v.function(this._client, this, v);
+                            if (res) { to(this.upDatePage()); }
+                        }
                     }, v.msg);
                     break;
             }
@@ -137,12 +170,13 @@ export interface MenuUIJson<T extends ExGameClient> {
         img: string;
         text: string;
         default: string;
-        page: {
-            [x: string]: {
-                text: string;
-                page: MenuUIAlertView<T>[] | ((client: T, ui: MenuUIAlert<T>) => MenuUIAlertView<T>[]) |
-                ((client: T, ui: MenuUIAlert<T>) => Promise<MenuUIAlertView<T>[]>);
-            }
-        }
+        page: MenuUIPage<T> | ((client: T, ui: MenuUIAlert<T>) => MenuUIPage<T>);
+    }
+}
+
+export interface MenuUIPage<T extends ExGameClient> {
+    [x: string]: {
+        text: string;
+        page: MenuUIAlertView<T>[] | ((client: T, ui: MenuUIAlert<T>) => MenuUIAlertView<T>[]) | ((client: T, ui: MenuUIAlert<T>) => Promise<MenuUIAlertView<T>[]>);
     }
 }
