@@ -11,6 +11,23 @@ export default class PomData {
         point: [string, string, Vector3][]
     };
 
+    tasks?: {
+        daily:{
+            complete:number[][],
+            all:number[][],
+            date:string,
+            cache:{
+                [x:string]:number;
+            }
+        },
+        progress:{
+            complete:string[],
+            data:{
+                [x:string]:number;
+            }
+        }
+    }
+
     dimBackPoint: Vector3 | undefined;
     dimBackMode: number | undefined;
 

@@ -1,4 +1,4 @@
-import { Player } from "@minecraft/server";
+import { ChatEvent, Player } from "@minecraft/server";
 import ExPlayer from "../../modules/exmc/server/entity/ExPlayer.js";
 import { Objective } from "../../modules/exmc/server/entity/ExScoresManager.js";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
@@ -19,7 +19,11 @@ import PomDimRuinsSystem from "./func/PomDimRuinsSystem.js";
 import PomServer from "./PomServer.js";
 import Random from "../../modules/exmc/utils/Random.js";
 import ExSystem from "../../modules/exmc/utils/ExSystem.js";
-import { eventDecoratorFactory } from "../../modules/exmc/server/events/EventDecoratorFactory.js";
+import { eventDecoratorFactory, registerEvent } from "../../modules/exmc/server/events/EventDecoratorFactory.js";
+import MathUtil from "../../modules/exmc/math/MathUtil.js";
+import PomTaskSystem from "./func/PomTaskSystem.js";
+import { receiveMessage } from "../../modules/exmc/server/ExGame.js";
+
 
 
 export default class PomClient extends ExGameClient<PomTransmission> {
@@ -35,7 +39,8 @@ export default class PomClient extends ExGameClient<PomTransmission> {
     magicSystem = new PomMagicSystem(this);
     itemUseFunc = new SimpleItemUseFunc(this);
     ruinsSystem = new PomDimRuinsSystem(this);
-
+    taskSystem = new PomTaskSystem(this);
+    // net;
 
     constructor(server: ExGameServer, id: string, player: Player) {
         super(server, id, player);
@@ -57,11 +62,14 @@ export default class PomClient extends ExGameClient<PomTransmission> {
         this.addCtrller(this.talentSystem);
         this.addCtrller(this.itemUseFunc);
         this.addCtrller(this.ruinsSystem);
+        this.addCtrller(this.taskSystem);
 
         this.gameControllers.forEach(controller => {
             eventDecoratorFactory(this.getEvents(), controller);
             controller.onJoin();
         });
+
+        // this.net = new NeuralNetwork<{a:number,b:number},{c:number}>();
     }
 
     override onJoin(): void {
@@ -106,7 +114,6 @@ export default class PomClient extends ExGameClient<PomTransmission> {
         } else {
             this.player.nameTag = "§c" + this.player.nameTag;
         }
-
     }
 
     override onLeave(): void {
@@ -129,5 +136,10 @@ export default class PomClient extends ExGameClient<PomTransmission> {
 
     override getServer(): PomServer {
         return <PomServer>super.getServer();
+    }
+
+    @receiveMessage("taskUi")
+    taskUI(page?:string,subpage?:string): void {
+        this.taskSystem.show(page,subpage);
     }
 }

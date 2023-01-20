@@ -38,7 +38,7 @@ export default class SimpleItemUseFunc extends GameController {
                             ExErrorQueue.throwError(e);
                         });
                 } else {
-                    new MenuUIAlert(this.client, menuFunctionUI(this.getLang())).showPage(["main", "notice"]);
+                    new MenuUIAlert(this.client, menuFunctionUI(this.getLang())).showPage("main", "notice");
                 }
             } else if (item.typeId === "wb:jet_pack") {
                 // jet pack

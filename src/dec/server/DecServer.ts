@@ -5,7 +5,7 @@ import DecClient from "./DecClient.js";
 import ExPlayer from '../../modules/exmc/server/entity/ExPlayer.js';
 import MathUtil from '../../modules/exmc/math/MathUtil.js';
 import { ActionFormData } from '@minecraft/server-ui';
-import { DecTasks, taskUi } from './helper/Task.js';
+import { DecTasks, taskUi } from './data/Task.js';
 import { Objective } from '../../modules/exmc/server/entity/ExScoresManager.js';
 import ExEntity from '../../modules/exmc/server/entity/ExEntity.js';
 import commandAnalysis from '../../modules/exmc/utils/commandAnalysis.js';
@@ -161,13 +161,6 @@ export default class DecServer extends ExGameServer {
                         }));
                     }
                 }));
-            }
-        });
-
-        this.getEvents().events.itemUse.subscribe(e => {
-            //魔法纸张
-            if (e.item.typeId == "dec:magic_scroll_blue") {
-                taskUi((<Player>e.source), e.item);
             }
         });
 

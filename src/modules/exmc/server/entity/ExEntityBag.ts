@@ -15,7 +15,7 @@ export default class ExEntityBag {
 
     getItem(id: string): ItemStack | undefined;
     getItem(slot: number): ItemStack | undefined;
-    getItem(arg: any) {
+    getItem(arg: string | number) {
         if (typeof (arg) === "number") {
             return this.bagComponent.container.getItem(arg);
         }
@@ -43,19 +43,45 @@ export default class ExEntityBag {
         };
         return items;
     }
+    countAllItems() {
+        let items = new Map<string, number>();
+        for (let i = 0; i < this.size(); i++) {
+            let item = this.getItem(i);
+            if (item)
+                items.set(item.typeId, item.amount);
+        };
+        return items;
+    }
+
+    clearItem(id: string, amount: number) {
+        for (let i = 0; i < this.size(); i++) {
+            let item = this.getItem(i);
+            if (item?.typeId === id) {
+                let rem = amount - item.amount;
+                if (rem > 0) {
+                    this.setItem(i, undefined);
+                    amount = rem;
+                } else {
+                    item.amount -= amount;
+                    this.setItem(i, item);
+                    break;
+                }
+            }
+        };
+    }
     size() {
         return this.bagComponent.inventorySize;
     }
 
-    type(){
+    type() {
         return this.bagComponent.containerType;
     }
 
-    isPrivate(){
+    isPrivate() {
         return this.bagComponent.private;
     }
 
-    isRestrictToOwner(){
+    isRestrictToOwner() {
         return this.bagComponent.restrictToOwner;
     }
 

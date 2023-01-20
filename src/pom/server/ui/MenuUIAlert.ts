@@ -30,15 +30,27 @@ export default class MenuUIAlert<T extends ExGameClient> {
     private _uiJson: MenuUIJson<T>;
     private _client: T;
     private pageNum = 0;
-    private readonly maxPageNum = 6;
+    private readonly maxPageNum = 4;
 
     constructor(client: T, uiJson: MenuUIJson<T>) {
         this._uiJson = uiJson;
         this._client = client;
     }
 
-    showPage(chs: string[]) {
-        this.choose = chs;
+    getJSON(){
+        return this._uiJson;
+    }
+
+    showPage(page:string,subpage:string) {
+        this.choose = [page,subpage];
+        let p = this._uiJson[page].page;
+        if(p instanceof Function){
+            p = p(this._client,this);
+        }
+        let index = Object.keys(p).indexOf(subpage);
+        if(index === -1) throw new Error("Can't find page " + subpage);
+        this.pageNum = Math.floor(index / this.maxPageNum);
+
         to(this.upDatePage());
     }
     async upDatePage() {
