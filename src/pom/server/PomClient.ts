@@ -23,6 +23,8 @@ import { eventDecoratorFactory, registerEvent } from "../../modules/exmc/server/
 import MathUtil from "../../modules/exmc/math/MathUtil.js";
 import PomTaskSystem from "./func/PomTaskSystem.js";
 import { receiveMessage } from "../../modules/exmc/server/ExGame.js";
+import WarningAlertUI from "./ui/WarningAlertUI.js";
+import POMLICENSE from "./data/POMLICENSE.js";
 
 
 
@@ -100,13 +102,22 @@ export default class PomClient extends ExGameClient<PomTransmission> {
 
         if (!this.data.lang) {
             this.exPlayer.runCommandAsync("mojang nmsl").catch((e) => {
-                //console.warn(JSON.stringify(e)+" catch");
                 if (ExSystem.hasChineseCharacter(JSON.stringify(e))) {
                     this.data.lang = "zh";
                 } else {
                     this.data.lang = "en";
                 }
             });
+        }
+        if (!this.data.licenseRead) {
+            const looper = new TimeLoopTask(this.getEvents(), () => {
+                new WarningAlertUI(this, POMLICENSE, [["同意并继续", (c, ui) => {
+                    this.data.licenseRead = true;
+                    looper.stop();
+                }]]).showPage();
+                if (!this.data.licenseRead) looper.startOnce();
+            }).delay(1000);
+            looper.startOnce();
         }
 
         if (this.player.hasTag("wbmsyh")) {
@@ -139,7 +150,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
     }
 
     @receiveMessage("taskUi")
-    taskUI(page?:string,subpage?:string): void {
-        this.taskSystem.show(page,subpage);
+    taskUI(page?: string, subpage?: string): void {
+        this.taskSystem.show(page, subpage);
     }
 }

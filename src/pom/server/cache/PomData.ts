@@ -3,6 +3,8 @@ import Vector3 from "../../../modules/exmc/math/Vector3.js";
 import TalentData from "./TalentData.js";
 
 export default class PomData {
+    licenseRead?:boolean;
+
     talent: TalentData = new TalentData();
     occupationChooseDate?: number;
 

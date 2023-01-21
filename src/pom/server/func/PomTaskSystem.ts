@@ -76,21 +76,21 @@ export default class PomTaskSystem extends GameController {
             }
         }
         for (let k in tb) {
-            for (let v of ta[k].conditions) {
+            for (let v of tb[k].conditions) {
                 if (v.type === "break" || v.type === "kill") {
                     this.recordDailyArray.add(v.typeId);
                 }
             }
         }
         for (let k in tc) {
-            for (let v of ta[k].conditions) {
+            for (let v of tc[k].conditions) {
                 if (v.type === "break" || v.type === "kill") {
                     this.recordDailyArray.add(v.typeId);
                 }
             }
         }
         for (let k in tx) {
-            for (let v of ta[k].conditions) {
+            for (let v of tx[k].conditions) {
                 if (v.type === "break" || v.type === "kill") {
                     this.recordDailyArray.add(v.typeId);
                 }
@@ -108,16 +108,15 @@ export default class PomTaskSystem extends GameController {
         });
         this.getEvents().exEvents.playerHitEntity.subscribe(e => {
             if (!this.data.tasks) return;
-            console.warn(ExEntity.getInstance(e.hurtEntity).getHealth());
 
             if (this.recordDailyArray.has(e.hurtEntity.typeId)) {
                 if (ExEntity.getInstance(e.hurtEntity).getHealth() < 0) {
-                    this.data.tasks.daily.cache[e.hurtEntity.id] = 1 + (this.data.tasks.daily.cache[e.hurtEntity.id] ?? 0);
+                    this.data.tasks.daily.cache[e.hurtEntity.typeId] = 1 + (this.data.tasks.daily.cache[e.hurtEntity.typeId] ?? 0);
                 }
             }
             if (this.recordProgressArray.has(e.hurtEntity.typeId)) {
                 if (ExEntity.getInstance(e.hurtEntity).getHealth() < 0) {
-                    this.data.tasks.progress.data[e.hurtEntity.id] = 1 + (this.data.tasks.progress.data[e.hurtEntity.id] ?? 0);
+                    this.data.tasks.progress.data[e.hurtEntity.typeId] = 1 + (this.data.tasks.progress.data[e.hurtEntity.typeId] ?? 0);
                 }
             }
         });

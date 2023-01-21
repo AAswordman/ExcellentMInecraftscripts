@@ -12,7 +12,7 @@ export default class ExSystem {
         }
     }
 
-    static chineseCharMatcher = /^([\u4E00-\u9FA5])+$/;
+    static chineseCharMatcher = /([\u4E00-\u9FA5])+/;
     public static hasChineseCharacter(str: string) {
         return this.chineseCharMatcher.test(str);
     }
