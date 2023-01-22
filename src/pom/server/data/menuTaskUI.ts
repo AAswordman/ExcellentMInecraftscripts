@@ -9,6 +9,7 @@ import taskDaily_x from "./tasks/daily_x.js";
 import { PomTaskJSON } from './tasks/PomTask.js';
 import { PomTasks, taskTranToNum } from "../../../dec/server/data/Task.js";
 import getgetCharByNum, { PROGRESS_CHAR } from "./getCharByNum.js";
+import taskProgress from "./tasks/taskProgress.js";
 
 
 
@@ -18,7 +19,8 @@ export default function menuTaskUI(ctrl: GameController): MenuUIJson<PomClient> 
     const ta = taskDaily_a(lang),
         tb = taskDaily_b(lang),
         tc = taskDaily_c(lang),
-        tx = taskDaily_x(lang);
+        tx = taskDaily_x(lang),
+        pro = taskProgress(lang);
     return {
         "dailyTask": {
             "text": "dailyTask",
@@ -190,21 +192,101 @@ export default function menuTaskUI(ctrl: GameController): MenuUIJson<PomClient> 
         },
         "progressTask": {
             "text": "progressTask",
-            "default": "start",
+            "default": "main_pom_1",
             "img": "textures/items/experience_book.png",
             "page": (client, ui) => {
-                return {
-                    "start": {
-                        "text": "开始",
-                        "page": [
-                            {
-                                "type": "text_title",
-                                "msg": "开始"
+                let arr: MenuUIPage<PomClient> = {};
+                const taskList = client.data.tasks!.progress;
+                for (const i in pro) {
+                    let task = pro[i];
+                    let completed = taskList.complete.includes(i);
+                    let isOk = true;
+                    let prog = 0;
+                    let page: MenuUIAlertView<PomClient>[] = [
+                        {
+                            "type": "text_title",
+                            "msg": task.name
+                        },
+                        {
+                            "type": "padding"
+                        },
+                        {
+                            "type": "text",
+                            "msg": "奖励："
+                        }
+                    ]
+
+                    for (let v of task.rewards) {
+                        page.push({
+                            "type": "text",
+                            "msg": "    " + v.name + " " + v.count + " " + v.unit
+                        });
+                    }
+
+                    page.push({
+                        "type": "padding"
+                    });
+
+
+                    for (let v of task.conditions) {
+                        let conn = "";
+                        let haveNum: number = 0;
+                        let textShow = "";
+                        if (v.type === "boss") {
+                            v.damage = v.damage ?? 1;
+                            haveNum = (taskList.data[v.typeId] ?? 0);
+                            conn = "击杀并造成伤害";
+
+                            if (haveNum < v.damage) {
+                                isOk = false;
                             }
-                        ]
+                            let mprog = completed ? 1 : Math.min(1, haveNum / v.damage);
+                            prog += mprog / task.conditions.length;
+                            textShow = (haveNum >= v.damage || completed ? "§a" : "§c") + ("需求: " + conn + " " + v.name + " " + (completed ? v.damage : haveNum) + "/" + v.damage + "点\n");
+                            textShow += getgetCharByNum(mprog, 10, PROGRESS_CHAR);
+
+                            page.push({
+                                "type": "textWithBg",
+                                "msg": textShow
+                            });
+                        }
+
+                    }
+                    if (isOk && !completed) {
+                        page.push(
+                            {
+                                "type": "padding"
+                            },
+                            {
+                                "type": "button",
+                                "msg": "完成任务",
+                                "function": (client, ui) => {
+                                    for (let v of task.rewards) {
+                                        if (v.type === "integral") {
+                                            client.exPlayer.getScoresManager().addScoreAsync("wbdjjf", v.count);
+                                        }
+                                    }
+                                    // for (let v of task.conditions) {
+                                    //     if (v.type === "item") {
+                                    //         let bag = client.exPlayer.getBag();
+                                    //         bag.clearItem(v.typeId, v.count);
+                                    //     }
+                                    // }
+                                    bagItems = client.exPlayer.getBag().countAllItems();
+
+                                    taskList.complete.push(i);
+                                    return true;
+                                }
+                            })
+                    }
+                    arr[i] = {
+                        "text": (completed ? "§a" : (isOk ? "§e" : "§c")) + task.name + ": " + (completed ? "已完成" : Math.round(prog * 100) + "％"),
+                        "page": page
+
                     }
                 }
 
+                return arr;
             }
         }
 

@@ -7,9 +7,10 @@ import DisposeAble from "../../interface/DisposeAble.js";
 import SetTimeOutSupport from "../../interface/SetTimeOutSupport.js";
 import { eventDecoratorFactory, registerEvent } from "../events/eventDecoratorFactory.js";
 
-export default class ExEntityController implements DisposeAble,SetTimeOutSupport {
+export default class ExEntityController implements DisposeAble, SetTimeOutSupport {
     server!: ExGameServer;
     private _entity: Entity;
+    private _isKilled: boolean = false;
     public get entity(): Entity {
         return this._entity;
     }
@@ -75,8 +76,9 @@ export default class ExEntityController implements DisposeAble,SetTimeOutSupport
     onDespawn() {
         this.onDestroy();
     }
-    @registerEvent<ExEntityController>("onHurt", (ctrl, e) => ctrl.exEntity.getHealth() <= 0)
+    @registerEvent<ExEntityController>("onHurt", (ctrl, e) => ctrl.exEntity.getHealth() <= 0 && !ctrl._isKilled)
     onKilled(e: EntityHurtEvent) {
+        this._isKilled = true;
         this.onDestroy();
     }
 }

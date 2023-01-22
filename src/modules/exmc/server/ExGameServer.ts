@@ -50,7 +50,7 @@ export default class ExGameServer implements SetTimeOutSupport {
         eventDecoratorFactory(this.getEvents(), this);
     }
 
-    say(msg: string | IRawMessage) {
+    say(msg: string | { rawtext: IRawMessage[] }) {
         world.say(msg);
     }
 

@@ -25,3 +25,19 @@ export default class PomTask {
     }
 }
 
+
+export interface PomTaskProgressJSON {
+    name: string;
+    conditions: {
+        name: string;
+        typeId: string;
+        type: "boss";
+        damage?: number;
+    }[],
+    rewards: {
+        name: string;
+        unit: string;
+        count: number;
+        type: "integral";
+    }[]
+}

@@ -153,4 +153,9 @@ export default class PomClient extends ExGameClient<PomTransmission> {
     taskUI(page?: string, subpage?: string): void {
         this.taskSystem.show(page, subpage);
     }
+    @receiveMessage("progressTaskFinish")
+    progressTaskFinish(name:string,damage:number): void {
+        this.taskSystem.progressTaskFinish(name,damage);
+    }
+
 }

@@ -313,7 +313,7 @@ export default class PomServer extends ExGameServer {
 
 
         //实体监听
-        this.addEntityController("wb:magic_stoneman", PomMagicStoneBoss);
+        this.addEntityController(PomMagicStoneBoss.typeId, PomMagicStoneBoss);
 
         // gt.register("Pom", "fakeplayer", (test) => {
         //     this.fakeplayers.push(new PomFakePlayer(

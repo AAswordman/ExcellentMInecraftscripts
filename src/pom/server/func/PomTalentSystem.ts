@@ -1,4 +1,4 @@
-import { EntityQueryOptions } from "@minecraft/server";
+import { EntityQueryOptions, Entity } from '@minecraft/server';
 import MathUtil from "../../../modules/exmc/math/MathUtil.js";
 import ExEntity from "../../../modules/exmc/server/entity/ExEntity.js";
 import ExPlayer from "../../../modules/exmc/server/entity/ExPlayer.js";
@@ -11,6 +11,7 @@ import isEquipment from "../items/isEquipment.js";
 import GameController from "./GameController.js";
 import ExGameVector3 from '../../../modules/exmc/server/math/ExGameVector3.js';
 import damageShow from "../helper/damageShow.js";
+import MonitorManager from "../../../modules/exmc/utils/MonitorManager.js";
 
 export default class PomTalentSystem extends GameController {
     strikeSkill = true;
@@ -102,7 +103,7 @@ export default class PomTalentSystem extends GameController {
             if (this.globalSettings.damageShow) {
                 damageShow(this.getExDimension(), damage, target.entity.location);
             }
-            this.hasCauseDamage.forEach(i => i(e.damage + damage));
+            this.hasCauseDamage.trigger(e.damage + damage,e.hurtEntity);
 
             target.removeHealth(this, damage);
         });
@@ -114,7 +115,7 @@ export default class PomTalentSystem extends GameController {
 
             this.exPlayer.addHealth(this, add);
 
-            this.hasBeenDamaged.forEach(i => i(e.damage - add));
+            this.hasBeenDamaged.trigger(e.damage - add,e.damagingEntity);
         });
 
         let lastListener = (d: number) => { };
@@ -128,12 +129,12 @@ export default class PomTalentSystem extends GameController {
                 let maxSingleDamage = parseFloat(lore.getValueUseMap("total", this.getLang().maxSingleDamage) ?? "0");
                 let maxSecondaryDamage = parseFloat(lore.getValueUseMap("total", this.getLang().maxSecondaryDamage) ?? "0");
                 let damage = 0;
-                this.hasCauseDamage.splice(this.hasCauseDamage.indexOf(lastListener), 1);
+                this.hasCauseDamage.removeMonitor(lastListener);
                 lastListener = (d: number) => {
                     damage += d;
                     maxSingleDamage = Math.ceil(Math.max(d, maxSingleDamage));
                 };
-                this.hasCauseDamage.push(lastListener);
+                this.hasCauseDamage.addMonitor(lastListener);
                 this.equiTotalTask?.stop();
                 (this.equiTotalTask = new TimeLoopTask(this.getEvents(), () => {
                     let shouldUpstate = false;
@@ -158,8 +159,8 @@ export default class PomTalentSystem extends GameController {
         });
 
     }
-    hasBeenDamaged: ((d: number) => void)[] = [];
-    hasCauseDamage: ((d: number) => void)[] = [];
+    hasBeenDamaged = new MonitorManager<[number,Entity]>();
+    hasCauseDamage = new MonitorManager<[number,Entity]>();
 
     onLoaded(): void {
         this.updateTalentRes();

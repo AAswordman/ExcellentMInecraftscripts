@@ -12,6 +12,7 @@ import { basicFinalType } from "../interface/types.js";
 
 import "../../reflect-metadata/Reflect.js"
 import { eventDecoratorFactory } from "./events/eventDecoratorFactory.js";
+import notUtillTask from "../utils/NotUtillTask.js";
 
 export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingPool> implements SetTimeOutSupport {
     private _events: ExClientEvents;
@@ -52,20 +53,16 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
         } else {
             this.notDebugger();
         }
-
-        let func = () => {
-            this.exPlayer.command.run(`testfor @s`)
-                .then(e => {
-                    try {
-                        this.onLoaded();
-                    } catch (e) {
-                        ExErrorQueue.throwError(e);
-                    }
-                }).catch(e => {
-                    this.setTimeout(func, 2000);
-                });
-        };
-        this.setTimeout(func, 100);
+        notUtillTask(this, async () => {
+            try {
+                let res = await this.exPlayer.command.run(`testfor @s`);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        },
+            () => this.onLoaded()
+        );
 
         this.onJoin();
 

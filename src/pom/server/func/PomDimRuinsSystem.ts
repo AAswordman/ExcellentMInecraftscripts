@@ -1,4 +1,4 @@
-import { BlockLocation, MinecraftBlockTypes, MinecraftDimensionTypes, Block, MinecraftEntityTypes, GameMode } from '@minecraft/server';
+import { BlockLocation, MinecraftBlockTypes, MinecraftDimensionTypes, Block, MinecraftEntityTypes, GameMode, Seat, EntityHurtEvent } from '@minecraft/server';
 import ExBlockStructureNormal from "../../../modules/exmc/server/block/structure/ExBlockStructureNormal.js";
 import GameController from "./GameController.js";
 import RuinsLoaction from "./ruins/RuinsLoaction.js";
@@ -14,6 +14,47 @@ import PomBossBarrier from './barrier/PomBossBarrier.js';
 export default class PomDimRuinsSystem extends GameController {
     desertRuinRules = new PomDesertRuinBasicRule(this);
     isInRuinJudge: boolean = false;
+    causeDamage = 0;
+    deathTimes = 0;
+    private _causeDamageShow = false;
+    causeDamageMonitor: any;
+    barrier?: PomBossBarrier;
+    deathTimesListener?: (e: EntityHurtEvent) => void;
+    public get causeDamageShow() {
+        return this._causeDamageShow;
+    }
+    public set causeDamageShow(value) {
+        this._causeDamageShow = value;
+        this.causeDamageListenner.upDate(value);
+    }
+    causeDamageType: Set<string> = new Set();
+    causeDamageListenner = new VarOnChangeListener((n, last) => {
+        if (n) {
+            this.causeDamageMonitor = this.client.talentSystem.hasCauseDamage.addMonitor((d, e) => {
+                if (this.causeDamageType.has(e.typeId)) {
+                    this.causeDamage += d;
+                }
+            });
+            this.deathTimesListener = (e: EntityHurtEvent) => {
+                if (this.exPlayer.getHealth() <= 0) {
+                    this.barrier?.notifyDeathAdd();
+                }
+            }
+            this.getEvents().exEvents.playerHurt.subscribe(this.deathTimesListener);
+        } else {
+            if (this.causeDamageMonitor) {
+                this.client.talentSystem.hasCauseDamage.removeMonitor(this.causeDamageMonitor);
+                this.causeDamageMonitor = undefined;
+                this.client.magicSystem.anotherShow = [];
+            }
+            if (this.deathTimesListener) {
+                this.getEvents().exEvents.playerHurt.unsubscribe(this.deathTimesListener);
+            }
+            this.deathTimes = 0;
+            this.causeDamageType.clear();
+        }
+    }, false);
+
 
     desertRuinBackJudge = new VarOnChangeListener((v) => {
         if (v) {
@@ -126,7 +167,6 @@ export default class PomDimRuinsSystem extends GameController {
                 this.client.magicSystem.anotherShow = show;
             }
 
-            this.client.magicSystem.additionHealthShow = isInGuardRuin;
             this.desertRuinRules.inRuinsListener.upDate(isInGuardRuin);
 
 
@@ -140,7 +180,15 @@ export default class PomDimRuinsSystem extends GameController {
                 }
 
                 isInStoneRuin = true;
+
             }
+            if (this.causeDamageShow) {
+                let show: string[] = [];
+                show.push(`造成伤害: ${this.causeDamage} 点`);
+                this.client.magicSystem.anotherShow = show;
+            }
+            this.client.magicSystem.additionHealthShow = isInGuardRuin;
+
 
             //设置游戏模式
             this.isInRuinJudge = isInGuardRuin || isInStoneRuin;

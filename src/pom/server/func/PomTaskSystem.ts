@@ -9,6 +9,9 @@ import ExEntity from '../../../modules/exmc/server/entity/ExEntity.js';
 import ExGameConfig from "../../../modules/exmc/server/ExGameConfig.js";
 
 export default class PomTaskSystem extends GameController {
+    progressTaskFinish(name: string, damage: number) {
+        this.data.tasks!.progress.data[name] = damage;
+    }
 
     recordDailyArray = new Set<string>();
     recordProgressArray = new Set<string>();
@@ -104,9 +107,7 @@ export default class PomTaskSystem extends GameController {
             if (this.recordDailyArray.has(e.brokenBlockPermutation.type.id)) {
                 this.data.tasks.daily.cache[e.brokenBlockPermutation.type.id] = 1 + (this.data.tasks.daily.cache[e.brokenBlockPermutation.type.id] ?? 0);
             }
-            if (this.recordProgressArray.has(e.brokenBlockPermutation.type.id)) {
-                this.data.tasks.progress.data[e.brokenBlockPermutation.type.id] = 1 + (this.data.tasks.progress.data[e.brokenBlockPermutation.type.id] ?? 0);
-            }
+            // s
         });
         this.getEvents().exEvents.playerHitEntity.subscribe(e => {
             if (!this.data.tasks) return;
@@ -116,11 +117,11 @@ export default class PomTaskSystem extends GameController {
                     this.data.tasks.daily.cache[e.hurtEntity.typeId] = 1 + (this.data.tasks.daily.cache[e.hurtEntity.typeId] ?? 0);
                 }
             }
-            if (this.recordProgressArray.has(e.hurtEntity.typeId)) {
-                if (ExEntity.getInstance(e.hurtEntity).getHealth() < 0) {
-                    this.data.tasks.progress.data[e.hurtEntity.typeId] = 1 + (this.data.tasks.progress.data[e.hurtEntity.typeId] ?? 0);
-                }
-            }
+            // if (this.recordProgressArray.has(e.hurtEntity.typeId)) {
+            //     if (ExEntity.getInstance(e.hurtEntity).getHealth() < 0) {
+            //         this.data.tasks.progress.data[e.hurtEntity.typeId] = 1 + (this.data.tasks.progress.data[e.hurtEntity.typeId] ?? 0);
+            //     }
+            // }
         });
     }
 
