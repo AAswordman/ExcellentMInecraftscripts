@@ -21,10 +21,11 @@ import { GameMode } from '@minecraft/server';
 import ExEntityController from '../../modules/exmc/server/entity/ExEntityController.js';
 import PomMagicStoneBoss from './entities/PomMagicStoneBoss.js';
 import PomFakePlayer from './entities/PomFakePlayer.js';
-import { registerEvent } from '../../modules/exmc/server/events/EventDecoratorFactory.js';
+import { registerEvent } from '../../modules/exmc/server/events/eventDecoratorFactory.js';
 import * as gt from "@minecraft/server-gametest";
 import ExPlayer from '../../modules/exmc/server/entity/ExPlayer.js';
 import damageShow from './helper/damageShow.js';
+import PomStoneBossRuin from './func/ruins/stone/PomStoneBossRuin.js';
 
 
 export default class PomServer extends ExGameServer {
@@ -41,13 +42,18 @@ export default class PomServer extends ExGameServer {
     entityCleanerStrength!: number;
     entityCleanerDelay!: number;
 
+    ruinCleaner;
+    ruinFuncLooper: TickDelayTask;
     //遗迹沙漠
     ruin_desertBoss: PomDesertBossRuin;
     portal_desertBoss: ExBlockStructure;
-    ruinFuncLooper: TickDelayTask;
-    desertRuinRandomRules;
     ruinDesertGuardPos: Vector3;
     ruinDesertGuardRule: TickDelayTask;
+
+    //遗迹石块
+    ruin_stoneBoss: PomStoneBossRuin;
+    portal_stoneBoss: ExBlockStructure;
+
 
     //虚拟玩家
     fakeplayers: PomFakePlayer[] = [];
@@ -79,7 +85,7 @@ export default class PomServer extends ExGameServer {
                 map.set(e.typeId, (map.get(e.typeId) ?? 0) + 1);
             });
 
-            let max = [0, ""];
+            let max:[number,string] = [0, ""];
             map.forEach((v, k) => {
                 if (v > max[0] && [MinecraftEntityTypes.player.id, MinecraftEntityTypes.villager.id, MinecraftEntityTypes.villagerV2.id].indexOf(k) === -1) {
                     max[0] = v;
@@ -122,8 +128,7 @@ export default class PomServer extends ExGameServer {
 
         this.tpsListener.start();
 
-
-        //沙漠遗迹
+        //守卫遗迹
         this.portal_desertBoss = new ExBlockStructureNormal();
         this.portal_desertBoss.setDirection(ExBlockStructureNormal.DIRECTION_LAY)
             .setStructure([
@@ -157,50 +162,94 @@ export default class PomServer extends ExGameServer {
                 C: MinecraftBlockTypes.cobblestoneWall.id
             });
 
+        //石头遗迹
+        this.portal_stoneBoss = new ExBlockStructureNormal();
+        this.portal_stoneBoss.setDirection(ExBlockStructureNormal.DIRECTION_LAY)
+            .setStructure([
+                [
+                    "BXXXB",
+                    "XWWWX",
+                    "XWYWX",
+                    "XWWWX",
+                    "BXXXB"
+                ],
+                [
+                    "BASAB",
+                    "AAAAA",
+                    "SAAAS",
+                    "AAAAA",
+                    "BASAB"
+                ]
+            ])
+            .analysis({
+                X: MinecraftBlockTypes.sandstone.id,
+                W: MinecraftBlockTypes.water.id,
+                Y: "wb:block_magic_equipment",
+                S: MinecraftBlockTypes.cobblestoneWall.id,
+                A: MinecraftBlockTypes.air.id,
+                B: MinecraftBlockTypes.stonebrick.id
+            });
+
         let r = new Random(this.setting.worldSeed);
         this.ruin_desertBoss = new PomDesertBossRuin(r.nextInt());
+        this.ruin_stoneBoss = new PomStoneBossRuin(r.nextInt());
 
+
+        //遗迹初始化各个房间位置
         ExTickQueue.push(() => {
             this.ruin_desertBoss.init(RuinsLoaction.DESERT_RUIN_LOCATION_START.x, RuinsLoaction.DESERT_RUIN_LOCATION_START.y,
                 RuinsLoaction.DESERT_RUIN_LOCATION_START.z,
                 this.getDimension(MinecraftDimensionTypes.theEnd));
             this.ruin_desertBoss.dispose();
+
+            this.ruin_stoneBoss.init(RuinsLoaction.STONE_RUIN_LOCATION_START.x, RuinsLoaction.STONE_RUIN_LOCATION_START.y,
+                RuinsLoaction.STONE_RUIN_LOCATION_START.z,
+                this.getDimension(MinecraftDimensionTypes.theEnd));
+            this.ruin_stoneBoss.dispose();
         });
 
-        const tmpV = new Vector3();
-        const tmpP = new Vector3();
 
-        this.ruinDesertGuardPos = new Vector3(RuinsLoaction.DESERT_RUIN_LOCATION_CENTER);
+        //遗迹掉落物清理
         const upDateMonster = () => {
-            let entities = Array.from(this.getExDimension(MinecraftDimensionTypes.theEnd).getEntities({
+            let entities = this.getExDimension(MinecraftDimensionTypes.theEnd).getEntities({
                 location: ExGameVector3.getLocation(RuinsLoaction.DESERT_RUIN_LOCATION_CENTER),
                 maxDistance: 400
-            }));
+            })
+                // .concat(
+                //     this.getExDimension(MinecraftDimensionTypes.theEnd).getEntities({
+                //         location: ExGameVector3.getLocation(RuinsLoaction.STONE_RUIN_LOCATION_CENTER),
+                //         maxDistance: 128
+                //     })
+                // );
             for (let e of entities) {
                 if (e.typeId === "minecraft:item" && e.viewVector.y === 0) {
                     e.kill();
                 }
             }
         }
-        this.desertRuinRandomRules = new TimeLoopTask(this.getEvents(), () => {
+        this.ruinCleaner = new TimeLoopTask(this.getEvents(), () => {
             upDateMonster();
         }).delay(60000);
+        upDateMonster();
+        this.ruinCleaner.start();
 
+
+        //守卫遗迹规则
         const enddim = this.getExDimension(MinecraftDimensionTypes.theEnd);
-
         let ruin_desert_count = 0;
-
+        const tmpV = new Vector3();
+        const tmpP = new Vector3();
+        this.ruinDesertGuardPos = new Vector3(RuinsLoaction.DESERT_RUIN_LOCATION_CENTER);
         this.ruinDesertGuardRule = new TickDelayTask(this.getEvents(), () => {
             enddim.spawnParticle("wb:ruin_desert_guardpar", this.ruinDesertGuardPos);
             if (ruin_desert_count > 400) {
                 ruin_desert_count = 0;
             }
             if (ruin_desert_count > 200) {
-                let entities = enddim.getEntities({
+                let entities = enddim.getPlayers({
                     location: ExGameVector3.getLocation(RuinsLoaction.DESERT_RUIN_LOCATION_CENTER),
                     maxDistance: 400,
                     closest: 1,
-                    type: MinecraftEntityTypes.player.id,
                     gameMode: GameMode.adventure
                 });
                 if (entities.length > 0) {
@@ -227,27 +276,37 @@ export default class PomServer extends ExGameServer {
 
             ruin_desert_count += 1;
         }).delay(1);
-        upDateMonster();
-        this.desertRuinRandomRules.start();
+
+
+        //遗迹功能总监听
         this.ruinFuncLooper = new TickDelayTask(this.getEvents(), () => {
             let desertFlag = false;
+            let stoneFlag = false;
             for (let client of this.getClients()) {
                 tmpV.set(client.player.location);
                 if (this.ruin_desertBoss.isCompleted()) {
                     if (tmpV.x >= RuinsLoaction.DESERT_RUIN_LOCATION_START.x && tmpV.x <= RuinsLoaction.DESERT_RUIN_LOCATION_END.x
                         && tmpV.z >= RuinsLoaction.DESERT_RUIN_LOCATION_START.z && tmpV.z <= RuinsLoaction.DESERT_RUIN_LOCATION_END.z) {
                         desertFlag = true;
-
                     }
+                }
+                if (tmpV.x >= RuinsLoaction.STONE_RUIN_LOCATION_START.x && tmpV.x <= RuinsLoaction.STONE_RUIN_LOCATION_END.x
+                    && tmpV.z >= RuinsLoaction.STONE_RUIN_LOCATION_START.z && tmpV.z <= RuinsLoaction.STONE_RUIN_LOCATION_END.z) {
+                    desertFlag = true;
+
                 }
             }
 
             if (!desertFlag) {
                 this.ruinDesertGuardRule.stop();
-                this.desertRuinRandomRules.stop();
+                this.ruinCleaner.stop();
             } else {
                 this.ruinDesertGuardRule.start();
-                this.desertRuinRandomRules.start();
+                this.ruinCleaner.start();
+            }
+
+            if (stoneFlag) {
+
             }
         }).delay(20 * 12);
         this.ruinFuncLooper.start();

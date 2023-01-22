@@ -6,6 +6,7 @@ import taskDaily_x from "../data/tasks/daily_x.js";
 import taskDaily_c from "../data/tasks/daily_c.js";
 import taskDaily_b from "../data/tasks/daily_b.js";
 import ExEntity from '../../../modules/exmc/server/entity/ExEntity.js';
+import ExGameConfig from "../../../modules/exmc/server/ExGameConfig.js";
 
 export default class PomTaskSystem extends GameController {
 
@@ -98,6 +99,7 @@ export default class PomTaskSystem extends GameController {
         }
 
         this.getEvents().exEvents.blockBreak.subscribe(e => {
+            // ExGameConfig.console.log(e.brokenBlockPermutation.type.id);
             if (!this.data.tasks) return;
             if (this.recordDailyArray.has(e.brokenBlockPermutation.type.id)) {
                 this.data.tasks.daily.cache[e.brokenBlockPermutation.type.id] = 1 + (this.data.tasks.daily.cache[e.brokenBlockPermutation.type.id] ?? 0);

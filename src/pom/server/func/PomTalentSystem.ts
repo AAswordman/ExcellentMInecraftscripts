@@ -18,13 +18,12 @@ export default class PomTalentSystem extends GameController {
     skillLoop = new TimeLoopTask(this.getEvents(), () => {
         if (this.data.talent.occupation.id === Occupation.ASSASSIN.id) this.strikeSkill = true;
         if (this.data.talent.occupation.id === Occupation.PRIEST.id) {
-            let query: EntityQueryOptions = {
-                maxDistance: 20,
-                location: ExGameVector3.getLocation(this.player.location)
-            };
             let health = 999;
             let player: ExPlayer = this.exPlayer;
-            for (let p of this.player.dimension.getPlayers(query)) {
+            for (let p of this.player.dimension.getPlayers({
+                maxDistance: 20,
+                location: ExGameVector3.getLocation(this.player.location)
+            })) {
                 let exp = ExPlayer.getInstance(p);
                 if (exp.getHealth() < health) {
                     health = exp.getHealth();
@@ -100,8 +99,8 @@ export default class PomTalentSystem extends GameController {
             }
 
             let damage = e.damage * damageFac + extraDamage;
-            if(this.globalSettings.damageShow){
-                damageShow(this.getExDimension(),damage,target.entity.location);
+            if (this.globalSettings.damageShow) {
+                damageShow(this.getExDimension(), damage, target.entity.location);
             }
             this.hasCauseDamage.forEach(i => i(e.damage + damage));
 
@@ -129,7 +128,7 @@ export default class PomTalentSystem extends GameController {
                 let maxSingleDamage = parseFloat(lore.getValueUseMap("total", this.getLang().maxSingleDamage) ?? "0");
                 let maxSecondaryDamage = parseFloat(lore.getValueUseMap("total", this.getLang().maxSecondaryDamage) ?? "0");
                 let damage = 0;
-                this.hasCauseDamage.splice(this.hasCauseDamage.indexOf(lastListener),1);
+                this.hasCauseDamage.splice(this.hasCauseDamage.indexOf(lastListener), 1);
                 lastListener = (d: number) => {
                     damage += d;
                     maxSingleDamage = Math.ceil(Math.max(d, maxSingleDamage));

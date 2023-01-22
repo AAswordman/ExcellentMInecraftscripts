@@ -121,6 +121,9 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     getPosition() {
         return new Vector3(this.entity.location);
     }
+    getRotation() {
+        return this.entity.rotation;
+    }
 
 
     setPosition(position: Vector3, dimension = this.entity.dimension) {

@@ -18,12 +18,16 @@ export default class ExDimension implements ExCommandNativeRunner {
 
     private _dimension: Dimension;
 
+    get dimension(){
+        return this._dimension;
+    }
+
     constructor(dimension: Dimension) {
         this._dimension = dimension;
     }
 
     getPlayers(entityQueryOptions?: EntityQueryOptions) {
-        return this._dimension.getPlayers(entityQueryOptions);
+        return Array.from(this._dimension.getPlayers(entityQueryOptions));
     }
 
     getEntities(entityQueryOptions?: EntityQueryOptions) {

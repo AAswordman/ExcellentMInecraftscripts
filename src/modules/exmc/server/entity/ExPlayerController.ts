@@ -2,7 +2,7 @@ import ExGameServer from "../ExGameServer.js";
 import ExEntity from "./ExEntity.js";
 import { Entity, EntityHurtEvent, Player } from '@minecraft/server';
 import ExEntityEvents from "./ExEntityEvents.js";
-import { eventDecoratorFactory, registerEvent } from "../events/EventDecoratorFactory.js";
+import { eventDecoratorFactory, registerEvent } from "../events/eventDecoratorFactory.js";
 import ExGameConfig from "../ExGameConfig.js";
 import DisposeAble from "../../interface/DisposeAble.js";
 import ExPlayer from './ExPlayer.js';

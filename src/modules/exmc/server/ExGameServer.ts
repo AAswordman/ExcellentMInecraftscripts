@@ -16,7 +16,7 @@ import ExEntityEvents from "./entity/ExEntityEvents.js";
 
 import "../../reflect-metadata/Reflect.js"
 import format from '../utils/format.js';
-import { eventDecoratorFactory, registerEvent } from "./events/EventDecoratorFactory.js";
+import { eventDecoratorFactory, registerEvent } from "./events/eventDecoratorFactory.js";
 
 
 export default class ExGameServer implements SetTimeOutSupport {
@@ -89,6 +89,9 @@ export default class ExGameServer implements SetTimeOutSupport {
         }
         return players;
     }
+    // getPlayers(){
+    //     return 
+    // }
 
     findClientByName(playerName: string) {
         return this.clients_nameMap.get(playerName);

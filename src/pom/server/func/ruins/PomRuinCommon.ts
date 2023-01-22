@@ -9,6 +9,6 @@ export default interface PomRuinCommon extends DisposeAble {
     getPathArea():  ExBlockArea[];
     getMonsterSpawnArea():  ExBlockArea[];
     getPlayerSpawnArea():  ExBlockArea[];
-    getBossSpawnArea():  ExBlockArea[];
+    getBossSpawnArea():  ExBlockArea|undefined;
 
 }

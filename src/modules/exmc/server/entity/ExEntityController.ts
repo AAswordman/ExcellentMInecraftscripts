@@ -2,10 +2,10 @@ import ExGameServer from "../ExGameServer.js";
 import ExEntity from "./ExEntity.js";
 import { Entity, EntityHurtEvent, System, TickEvent, world, system } from '@minecraft/server';
 import ExEntityEvents from "./ExEntityEvents.js";
-import { eventDecoratorFactory, registerEvent } from "../events/EventDecoratorFactory.js";
 import ExGameConfig from "../ExGameConfig.js";
 import DisposeAble from "../../interface/DisposeAble.js";
 import SetTimeOutSupport from "../../interface/SetTimeOutSupport.js";
+import { eventDecoratorFactory, registerEvent } from "../events/eventDecoratorFactory.js";
 
 export default class ExEntityController implements DisposeAble,SetTimeOutSupport {
     server!: ExGameServer;
@@ -31,7 +31,7 @@ export default class ExEntityController implements DisposeAble,SetTimeOutSupport
         this.init(server);
         this.onSpawn();
         eventDecoratorFactory(this.getEvents(), this);
-        console.warn("track "+e.typeId);
+        // console.warn("track "+e.typeId);
     }
     setTimeout(fun: () => void, timeout: number) {
         let time = 0;

@@ -72,7 +72,6 @@ export default class PomDesertRuinBasicRule extends GameControllerRuinRule {
     }
     desertRuinRules: PomDesertRuinRules;
     inRuinsListener: VarOnChangeListener<boolean>;
-    desertRuinBackJudge: VarOnChangeListener<boolean>;
     desertRoomCounter: Map<string, number>;
     desertRuinScoreJudge: VarOnChangeListener<string>;
 
@@ -106,23 +105,6 @@ export default class PomDesertRuinBasicRule extends GameControllerRuinRule {
             }
         }, false);
 
-
-        this.desertRuinBackJudge = new VarOnChangeListener((v) => {
-            if (v) {
-                new ExMessageAlert().title("返回").body("是否返回主世界?")
-                    .button1("否", () => {
-
-                    })
-                    .button2("是", () => {
-                        let v = game.data.dimBackPoint;
-                        if (!v) {
-                            v = new Vector3(0, 255, 0);
-                        }
-                        game.exPlayer.setPosition(v, game.getDimension(MinecraftDimensionTypes.overworld));
-                    })
-                    .show(game.player);
-            }
-        }, false);
         this.desertRoomCounter = new Map<string, number>();
         this.desertRuinScoreJudge = new VarOnChangeListener((v, last) => {
             const ruin = this.client.getServer().ruin_desertBoss;

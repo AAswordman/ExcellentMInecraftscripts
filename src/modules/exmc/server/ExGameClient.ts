@@ -11,7 +11,7 @@ import ExInterworkingPool from '../interface/ExInterworkingPool.js';
 import { basicFinalType } from "../interface/types.js";
 
 import "../../reflect-metadata/Reflect.js"
-import { eventDecoratorFactory } from "./events/EventDecoratorFactory.js";
+import { eventDecoratorFactory } from "./events/eventDecoratorFactory.js";
 
 export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingPool> implements SetTimeOutSupport {
     private _events: ExClientEvents;

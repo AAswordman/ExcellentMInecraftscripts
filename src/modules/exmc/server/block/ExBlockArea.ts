@@ -1,9 +1,17 @@
 import ExGameConfig from '../ExGameConfig.js';
 import Matrix4 from '../../math/Matrix4.js';
-import Vector3 from '../../math/Vector3.js';
+import Vector3, { IVector3 } from '../../math/Vector3.js';
 
 
 export class ExBlockArea {
+    center(): Vector3 {
+        return this.end.clone().sub(this.start).scl(1/2).add(this.start);
+    }
+    contains(tmpV: IVector3) {
+        return this.start.x <= tmpV.x && this.start.z <= tmpV.z &&
+        tmpV.x <= this.end.x && tmpV.z <= this.end.z &&
+        this.start.y <= tmpV.y && tmpV.y <= this.end.y
+    }
     start: Vector3;
     end: Vector3;
     private _width = new Vector3();

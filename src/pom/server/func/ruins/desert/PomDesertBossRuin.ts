@@ -9,22 +9,22 @@ export default class PomDesertBossRuin implements PomRuinCommon {
     seed;
     jigsaw!: ExStructureJigsaw;
 
-    structure_bossArea = "mystructure:boss_desert_1";
-    structure_straightLine = "mystructure:boss_desert_2";// |
-    structure_curve = "mystructure:boss_desert_3";// _|
-    structure_triple = "mystructure:boss_desert_4";//-|
-    structure_crossing = "mystructure:boss_desert_5";// +
-    structure_straightLineTower = "mystructure:boss_desert_6";//|
-    structure_towerBlock1 = "mystructure:boss_desert_7";// O
-    structure_towerBlock2 = "mystructure:boss_desert_8";// O
-    structure_towerBlock3 = "mystructure:boss_desert_10";// O
-    structure_towerBlock4 = "mystructure:boss_desert_12";// O
-    structure_upplain = "mystructure:boss_desert_13";
-    structure_upstairs = "mystructure:boss_desert_14";
-    structure_towerPiece = "mystructure:boss_desert_15";
-    structure_boss = "mystructure:boss_desert_16";
-    structure_block1 = "mystructure:boss_desert_9";// O
-    structure_block2 = "mystructure:boss_desert_11"; //O
+    private readonly structure_bossArea = "mystructure:boss_desert_1";
+    private readonly structure_straightLine = "mystructure:boss_desert_2";// |
+    private readonly structure_curve = "mystructure:boss_desert_3";// _|
+    private readonly structure_triple = "mystructure:boss_desert_4";//-|
+    private readonly structure_crossing = "mystructure:boss_desert_5";// +
+    private readonly structure_straightLineTower = "mystructure:boss_desert_6";//|
+    private readonly structure_towerBlock1 = "mystructure:boss_desert_7";// O
+    private readonly structure_towerBlock2 = "mystructure:boss_desert_8";// O
+    private readonly structure_towerBlock3 = "mystructure:boss_desert_10";// O
+    private readonly structure_towerBlock4 = "mystructure:boss_desert_12";// O
+    private readonly structure_upplain = "mystructure:boss_desert_13";
+    private readonly structure_upstairs = "mystructure:boss_desert_14";
+    private readonly structure_towerPiece = "mystructure:boss_desert_15";
+    private readonly structure_boss = "mystructure:boss_desert_16";
+    private readonly structure_block1 = "mystructure:boss_desert_9";// O
+    private readonly structure_block2 = "mystructure:boss_desert_11"; //O
 
     x!: number;
     y!: number;
@@ -47,7 +47,7 @@ export default class PomDesertBossRuin implements PomRuinCommon {
     private _monsterArea: ExBlockArea[] = [];
     private _airMonsterArea: ExBlockArea[] = [];
     private _playerArea: ExBlockArea[] = [];
-    private _bossArea: ExBlockArea[] = [];
+    private _bossArea!: ExBlockArea;
 
     isInRoom(v: string) {
         return this.rooms.has(v);
@@ -72,7 +72,7 @@ export default class PomDesertBossRuin implements PomRuinCommon {
     getPlayerSpawnArea(): ExBlockArea[] {
         return this._playerArea;
     }
-    getBossSpawnArea(): ExBlockArea[] {
+    getBossSpawnArea(): ExBlockArea|undefined {
         return this._bossArea;
     }
     dispose() {
@@ -88,7 +88,7 @@ export default class PomDesertBossRuin implements PomRuinCommon {
         this.y = y;
         this.z = z;
         this.dim = dim;
-
+        this._bossArea = new ExBlockArea(new Vector3(254,2,254).add(x, y, z),new Vector3(4,4,4));
         const maze = Array.from(new Array<number>(32), () => new Array<number>(32).fill(0));
 
         let block = 64;
@@ -353,7 +353,6 @@ export default class PomDesertBossRuin implements PomRuinCommon {
 
         this._airMonsterArea = [];
         this._airPathArea = [];
-        this._bossArea = [];
         this._monsterArea = [];
         this._pathArea = [];
         this._playerArea = [];
@@ -371,7 +370,6 @@ export default class PomDesertBossRuin implements PomRuinCommon {
                     this._playerArea.push(new ExBlockArea(new Vector3(ix, iy, iz).scl(this.jigsaw.size).add(this.x, this.y, this.z),
                         new Vector3(1, 1, 1).scl(this.jigsaw.size)));
                     this.paths.add(`${ix},${iy},${iz}`);
-
                 }
             } else if (data.structureName === this.structure_towerBlock3 || data.structureName === this.structure_towerBlock4
                 || data.structureName === this.structure_towerBlock2 || data.structureName === this.structure_towerBlock1) {
@@ -379,8 +377,6 @@ export default class PomDesertBossRuin implements PomRuinCommon {
                     new Vector3(1, 1, 1).scl(this.jigsaw.size)));
                 this.rooms.add(`${ix},${iy},${iz}`);
             } else if (data.structureName === this.structure_boss) {
-                this._bossArea.push(new ExBlockArea(new Vector3(ix, iy, iz).scl(this.jigsaw.size).add(this.x, this.y, this.z),
-                    new Vector3(1, 1, 1).scl(this.jigsaw.size)));
             } else if (data.structureName === this.structure_upplain) {
                 this._airPathArea.push(new ExBlockArea(new Vector3(ix, iy, iz).scl(this.jigsaw.size).add(this.x, this.y, this.z),
                     new Vector3(1, 1, 1).scl(this.jigsaw.size)));
