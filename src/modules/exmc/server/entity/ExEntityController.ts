@@ -56,6 +56,7 @@ export default class ExEntityController implements DisposeAble, SetTimeOutSuppor
         if (e.currentTick % 4 === 0) {
             try {
                 let dim = ctrl.entity.dimension;
+                // console.warn(dim === undefined)
                 return dim === undefined;
             } catch (o) {
                 return true;

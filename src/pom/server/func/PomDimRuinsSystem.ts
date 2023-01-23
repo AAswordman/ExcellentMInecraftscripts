@@ -10,8 +10,13 @@ import VarOnChangeListener from '../../../modules/exmc/utils/VarOnChangeListener
 import ExMessageAlert from '../../../modules/exmc/server/ui/ExMessageAlert.js';
 import ExActionAlert from '../../../modules/exmc/server/ui/ExActionAlert.js';
 import PomBossBarrier from './barrier/PomBossBarrier.js';
+import { Objective } from '../../../modules/exmc/server/entity/ExScoresManager.js';
 
 export default class PomDimRuinsSystem extends GameController {
+    i_inviolable = new Objective("i_inviolable");
+    i_damp = new Objective("i_damp");
+    i_soft = new Objective("i_soft");
+
     desertRuinRules = new PomDesertRuinBasicRule(this);
     isInRuinJudge: boolean = false;
     causeDamage = 0;
@@ -36,6 +41,8 @@ export default class PomDimRuinsSystem extends GameController {
                 }
             });
             this.deathTimesListener = (e: EntityHurtEvent) => {
+                // console.warn("add");
+                // console.warn(this.exPlayer.getHealth());
                 if (this.exPlayer.getHealth() <= 0) {
                     this.barrier?.notifyDeathAdd();
                 }
@@ -49,8 +56,10 @@ export default class PomDimRuinsSystem extends GameController {
             }
             if (this.deathTimesListener) {
                 this.getEvents().exEvents.playerHurt.unsubscribe(this.deathTimesListener);
+                this.deathTimesListener = undefined;
             }
             this.deathTimes = 0;
+            this.causeDamage = 0;
             this.causeDamageType.clear();
         }
     }, false);
@@ -180,10 +189,12 @@ export default class PomDimRuinsSystem extends GameController {
                 }
 
                 isInStoneRuin = true;
+                this.exPlayer.command.run(`fog @s push wb:ruin_stone_boss "ruin_fog"`);
 
             }
             if (this.causeDamageShow) {
                 let show: string[] = [];
+                show.push(`玩家死亡: ${this.deathTimes} 次`);
                 show.push(`造成伤害: ${this.causeDamage} 点`);
                 this.client.magicSystem.anotherShow = show;
             }
@@ -193,17 +204,28 @@ export default class PomDimRuinsSystem extends GameController {
             //设置游戏模式
             this.isInRuinJudge = isInGuardRuin || isInStoneRuin;
 
-            let mode = this.exPlayer.getGameMode();
-            if (this.isInRuinJudge && mode === GameMode.survival) {
-                this.exPlayer.setGameMode(GameMode.adventure);
-            } else if (!this.isInRuinJudge && mode === GameMode.adventure && this.data.dimBackMode === 0) {
-                this.exPlayer.setGameMode(GameMode.survival);
-            } else if (!this.isInRuinJudge && (mode !== GameMode.adventure)) {
-                this.data.dimBackMode = 0;
-            } else if (!this.isInRuinJudge && (mode === GameMode.adventure)) {
-                this.data.dimBackMode = 2;
+            if (!this.isInRuinJudge) {
+                this.exPlayer.command.run(`fog @s remove "ruin_fog"`);
             }
 
+            let mode = this.exPlayer.getGameMode();
+            // if (this.isInRuinJudge && mode === GameMode.survival) {
+            //     this.exPlayer.setGameMode(GameMode.adventure);
+            // } else if (!this.isInRuinJudge && mode === GameMode.adventure && this.data.dimBackMode === 0) {
+            //     this.exPlayer.setGameMode(GameMode.survival);
+            // } else if (!this.isInRuinJudge && (mode !== GameMode.adventure)) {
+            //     this.data.dimBackMode = 0;
+            // } else if (!this.isInRuinJudge && (mode === GameMode.adventure)) {
+            //     this.data.dimBackMode = 2;
+            // }
+            // if(this.isInRuinJudge){
+            //     if(event.currentTick % 40 === 0){
+            //         let scores = this.exPlayer.getScoresManager();
+            //         scores.setScoreAsync(this.i_damp,13);
+            //         scores.setScoreAsync(this.i_inviolable,13);
+            //         scores.setScoreAsync(this.i_soft,13);
+            //     }
+            // }
         });
 
 
@@ -261,7 +283,11 @@ export default class PomDimRuinsSystem extends GameController {
 
             }
         });
+
+
+        
     }
+
 
     onLoaded(): void {
 

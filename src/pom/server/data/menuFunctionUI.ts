@@ -10,8 +10,9 @@ import { langType } from './langType.js';
 import ExPlayer from "../../../modules/exmc/server/entity/ExPlayer.js";
 import ExErrorQueue from "../../../modules/exmc/server/ExErrorQueue.js";
 import ExGameConfig from "../../../modules/exmc/server/ExGameConfig.js";
-import getgetCharByNum, { PROGRESS_CHAR, TALENT_CHAR } from "./getCharByNum.js";
+import getCharByNum, { PROGRESS_CHAR, TALENT_CHAR } from "./getCharByNum.js";
 import POMLICENSE from "./POMLICENSE.js";
+import MathUtil from "../../../modules/exmc/math/MathUtil.js";
 
 export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
     return {
@@ -232,7 +233,7 @@ BunBun不是笨笨    在矿里的小金呀
                         arr.push({
                             "type": "textWithBg",
                             "msg": `${lang.menuUIMsgBailan95}: ${g} 当前等级积分: ${gj}/${150 * g ** 2 + 1050 * g + 900}
-${getgetCharByNum((gj - (150 * (g - 1) ** 2 + 1050 * (g - 1) + 900)) / (300 * g + 900), 10, PROGRESS_CHAR)}`
+${getCharByNum((gj - (150 * (g - 1) ** 2 + 1050 * (g - 1) + 900)) / (300 * g + 900), 10, PROGRESS_CHAR)}`
                         });
                         return arr;
                     }
@@ -323,11 +324,11 @@ ${getgetCharByNum((gj - (150 * (g - 1) ** 2 + 1050 * (g - 1) + 900)) / (300 * g 
                     "page": (client, ui): MenuUIAlertView<PomClient>[] => {
                         let arr: MenuUIAlertView<PomClient>[];
                         if (TalentData.hasOccupation(client.data.talent)) {
-                            const point = (client.exPlayer.getScoresManager().getScore("wbdjcg") * 2 - (client.data.talent.pointUsed ?? 0));
+                            const canUsePoint = (client.exPlayer.getScoresManager().getScore("wbdjcg") * 2 - (client.data.talent.pointUsed ?? 0));
                             arr = [
                                 {
                                     "type": "text",
-                                    "msg": lang.menuUIMsgBailan30 + point
+                                    "msg": lang.menuUIMsgBailan30 + canUsePoint
                                 }
                             ];
                             for (let i of client.data.talent.talents) {
@@ -339,13 +340,13 @@ ${getgetCharByNum((gj - (150 * (g - 1) ** 2 + 1050 * (g - 1) + 900)) / (300 * g 
                                     {
                                         "type": "textWithBg",
                                         "msg": Talent.getCharacter(client.getLang(), i.id) + ": " + i.level + "\n" + (function () {
-                                            return getgetCharByNum(i.level / 40, 10, TALENT_CHAR);
+                                            return getCharByNum(i.level / 40, 10, TALENT_CHAR);
                                         }())
                                     });
                                 let addPoint = (point: number) => {
                                     return () => {
-                                        if (point > 0 && i.level < 40) {
-                                            point = Math.min(point, 40 - i.level);
+                                        if (canUsePoint > 0 && i.level < 40) {
+                                            point = Math.min(Math.min(point, 40 - i.level), canUsePoint);
                                             i.level += point;
                                             client.data.talent.pointUsed = point + (client.data.talent.pointUsed ?? 0);
                                             client.data.talent.talents.splice(client.data.talent.talents.findIndex(t => t.id === i.id), 1);

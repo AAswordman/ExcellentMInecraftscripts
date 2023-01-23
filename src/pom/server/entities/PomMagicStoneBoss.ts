@@ -31,12 +31,17 @@ export default class PomMagicStoneBoss extends PomBossController {
                 c.ruinsSystem.causeDamageShow = false;
             }
         }
-        this.server.say({ rawtext: [{ translate: "text.wb:defeat_magic_stoneman.name" }] })
+        this.server.say({ rawtext: [{ translate: "text.wb:defeat_magic_stoneman.name" }] });
+        
+        console.warn("onWin");
+        super.stopBarrier();
+
         super.onKilled(e);
     }
-    override onDestroy(): void {
+    override onFail(): void {
+        console.warn("onFail");
         super.stopBarrier();
-        super.onDestroy();
+        super.onFail();
     }
 
 }

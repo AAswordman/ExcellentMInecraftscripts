@@ -1,19 +1,28 @@
 import ExGameServer from './ExGameServer.js';
-export default class ExErrorQueue{
-    private static errorStack:unknown[] = [];
+export default class ExErrorQueue {
+    private static errorStack: unknown[] = [];
 
-	public static throwError(error:unknown){
-		this.errorStack.push(error);
-	}
-    public static init(server:ExGameServer){
+    public static throwError(error: unknown) {
+        this.errorStack.push(error);
+    }
+    public static init(server: ExGameServer) {
         server.getEvents().events.tick.subscribe(tick => {
-			if(this.errorStack.length > 0){
-				throw this.errorStack.shift();
-			}
-		});
+            if (this.errorStack.length > 0) {
+                throw this.errorStack.shift();
+            }
+        });
     }
 }
 
-export function to<T>(p:Promise<T>){
-    return p.then(res => [res,undefined]).catch(err => {ExErrorQueue.throwError(err); return [undefined,err];});
+export function to<T>(p: Promise<T>) {
+    return p.then(res => [res, undefined]).catch(err => { ExErrorQueue.throwError(err); return [undefined, err]; });
+}
+
+export function ignorn<T>(fun: () => T) {
+    try {
+        let res = fun();
+        return res;
+    } catch (err) {
+        return undefined;
+    }
 }

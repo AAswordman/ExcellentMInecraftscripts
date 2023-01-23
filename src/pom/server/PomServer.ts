@@ -1,4 +1,4 @@
-import { Entity, MinecraftDimensionTypes, MinecraftEntityTypes, Player, MinecraftBlockTypes, Location, ChatEvent, BlockLocation, EntityHurtEvent, EntityDamageCause } from '@minecraft/server';
+import { Entity, MinecraftDimensionTypes, MinecraftEntityTypes, Player, MinecraftBlockTypes, Location, ChatEvent, BlockLocation, EntityHurtEvent, EntityDamageCause, MinecraftEffectTypes } from '@minecraft/server';
 import ExConfig from "../../modules/exmc/ExConfig.js";
 import { Objective } from "../../modules/exmc/server/entity/ExScoresManager.js";
 import ExDimension from "../../modules/exmc/server/ExDimension.js";
@@ -85,7 +85,7 @@ export default class PomServer extends ExGameServer {
                 map.set(e.typeId, (map.get(e.typeId) ?? 0) + 1);
             });
 
-            let max:[number,string] = [0, ""];
+            let max: [number, string] = [0, ""];
             map.forEach((v, k) => {
                 if (v > max[0] && [MinecraftEntityTypes.player.id, MinecraftEntityTypes.villager.id, MinecraftEntityTypes.villagerV2.id].indexOf(k) === -1) {
                     max[0] = v;
@@ -215,12 +215,12 @@ export default class PomServer extends ExGameServer {
                 location: ExGameVector3.getLocation(RuinsLoaction.DESERT_RUIN_LOCATION_CENTER),
                 maxDistance: 400
             })
-                // .concat(
-                //     this.getExDimension(MinecraftDimensionTypes.theEnd).getEntities({
-                //         location: ExGameVector3.getLocation(RuinsLoaction.STONE_RUIN_LOCATION_CENTER),
-                //         maxDistance: 128
-                //     })
-                // );
+            // .concat(
+            //     this.getExDimension(MinecraftDimensionTypes.theEnd).getEntities({
+            //         location: ExGameVector3.getLocation(RuinsLoaction.STONE_RUIN_LOCATION_CENTER),
+            //         maxDistance: 128
+            //     })
+            // );
             for (let e of entities) {
                 if (e.typeId === "minecraft:item" && e.viewVector.y === 0) {
                     e.kill();
@@ -232,6 +232,46 @@ export default class PomServer extends ExGameServer {
         }).delay(60000);
         upDateMonster();
         this.ruinCleaner.start();
+
+        //遗迹保护
+        this.getEvents().events.blockBreak.subscribe(e => {
+            if (e.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && (
+                RuinsLoaction.DESERT_RUIN_AREA.contains(e.player.location)
+                || RuinsLoaction.STONE_RUIN_AREA.contains(e.player.location))) {
+                let ex = ExPlayer.getInstance(e.player);
+                e.dimension.getBlock(e.block.location).setType(e.brokenBlockPermutation.type);
+                ex.getExDimension().command.run("kill @e[type=item,r=2,x=" + e.block.x + ",y=" + e.block.y + ",z=" + e.block.z + "]")
+                e.player.addEffect(MinecraftEffectTypes.nausea, 200, 0, true);
+                e.player.addEffect(MinecraftEffectTypes.blindness, 200, 0, true);
+                e.player.addEffect(MinecraftEffectTypes.darkness, 400, 0, true);
+                e.player.addEffect(MinecraftEffectTypes.wither, 100, 0, true);
+                e.player.addEffect(MinecraftEffectTypes.miningFatigue, 600, 2, true);
+                e.player.addEffect(MinecraftEffectTypes.hunger, 600, 1, true);
+                ex.command.run("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }");
+            }
+        });
+
+        this.getEvents().events.beforeItemUseOn.subscribe(e => {
+            if (e.source.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && (
+                RuinsLoaction.DESERT_RUIN_AREA.contains(e.blockLocation)
+                || RuinsLoaction.STONE_RUIN_AREA.contains(e.blockLocation))) {
+                if (e.source instanceof Player) {
+                    let ex = ExPlayer.getInstance(e.source);
+                    if (ex.getGameMode() === GameMode.creative) return;
+                }
+                e.cancel;
+            }
+
+        });
+        // this.getEvents().events.beforeExplosion.subscribe(e => {
+        //     if (e.source && e.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && (RuinsLoaction.DESERT_RUIN_AREA.contains(e.source.location)
+        //         || RuinsLoaction.STONE_RUIN_AREA.contains(e.source.location))) {
+        //         this.getExDimension(MinecraftDimensionTypes.theEnd).spawnParticle("dec:damp_explosion_particle", e.source.location);
+        //         e.cancel = true;
+        //         this.getExDimension(MinecraftDimensionTypes.theEnd).createExplosion(e.source.location);
+        //     }
+        // });
+
 
 
         //守卫遗迹规则
@@ -310,6 +350,20 @@ export default class PomServer extends ExGameServer {
             }
         }).delay(20 * 12);
         this.ruinFuncLooper.start();
+
+        //末影人清理
+        this.getEvents().events.entityCreate.subscribe(e => {
+            if (e.entity.typeId === MinecraftEntityTypes.enderman.id) {
+                if (e.entity.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) &&
+                    (
+                        RuinsLoaction.DESERT_RUIN_AREA.contains(e.entity.location) ||
+                        RuinsLoaction.STONE_RUIN_AREA.contains(e.entity.location)
+                    )) {
+                        e.entity.triggerEvent("minecraft:despawn");
+
+                }
+            }
+        });
 
 
         //实体监听

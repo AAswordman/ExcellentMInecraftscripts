@@ -41,7 +41,7 @@ export default class PomBossController extends ExEntityController {
     override onSpawn(): void {
         super.onSpawn();
     }
-
+    
     stopBarrier() {
         this.barrier.stop();
     }

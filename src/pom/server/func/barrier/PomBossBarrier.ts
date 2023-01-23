@@ -8,10 +8,11 @@ import ExGameVector3 from "../../../../modules/exmc/server/math/ExGameVector3.js
 import Vector3, { IVector3 } from "../../../../modules/exmc/math/Vector3.js";
 import ExEventManager from '../../../../modules/exmc/interface/ExEventManager.js';
 import PomServer from "../../PomServer.js";
-import { Player, Entity } from '@minecraft/server';
+import { Player, Entity, MinecraftEffectTypes } from '@minecraft/server';
 import notUtillTask from "../../../../modules/exmc/utils/NotUtillTask.js";
 import PomClient from "../../PomClient.js";
 import PomBossController from "../../entities/PomBossController.js";
+import { ignorn } from "../../../../modules/exmc/server/ExErrorQueue.js";
 export default class PomBossBarrier implements DisposeAble {
     tickEvent: () => void;
     manager: ExEventManager;
@@ -44,6 +45,10 @@ export default class PomBossBarrier implements DisposeAble {
         for (let e of dim.getPlayers()) {
             if (area.contains(e.location)) {
                 this.players.set(e, true);
+                let c = <PomClient | undefined>server.findClientByPlayer(e);
+                if (c) {
+                    c.ruinsSystem.barrier = this;
+                }
             }
         }
         this.tickEvent = this.update.bind(this);
@@ -55,16 +60,22 @@ export default class PomBossBarrier implements DisposeAble {
     dispose(): void {
         PomBossBarrier.map.delete(this.id);
         this.manager.cancel("onLongTick", this.tickEvent);
+        for (let [p, v] of this.players) {
+            let c = <PomClient | undefined>this.server.findClientByPlayer(p);
+            if (c) {
+                c.ruinsSystem.barrier = undefined;
+            }
+        }
     }
     notifyDeathAdd() {
         this.deathTimes += 1;
-        for(let [p,v] of this.players){
-            let c = <PomClient|undefined>this.server.findClientByPlayer(p);
-            if(c){
+        for (let [p, v] of this.players) {
+            let c = <PomClient | undefined>this.server.findClientByPlayer(p);
+            if (c) {
                 c.ruinsSystem.deathTimes = this.deathTimes;
             }
         }
-        if(this.deathTimes >= 3){
+        if (this.deathTimes >= 3) {
             this.boss.onFail();
         }
     }
@@ -77,6 +88,7 @@ export default class PomBossBarrier implements DisposeAble {
                 if (!this.area.contains(e.location)) {
                     if (this.players.get(e)) {
                         // notUtillTask(this.server,() => ExPlayer.getInstance(e).getHealth()>0,()=>{
+                        if (this.dim.dimension !== e.dimension) e.addEffect(MinecraftEffectTypes.resistance, 14 * 20, 10, true);
                         this.server.setTimeout(() => ExPlayer.getInstance(e).setPosition(this.area.center(), this.dim.dimension), 2000);
                         // });
                         this.players.set(e, false);
@@ -89,10 +101,9 @@ export default class PomBossBarrier implements DisposeAble {
                     e.kill();
                 }
             }
-
         }
 
-        if (this.boss.entity.location && !this.area.contains(this.boss.entity.location)) {
+        if (ignorn(() => this.boss.entity.location) && !this.area.contains(this.boss.entity.location)) {
             this.boss.exEntity.setPosition(this.area.center());
         }
 
