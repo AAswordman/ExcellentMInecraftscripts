@@ -31,8 +31,9 @@ export interface PomTaskProgressJSON {
     conditions: {
         name: string;
         typeId: string;
-        type: "boss";
+        type: "boss" | "boss_tag";
         damage?: number;
+        tagName?: string;
     }[],
     rewards: {
         name: string;

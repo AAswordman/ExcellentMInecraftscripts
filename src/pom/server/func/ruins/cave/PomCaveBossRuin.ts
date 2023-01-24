@@ -4,12 +4,12 @@ import PomRuinCommon from "../PomRuinCommon.js";
 import ExStructureJigsaw from "../../../../../modules/exmc/server/block/structure/ExStructureJigsaw.js";
 import Vector3 from "../../../../../modules/exmc/math/Vector3.js";
 
-export default class PomStoneBossRuin implements PomRuinCommon {
+export default class PomCaveBossRuin implements PomRuinCommon {
     seed: number;
-    private readonly structure_area1 = "mystructure:boss_stone_area_b1";
-    private readonly structure_area2 = "mystructure:boss_stone_area_b2";
-    private readonly structure_area3 = "mystructure:boss_stone_area_b3";
-    private readonly structure_area4 = "mystructure:boss_stone_area_b4";
+    private readonly structure_area1 = "mystructure:boss_cave_area_b1";
+    private readonly structure_area2 = "mystructure:boss_cave_area_b2";
+    private readonly structure_area3 = "mystructure:boss_cave_area_b3";
+    private readonly structure_area4 = "mystructure:boss_cave_area_b4";
 
     private _pathArea: ExBlockArea[] = [];
     private _monsterArea: ExBlockArea[] = [];
@@ -52,12 +52,18 @@ export default class PomStoneBossRuin implements PomRuinCommon {
         this.jigsaw.setStructurePlane(2, 3, 0, 0, 0, this.structure_area2, 180);
         this.jigsaw.setStructurePlane(3, 2, 0, 0, 0, this.structure_area3, 180);
         this.jigsaw.setStructurePlane(2, 2, 0, 0, 0, this.structure_area4, 180);
-        this._bossArea = (new ExBlockArea(new Vector3(62, 2, 62).add(x, y, z), new Vector3(4, 6, 4)));
+        this._bossArea = (new ExBlockArea(new Vector3(62, 13, 62).add(x, y, z), new Vector3(4, 6, 4)));
         this._playerArea.push(
-            new ExBlockArea(new Vector3(6, 5, 6).add(x, y, z), new Vector3(2, 4, 2)),
-            new ExBlockArea(new Vector3(128 - 6 - 2, 5, 6).add(x, y, z), new Vector3(2, 4, 2)),
-            new ExBlockArea(new Vector3(6, 5, 128 - 6 - 2).add(x, y, z), new Vector3(2, 4, 2)),
-            new ExBlockArea(new Vector3(128 - 6 - 2, 5, 128 - 6 - 2).add(x, y, z), new Vector3(2, 4, 2))
+            new ExBlockArea(new Vector3(15, 6, 39).add(x, y, z), new Vector3(1, 1, 1)),
+            new ExBlockArea(new Vector3(128 - 39, 6, 15).add(x, y, z), new Vector3(1, 1, 1)),
+            new ExBlockArea(new Vector3(39, 6, 128 - 15).add(x, y, z), new Vector3(1, 1, 1)),
+            new ExBlockArea(new Vector3(128 - 15, 6, 128 - 39).add(x, y, z), new Vector3(1, 1, 1))
+        );
+        this._playerArea.push(
+            new ExBlockArea(new Vector3(7, 50, 39).add(x, y, z), new Vector3(1, 1, 1)),
+            new ExBlockArea(new Vector3(128 - 39, 50, 7).add(x, y, z), new Vector3(1, 1, 1)),
+            new ExBlockArea(new Vector3(39, 50, 128 - 7).add(x, y, z), new Vector3(1, 1, 1)),
+            new ExBlockArea(new Vector3(128 - 7, 50, 128 - 39).add(x, y, z), new Vector3(1, 1, 1))
         );
     }
     generate(): void {

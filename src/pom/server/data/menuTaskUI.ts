@@ -244,14 +244,26 @@ export default function menuTaskUI(ctrl: GameController): MenuUIJson<PomClient> 
                             prog += mprog / task.conditions.length;
                             textShow = (haveNum >= v.damage || completed ? "§a" : "§c") + ("需求: " + conn + " " + v.name + " " + (completed ? v.damage : haveNum) + "/" + v.damage + "点\n");
                             textShow += getCharByNum(mprog, 10, PROGRESS_CHAR);
+                        } else if (v.type === "boss_tag") {
+                            v.tagName = v.tagName ?? "undefined";
+                            haveNum = client.player.hasTag(v.tagName) ? 1 : 0;
+                            conn = "击杀";
 
-                            page.push({
-                                "type": "textWithBg",
-                                "msg": textShow
-                            });
+                            if (haveNum < 1) {
+                                isOk = false;
+                            }
+                            let mprog = completed ? 1 : Math.min(1, haveNum / 1);
+                            prog += mprog / task.conditions.length;
+                            textShow = (haveNum >= 1 || completed ? "§a" : "§c") + ("需求: " + conn + " " + v.name + " " + (completed ? 1 : haveNum) + "/" + 1 + "个\n");
+                            textShow += getCharByNum(mprog, 10, PROGRESS_CHAR);
                         }
-
+                        page.push({
+                            "type": "textWithBg",
+                            "msg": textShow
+                        });
                     }
+
+
                     if (isOk && !completed) {
                         page.push(
                             {

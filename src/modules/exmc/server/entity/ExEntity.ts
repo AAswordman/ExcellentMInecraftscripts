@@ -1,4 +1,4 @@
-import { Entity, EntityHealthComponent, Vector, Location, EntityInventoryComponent, Player, Dimension, EntityQueryOptions, EntityVariantComponent } from '@minecraft/server';
+import { Entity, EntityHealthComponent, Vector, Location, EntityInventoryComponent, Player, Dimension, EntityQueryOptions, EntityVariantComponent, EntityMarkVariantComponent } from '@minecraft/server';
 import { ExCommandNativeRunner } from '../../interface/ExCommandRunner.js';
 import ExTagManager from '../../interface/ExTagManager.js';
 import ExScoresManager from './ExScoresManager.js';
@@ -176,6 +176,15 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         return <EntityVariantComponent>this.getComponent(EntityVariantComponent.componentId);
     }
     getVariant() {
-        return this.getVariantComponent().value;
+        return this.getVariantComponent()?.value ?? 0;
+    }
+    hasMarkVariantComponent() {
+        return this.hasComponent(EntityMarkVariantComponent.componentId);
+    }
+    getMarkVariantComponent() {
+        return <EntityMarkVariantComponent>this.getComponent(EntityMarkVariantComponent.componentId);
+    }
+    getMarkVariant() {
+        return this.getMarkVariantComponent()?.value ?? 0;
     }
 }
