@@ -6,16 +6,22 @@ import ExGameConfig from '../../../modules/exmc/server/ExGameConfig.js';
 import PomBossController from './PomBossController.js';
 import PomServer from '../PomServer.js';
 import PomClient from '../PomClient.js';
+import ExSound from '../../../modules/exmc/server/env/ExSound.js';
 
 export default class PomHeadlessGuardBoss extends PomBossController {
     static typeId = "wb:headless_guard"
+    music: ExSound;
     constructor(e: Entity, server: PomServer) {
         super(e, server);
+        this.music = new ExSound("music.wb.unknown_world", "2:16");
+        this.setTimeout(() => {
+            this.music.loop(this.getEvents(), this.exEntity.getExDimension(), this.entity.location);
+        }, 500);
         for (let c of this.barrier.clientsByPlayer()) {
             c.ruinsSystem.causeDamageShow = true;
             c.ruinsSystem.causeDamageType.add(this.entity.typeId);
         }
-        this.server.say({ rawtext: [{ translate: "text.wb:summon_headless_guard.name" }] })
+        if(this.barrier.players.size !== 0) this.server.say({ rawtext: [{ translate: "text.wb:summon_headless_guard.name" }] })
     }
     override onSpawn(): void {
         super.onSpawn();
@@ -30,8 +36,12 @@ export default class PomHeadlessGuardBoss extends PomBossController {
 
         console.warn("onWin");
         this.stopBarrier();
-
+        this.music.stop();
         super.onKilled(e);
+    }
+    override onFail(): void {
+        this.music.stop();
+        super.onFail();
     }
 
 }

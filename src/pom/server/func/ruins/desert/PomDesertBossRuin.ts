@@ -72,7 +72,7 @@ export default class PomDesertBossRuin implements PomRuinCommon {
     getPlayerSpawnArea(): ExBlockArea[] {
         return this._playerArea;
     }
-    getBossSpawnArea(): ExBlockArea|undefined {
+    getBossSpawnArea(): ExBlockArea | undefined {
         return this._bossArea;
     }
     dispose() {
@@ -88,7 +88,7 @@ export default class PomDesertBossRuin implements PomRuinCommon {
         this.y = y;
         this.z = z;
         this.dim = dim;
-        this._bossArea = new ExBlockArea(new Vector3(254,2,254).add(x, y, z),new Vector3(4,4,4));
+        this._bossArea = new ExBlockArea(new Vector3(254, 2, 254).add(x, y, z), new Vector3(4, 4, 4));
         const maze = Array.from(new Array<number>(32), () => new Array<number>(32).fill(0));
 
         let block = 64;
@@ -346,10 +346,10 @@ export default class PomDesertBossRuin implements PomRuinCommon {
             }
         });
 
-        this.jigsaw.setStructurePlane(14, 14, 0, -1, 0, this.structure_boss, 0, false, 2, 2);
-        this.jigsaw.setStructurePlane(14, 16, 0, -1, 0, this.structure_boss, 270, false, 2, 2);
-        this.jigsaw.setStructurePlane(16, 14, 0, -1, 0, this.structure_boss, 90, false, 2, 2);
-        this.jigsaw.setStructurePlane(16, 16, 0, -1, 0, this.structure_boss, 180, false, 2, 2);
+        this.jigsaw.setStructurePlane(14, 14, 0, -1, 0, this.structure_boss, 0, "none", 2, 2);
+        this.jigsaw.setStructurePlane(14, 16, 0, -1, 0, this.structure_boss, 270, "none", 2, 2);
+        this.jigsaw.setStructurePlane(16, 14, 0, -1, 0, this.structure_boss, 90, "none", 2, 2);
+        this.jigsaw.setStructurePlane(16, 16, 0, -1, 0, this.structure_boss, 180, "none", 2, 2);
 
         this._airMonsterArea = [];
         this._airPathArea = [];

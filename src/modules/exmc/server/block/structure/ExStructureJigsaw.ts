@@ -22,12 +22,12 @@ export default class ExStructureJigsaw {
         return this.jigsawData[c][b][a] === undefined;
     }
 
-    setStructurePlane(x: number, z: number, offsetX: number, offsetY: number, offsetZ: number, structureName: string, structureRot = 0, mirror = false
+    setStructurePlane(x: number, z: number, offsetX: number, offsetY: number, offsetZ: number, structureName: string, structureRot = 0, mirror: "x" | "z" | "xz" | "none" = "none"
         , coverGridLength = 1, coverGridWidth = 1) {
         this.setStructure(x, z, 0, offsetX, offsetY, offsetZ, structureName,
             structureRot, mirror, coverGridLength, coverGridWidth, 1);
     }
-    setStructure(x: number, z: number, y: number, offsetX: number, offsetY: number, offsetZ: number, structureName: string, structureRot = 0, mirror = false,
+    setStructure(x: number, z: number, y: number, offsetX: number, offsetY: number, offsetZ: number, structureName: string, structureRot = 0, mirror: "x" | "z" | "xz" | "none" = "none",
         coverGridLength = 1, coverGridWidth = 1, coverGridHeight = 1) {
         this.clearStructure(x, z, y);
         for (let ix = x; ix < coverGridLength + x; ix++) {
@@ -51,7 +51,7 @@ export default class ExStructureJigsaw {
             mirror, coverGridLength, coverGridWidth, coverGridHeight];
 
     }
-    fillStructure(offsetX: number, offsetY: number, offsetZ: number, structureName: string, structureRot = 0, mirror = false,
+    fillStructure(offsetX: number, offsetY: number, offsetZ: number, structureName: string, structureRot = 0, mirror: "x" | "z" | "xz" | "none" = "none",
         coverGridLength = 1, coverGridWidth = 1, coverGridHeight = 1) {
         const i: ExStructureData = [offsetX, offsetY, offsetZ, structureName, structureRot,
             mirror, coverGridLength, coverGridWidth, coverGridHeight];
@@ -162,7 +162,7 @@ export default class ExStructureJigsaw {
         return "symbol";
     }
     foreach(fun: (data: ExStructureExportData, x: number, z: number, y: number) => void) {
-        const data = new ExStructureExportData(0, 0, 0, "", 0, false, 1, 1, 1);
+        const data = new ExStructureExportData(0, 0, 0, "", 0, "none", 1, 1, 1);
         for (let y = 0; y < this.height; y++) {
             for (let z = 0; z < this.width; z++) {
                 for (let x = 0; x < this.width; x++) {
@@ -180,7 +180,7 @@ export default class ExStructureJigsaw {
 /**
  * offsetX, offsetY, offsetZ,  structureName, structureRot,mirror,coverGridLength, coverGridWidth, coverGridHeight
  */
-export type ExStructureData = [number, number, number, string, number, boolean, number, number, number];
+export type ExStructureData = [number, number, number, string, number, "x" | "z" | "xz" | "none", number, number, number];
 /**
  * offsetX, offsetY, offsetZ,  structureName, structureRot,mirror,coverGridLength, coverGridWidth, coverGridHeight
  */
@@ -190,15 +190,15 @@ export class ExStructureExportData {
     offsetZ!: number;
     structureName!: string;
     structureRot!: number;
-    mirror!: boolean;
+    mirror!: "x" | "z" | "xz" | "none";
     coverGridLength!: number;
     coverGridWidth!: number;
     coverGridHeight!: number;
-    constructor(offsetX: number, offsetY: number, offsetZ: number, structureName: string, structureRot: number, mirror: boolean, coverGridLength: number, coverGridWidth: number, coverGridHeight: number) {
+    constructor(offsetX: number, offsetY: number, offsetZ: number, structureName: string, structureRot: number, mirror: "x" | "z" | "xz" | "none", coverGridLength: number, coverGridWidth: number, coverGridHeight: number) {
         this.set(offsetX, offsetY, offsetZ, structureName, structureRot, mirror, coverGridHeight, coverGridWidth, coverGridLength);
     }
 
-    set(offsetX: number, offsetY: number, offsetZ: number, structureName: string, structureRot: number, mirror: boolean, coverGridHeight: number, coverGridWidth: number, coverGridLength: number) {
+    set(offsetX: number, offsetY: number, offsetZ: number, structureName: string, structureRot: number, mirror: "x" | "z" | "xz" | "none", coverGridHeight: number, coverGridWidth: number, coverGridLength: number) {
         this.offsetX = offsetX;
         this.offsetY = offsetY;
         this.offsetZ = offsetZ;

@@ -2,9 +2,10 @@ import Vector3 from '../../../math/Vector3.js';
 import { Dimension } from '@minecraft/server';
 import Vector2 from '../../../math/Vector2.js';
 import ExDimension from '../../ExDimension.js';
+import { to } from '../../ExErrorQueue.js';
 export default class ExStructure {
     structureId: string;
-    mirror = false;
+    mirror: "x"|"z"|"xz"|"none" = "none";
     position: Vector3;
     rotation: number;
 
@@ -16,6 +17,6 @@ export default class ExStructure {
     generate(dim: Dimension) {
         let rot = this.rotation;
         let exdim = ExDimension.getInstance(dim);
-        exdim.command.run(`structure load ${this.structureId} ${this.position.x} ${this.position.y} ${this.position.z} ${Math.round(rot)}_degrees`);
+        to(exdim.command.run(`structure load ${this.structureId} ${this.position.x} ${this.position.y} ${this.position.z} ${Math.round(rot)}_degrees ${this.mirror}`));
     }
 }

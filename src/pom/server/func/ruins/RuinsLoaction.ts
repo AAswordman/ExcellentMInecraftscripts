@@ -31,5 +31,25 @@ export default class RuinsLoaction {
     public static readonly CAVE_RUIN_PROTECT_AREA = new ExBlockArea(
         this.CAVE_RUIN_LOCATION_START.clone().sub(this.CAVE_RUIN_LOCATION_SIZE),
         this.CAVE_RUIN_LOCATION_END.clone().add(this.CAVE_RUIN_LOCATION_SIZE));
+    
+    public static readonly ANCIENT_RUIN_NUM = 3;
+    public static readonly ANCIENT_RUIN_LOCATION_START = new Vector3(15360, 64, 16384);
+    public static readonly ANCIENT_RUIN_LOCATION_SIZE = new Vector3(128, 128, 128);
+    public static readonly ANCIENT_RUIN_LOCATION_END = this.ANCIENT_RUIN_LOCATION_START.clone().add(this.ANCIENT_RUIN_LOCATION_SIZE);
+    public static readonly ANCIENT_RUIN_LOCATION_CENTER = this.ANCIENT_RUIN_LOCATION_START.clone().add(this.ANCIENT_RUIN_LOCATION_SIZE.x / 2, 0, this.ANCIENT_RUIN_LOCATION_SIZE.z / 2);
+    public static readonly ANCIENT_RUIN_AREA = new ExBlockArea(this.ANCIENT_RUIN_LOCATION_START, this.ANCIENT_RUIN_LOCATION_SIZE);
+    public static readonly ANCIENT_RUIN_PROTECT_AREA = new ExBlockArea(
+        this.ANCIENT_RUIN_LOCATION_START.clone().sub(this.ANCIENT_RUIN_LOCATION_SIZE),
+        this.ANCIENT_RUIN_LOCATION_END.clone().add(this.ANCIENT_RUIN_LOCATION_SIZE));
+    
+    public static readonly MIND_RUIN_NUM = 4;
+    public static readonly MIND_RUIN_LOCATION_START = new Vector3(15360, 64, 17408);
+    public static readonly MIND_RUIN_LOCATION_SIZE = new Vector3(128, 128, 128);
+    public static readonly MIND_RUIN_LOCATION_END = this.MIND_RUIN_LOCATION_START.clone().add(this.MIND_RUIN_LOCATION_SIZE);
+    public static readonly MIND_RUIN_LOCATION_CENTER = this.MIND_RUIN_LOCATION_START.clone().add(this.MIND_RUIN_LOCATION_SIZE.x / 2, 0, this.MIND_RUIN_LOCATION_SIZE.z / 2);
+    public static readonly MIND_RUIN_AREA = new ExBlockArea(this.MIND_RUIN_LOCATION_START, this.MIND_RUIN_LOCATION_SIZE);
+    public static readonly MIND_RUIN_PROTECT_AREA = new ExBlockArea(
+        this.MIND_RUIN_LOCATION_START.clone().sub(this.MIND_RUIN_LOCATION_SIZE),
+        this.MIND_RUIN_LOCATION_END.clone().add(this.MIND_RUIN_LOCATION_SIZE));
 
 }
