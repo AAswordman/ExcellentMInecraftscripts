@@ -13,6 +13,8 @@ export default class PomAncientStoneBoss extends PomBossController {
     constructor(e: Entity, server: PomServer) {
         super(e, server);
         this.music = new ExSound("music.wb.anger_of_ancient", "2:24");
+    }
+    override initBossEntity(): void {
         this.setTimeout(() => {
             this.music.loop(this.getEvents(), this.exEntity.getExDimension(), this.entity.location);
         }, 500);
@@ -20,7 +22,7 @@ export default class PomAncientStoneBoss extends PomBossController {
             c.ruinsSystem.causeDamageShow = true;
             c.ruinsSystem.causeDamageType.add(this.entity.typeId);
         }
-        if (this.barrier.players.size !== 0 && !this.exEntity.hasIsBabyComponent()) this.server.say({ rawtext: [{ translate: "text.wb:summon_ancient_stone.name" }] })
+        if (!this.exEntity.hasIsBabyComponent() && this.isFisrtCall) this.server.say({ rawtext: [{ translate: "text.wb:summon_ancient_stone.name" }] })
     }
     override onSpawn(): void {
         super.onSpawn();

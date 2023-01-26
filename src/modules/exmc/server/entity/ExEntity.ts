@@ -1,4 +1,4 @@
-import { Entity, EntityHealthComponent, Vector, Location, EntityInventoryComponent, Player, Dimension, EntityQueryOptions, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent } from '@minecraft/server';
+import { Entity, EntityHealthComponent, Vector, Location, EntityInventoryComponent, Player, Dimension, EntityQueryOptions, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent } from '@minecraft/server';
 import { ExCommandNativeRunner } from '../../interface/ExCommandRunner.js';
 import ExTagManager from '../../interface/ExTagManager.js';
 import ExScoresManager from './ExScoresManager.js';
@@ -189,5 +189,8 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     }
     hasIsBabyComponent() {
         return this.hasComponent(EntityIsBabyComponent.componentId);
+    }
+    hasIsChargedComponent() {
+        return this.hasComponent(EntityIsChargedComponent.componentId);
     }
 }

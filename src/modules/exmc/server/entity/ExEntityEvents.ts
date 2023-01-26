@@ -28,6 +28,7 @@ export default class ExEntityEvents implements ExEventManager {
         ExEntityEvents.eventHandlers.unsubscribe(this._ctrl.entity, arg0, callback);
     }
     cancelAll() {
+        console.warn("destroy all events");
         ExEntityEvents.eventHandlers.unsubscribeAll(this._ctrl.entity);
     }
 
@@ -116,6 +117,8 @@ export default class ExEntityEvents implements ExEventManager {
 
     constructor(ctrl: ExEntityController) {
         this._ctrl = ctrl;
+        console.warn("regist events");
+
     }
     register(name: string, fun: (...arg: unknown[]) => void) {
         let func: (...arg: unknown[]) => void = fun;

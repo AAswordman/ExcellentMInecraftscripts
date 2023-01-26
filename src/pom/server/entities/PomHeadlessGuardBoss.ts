@@ -14,14 +14,16 @@ export default class PomHeadlessGuardBoss extends PomBossController {
     constructor(e: Entity, server: PomServer) {
         super(e, server);
         this.music = new ExSound("music.wb.unknown_world", "2:16");
-        this.setTimeout(() => {
-            this.music.loop(this.getEvents(), this.exEntity.getExDimension(), this.entity.location);
-        }, 500);
+    }
+    override initBossEntity(): void {
         for (let c of this.barrier.clientsByPlayer()) {
             c.ruinsSystem.causeDamageShow = true;
             c.ruinsSystem.causeDamageType.add(this.entity.typeId);
         }
-        if(this.barrier.players.size !== 0) this.server.say({ rawtext: [{ translate: "text.wb:summon_headless_guard.name" }] })
+        if(this.isFisrtCall) this.server.say({ rawtext: [{ translate: "text.wb:summon_headless_guard.name" }] });
+        this.setTimeout(() => {
+            this.music.loop(this.getEvents(), this.exEntity.getExDimension(), this.entity.location);
+        }, 500);
     }
     override onSpawn(): void {
         super.onSpawn();

@@ -7,14 +7,16 @@ import PomServer from '../PomServer.js';
 import PomClient from '../PomClient.js';
 
 export default class PomMagicStoneBoss extends PomBossController {
-    static typeId = "wb:magic_stoneman"
+    static typeId = "wb:magic_stoneman";
     constructor(e: Entity, server: PomServer) {
         super(e, server);
+    }
+    override initBossEntity(): void {
         for (let c of this.barrier.clientsByPlayer()) {
             c.ruinsSystem.causeDamageShow = true;
             c.ruinsSystem.causeDamageType.add(this.entity.typeId);
         }
-        if(this.barrier.players.size !== 0) this.server.say({ rawtext: [{ translate: "text.wb:summon_magic_stoneman.name" }] })
+        if (this.isFisrtCall) this.server.say({ rawtext: [{ translate: "text.wb:summon_magic_stoneman.name" }] });
     }
     override onSpawn(): void {
         super.onSpawn();
@@ -29,8 +31,8 @@ export default class PomMagicStoneBoss extends PomBossController {
 
         console.warn("onWin");
         this.stopBarrier();
-
         super.onKilled(e);
     }
+
 
 }

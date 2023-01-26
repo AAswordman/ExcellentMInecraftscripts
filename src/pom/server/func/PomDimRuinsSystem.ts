@@ -342,7 +342,7 @@ export default class PomDimRuinsSystem extends GameController {
 
 
                 isInMindRuin = true;
-                this.exPlayer.command.run(`fog @s push wb:ruin_mind_1_boss "ruin_fog"`);
+                //this.exPlayer.command.run(`fog @s push wb:ruin_mind_1_boss "ruin_fog"`);
 
             }
             if (this.causeDamageShow) {

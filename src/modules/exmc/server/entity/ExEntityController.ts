@@ -32,7 +32,7 @@ export default class ExEntityController implements DisposeAble, SetTimeOutSuppor
         this.init(server);
         this.onSpawn();
         eventDecoratorFactory(this.getEvents(), this);
-        // console.warn("track "+e.typeId);
+        console.warn("track "+e.typeId);
     }
     setTimeout(fun: () => void, timeout: number) {
         let time = 0;
@@ -52,8 +52,8 @@ export default class ExEntityController implements DisposeAble, SetTimeOutSuppor
     onSpawn() {
     }
 
-    @registerEvent<ExEntityController>("onLongTick", (ctrl, e: TickEvent) => {
-        if (e.currentTick % 4 === 0) {
+    @registerEvent<ExEntityController>("tick", (ctrl, e: TickEvent) => {
+        if (e.currentTick % 1 === 0) {
             try {
                 let dim = ctrl.entity.dimension;
                 // console.warn(dim === undefined)
@@ -68,6 +68,7 @@ export default class ExEntityController implements DisposeAble, SetTimeOutSuppor
         this.dispose();
     }
     dispose() {
+        console.warn("dispose");
         this.getEvents().cancelAll();
     }
     getEvents() {

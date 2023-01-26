@@ -10,7 +10,7 @@ export default class EventHandle {
     setEventLiseners(e: EventListenerSettings) {
         this.listeners = e;
     }
-    init(s:ExGameServer) {
+    init(s: ExGameServer) {
         this.server = s;
         for (let k in this.listeners) {
             this.monitorMap[k] = new Map();
@@ -42,7 +42,9 @@ export default class EventHandle {
         let e = this.monitorMap[name];
         let arr = e.get(entity);
         if (arr) {
-            arr.splice(arr.findIndex((v) => v === callback), 1);
+            let index = arr.indexOf(callback);
+            if (index !== -1)
+                arr.splice(index, 1);
         }
     }
 
