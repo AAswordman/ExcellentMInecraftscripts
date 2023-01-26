@@ -27,7 +27,7 @@ import damageShow from './helper/damageShow.js';
 import PomAncientBossRuin from './func/ruins/ancient/PomAncientBossRuin.js';
 import { IVector3 } from '../../modules/exmc/math/Vector3.js';
 import PomAncientStoneBoss from './entities/PomAncientStoneBoss.js';
-import PomMindBossRuin from './func/ruins/mind/PommINDBossRuin.js';
+import PomMindBossRuin from './func/ruins/mind/PomMindBossRuin.js';
 import { PomIntentionsBoss1, PomIntentionsBoss2, PomIntentionsBoss3 } from './entities/PomIntentionsBoss.js';
 import itemCanChangeBlock from './items/itemCanChangeBlock.js';
 import PomBossBarrier from './func/barrier/PomBossBarrier.js';
