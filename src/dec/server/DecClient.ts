@@ -10,34 +10,11 @@ import { numTranToTask, taskUi } from "./data/Task.js";
 import ExGameConfig from "../../modules/exmc/server/ExGameConfig.js";
 import ExGame from "../../modules/exmc/server/ExGame.js";
 import PomServer from "../../pom/server/PomServer.js";
+import ExEntity from "../../modules/exmc/server/entity/ExEntity.js";
+import ExNullEntity from "../../modules/exmc/server/entity/ExNullEntity.js";
+import GlobalScoreBoardCache from "../../modules/exmc/server/storage/cache/GlobalScoreBoardCache.js";
+import { Objective } from "../../modules/exmc/server/entity/ExScoresManager.js";
 
-function if_in(ele: any, lis: Array<any>) {
-    let test = false
-    for (let l of lis) {
-        if (l == ele) {
-            test = true
-            break
-        }
-    }
-    return test
-}
-
-function get_score(sb_id: string, name: string) {
-    let p = NaN
-    let sbs_raw = world.scoreboard.getObjectives()
-    let sbs = new Array<string>
-    sbs_raw.forEach(sb => {
-        sbs.push(sb.id)
-    })
-    if (if_in(sb_id, sbs)) {
-        world.scoreboard.getObjective(sb_id).getScores().forEach(f => {
-            if (f.participant.displayName == name) {
-                p = f.score
-            }
-        })
-    }
-    return p
-}
 
 export default class DecClient extends ExGameClient {
     useArmor: undefined | ArmorData = undefined;
@@ -47,20 +24,21 @@ export default class DecClient extends ExGameClient {
     }
 
     tmpV = new Vector3(0, 0, 0);
+    globalscores = new GlobalScoreBoardCache(new Objective("global"));
     override onJoin(): void {
         super.onJoin();
         this.getEvents().exEvents.playerHurt.subscribe(e => {
 
             //这里写死亡事件
-            if ((<EntityHealthComponent>e.hurtEntity.getComponent('minecraft:health')).current <= 0) {
-                e.hurtEntity.runCommandAsync('function die/normal')
-                if (get_score('global', 'DieMode')) {
+            if (this.exPlayer.getHealth() <= 0) {
+                this.exPlayer.command.run('function die/normal');
+                if (this.globalscores.getNumber('DieMode') === 1) {
                     //死亡模式
-                    e.hurtEntity.runCommandAsync('function die/die_mode')
+                    this.exPlayer.command.run('function die/die_mode');
                 } else {
                     //非死亡模式
                     if (MathUtil.randomInteger(1, 3) == 1) {
-                        e.hurtEntity.runCommandAsync('function die/ghost')
+                        this.exPlayer.command.run('function die/ghost');
                     }
                 }
             }
