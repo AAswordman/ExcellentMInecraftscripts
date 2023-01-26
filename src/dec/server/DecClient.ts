@@ -1,4 +1,4 @@
-import { EffectType, MinecraftDimensionTypes, MinecraftEffectTypes, Player } from "@minecraft/server";
+import { EffectType, EntityHealthComponent, MinecraftDimensionTypes, MinecraftEffectTypes, Player, world } from "@minecraft/server";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import ExGameServer from "../../modules/exmc/server/ExGameServer.js";
 import { ArmorData, ArmorPlayerDec, ArmorPlayerPom } from "./items/ArmorData.js";
@@ -11,6 +11,33 @@ import ExGameConfig from "../../modules/exmc/server/ExGameConfig.js";
 import ExGame from "../../modules/exmc/server/ExGame.js";
 import PomServer from "../../pom/server/PomServer.js";
 
+function if_in(ele: any, lis: Array<any>) {
+    let test = false
+    for (let l of lis) {
+        if (l == ele) {
+            test = true
+            break
+        }
+    }
+    return test
+}
+
+function get_score(sb_id: string, name: string) {
+    let p = NaN
+    let sbs_raw = world.scoreboard.getObjectives()
+    let sbs = new Array<string>
+    sbs_raw.forEach(sb => {
+        sbs.push(sb.id)
+    })
+    if (if_in(sb_id, sbs)) {
+        world.scoreboard.getObjective(sb_id).getScores().forEach(f => {
+            if (f.participant.displayName == name) {
+                p = f.score
+            }
+        })
+    }
+    return p
+}
 
 export default class DecClient extends ExGameClient {
     useArmor: undefined | ArmorData = undefined;
@@ -23,6 +50,21 @@ export default class DecClient extends ExGameClient {
     override onJoin(): void {
         super.onJoin();
         this.getEvents().exEvents.playerHurt.subscribe(e => {
+
+            //这里写死亡事件
+            if ((<EntityHealthComponent>e.hurtEntity.getComponent('minecraft:health')).current <= 0) {
+                e.hurtEntity.runCommandAsync('function die/normal')
+                if (get_score('global', 'DieMode')) {
+                    //死亡模式
+                    e.hurtEntity.runCommandAsync('function die/die_mode')
+                } else {
+                    //非死亡模式
+                    if (MathUtil.randomInteger(1, 3) == 1) {
+                        e.hurtEntity.runCommandAsync('function die/ghost')
+                    }
+                }
+            }
+
             let ra = MathUtil.randomInteger(1, 100);
             //鲁伯特套装受伤效果
             if (1 <= ra && ra <= 20) {
@@ -233,7 +275,7 @@ export default class DecClient extends ExGameClient {
                 if (DecGlobal.isDec())
                     taskUi(this, e.item);
                 else
-                    ExGame.postMessageBetweenClient(this,PomServer,"taskUi",["paperTask","1"]);
+                    ExGame.postMessageBetweenClient(this, PomServer, "taskUi", ["paperTask", "1"]);
             }
         });
     }
