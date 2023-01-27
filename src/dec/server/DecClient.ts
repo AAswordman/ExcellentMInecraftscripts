@@ -6,7 +6,7 @@ import MathUtil from "../../modules/exmc/math/MathUtil.js";
 import Vector3 from "../../modules/exmc/math/Vector3.js";
 import ExGameVector3 from "../../modules/exmc/server/math/ExGameVector3.js";
 import DecGlobal from "./DecGlobal.js";
-import { numTranToTask, taskUi } from "./data/Task.js";
+import { DecTasks, PomTasks, numTranToTask, taskUi } from "./data/Task.js";
 import ExGameConfig from "../../modules/exmc/server/ExGameConfig.js";
 import ExGame from "../../modules/exmc/server/ExGame.js";
 import PomServer from "../../pom/server/PomServer.js";
@@ -14,6 +14,7 @@ import ExEntity from "../../modules/exmc/server/entity/ExEntity.js";
 import ExNullEntity from "../../modules/exmc/server/entity/ExNullEntity.js";
 import GlobalScoreBoardCache from "../../modules/exmc/server/storage/cache/GlobalScoreBoardCache.js";
 import { Objective } from "../../modules/exmc/server/entity/ExScoresManager.js";
+import Random from "../../modules/exmc/utils/Random.js";
 
 
 export default class DecClient extends ExGameClient {
@@ -148,9 +149,12 @@ export default class DecClient extends ExGameClient {
                     let t_n = MathUtil.randomInteger(1, 3);
                     let c_n = itemOnHand;
                     let lor: string[] = [];
+                    let t = DecGlobal.isDec()? DecTasks:PomTasks;
                     for (let i = 0; i < t_n; i++) {
                         //lor.push(numTranToTask(randonNumber(0, 9)) + numTranToTask(randonNumber(0, 9)) + numTranToTask(randonNumber(0, 9)))
-                        lor.push("Ao Ao " + numTranToTask(MathUtil.randomInteger(0, 9)));
+                        //lor.push("Ao Ao " + numTranToTask(MathUtil.randomInteger(0, 9)));
+                        lor.push(numTranToTask(Random.choice(t).id));
+                        
                     }
                     c_n.setLore(lor);
                     bag.setItemOnHand(c_n);

@@ -5,7 +5,7 @@ import ExGameVector3 from "../../../modules/exmc/server/math/ExGameVector3.js";
 import DecClient from "../DecClient.js";
 import ExGame from "../../../modules/exmc/server/ExGame.js";
 import PomServer from "../../../pom/server/PomServer.js";
-import DecGlobal from '../DecGlobal';
+import DecGlobal from '../DecGlobal.js';
 
 export default class DecBossController extends ExEntityController {
     constructor(e: Entity, server: DecServer) {

@@ -1,7 +1,7 @@
 import { Entity, EntityHurtEvent } from "@minecraft/server";
-import ExSound from "../../../modules/exmc/server/env/ExSound";
-import DecServer from "../DecServer";
-import DecBossController from "./DecBossController";
+import ExSound from "../../../modules/exmc/server/env/ExSound.js";
+import DecServer from "../DecServer.js";
+import DecBossController from "./DecBossController.js";
 
 export class DecCommonBossLastStage extends DecBossController{
     constructor(e: Entity, server: DecServer) {

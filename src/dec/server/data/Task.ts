@@ -89,28 +89,13 @@ export let PomTasks = DecTasks.concat([
     //new DecTask("500", 100, (ep) => true,(ep) => ep.damage(100))
 ]);
 
-
+const task_arr = ["Ao", "Jf", "Sk", "Ch", "Om", "Bs", "Hd", "Oa", "Gx", "Xe"];
 export function taskTranToNum(t: string) {
-    let task_arr = ["Ao", "Jf", "Sk", "Ch", "Om", "Bs", "Hd", "Oa", "Gx", "Xe"]
-    let n = ""
-    while (t.length >= 2) {
-        let msg = t.slice(0, 2);
-        n = n + (task_arr.findIndex(e => e === msg))
-        t = t.slice(3);
-    }
-    return n;
+    return t.split(" ").map(e => task_arr.indexOf(e)).join('');
 }
 
-export function numTranToTask(n: number) {
-    let r = ""
-    let task_arr = ["Ao", "Jf", "Sk", "Ch", "Om", "Bs", "Hd", "Oa", "Gx", "Xe"]
-    for (let l = 0; l <= n.toString().length - 1; l++) {
-        r = r + task_arr.slice(parseInt(n.toString().charAt(l)), parseInt(n.toString().charAt(l)) + 1) + " "
-    }
-    while (r.charAt(-1) == " ") {
-        r = r.slice(0, r.length - 1)
-    }
-    return r
+export function numTranToTask(n: string) {
+    return n.split('').map(e => task_arr[parseInt(e)]).join(" ");
 }
 
 export function taskUi(p: DecClient, i: ItemStack) {
