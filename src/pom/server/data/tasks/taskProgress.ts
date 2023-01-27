@@ -39,7 +39,7 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             "rewards": [
                 {
                     "name": "模组经验",
-                    "count": 800,
+                    "count": 1300,
                     "unit": "点",
                     "type": "integral"
                 }
@@ -58,7 +58,7 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             "rewards": [
                 {
                     "name": "模组经验",
-                    "count": 800,
+                    "count": 2000,
                     "unit": "点",
                     "type": "integral"
                 }
@@ -77,7 +77,7 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             "rewards": [
                 {
                     "name": "模组经验",
-                    "count": 800,
+                    "count": 2200,
                     "unit": "点",
                     "type": "integral"
                 }
@@ -96,7 +96,7 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             "rewards": [
                 {
                     "name": "模组经验",
-                    "count": 800,
+                    "count": 2200,
                     "unit": "点",
                     "type": "integral"
                 }
@@ -115,7 +115,7 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             "rewards": [
                 {
                     "name": "模组经验",
-                    "count": 800,
+                    "count": 4000,
                     "unit": "点",
                     "type": "integral"
                 }
@@ -134,7 +134,7 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             "rewards": [
                 {
                     "name": "模组经验",
-                    "count": 800,
+                    "count": 4500,
                     "unit": "点",
                     "type": "integral"
                 }
@@ -153,7 +153,7 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             "rewards": [
                 {
                     "name": "模组经验",
-                    "count": 800,
+                    "count": 4500,
                     "unit": "点",
                     "type": "integral"
                 }
@@ -172,7 +172,7 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             "rewards": [
                 {
                     "name": "模组经验",
-                    "count": 800,
+                    "count": 3000,
                     "unit": "点",
                     "type": "integral"
                 }
@@ -210,7 +210,7 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             "rewards": [
                 {
                     "name": "模组经验",
-                    "count": 1000,
+                    "count": 6000,
                     "unit": "点",
                     "type": "integral"
                 }
@@ -229,7 +229,7 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             "rewards": [
                 {
                     "name": "模组经验",
-                    "count": 1000,
+                    "count": 8000,
                     "unit": "点",
                     "type": "integral"
                 }
@@ -248,7 +248,7 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             "rewards": [
                 {
                     "name": "模组经验",
-                    "count": 1000,
+                    "count": 10000,
                     "unit": "点",
                     "type": "integral"
                 }
@@ -267,7 +267,7 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             "rewards": [
                 {
                     "name": "模组经验",
-                    "count": 1000,
+                    "count": 20000,
                     "unit": "点",
                     "type": "integral"
                 }

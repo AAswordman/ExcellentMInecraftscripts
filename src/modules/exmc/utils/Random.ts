@@ -1,6 +1,7 @@
 export default class Random {
     seed: number;
-    static MAX_VALUE = 1 << 32 - 1;
+    static MAX_VALUE = ~(1 << 31);
+    static MIN_VALUE = (1 << 31);
     constructor(seed?: number) {
         this.seed = (seed || Date.now()) % 999999999;
     }
