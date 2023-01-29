@@ -1,3 +1,4 @@
+import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/server";
 import { langType } from "../langType.js";
 import { PomTaskJSON } from "./PomTask.js";
 
@@ -10,19 +11,19 @@ export default function taskDaily_b(lang: langType):PomTaskJSON {
                 "conditions": [
                     {
                         "name": "小麦",
-                        "typeId": "minecraft:wheat",
+                        "typeId": MinecraftItemTypes.wheat.id,
                         "count": 128,
                         "type": "item"
                     },
                     {
                         "name": "南瓜",
-                        "typeId": "minecraft:pumpkin",
+                        "typeId": MinecraftItemTypes.pumpkin.id,
                         "count": 64,
                         "type": "item"
                     },
                     {
                         "name": "西瓜片",
-                        "typeId": "minecraft:melon_slice",
+                        "typeId": MinecraftItemTypes.melonSlice.id,
                         "count": 128,
                         "type": "item"
                     }
@@ -41,19 +42,19 @@ export default function taskDaily_b(lang: langType):PomTaskJSON {
                 "conditions": [
                     {
                         "name": "马铃薯",
-                        "typeId": "minecraft:potato",
+                        "typeId": MinecraftItemTypes.potato.id,
                         "count": 128,
                         "type": "item"
                     },
                     {
                         "name": "胡萝卜",
-                        "typeId": "minecraft:carrot",
+                        "typeId": MinecraftItemTypes.carrot.id,
                         "count": 64,
                         "type": "item"
                     },
                     {
                         "name": "西瓜",
-                        "typeId": "minecraft:melon_block",
+                        "typeId": MinecraftItemTypes.melonBlock.id,
                         "count": 32,
                         "type": "item"
                     }
@@ -72,25 +73,25 @@ export default function taskDaily_b(lang: langType):PomTaskJSON {
                 "conditions": [
                     {
                         "name": "熟鸡肉",
-                        "typeId": "minecraft:cooked_chicken",
+                        "typeId": MinecraftItemTypes.cookedChicken.id,
                         "count": 64,
                         "type": "item"
                     },
                     {
                         "name": "熟羊肉",
-                        "typeId": "minecraft:cooked_mutton",
+                        "typeId": MinecraftItemTypes.cookedMutton.id,
                         "count": 32,
                         "type": "item"
                     },
                     {
                         "name": "生牛肉",
-                        "typeId": "minecraft:beef",
+                        "typeId": MinecraftItemTypes.beef.id,
                         "count": 32,
                         "type": "item"
                     },
                     {
                         "name": "熟兔肉",
-                        "typeId": "minecraft:cooked_rabbit",
+                        "typeId": MinecraftItemTypes.cookedRabbit.id,
                         "count": 6,
                         "type": "item"
                     }
@@ -159,19 +160,19 @@ export default function taskDaily_b(lang: langType):PomTaskJSON {
                 "conditions": [
                     {
                         "name": "猪",
-                        "typeId": "minecraft:pig",
+                        "typeId": MinecraftEntityTypes.pig.id,
                         "count": 10,
                         "type": "kill"
                     },
                     {
                         "name": "牛",
-                        "typeId": "minecraft:cow",
+                        "typeId": MinecraftEntityTypes.cow.id,
                         "count": 12,
                         "type": "kill"
                     },
                     {
                         "name": "羊",
-                        "typeId": "minecraft:sheep",
+                        "typeId": MinecraftEntityTypes.sheep.id,
                         "count": 9,
                         "type": "kill"
                     }
@@ -190,7 +191,7 @@ export default function taskDaily_b(lang: langType):PomTaskJSON {
                 "conditions": [
                     {
                         "name": "木头",
-                        "typeId": "minecraft:log",
+                        "typeId": MinecraftItemTypes.log.id,
                         "count": 128,
                         "type": "break"
                     }
@@ -209,7 +210,7 @@ export default function taskDaily_b(lang: langType):PomTaskJSON {
                 "conditions": [
                     {
                         "name": "石头",
-                        "typeId": "minecraft:stone",
+                        "typeId": MinecraftItemTypes.stone.id,
                         "count": 128,
                         "type": "break"
                     }
@@ -228,7 +229,7 @@ export default function taskDaily_b(lang: langType):PomTaskJSON {
                 "conditions": [
                     {
                         "name": "毒马铃薯",
-                        "typeId": "minecraft:poisonous_potato",
+                        "typeId": MinecraftItemTypes.poisonousPotato.id,
                         "count": 16,
                         "type": "item"
                     }
@@ -247,13 +248,13 @@ export default function taskDaily_b(lang: langType):PomTaskJSON {
                 "conditions": [
                     {
                         "name": "兔肉煲",
-                        "typeId": "minecraft:rabbit_stew",
+                        "typeId": MinecraftItemTypes.rabbitStew.id,
                         "count": 5,
                         "type": "item"
                     },
                     {
                         "name": "蘑菇煲",
-                        "typeId": "minecraft:mushroom_stew",
+                        "typeId": MinecraftItemTypes.mushroomStew.id,
                         "count": 5,
                         "type": "item"
                     }
@@ -291,7 +292,7 @@ export default function taskDaily_b(lang: langType):PomTaskJSON {
                 "conditions": [
                     {
                         "name": "末地水晶",
-                        "typeId": "minecraft:end_crystal",
+                        "typeId": MinecraftItemTypes.endCrystal.id,
                         "count": 4,
                         "type": "item"
                     }

@@ -1,7 +1,7 @@
 import { world } from "@minecraft/server";
 import MathUtil from "../../math/MathUtil.js";
 
-export default class ExEnvirenment {
+export default class ExEnvironment {
     time: number;
     constructor(time?: number) {
         this.time = time ?? world.getAbsoluteTime();

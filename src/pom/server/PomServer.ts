@@ -31,7 +31,7 @@ import PomMindBossRuin from './func/ruins/mind/PomMindBossRuin.js';
 import { PomIntentionsBoss1, PomIntentionsBoss2, PomIntentionsBoss3 } from './entities/PomIntentionsBoss.js';
 import itemCanChangeBlock from './items/itemCanChangeBlock.js';
 import PomBossBarrier from './func/barrier/PomBossBarrier.js';
-import ExEnvirenment from '../../modules/exmc/server/env/ExEnvirenment.js';
+import ExEnvironment from '../../modules/exmc/server/env/ExEnvironment.js';
 
 
 export default class PomServer extends ExGameServer {
@@ -538,7 +538,7 @@ export default class PomServer extends ExGameServer {
     // }
     @registerEvent<PomServer>("chat", (server, e: ChatEvent) => e.message === "time")
     time(e: ChatEvent) {
-        new ExEnvirenment().print();
+        new ExEnvironment().print();
     }
 
     @registerEvent<PomServer>("entityHurt", (server, e: EntityHurtEvent) => server.setting.damageShow && e.cause !== EntityDamageCause.suicide)
