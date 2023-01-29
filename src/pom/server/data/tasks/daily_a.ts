@@ -35,7 +35,7 @@ export default function taskDaily_a(lang: langType):PomTaskJSON {
                 "conditions": [
                     {
                         "name": "马铃薯",
-                        "typeId": "minecraft:potatoes",
+                        "typeId": "minecraft:potato",
                         "count": 64,
                         "type": "item"
                     },

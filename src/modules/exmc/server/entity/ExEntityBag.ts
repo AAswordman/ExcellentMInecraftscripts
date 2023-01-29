@@ -48,7 +48,7 @@ export default class ExEntityBag {
         for (let i = 0; i < this.size(); i++) {
             let item = this.getItem(i);
             if (item)
-                items.set(item.typeId, item.amount);
+                items.set(item.typeId, item.amount + (items.get(item.typeId) ?? 0));
         };
         return items;
     }

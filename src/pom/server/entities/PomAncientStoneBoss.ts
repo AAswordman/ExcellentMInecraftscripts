@@ -16,7 +16,7 @@ export default class PomAncientStoneBoss extends PomBossController {
     }
     override initBossEntity(): void {
         this.setTimeout(() => {
-            this.music.loop(this.getEvents(), this.exEntity.getExDimension(), this.entity.location);
+            this.music.loop(this.server.getEvents(), this.exEntity.getExDimension(), this.entity.location);
         }, 500);
         for (let c of this.barrier.clientsByPlayer()) {
             c.ruinsSystem.causeDamageShow = true;

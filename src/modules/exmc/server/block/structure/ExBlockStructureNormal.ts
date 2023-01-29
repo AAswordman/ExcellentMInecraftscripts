@@ -26,7 +26,17 @@ export default class ExBlockStructureNormal implements ExBlockStructure {
 
     constructor() {
     }
-    setDimension(dim: Dimension): ExBlockStructureNormal {
+    clone(): ExBlockStructureNormal {
+        let n = new ExBlockStructureNormal();
+        n.dimension = this.dimension;
+        n.structure = this.structure;
+        n.analysisMap = this.analysisMap;
+        n.direction = this.direction;
+        n.area = this.area;
+
+        return n;
+    }
+    setDimension(dim: Dimension): this {
         this.dimension = ExDimension.getInstance(dim);
         return this;
     }
@@ -163,14 +173,14 @@ export default class ExBlockStructureNormal implements ExBlockStructure {
 
         return flag;
     }
-    setStructure(res: string[][]): ExBlockStructureNormal {
+    setStructure(res: string[][]): this {
         this.structure = res;
         this.structure.forEach(element => {
             element.reverse();
         });
         return this;
     }
-    analysis(map: object | Map<string, string>): ExBlockStructureNormal {
+    analysis(map: object | Map<string, string>) {
         if (map instanceof Map<string, string>) {
             this.analysisMap = map;
         } else {
@@ -183,7 +193,7 @@ export default class ExBlockStructureNormal implements ExBlockStructure {
 
         return this;
     }
-    putStructure(area: ExBlockArea): ExBlockStructureNormal {
+    putStructure(area: ExBlockArea) {
         if (this.dimension === undefined) throw new Error("dimension is undefined");
         if (this.analysisMap === undefined) throw new Error("analysisMap is undefined");
         if (this.structure === undefined) throw new Error("structure is undefined");
@@ -208,11 +218,11 @@ export default class ExBlockStructureNormal implements ExBlockStructure {
         }
         return this;
     }
-    setArea(area: ExBlockArea): ExBlockStructureNormal {
+    setArea(area: ExBlockArea) {
         this.area = area;
         return this;
     }
-    setDirection(dic: number): ExBlockStructureNormal {
+    setDirection(dic: number) {
         this.direction = dic;
         return this;
     }

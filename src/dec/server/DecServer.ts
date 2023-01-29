@@ -17,6 +17,8 @@ import Vector3 from '../../modules/exmc/math/Vector3.js';
 import { to } from '../../modules/exmc/server/ExErrorQueue.js';
 import { DecEverlastingWinterGhastBoss1, DecEverlastingWinterGhastBoss2 } from './entities/DecEverlastingWinterGhastBoss.js';
 import { DecCommonBossLastStage } from './entities/DecCommonBossLastStage.js';
+import VarOnChangeListener from '../../modules/exmc/utils/VarOnChangeListener.js';
+import ExEnvirenment from '../../modules/exmc/server/env/ExEnvirenment.js';
 
 
 export default class DecServer extends ExGameServer {
@@ -24,15 +26,34 @@ export default class DecServer extends ExGameServer {
     i_damp: Objective;
     i_soft: Objective;
 
+    nightEventListener: VarOnChangeListener<boolean>;
     tmpV = new Vector3();
     constructor(config: ExConfig) {
         super(config);
-
 
         this.i_inviolable = new Objective("i_inviolable").create("i_inviolable");
         this.i_damp = new Objective("i_damp").create("i_damp");
         this.i_soft = new Objective("i_soft").create("i_soft");
         //new Objective("harmless").create("harmless");
+        this.nightEventListener = new VarOnChangeListener(e => {
+            if (e) {
+                // is night
+                this.getExDimension(MinecraftDimensionTypes.overworld).command.run([
+                    "execute if score IsNight global = zero global run scoreboard players random NightRandom global 1 100",
+                    "scoreboard players set IsDay global 0",
+                    "scoreboard players set IsNight global 1"
+                ]);
+            } else {
+                this.getExDimension(MinecraftDimensionTypes.overworld).command.run([
+                    "tag @a remove zombie_wave",
+                    "scoreboard players set IsDay global 1",
+                    "scoreboard players set IsNight global 0",
+                    "scoreboard players set NightRandom global 0",
+                    "scoreboard players set @a night_event 0",
+                    "fog @a remove \"night_event\""
+                ]);
+            }
+        }, false);
 
         this.getEvents().events.beforeChat.subscribe(e => {
             let cmdRunner = this.getExDimension(MinecraftDimensionTypes.overworld);
@@ -131,6 +152,10 @@ export default class DecServer extends ExGameServer {
             ]);
 
             if (e.currentTick % 100 === 0) {
+                //夜晚事件
+                this.nightEventListener.upDate(new ExEnvirenment().isNight());
+
+                //盔甲探测
                 let prom: Promise<boolean>[] = [];
                 for (const client of <IterableIterator<DecClient>>this.getClients()) {
                     prom.push(client.checkArmor());
@@ -168,14 +193,14 @@ export default class DecServer extends ExGameServer {
         });
 
         //实体监听器，用于播放bgm、完成任务判断
-        this.addEntityController("dec:leaves_golem",DecCommonBossLastStage);
-        this.addEntityController("dec:king_of_pillager",DecCommonBossLastStage);
-        this.addEntityController("dec:abyssal_controller",DecCommonBossLastStage);
-        this.addEntityController("dec:predators",DecCommonBossLastStage);
-        this.addEntityController("dec:enchant_illager_2",DecCommonBossLastStage);
-        this.addEntityController("dec:escaped_soul_entity",DecCommonBossLastStage);
-        this.addEntityController("dec:host_of_deep_2",DecCommonBossLastStage);
-        this.addEntityController("dec:ash_knight",DecCommonBossLastStage);
+        this.addEntityController("dec:leaves_golem", DecCommonBossLastStage);
+        this.addEntityController("dec:king_of_pillager", DecCommonBossLastStage);
+        this.addEntityController("dec:abyssal_controller", DecCommonBossLastStage);
+        this.addEntityController("dec:predators", DecCommonBossLastStage);
+        this.addEntityController("dec:enchant_illager_2", DecCommonBossLastStage);
+        this.addEntityController("dec:escaped_soul_entity", DecCommonBossLastStage);
+        this.addEntityController("dec:host_of_deep_2", DecCommonBossLastStage);
+        this.addEntityController("dec:ash_knight", DecCommonBossLastStage);
         this.addEntityController("dec:everlasting_winter_ghast", DecEverlastingWinterGhastBoss1);
         this.addEntityController("dec:everlasting_winter_ghast_1", DecEverlastingWinterGhastBoss2);
 

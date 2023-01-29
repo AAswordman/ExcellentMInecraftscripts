@@ -16,7 +16,7 @@ export default function taskDaily_c(lang: langType):PomTaskJSON {
                     },
                     {
                         "name": "马铃薯",
-                        "typeId": "minecraft:potatoes",
+                        "typeId": "minecraft:potato",
                         "count": 256,
                         "type": "item"
                     },
@@ -47,7 +47,7 @@ export default function taskDaily_c(lang: langType):PomTaskJSON {
                     },
                     {
                         "name": "马铃薯",
-                        "typeId": "minecraft:potatoes",
+                        "typeId": "minecraft:potato",
                         "count": 128,
                         "type": "item"
                     },

@@ -1,4 +1,4 @@
-import { Entity, EntityDamageCause, EntityHurtEvent, GameMode, MinecraftBlockTypes, MinecraftDimensionTypes, MinecraftEffectTypes, MinecraftEntityTypes, Player } from '@minecraft/server';
+import { ChatEvent, Entity, EntityDamageCause, EntityHurtEvent, GameMode, MinecraftBlockTypes, MinecraftDimensionTypes, MinecraftEffectTypes, MinecraftEntityTypes, Player } from '@minecraft/server';
 import ExConfig from "../../modules/exmc/ExConfig.js";
 import Vector3 from '../../modules/exmc/math/Vector3.js';
 import ExDimension from "../../modules/exmc/server/ExDimension.js";
@@ -31,6 +31,7 @@ import PomMindBossRuin from './func/ruins/mind/PomMindBossRuin.js';
 import { PomIntentionsBoss1, PomIntentionsBoss2, PomIntentionsBoss3 } from './entities/PomIntentionsBoss.js';
 import itemCanChangeBlock from './items/itemCanChangeBlock.js';
 import PomBossBarrier from './func/barrier/PomBossBarrier.js';
+import ExEnvirenment from '../../modules/exmc/server/env/ExEnvirenment.js';
 
 
 export default class PomServer extends ExGameServer {
@@ -535,6 +536,10 @@ export default class PomServer extends ExGameServer {
     //     this.fakePlayerSpawnLoc = new BlockLocation(e.sender.location.x, e.sender.location.y, e.sender.location.z);
     //     ExPlayer.getInstance(e.sender).command.run("gametest run Pom:fakeplayer")
     // }
+    @registerEvent<PomServer>("chat", (server, e: ChatEvent) => e.message === "time")
+    time(e: ChatEvent) {
+        new ExEnvirenment().print();
+    }
 
     @registerEvent<PomServer>("entityHurt", (server, e: EntityHurtEvent) => server.setting.damageShow && e.cause !== EntityDamageCause.suicide)
     damageShow(e: EntityHurtEvent) {

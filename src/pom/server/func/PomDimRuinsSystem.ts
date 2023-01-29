@@ -398,7 +398,7 @@ export default class PomDimRuinsSystem extends GameController {
                         .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
                         .find();
                     if (m) {
-                        p.analysis({
+                        p.clone().analysis({
                             X: MinecraftBlockTypes.sandstone.id,
                             W: "wb:portal_desertboss",
                             Y: "wb:portal_desertboss",
@@ -420,7 +420,7 @@ export default class PomDimRuinsSystem extends GameController {
                             .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
                             .find();
                         if (m) {
-                            p.analysis({
+                            p.clone().analysis({
                                 X: MinecraftBlockTypes.sandstone.id,
                                 W: "wb:portal_stoneboss",
                                 Y: "wb:portal_stoneboss",
@@ -439,7 +439,7 @@ export default class PomDimRuinsSystem extends GameController {
                                 .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
                                 .find();
                             if (m) {
-                                p.analysis({
+                                p.clone().analysis({
                                     X: MinecraftBlockTypes.deepslateTiles.id,
                                     W: "wb:portal_caveboss",
                                     Y: "wb:portal_caveboss",
@@ -457,7 +457,7 @@ export default class PomDimRuinsSystem extends GameController {
                                     .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
                                     .find();
                                 if (m) {
-                                    p.analysis({
+                                    p.clone().analysis({
                                         X: MinecraftBlockTypes.chiseledDeepslate.id,
                                         W: "wb:portal_ancientboss",
                                         Y: "wb:portal_ancientboss",
@@ -478,7 +478,7 @@ export default class PomDimRuinsSystem extends GameController {
                                         .find();
                                     if (m) {
 
-                                        p.analysis({
+                                        p.clone().analysis({
                                             X: "wb:block_magic_equipment",
                                             W: "wb:portal_mindboss",
                                             Y: "wb:portal_mindboss",
