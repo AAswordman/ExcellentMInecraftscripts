@@ -18,7 +18,7 @@ import { to } from '../../modules/exmc/server/ExErrorQueue.js';
 import { DecEverlastingWinterGhastBoss1, DecEverlastingWinterGhastBoss2 } from './entities/DecEverlastingWinterGhastBoss.js';
 import { DecCommonBossLastStage } from './entities/DecCommonBossLastStage.js';
 import VarOnChangeListener from '../../modules/exmc/utils/VarOnChangeListener.js';
-import ExEnvirenment from '../../modules/exmc/server/env/ExEnvirenment.js';
+import ExEnvironment from '../../modules/exmc/server/env/ExEnvironment.js';
 
 
 export default class DecServer extends ExGameServer {
@@ -153,7 +153,7 @@ export default class DecServer extends ExGameServer {
 
             if (e.currentTick % 100 === 0) {
                 //夜晚事件
-                this.nightEventListener.upDate(new ExEnvirenment().isNight());
+                this.nightEventListener.upDate(new ExEnvironment().isNight());
 
                 //盔甲探测
                 let prom: Promise<boolean>[] = [];
