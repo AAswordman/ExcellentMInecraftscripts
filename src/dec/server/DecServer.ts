@@ -45,7 +45,6 @@ export default class DecServer extends ExGameServer {
                 ]);
             } else {
                 this.getExDimension(MinecraftDimensionTypes.overworld).command.run([
-                    "tag @a remove zombie_wave",
                     "scoreboard players set IsDay global 1",
                     "scoreboard players set IsNight global 0",
                     "scoreboard players set NightRandom global 0",
