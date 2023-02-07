@@ -22,20 +22,20 @@ export default class PomMagicSystem extends GameController {
     private _anotherShow: string[] = [];
     private _mapShow = new Map<string, string[]>();
 
-    registActionbarPass(name:string){
+    registActionbarPass(name: string) {
         this._mapShow.set(name, []);
         return <string[]>this.getActionbarByPass(name);
     }
-    getActionbarSize(){
+    getActionbarSize() {
         return this._mapShow.size;
     }
-    getActionbarByPass(name:string){
+    getActionbarByPass(name: string) {
         return this._mapShow.get(name);
     }
-    setActionbarByPass(name:string,msg:string[]){
-        this._mapShow.set(name,msg);
+    setActionbarByPass(name: string, msg: string[]) {
+        this._mapShow.set(name, msg);
     }
-    deleteActionbarPass(name:string){
+    deleteActionbarPass(name: string) {
         this._mapShow.delete(name);
     }
 
@@ -94,7 +94,7 @@ export default class PomMagicSystem extends GameController {
     upDateByTalent(talentRes: Map<number, number>) {
         let scores = this.exPlayer.getScoresManager();
         scores.setScoreAsync("wbwqlqjs", Math.round(100 + (talentRes.get(Talent.DEFENSE) ?? 0)));
-        this.wbflLooper.delay(1 / (1 / 5000 * (1 + (talentRes.get(Talent.DEFENSE) ?? 0) / 100) * (1 + scores.getScore("wbdjcg") * 3 / 100)));
+        this.wbflLooper.delay(5000 / ((1 + (talentRes.get(Talent.SOURCE) ?? 0) / 100) * (1 + scores.getScore("wbdjcg") * 3 / 100)));
         this.armorCoolingLooper.delay(1 / (1 / 1000 * (1 + (talentRes.get(Talent.RELOAD) ?? 0) / 100)));
     }
 }
