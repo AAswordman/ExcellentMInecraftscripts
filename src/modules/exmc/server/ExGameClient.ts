@@ -12,7 +12,7 @@ import { basicFinalType } from "../interface/types.js";
 
 import "../../reflect-metadata/Reflect.js"
 import { eventDecoratorFactory } from "./events/eventDecoratorFactory.js";
-import notUtillTask from "../utils/NotUtillTask.js";
+import notUtillTask from "../utils/notUtillTask.js";
 
 export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingPool> implements SetTimeOutSupport {
     private _events: ExClientEvents;

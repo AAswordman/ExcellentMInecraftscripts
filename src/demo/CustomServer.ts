@@ -8,7 +8,7 @@ export default class CustomServer extends ExGameServer {
     constructor(config: ExConfig) {
         super(config);
 
-        this.getEvents().events.entityCreate.subscribe(e => {
+        this.getEvents().events.entitySpawn.subscribe(e => {
 
         });
 

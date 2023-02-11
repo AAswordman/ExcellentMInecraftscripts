@@ -32,6 +32,7 @@ import { PomIntentionsBoss1, PomIntentionsBoss2, PomIntentionsBoss3 } from './en
 import itemCanChangeBlock from './items/itemCanChangeBlock.js';
 import PomBossBarrier from './func/barrier/PomBossBarrier.js';
 import ExEnvironment from '../../modules/exmc/server/env/ExEnvironment.js';
+// import * as b from "brain.js";
 
 
 export default class PomServer extends ExGameServer {
@@ -118,7 +119,7 @@ export default class PomServer extends ExGameServer {
 
                 entities.forEach(e => {
                     if (!e || !e.typeId || e.typeId !== max[1]) return;
-                    if (e.typeId === "minecraft:item" && e.viewVector.y !== 0) return;
+                    if (e.typeId === "minecraft:item" && e.viewDirection.y !== 0) return;
                     //if (e.nameTag) return;
                     e.kill();
                 });
@@ -340,7 +341,7 @@ export default class PomServer extends ExGameServer {
             //     })
             // );
             for (let e of entities) {
-                if (e.typeId === "minecraft:item" && e.viewVector.y === 0) {
+                if (e.typeId === "minecraft:item" && e.viewDirection.y === 0) {
                     e.kill();
                 }
             }
@@ -489,7 +490,7 @@ export default class PomServer extends ExGameServer {
         this.ruinFuncLooper.start();
 
         //末影人清理
-        this.getEvents().events.entityCreate.subscribe(e => {
+        this.getEvents().events.entitySpawn.subscribe(e => {
             if (e.entity.typeId === MinecraftEntityTypes.enderman.id) {
                 if (e.entity.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) &&
                     (
@@ -516,6 +517,8 @@ export default class PomServer extends ExGameServer {
         //     );
         // })
         //     .structureName("pom:camp_fire");
+
+        // new b.NeuralNetwork();
     }
     updateClearEntityNum() {
         this.entityCleanerStrength = this.setting.entityCleanerStrength;
