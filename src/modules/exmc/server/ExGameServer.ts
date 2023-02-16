@@ -1,6 +1,6 @@
 import ExGameClient from "./ExGameClient.js";
 import ExDimension from "./ExDimension.js";
-import { world, MinecraftDimensionTypes, PlayerJoinEvent, Player, TickEvent, PlayerLeaveEvent, system, EntityCreateEvent, IRawMessage } from "@minecraft/server";
+import { world, MinecraftDimensionTypes, PlayerJoinEvent, Player, TickEvent, PlayerLeaveEvent, system, RawMessage, EntitySpawnEvent } from "@minecraft/server";
 import ExGameConfig from "./ExGameConfig.js";
 import initConsole from "../utils/Console.js";
 import ExServerEvents from "./events/ExServerEvents.js";
@@ -13,10 +13,9 @@ import ExCommand from './env/ExCommand.js';
 import ExClientEvents from "./events/ExClientEvents.js";
 import ExEntityController from './entity/ExEntityController.js';
 import ExEntityEvents from "./entity/ExEntityEvents.js";
-
-import "../../reflect-metadata/Reflect.js"
-import format from '../utils/format.js';
+import "../../reflect-metadata/Reflect.js";
 import { eventDecoratorFactory, registerEvent } from "./events/eventDecoratorFactory.js";
+import notUtillTask from "../utils/notUtillTask.js";
 
 
 export default class ExGameServer implements SetTimeOutSupport {
@@ -50,7 +49,7 @@ export default class ExGameServer implements SetTimeOutSupport {
         eventDecoratorFactory(this.getEvents(), this);
     }
 
-    say(msg: string | { rawtext: IRawMessage[] }) {
+    say(msg: string | { rawtext: RawMessage[] }) {
         world.say(msg);
     }
 
@@ -58,8 +57,8 @@ export default class ExGameServer implements SetTimeOutSupport {
         this.entityControllers.set(id, ec);
     }
 
-    @registerEvent("entityCreate")
-    onEntitySpawn(e: EntityCreateEvent) {
+    @registerEvent("entitySpawn")
+    onEntitySpawn(e: EntitySpawnEvent) {
         const entityConstructor = this.entityControllers.get(e.entity.typeId);
         if (entityConstructor) {
             new (entityConstructor)(e.entity, this);
@@ -108,11 +107,19 @@ export default class ExGameServer implements SetTimeOutSupport {
 
     @registerEvent("playerJoin")
     onClientJoin(event: PlayerJoinEvent) {
-        let player = event.player;
-        let id = UUID.randomUUID();
-        let client = this.newClient(id, player);
-        this.clients.set(id, client);
-        this.clients_nameMap.set(player.name, client);
+        const playerName = event.playerName;
+
+        notUtillTask(this, () => {
+            return world.getAllPlayers().findIndex(p => p.name === playerName) !== -1;
+        },
+            () => {
+                let player = world.getAllPlayers().find(e => e.name === playerName);
+                if (!player) throw new Error(`Player ${playerName} not found`);
+                let id = UUID.randomUUID();
+                let client = this.newClient(id, player);
+                this.clients.set(id, client);
+                this.clients_nameMap.set(player.name, client);
+            });
     }
 
     @registerEvent("playerLeave")

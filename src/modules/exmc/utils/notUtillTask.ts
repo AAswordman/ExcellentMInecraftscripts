@@ -1,7 +1,7 @@
 import SetTimeOutSupport from "../interface/SetTimeOutSupport.js";
 import ExErrorQueue, { to } from "../server/ExErrorQueue.js";
 
-export default function notUtillTask(m: SetTimeOutSupport, f: (() => boolean) | (() => Promise<boolean>), run: () => void) {
+export default function notUtillTask(m: SetTimeOutSupport, f: (() => boolean) | (() => Promise<boolean>), run: () => void,tryTime = 1000, maxTimes = 60) {
     let func = async () => {
         try {
             let res = f();
@@ -9,7 +9,10 @@ export default function notUtillTask(m: SetTimeOutSupport, f: (() => boolean) | 
             if (res) {
                 run();
             } else {
-                m.setTimeout((func), 1000);
+                if(maxTimes > 0 ){
+                    maxTimes --;
+                    m.setTimeout((func), tryTime);
+                }
             }
         } catch (e) {
             ExErrorQueue.throwError(e);

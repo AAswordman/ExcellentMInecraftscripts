@@ -134,8 +134,8 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         this.setPosition(this.getPosition(), dimension);
     }
 
-    getViewVector() {
-        return new Vector3(this.entity.viewVector);
+    getViewDirection() {
+        return new Vector3(this.entity.viewDirection);
     }
 
     hasComponent(name: string) {

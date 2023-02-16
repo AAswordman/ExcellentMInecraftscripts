@@ -4,14 +4,13 @@ import {
     BeforeItemUseOnEvent,
     BlockBreakEvent,
     ChatEvent,
-    EntityCreateEvent,
     ItemUseEvent,
     ItemUseOnEvent,
     TickEvent
 } from "@minecraft/server";
 import ExEventManager from "../../interface/ExEventManager.js";
 import ExGameServer from '../ExGameServer.js';
-import { Player, EntityHurtEvent, ItemStack, EntityHitEvent, Entity } from '@minecraft/server';
+import { Player, EntityHurtEvent, ItemStack, EntityHitEvent, Entity, EntitySpawnEvent } from '@minecraft/server';
 import ExPlayer from '../entity/ExPlayer.js';
 import TickDelayTask from "../../utils/TickDelayTask.js";
 import EventHandle, { EventListenerSettings } from "../events/EventHandle.js";

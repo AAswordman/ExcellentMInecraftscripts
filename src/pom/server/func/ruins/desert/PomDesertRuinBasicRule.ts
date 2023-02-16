@@ -34,7 +34,7 @@ export default class PomDesertRuinBasicRule extends GameControllerRuinRule {
                 if (spos.x === this.tmpA.x && spos.y === this.tmpA.y && spos.z === this.tmpA.z) {
                     line.push(PomMazeMapBuilder.CHAR_MAZE_PATH_GUARD);
                 } else if (spos.x === playerPos.x && spos.z === playerPos.z) {
-                    const view = this.game.player.viewVector;
+                    const view = this.game.player.viewDirection;
                     if (ruin.isInRoom(posStr)) {
                         if (view.x > view.z) {
                             if (Math.abs(view.x) > Math.abs(view.z)) line.push(PomMazeMapBuilder.CHAR_MAZE_ROOM_ARROW_LEFT);
