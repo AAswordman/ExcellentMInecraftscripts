@@ -35,4 +35,6 @@ export default class PomData {
 
     lang?: "en" | "zh";
 
+    initialMagicPickaxe?:true;
+
 }

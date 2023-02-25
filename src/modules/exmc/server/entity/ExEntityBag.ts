@@ -92,4 +92,7 @@ export default class ExEntityBag {
     hasItem(itemId: string) {
         return this.searchItem(itemId) !== -1;
     }
+    addItem(item: ItemStack) {
+        this.bagComponent.container.addItem(item);
+    }
 }

@@ -147,6 +147,12 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
         this.player.removeTag("debugger");
     }
 
+    runMethodOnEveryClient(fun:((e:this) => void)){
+        for(let c of this.getServer().getClients()){
+            fun(c as any);
+        }
+    }
+
     setTimeout(fun: () => void, timeout: number) {
         let time = 0;
         let method = (e: TickEvent) => {
