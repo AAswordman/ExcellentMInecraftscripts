@@ -21,7 +21,7 @@ export class DecTask {
                     "tellraw @s[tag=task_complete] { \"rawtext\" : [ { \"translate\" : \"text.dec:task_" + id + "_complete.name\" } ] }",
                     "tellraw @s[tag=!task_complete] { \"rawtext\" : [ { \"translate\" : \"text.dec:task_fail.name\" } ] }",
                     "loot give @s[tag=task_complete] loot \"tasks/" + id + "\"",
-                    "xp @s[tag=task_complete] " + xp_change.toString(),
+                    "xp " + xp_change.toString() + " @s[tag=task_complete]",
                     "replaceitem entity @s[tag=task_complete] slot.weapon.mainhand 0 air",
                     "tag @s remove task_complete"
                 );
@@ -100,7 +100,7 @@ export let DecTasks = [
     ]),
     new DecTask("014", 68, [
         "execute if entity @s[hasitem={item=iron_sword}] run tag @s add task_complete",
-        "execute if entity @s[tag=task_complete] run clear @s paper 0 1"
+        "execute if entity @s[tag=task_complete] run clear @s iron_sword 0 1"
     ]),
     new DecTask("015", 142, [
         "execute if entity @s[hasitem={item=yellow_flower,quantity=14..}] run tag @s add task_complete",
@@ -285,7 +285,230 @@ export let DecTasks = [
     new DecTask("057", 482, [
         "execute if entity @s[hasitem={item=dec:shell,quantity=3..}] run tag @s add task_complete",
         "execute if entity @s[tag=task_complete] run clear @s dec:shell 0 3"
-    ])
+    ]),//Below is new
+    new DecTask("058", 754, [
+        "execute if entity @s[hasitem={item=dec:melon_piece,quantity=78..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:melon_piece 0 78"
+    ]),
+    new DecTask("059", 751, [
+        "execute if entity @s[hasitem={item=dec:fried_melon_seed,quantity=64..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:fried_melon_seed 0 64"
+    ]),
+    new DecTask("060", 1752, [
+        "execute if entity @s[hasitem={item=dec:apple_pie,quantity=74..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:apple_pie 0 74"
+    ]),
+    new DecTask("061", 1342, [
+        "execute if entity @s[hasitem={item=dec:chocolate_cookie,quantity=32..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:chocolate_cookie 0 32"
+    ]),
+    new DecTask("062", 754, [
+        "execute if entity @s[hasitem={item=dec:fried_egg,quantity=18..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:fried_egg 0 18"
+    ]),
+    new DecTask("063", 571, [
+        "execute if entity @s[hasitem={item=dec:ender_fish,quantity=6..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:ender_fish 0 6"
+    ]),
+    new DecTask("064", 751, [
+        "execute if entity @s[hasitem={item=dec:snailfish,quantity=16..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:snailfish 0 16"
+    ]),
+    new DecTask("065", 1375, [
+        "execute if entity @s[hasitem={item=dec:spiral_shell,quantity=7..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:spiral_shell 0 7"
+    ]),
+    new DecTask("066", 1243, [
+        "execute if entity @s[hasitem={item=dec:sword_fish,quantity=2..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:sword_fish 0 2"
+    ]),
+    new DecTask("067", 1243, [
+        "execute if entity @s[hasitem={item=dec:tropical_fish,quantity=72..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:tropical_fish 0 72"
+    ]),
+    new DecTask("068", 1471, [
+        "execute if entity @s[hasitem={item=dec:tropical_fish_cooked,quantity=76..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:tropical_fish_cooked 0 76"
+    ]),
+    new DecTask("069", 1471, [
+        "execute if entity @s[hasitem={item=dec:candy,quantity=75..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:candy 0 75"
+    ]),
+    new DecTask("070", 1672, [
+        "execute if entity @s[hasitem={item=dec:lollipop,quantity=14..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:lollipop 0 14"
+    ]),
+    new DecTask("071", 1851, [
+        "execute if entity @s[hasitem={item=dec:hard_lollipop,quantity=17..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:hard_lollipop 0 17"
+    ]),
+    new DecTask("072", 214, [
+        "execute if entity @s[hasitem={item=dec:long_bread}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:long_bread 0 1"
+    ]),
+    new DecTask("073", 985, [
+        "execute if entity @s[hasitem={item=dec:tofu,quantity=64..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:tofu 0 64"
+    ]),
+    new DecTask("074", 276, [
+        "execute if entity @s[hasitem={item=dec:apple_juice}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:apple_juice 0 1"
+    ]),
+    new DecTask("074", 276, [
+        "execute if entity @s[hasitem={item=dec:crab_leg,quantity=6..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:crab_leg 0 6"
+    ]),
+    new DecTask("075", 457, [
+        "execute if entity @s[hasitem={item=dec:crab_leg_cooked,quantity=6..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:crab_leg_cooked 0 6"
+    ]),
+    new DecTask("077", 384, [
+        "execute if entity @s[hasitem={item=dec:pine_cone}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:pine_cone 0 1"
+    ]),
+    new DecTask("078", 572, [
+        "execute if entity @s[hasitem={item=dec:artificial_meat,quantity=15..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:artificial_meat 0 15"
+    ]),
+    new DecTask("079", 427, [
+        "execute if entity @s[hasitem={item=dec:nautilus_alive}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:nautilus_alive 0 1"
+    ]),
+    new DecTask("080", 432, [
+        "execute if entity @s[hasitem={item=dec:a_piece_of_salmon,quantity=16..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:a_piece_of_salmon 0 16"
+    ]),
+    new DecTask("081", 1864, [
+        "execute if entity @s[hasitem={item=dec:lamprey,quantity=16..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:lamprey 0 16"
+    ]),
+    new DecTask("082", 675, [
+        "execute if entity @s[hasitem={item=dec:perch,quantity=16..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:perch 0 16"
+    ]),
+    new DecTask("083", 791, [
+        "execute if entity @s[hasitem={item=dec:perch_cooked,quantity=17..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:perch 0 17"
+    ]),
+    new DecTask("084", 754, [
+        "execute if entity @s[hasitem={item=dec:blue_jellyfish}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:blue_jellyfish 0 1"
+    ]),
+    new DecTask("085", 473, [
+        "execute if entity @s[hasitem={item=dec:pink_jellyfish}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:pink_jellyfish 0 1"
+    ]),
+    new DecTask("086", 521, [
+        "execute if entity @s[hasitem={item=dec:yellow_jellyfish}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:yellow_jellyfish 0 1"
+    ]),
+    new DecTask("087", 1427, [
+        "execute if entity @s[hasitem={item=dec:chocolates,quantity=64..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:chocolates 0 64"
+    ]),
+    new DecTask("088", 1213, [
+        "execute if entity @s[hasitem={item=dec:gingerbread_man,quantity=16..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:gingerbread_man 0 16"
+    ]),
+    new DecTask("089", 746, [
+        "execute if entity @s[hasitem={item=dec:gingerbread_sword}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:gingerbread_sword 0 1"
+    ]),
+    new DecTask("090", 754, [
+        "execute if entity @s[hasitem={item=dec:candy_cane}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:candy_cane 0 1"
+    ]),
+    new DecTask("091", 781, [
+        "execute if entity @s[hasitem={item=dec:gingerbread_totem}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:gingerbread_totem 0 1"
+    ]),
+    new DecTask("092", 542, [
+        "execute if entity @s[hasitem={item=dec:sardine,quantity=15..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:sardine 0 15"
+    ]),
+    new DecTask("093", 1312, [
+        "execute if entity @s[hasitem={item=dec:leek_cooked,quantity=81..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:leek_cooked 0 81"
+    ]),
+    new DecTask("094", 572, [
+        "execute if entity @s[hasitem={item=dec:ice_cream,quantity=3..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:ice_cream 0 3"
+    ]),
+    new DecTask("095", 711, [
+        "execute if entity @s[hasitem={item=dec:magic_ice_cream}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dec:magic_ice_cream 0 1"
+    ]),
+    new DecTask("096", 157, [
+        "execute if entity @s[hasitem={item=baked_potato}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s baked_potato 0 1"
+    ]),
+    new DecTask("097", 1170, [
+        "execute if entity @s[hasitem={item=beetroot,quantity=77..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s beetroot 0 77"
+    ]),
+    new DecTask("098", 312, [
+        "execute if entity @s[hasitem={item=bread,quantity=18..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s bread 0 18"
+    ]),
+    new DecTask("099", 127, [
+        "execute if entity @s[hasitem={item=cake}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s cake 0 1"
+    ]),
+    new DecTask("100", 1210, [
+        "execute if entity @s[hasitem={item=carrot,quantity=72..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s carrot 0 72"
+    ]),
+    new DecTask("101", 1241, [
+        "execute if entity @s[hasitem={item=chorus,quantity=251..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s chorus 0 251"
+    ]),
+    new DecTask("102", 1512, [
+        "execute if entity @s[hasitem={item=cooked_chicken,quantity=73..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s cooked_chicken 0 73"
+    ]),
+    new DecTask("103", 1572, [
+        "execute if entity @s[hasitem={item=cooked_salmon,quantity=72..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s cooked_salmon 0 72"
+    ]),
+    new DecTask("104", 1542, [
+        "execute if entity @s[hasitem={item=cooked_cod,quantity=72..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s cooked_cod 0 72"
+    ]),
+    new DecTask("104", 1542, [
+        "execute if entity @s[hasitem={item=cooked_porkchop,quantity=71..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s cooked_porkchop 0 71"
+    ]),
+    new DecTask("106", 741, [
+        "execute if entity @s[hasitem={item=rabbit,quantity=71..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s rabbit 0 71"
+    ]),
+    new DecTask("107", 1513, [
+        "execute if entity @s[hasitem={item=cooked_salmon,quantity=217..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s cooked_salmon 0 217"
+    ]),
+    new DecTask("108", 774, [
+        "execute if entity @s[hasitem={item=cookie,quantity=71..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s cookie 0 71"
+    ]),
+    new DecTask("109", 794, [
+        "execute if entity @s[hasitem={item=dried_kelp,quantity=81..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s dried_kelp 0 81"
+    ]),
+    new DecTask("110", 721, [
+        "execute if entity @s[hasitem={item=pumpkin_pie,quantity=21..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s pumpkin_pie 0 21"
+    ]),
+    new DecTask("111", 711, [
+        "execute if entity @s[hasitem={item=sweet_berries,quantity=417..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s sweet_berries 0 417"
+    ]),
+    new DecTask("112", 320, [
+        "execute if entity @s[hasitem={item=glow_berries,quantity=423..}] run tag @s add task_complete",
+        "execute if entity @s[tag=task_complete] run clear @s glow_berries 0 423"
+    ]),
+    new DecTask("113", 300, [
+        "execute if entity @s[lm=40] run tag @s add task_complete"
+    ]),
 ]
 
 export let PomTasks = DecTasks.concat([
