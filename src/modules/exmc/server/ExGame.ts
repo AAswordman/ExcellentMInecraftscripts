@@ -26,6 +26,9 @@ export default class ExGame {
             }
         }
     }
+    static thread(){
+        
+    }
 }
 
 export function receiveMessage(exportName: string) {

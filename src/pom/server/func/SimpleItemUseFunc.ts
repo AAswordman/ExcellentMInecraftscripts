@@ -24,7 +24,7 @@ export default class SimpleItemUseFunc extends GameController {
         });
         this.getEvents().exEvents.onceItemUseOn.subscribe(e => {
             if (e.item.typeId === "wb:technology_world_explorer") {
-                this.sayTo(this.getExDimension().getBlock(e.blockLocation).typeId);
+                this.sayTo(this.getExDimension().getBlock(e.getBlockLocation()).typeId);
             }
         });
         this.getEvents().exEvents.itemUse.subscribe((e) => {
@@ -53,7 +53,7 @@ export default class SimpleItemUseFunc extends GameController {
                 this.player.addEffect(MinecraftEffectTypes.levitation, 7, 15, false);
                 this.player.addEffect(MinecraftEffectTypes.slowFalling, 150, 3, false);
 
-                this.exPlayer.getDimension().spawnEntity("wb:ball_jet_pack", ExGameVector3.getBlockLocation(this.exPlayer.getPosition().sub(this.exPlayer.getViewDirection().scl(2))));
+                this.exPlayer.getDimension().spawnEntity("wb:ball_jet_pack", this.exPlayer.getPosition().sub(this.exPlayer.getViewDirection().scl(2)));
             } else if (item.typeId === "wb:start_key") {
 
             } else if (item.typeId === "wb:technology_world_explorer") {

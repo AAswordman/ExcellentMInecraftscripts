@@ -58,7 +58,11 @@ export default class EventHandle {
         this.server.getEvents().register(registerName, (e: any) => {
             const name = this.listeners[k].filter?.name;
             if (name) {
-                let player = e[name];
+                let player;
+                for(let k of name.split(".")){
+                    player = player ? player[k] : e[k];
+                }
+                
                 let fArr = this.monitorMap[k].get(player);
                 if (fArr) {
                     fArr.forEach((f) => {

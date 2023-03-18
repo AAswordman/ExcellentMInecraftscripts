@@ -50,7 +50,7 @@ export default class ExGameServer implements SetTimeOutSupport {
     }
 
     say(msg: string | { rawtext: RawMessage[] }) {
-        world.say(msg);
+        world.sendMessage(msg);
     }
 
     addEntityController(id: string, ec: typeof ExEntityController) {
@@ -143,10 +143,10 @@ export default class ExGameServer implements SetTimeOutSupport {
         let method = (e: TickEvent) => {
             time += e.deltaTime * 1000;
             if (time > timeout) {
-                this.getEvents().events.tick.unsubscribe(method);
+                this.getEvents().exEvents.tick.unsubscribe(method);
                 fun();
             }
         };
-        this.getEvents().events.tick.subscribe(method);
+        this.getEvents().exEvents.tick.subscribe(method);
     }
 }

@@ -34,7 +34,7 @@ export default class PomDesertRuinBasicRule extends GameControllerRuinRule {
                 if (spos.x === this.tmpA.x && spos.y === this.tmpA.y && spos.z === this.tmpA.z) {
                     line.push(PomMazeMapBuilder.CHAR_MAZE_PATH_GUARD);
                 } else if (spos.x === playerPos.x && spos.z === playerPos.z) {
-                    const view = this.game.player.viewDirection;
+                    const view = this.game.player.getViewDirection();
                     if (ruin.isInRoom(posStr)) {
                         if (view.x > view.z) {
                             if (Math.abs(view.x) > Math.abs(view.z)) line.push(PomMazeMapBuilder.CHAR_MAZE_ROOM_ARROW_LEFT);
@@ -116,7 +116,7 @@ export default class PomDesertRuinBasicRule extends GameControllerRuinRule {
                 for (let e of game.getDimension().getEntities({
                     excludeTypes: ["minecraft:item", MinecraftEntityTypes.player.id],
                     maxDistance: 16,
-                    location: ExGameVector3.getLocation(lastVec)
+                    location: lastVec
                 })) {
                     if (lastVec.clone().sub(tmpV.set(e.location)).abs().toArray().every(i => i <= 8)) {
                         unclearList.push(e.id);
