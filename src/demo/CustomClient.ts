@@ -12,7 +12,7 @@ export default class CustomClient extends ExGameClient {
         super(server, id, player);
 
         this.getEvents().exEvents.onceItemUseOn.subscribe(e => {
-            if (e.item.typeId === MinecraftItemTypes.stick.id && this.getExDimension().getBlock(e.blockLocation).typeId === MinecraftBlockTypes.obsidian.id) {
+            if (e.item.typeId === MinecraftItemTypes.stick.id && this.getExDimension().getBlock(e.getBlockLocation()).typeId === MinecraftBlockTypes.obsidian.id) {
 
 
                 

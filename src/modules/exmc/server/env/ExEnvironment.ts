@@ -7,7 +7,7 @@ export default class ExEnvironment {
         this.time = time ?? world.getAbsoluteTime();
     }
     print() {
-        world.say("time is " + this.time);
+        world.sendMessage("time is " + this.time);
     }
     isDay(){
         return this.days() < 12000;

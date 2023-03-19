@@ -1,4 +1,4 @@
-import { Dimension, EntityQueryOptions, Block, ItemStack, Entity, BlockType, BlockLocation, ExplosionOptions, MolangVariableMap } from '@minecraft/server';
+import { Dimension, EntityQueryOptions, Block, ItemStack, Entity, BlockType, ExplosionOptions, MolangVariableMap } from '@minecraft/server';
 import { ExCommandNativeRunner } from '../interface/ExCommandRunner.js';
 import Vector3, { IVector3 } from "../math/Vector3.js";
 import ExGameConfig from './ExGameConfig.js';
@@ -9,16 +9,16 @@ export default class ExDimension implements ExCommandNativeRunner {
     public command = new ExCommand(this);
 
     spawnParticle(p: string, v: IVector3) {
-        this._dimension.spawnParticle(p, ExGameVector3.getLocation(v), new MolangVariableMap())
+        this._dimension.spawnParticle(p, v, new MolangVariableMap())
     }
     createExplosion(location: IVector3, radius: number, explosionOptions?: ExplosionOptions): void {
         //console.warn(location, radius, explosionOptions);
-        this._dimension.createExplosion(ExGameVector3.getLocation(location), radius, explosionOptions);
+        this._dimension.createExplosion(location, radius, explosionOptions);
     }
 
     private _dimension: Dimension;
 
-    get dimension(){
+    get dimension() {
         return this._dimension;
     }
 
@@ -38,25 +38,25 @@ export default class ExDimension implements ExCommandNativeRunner {
         }
         return res;
     }
-    getBlock(vec: Vector3 | BlockLocation) {
-        return this._dimension.getBlock(vec instanceof Vector3 ? ExGameVector3.getBlockLocation(vec) : vec);
+    getBlock(vec: IVector3) {
+        return this._dimension.getBlock(vec);
     }
-    setBlock(vec: Vector3 | BlockLocation, blockId: string | BlockType, data: number = 0) {
+    setBlock(vec: IVector3, blockId: string | BlockType, data: number = 0) {
         if (typeof blockId === "string")
             this.command.run(`setBlock ${vec.x} ${vec.y} ${vec.z} ${blockId} ${data}`);
-                //.then((e) => ExGameConfig.console.log(e))
-                //.catch((e) => ExGameConfig.console.log(e));
+        //.then((e) => ExGameConfig.console.log(e))
+        //.catch((e) => ExGameConfig.console.log(e));
         else {
             let b = this.getBlock(vec);
             b?.setType(blockId);
             //b?.permutation;
         };
     }
-    setBlockAsync(vec: Vector3, blockId: string) {
+    setBlockAsync(vec: IVector3, blockId: string) {
         this.runCommandAsync(`setBlock ${vec.x} ${vec.y} ${vec.z} ${blockId}`);
 
     }
-    digBlock(vec: Vector3) {
+    digBlock(vec: IVector3) {
         try {
             this.command.run(`setBlock ${vec.x} ${vec.y} ${vec.z} air 0 destroy`);
             return true;
@@ -64,18 +64,18 @@ export default class ExDimension implements ExCommandNativeRunner {
             return false;
         }
     }
-    spawnItem(item: ItemStack, v: Vector3) {
+    spawnItem(item: ItemStack, v: IVector3) {
         try {
-            return this._dimension.spawnItem(item, ExGameVector3.getBlockLocation(v))
+            return this._dimension.spawnItem(item, v)
         } catch (error) {
             ExGameConfig.console.warn(error);
             return undefined;
         };
     }
 
-    spawnEntity(id: string, v: Vector3) {
+    spawnEntity(id: string, v: IVector3) {
         try {
-            return this._dimension.spawnEntity(id, ExGameVector3.getBlockLocation(v));
+            return this._dimension.spawnEntity(id, v);
         } catch (error) {
             ExGameConfig.console.warn(error);
             return undefined;

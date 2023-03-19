@@ -19,7 +19,7 @@ export default class PomInteractSystem extends GameController {
                         arr?.clear();
 
                         for (let e of this.getDimension().getEntities({
-                            location: ExGameVector3.getLocation(this.player.location),
+                            location: this.player.location,
                             closest: 1,
                             maxDistance: 3,
                             type: "epic:cannon_cart"

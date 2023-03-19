@@ -23,7 +23,7 @@ export default class DecBossController extends ExEntityController {
     onWin() {
         if (!DecGlobal.isDec()) {
             for (let p of this.entity.dimension.getPlayers({
-                location: ExGameVector3.getLocation(this.entity.location),
+                location: this.entity.location,
                 maxDistance: 32
             })) {
                 let c = <DecClient | undefined>this.server.findClientByPlayer(p);

@@ -31,25 +31,25 @@ export default class ExPlayer extends ExEntity {
     getGameMode(): GameMode {
         let c = GameMode.creative;
         c = (Array.from(this.getDimension().getPlayers({
-            location: ExGameVector3.getLocation(this.entity.location),
+            location: this.entity.location,
             closest: 1,
             maxDistance: 1,
             gameMode: GameMode.adventure
         }))?.[0] === this.entity ? GameMode.adventure : c);
         c = (Array.from(this.getDimension().getPlayers({
-            location: ExGameVector3.getLocation(this.entity.location),
+            location: this.entity.location,
             closest: 1,
             maxDistance: 1,
             gameMode: GameMode.creative
         }))?.[0] === this.entity ? GameMode.creative : c);
         c = (Array.from(this.getDimension().getPlayers({
-            location: ExGameVector3.getLocation(this.entity.location),
+            location: this.entity.location,
             closest: 1,
             maxDistance: 1,
             gameMode: GameMode.spectator
         }))?.[0] === this.entity ? GameMode.spectator : c);
         c = (Array.from(this.getDimension().getPlayers({
-            location: ExGameVector3.getLocation(this.entity.location),
+            location: this.entity.location,
             closest: 1,
             maxDistance: 1,
             gameMode: GameMode.survival

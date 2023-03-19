@@ -119,7 +119,7 @@ export default class PomServer extends ExGameServer {
 
                 entities.forEach(e => {
                     if (!e || !e.typeId || e.typeId !== max[1]) return;
-                    if (e.typeId === "minecraft:item" && e.viewDirection.y !== 0) return;
+                    if (e.typeId === "minecraft:item" && e.getViewDirection().y !== 0) return;
                     //if (e.nameTag) return;
                     e.kill();
                 });
@@ -141,7 +141,7 @@ export default class PomServer extends ExGameServer {
         }).delay(1000);
 
 
-        this.getEvents().events.tick.subscribe(e => {
+        this.getEvents().exEvents.tick.subscribe(e => {
             ticks++;
         });
 
@@ -331,7 +331,7 @@ export default class PomServer extends ExGameServer {
         //遗迹掉落物清理
         const upDateMonster = () => {
             let entities = this.getExDimension(MinecraftDimensionTypes.theEnd).getEntities({
-                location: ExGameVector3.getLocation(RuinsLoaction.DESERT_RUIN_LOCATION_CENTER),
+                location: RuinsLoaction.DESERT_RUIN_LOCATION_CENTER,
                 maxDistance: 400
             })
             // .concat(
@@ -341,7 +341,7 @@ export default class PomServer extends ExGameServer {
             //     })
             // );
             for (let e of entities) {
-                if (e.typeId === "minecraft:item" && e.viewDirection.y === 0) {
+                if (e.typeId === "minecraft:item" && e.getViewDirection().y === 0) {
                     e.kill();
                 }
             }
@@ -378,7 +378,7 @@ export default class PomServer extends ExGameServer {
         });
 
         this.getEvents().events.beforeItemUseOn.subscribe(e => {
-            if (e.source.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && (isInProtectArea(e.blockLocation))) {
+            if (e.source.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && (isInProtectArea(e.getBlockLocation()))) {
                 // if (e.source instanceof Player) {
                 //     let ex = ExPlayer.getInstance(e.source);
                 //     if (ex.getGameMode() === GameMode.creative) return;
@@ -391,7 +391,7 @@ export default class PomServer extends ExGameServer {
             if (e.source && e.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && (
                 isInProtectArea(e.source.location)
             )) {
-                if (e.impactedBlocks.length !== 0) {
+                if (e.getImpactedBlocks.length !== 0) {
                     this.getExDimension(MinecraftDimensionTypes.theEnd).spawnParticle("dec:damp_explosion_particle", e.source.location);
                     e.cancel = true;
                 }
@@ -424,7 +424,7 @@ export default class PomServer extends ExGameServer {
             }
             if (ruin_desert_count > 200) {
                 let entities = enddim.getPlayers({
-                    location: ExGameVector3.getLocation(RuinsLoaction.DESERT_RUIN_LOCATION_CENTER),
+                    location: RuinsLoaction.DESERT_RUIN_LOCATION_CENTER,
                     maxDistance: 400,
                     closest: 1,
                     gameMode: GameMode.adventure
@@ -544,7 +544,7 @@ export default class PomServer extends ExGameServer {
         new ExEnvironment().print();
     }
 
-    @registerEvent<PomServer>("entityHurt", (server, e: EntityHurtEvent) => server.setting.damageShow && e.cause !== EntityDamageCause.suicide)
+    @registerEvent<PomServer>("entityHurt", (server, e: EntityHurtEvent) => server.setting.damageShow && e.damageSource.cause !== EntityDamageCause.suicide)
     damageShow(e: EntityHurtEvent) {
         damageShow(ExDimension.getInstance(e.hurtEntity.dimension), e.damage, e.hurtEntity.location);
     }

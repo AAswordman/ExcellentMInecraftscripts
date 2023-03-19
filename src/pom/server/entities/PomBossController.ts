@@ -51,7 +51,7 @@ export default class PomBossController extends ExEntityController {
 
     override onKilled(e: EntityHurtEvent): void {
         this.destroyBossEntity();
-        if (e.cause === EntityDamageCause.suicide) {
+        if (e.damageSource.cause === EntityDamageCause.suicide) {
             this.stopBarrier();
         }
         super.onKilled(e);

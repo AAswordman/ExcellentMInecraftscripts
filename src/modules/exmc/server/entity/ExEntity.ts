@@ -1,4 +1,4 @@
-import { Entity, EntityHealthComponent, Vector, Location, EntityInventoryComponent, Player, Dimension, EntityQueryOptions, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent } from '@minecraft/server';
+import { Entity, EntityHealthComponent, Vector, EntityInventoryComponent, Player, Dimension, EntityQueryOptions, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent } from '@minecraft/server';
 import { ExCommandNativeRunner } from '../../interface/ExCommandRunner.js';
 import ExTagManager from '../../interface/ExTagManager.js';
 import ExScoresManager from './ExScoresManager.js';
@@ -122,12 +122,13 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         return new Vector3(this.entity.location);
     }
     getRotation() {
-        return this.entity.rotation;
+        return this.entity.getRotation();
     }
 
 
     setPosition(position: Vector3, dimension = this.entity.dimension) {
-        this.entity.teleport(position, dimension, this.entity.rotation.x, this.entity.rotation.y);
+        let rot = this.getRotation();
+        this.entity.teleport(position, dimension, rot.x, rot.y);
 
     }
     setDimension(dimension: Dimension) {
@@ -135,7 +136,7 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     }
 
     getViewDirection() {
-        return new Vector3(this.entity.viewDirection);
+        return new Vector3(this.entity.getViewDirection());
     }
 
     hasComponent(name: string) {

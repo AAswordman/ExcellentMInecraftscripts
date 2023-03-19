@@ -23,7 +23,7 @@ export default class PomTalentSystem extends GameController {
             let player: ExPlayer = this.exPlayer;
             for (let p of this.player.dimension.getPlayers({
                 maxDistance: 20,
-                location: ExGameVector3.getLocation(this.player.location)
+                location: this.player.location
             })) {
                 let exp = ExPlayer.getInstance(p);
                 if (exp.getHealth() < health) {
@@ -115,7 +115,7 @@ export default class PomTalentSystem extends GameController {
 
             this.exPlayer.addHealth(this, add);
 
-            this.hasBeenDamaged.trigger(e.damage - add,e.damagingEntity);
+            this.hasBeenDamaged.trigger(e.damage - add,e.damageSource.damagingEntity);
         });
 
         let lastListener = (d: number) => { };
@@ -159,7 +159,7 @@ export default class PomTalentSystem extends GameController {
         });
 
     }
-    hasBeenDamaged = new MonitorManager<[number,Entity]>();
+    hasBeenDamaged = new MonitorManager<[number,Entity|undefined]>();
     hasCauseDamage = new MonitorManager<[number,Entity]>();
 
     onLoaded(): void {

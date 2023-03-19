@@ -85,7 +85,7 @@ export default class DecClient extends ExGameClient {
                 if (this.useArmor === ArmorPlayerDec.everlasting_winter) {
                     for (let e of this.getDimension().getEntities({
                         "maxDistance": 5,
-                        "location": ExGameVector3.getLocation(this.player.location)
+                        "location": this.player.location
                     })) {
                         if (e != this.player) {
                             e.addEffect(MinecraftEffectTypes.slowness, 3 * 20, 1);
