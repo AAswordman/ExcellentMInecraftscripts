@@ -18,17 +18,21 @@ export default class ExServerEvents implements ExEventManager {
             pattern: () => {
                 let tickNum = 0,
                     tickTime = 0;
-                system.runInterval(() => {
+                const fun = () => {
                     const n = new Date().getTime();
                     let event: TickEvent = {
                         currentTick: tickNum,
-                        deltaTime: n - tickTime
+                        deltaTime: (n - tickTime)/1000
                     };
                     tickTime = n;
+                    tickNum += 1;
+                    // console.warn("tick time: " + tickTime+"tick num: " + tickNum)
                     ExServerEvents.monitorMap.get("tick")?.forEach((fun) => {
                         fun(event);
                     });
-                }, 1);
+                    // system.runInterval(fun, 1);
+                }
+                system.runInterval(fun, 1);
             }
         },
         "onLongTick": {
@@ -41,17 +45,21 @@ export default class ExServerEvents implements ExEventManager {
             pattern: () => {
                 let tickNum = 0,
                     tickTime = 0;
-                system.runInterval(() => {
+                const fun = () => {
                     const n = new Date().getTime();
                     let event: TickEvent = {
                         currentTick: tickNum,
-                        deltaTime: n - tickTime
+                        deltaTime: (n - tickTime)/1000
                     };
                     tickTime = n;
+                    tickNum += 1;
                     ExServerEvents.monitorMap.get("onLongTick")?.forEach((fun) => {
                         fun(event);
                     });
-                }, 5);
+                    // system.runInterval(fun, 5);
+
+                };
+                system.runInterval(fun, 5);
             }
         }
 

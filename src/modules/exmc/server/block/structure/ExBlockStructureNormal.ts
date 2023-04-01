@@ -181,7 +181,7 @@ export default class ExBlockStructureNormal implements ExBlockStructure {
         return this;
     }
     analysis(map: object | Map<string, string>) {
-        if (map instanceof Map<string, string>) {
+        if (map instanceof Map) {
             this.analysisMap = map;
         } else {
             const nmap = new Map<string, string>();

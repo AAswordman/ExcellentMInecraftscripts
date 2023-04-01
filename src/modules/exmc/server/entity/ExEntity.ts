@@ -1,4 +1,4 @@
-import { Entity, EntityHealthComponent, Vector, EntityInventoryComponent, Player, Dimension, EntityQueryOptions, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent } from '@minecraft/server';
+import { Entity, EntityHealthComponent, Vector, EntityInventoryComponent, Player, Dimension, EntityQueryOptions, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent, EntityDamageSource, EntityDamageCause } from '@minecraft/server';
 import { ExCommandNativeRunner } from '../../interface/ExCommandRunner.js';
 import ExTagManager from '../../interface/ExTagManager.js';
 import ExScoresManager from './ExScoresManager.js';
@@ -13,12 +13,15 @@ import ExDimension from '../ExDimension.js';
 export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     public command = new ExCommand(this);
 
-    public damage(d: number) {
-        this.runCommandAsync(`damage @s ${d}`);
+    public damage(d: number, source?: EntityDamageSource) {
+        this.entity.applyDamage(d, source)
     }
     public causeDamageTo(e: Entity | ExEntity, d: number) {
         if (e instanceof ExEntity) e = e.entity;
-        ExCommand.run(this, `damage {0} ${d} entity_attack entity @s`, e);
+        e.applyDamage(d, {
+            "cause": EntityDamageCause.entityAttack,
+            "damagingEntity": this.entity
+        })
     }
 
     private _damage: number | undefined;
