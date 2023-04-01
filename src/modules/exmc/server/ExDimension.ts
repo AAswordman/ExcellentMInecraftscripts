@@ -1,4 +1,4 @@
-import { Dimension, EntityQueryOptions, Block, ItemStack, Entity, BlockType, ExplosionOptions, MolangVariableMap } from '@minecraft/server';
+import { Dimension, EntityQueryOptions, Block, ItemStack, Entity, BlockType, ExplosionOptions, MolangVariableMap, BlockPropertyType, MinecraftBlockTypes } from '@minecraft/server';
 import { ExCommandNativeRunner } from '../interface/ExCommandRunner.js';
 import Vector3, { IVector3 } from "../math/Vector3.js";
 import ExGameConfig from './ExGameConfig.js';
@@ -41,16 +41,13 @@ export default class ExDimension implements ExCommandNativeRunner {
     getBlock(vec: IVector3) {
         return this._dimension.getBlock(vec);
     }
-    setBlock(vec: IVector3, blockId: string | BlockType, data: number = 0) {
-        if (typeof blockId === "string")
-            this.command.run(`setBlock ${vec.x} ${vec.y} ${vec.z} ${blockId} ${data}`);
-        //.then((e) => ExGameConfig.console.log(e))
-        //.catch((e) => ExGameConfig.console.log(e));
-        else {
-            let b = this.getBlock(vec);
-            b?.setType(blockId);
-            //b?.permutation;
-        };
+    setBlock(vec: IVector3, blockId: string | BlockType) {
+        if (typeof blockId === "string") blockId = MinecraftBlockTypes.get(blockId);
+
+        let b = this.getBlock(vec);
+        b?.setType(blockId);
+        //b?.permutation;
+
     }
     setBlockAsync(vec: IVector3, blockId: string) {
         this.runCommandAsync(`setBlock ${vec.x} ${vec.y} ${vec.z} ${blockId}`);
@@ -58,7 +55,7 @@ export default class ExDimension implements ExCommandNativeRunner {
     }
     digBlock(vec: IVector3) {
         try {
-            this.command.run(`setBlock ${vec.x} ${vec.y} ${vec.z} air 0 destroy`);
+            this.command.run(`setBlock ${vec.x} ${vec.y} ${vec.z} air [] destroy`);
             return true;
         } catch (e) {
             return false;

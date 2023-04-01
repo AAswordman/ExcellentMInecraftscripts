@@ -207,12 +207,7 @@ export default class ExBlockStructureNormal implements ExBlockStructure {
                     if (c == ' ') continue;
                     area.calculateRelPos(vec, tmpV).add(area.start);
                     let id = this.analysisMap.get(c);
-                    let data = 0;
-                    let pos = id?.indexOf("|");
-                    if (id && pos && pos !== -1) {
-                        data = parseInt(id?.slice(pos + 1));
-                    }
-                    this.dimension.setBlock(tmpV, id ?? MinecraftBlockTypes.air.id, data);
+                    this.dimension.setBlock(tmpV, id ?? MinecraftBlockTypes.air.id);
                 }
             }
         }
