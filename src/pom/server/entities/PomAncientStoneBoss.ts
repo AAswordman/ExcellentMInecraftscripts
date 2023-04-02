@@ -1,4 +1,4 @@
-import { Entity, EntityHurtEvent, world } from '@minecraft/server';
+import { Entity, EntityDamageCause, EntityHurtEvent, world } from '@minecraft/server';
 import ExGameServer from '../../../modules/exmc/server/ExGameServer.js';
 import ExEntityController from '../../../modules/exmc/server/entity/ExEntityController.js';
 import ExGameConfig from '../../../modules/exmc/server/ExGameConfig.js';
@@ -40,8 +40,11 @@ export default class PomAncientStoneBoss extends PomBossController {
 
             console.warn("onWin");
             this.stopBarrier();
+            this.music.stop();
         }
-        this.music.stop();
+        if (e.damageSource.cause === EntityDamageCause.suicide) {
+            this.music.stop();
+        }
         super.onKilled(e);
     }
     override onFail(): void {

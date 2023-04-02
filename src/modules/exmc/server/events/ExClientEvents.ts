@@ -19,7 +19,7 @@ import EventHandle, { EventListenerSettings, EventListeners } from './EventHandl
 export default class ExClientEvents implements ExEventManager {
 
     private static eventHandlers: EventHandle = new EventHandle();
-
+    
     _subscribe(arg0: string, callback: (arg: any) => void) {
         ExClientEvents.eventHandlers.subscribe(this._client.player, arg0, callback);
     }

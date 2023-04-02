@@ -9,7 +9,6 @@ import Vector3, { IVector3 } from "../../../../modules/exmc/math/Vector3.js";
 import ExEventManager from '../../../../modules/exmc/interface/ExEventManager.js';
 import PomServer from "../../PomServer.js";
 import { Player, Entity, MinecraftEffectTypes } from '@minecraft/server';
-import notUtillTask from "../../../../modules/exmc/utils/NotUtillTask.js";
 import PomClient from "../../PomClient.js";
 import PomBossController from "../../entities/PomBossController.js";
 import { ignorn } from "../../../../modules/exmc/server/ExErrorQueue.js";

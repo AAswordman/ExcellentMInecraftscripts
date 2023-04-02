@@ -3,6 +3,7 @@ import ExEventManager from "../../interface/ExEventManager.js";
 import ExGameServer from "../ExGameServer.js";
 import ExGameConfig from '../ExGameConfig.js';
 import ExErrorQueue from '../ExErrorQueue.js';
+import ExGame from '../ExGame.js';
 
 export default class ExServerEvents implements ExEventManager {
     public events: Events;
@@ -16,23 +17,11 @@ export default class ExServerEvents implements ExEventManager {
                 this._unsubscribe("tick", callback)
             },
             pattern: () => {
-                let tickNum = 0,
-                    tickTime = 0;
-                const fun = () => {
-                    const n = new Date().getTime();
-                    let event: TickEvent = {
-                        currentTick: tickNum,
-                        deltaTime: (n - tickTime)/1000
-                    };
-                    tickTime = n;
-                    tickNum += 1;
-                    // console.warn("tick time: " + tickTime+"tick num: " + tickNum)
+                ExGame.tickMonitor.addMonitor((e) => {
                     ExServerEvents.monitorMap.get("tick")?.forEach((fun) => {
-                        fun(event);
-                    });
-                    // system.runInterval(fun, 1);
-                }
-                system.runInterval(fun, 1);
+                        fun(e);
+                    })
+                });
             }
         },
         "onLongTick": {
@@ -43,30 +32,18 @@ export default class ExServerEvents implements ExEventManager {
                 this._unsubscribe("onLongTick", callback)
             },
             pattern: () => {
-                let tickNum = 0,
-                    tickTime = 0;
-                const fun = () => {
-                    const n = new Date().getTime();
-                    let event: TickEvent = {
-                        currentTick: tickNum,
-                        deltaTime: (n - tickTime)/1000
-                    };
-                    tickTime = n;
-                    tickNum += 1;
-                    ExServerEvents.monitorMap.get("onLongTick")?.forEach((fun) => {
-                        fun(event);
-                    });
-                    // system.runInterval(fun, 5);
-
-                };
-                system.runInterval(fun, 5);
+                ExGame.longTickMonitor.addMonitor((e) => {
+                    ExServerEvents.monitorMap.get("longTickMonitor")?.forEach((fun) => {
+                        fun(e);
+                    })
+                });
             }
         }
 
     };
     static monitorMap = new Map<string, ((arg: any) => void)[]>;
 
-    init: boolean = false;
+    static init: boolean = false;
     _subscribe(name: string, callback: (arg: any) => void) {
         let e = ExServerEvents.monitorMap.get(name);
         if (e === undefined) {
@@ -89,8 +66,8 @@ export default class ExServerEvents implements ExEventManager {
         this._server = server;
         this.events = world.events;
 
-        if (!this.init) {
-            this.init = true;
+        if (!ExServerEvents.init) {
+            ExServerEvents.init = true;
             for (let i in this.exEvents) {
                 (<any>this.exEvents)[i].pattern();
             }

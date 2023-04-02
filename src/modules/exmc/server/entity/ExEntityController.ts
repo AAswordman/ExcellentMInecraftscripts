@@ -81,6 +81,5 @@ export default class ExEntityController implements DisposeAble, SetTimeOutSuppor
     @registerEvent<ExEntityController>("onHurt", (ctrl, e) => ctrl.exEntity.getHealth() <= 0 && !ctrl._isKilled)
     onKilled(e: EntityHurtEvent) {
         this._isKilled = true;
-        this.onDestroy();
     }
 }
