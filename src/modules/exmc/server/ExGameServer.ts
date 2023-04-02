@@ -16,6 +16,7 @@ import ExEntityEvents from "./entity/ExEntityEvents.js";
 import "../../reflect-metadata/Reflect.js";
 import { eventDecoratorFactory, registerEvent } from "./events/eventDecoratorFactory.js";
 import notUtillTask from "../utils/notUtillTask.js";
+import ExSound from "./env/ExSound.js";
 
 
 export default class ExGameServer implements SetTimeOutSupport {
@@ -74,6 +75,17 @@ export default class ExGameServer implements SetTimeOutSupport {
 
     getEvents() {
         return this._events;
+    }
+
+    private static musicMap = new Map<string, ExSound>();
+    getSound(id: string, t: string) {
+        if (ExGameServer.musicMap.has(id)) {
+            return ExGameServer.musicMap.get(id)!;
+        } else {
+            let m = new ExSound(this.getEvents(), id, t);
+            ExGameServer.musicMap.set(id, m);
+            return m;
+        }
     }
 
 

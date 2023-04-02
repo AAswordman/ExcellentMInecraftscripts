@@ -12,17 +12,19 @@ export default class PomAncientStoneBoss extends PomBossController {
     music: ExSound;
     constructor(e: Entity, server: PomServer) {
         super(e, server);
-        this.music = new ExSound("music.wb.anger_of_ancient", "2:24");
+        this.music = server.getSound("music.wb.anger_of_ancient", "2:24");
     }
     override initBossEntity(): void {
-        this.setTimeout(() => {
-            this.music.loop(this.server.getEvents(), this.exEntity.getExDimension(), this.entity.location);
-        }, 500);
         for (let c of this.barrier.clientsByPlayer()) {
             c.ruinsSystem.causeDamageShow = true;
             c.ruinsSystem.causeDamageType.add(this.entity.typeId);
         }
-        if (!this.exEntity.hasIsBabyComponent() && this.isFisrtCall) this.server.say({ rawtext: [{ translate: "text.wb:summon_ancient_stone.name" }] })
+        if (!this.exEntity.hasIsBabyComponent() && this.isFisrtCall){
+            this.server.say({ rawtext: [{ translate: "text.wb:summon_ancient_stone.name" }] });
+            this.setTimeout(() => {
+                this.music.loop(this.exEntity.getExDimension(), this.entity.location);
+            }, 500);
+        }
     }
     override onSpawn(): void {
         super.onSpawn();

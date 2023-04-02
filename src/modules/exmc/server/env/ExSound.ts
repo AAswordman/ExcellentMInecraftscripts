@@ -10,15 +10,17 @@ export default class ExSound {
     soundId: string;
     long: number;
     looper?: TimeLoopTask;
-    constructor(id: string, time: string) {
+    manager: ExEventManager;
+    constructor(manager:ExEventManager,id: string, time: string) {
         this.soundId = id;
         let s = time.split(":");
         this.long = (parseInt(s[0]) * 60 + parseInt(s[1])) * 1000;
+        this.manager = manager;
     }
-    loop(manager: ExEventManager, dim: ExDimension, trackVector: IVector3) {
+    loop(dim: ExDimension, trackVector: IVector3) {
         this.stop();
         this.play(dim,trackVector);
-        this.looper = new TimeLoopTask(manager, () => {
+        this.looper = new TimeLoopTask(this.manager, () => {
             this.play(dim,trackVector);
         }).delay(this.long);
         this.looper.start();
