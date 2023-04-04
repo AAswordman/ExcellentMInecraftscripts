@@ -6,7 +6,7 @@ import ExGame from "./modules/exmc/server/ExGame.js";
 let config = new ExConfig();
 config.addonName = "POM";
 config.addonVersion = "1.7.4B1";
-config.gameVersion = "1.9.50";
+config.gameVersion = "1.9.70";
 config.watchDog = false;
 config.debug = true;
 ExGame.createServer(PomServer,config);

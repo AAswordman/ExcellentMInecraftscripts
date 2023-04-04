@@ -102,7 +102,7 @@ export default class ExClientEvents implements ExEventManager {
             filter: {
                 "name": "source"
             },
-            name: "beforeItemUseOn"
+            name: "itemUseOn"
         },
         playerHitEntity: {
             pattern: ExClientEvents.eventHandlers.registerToServerByEntity,

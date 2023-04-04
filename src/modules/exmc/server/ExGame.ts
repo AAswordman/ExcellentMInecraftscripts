@@ -15,7 +15,7 @@ export default class ExGame {
         let tickNum = 0,
             tickTime = 0;
         const fun = () => {
-            const n = new Date().getTime();
+            const n = Date.now();
             let event: TickEvent = {
                 currentTick: tickNum,
                 deltaTime: (n - tickTime) / 1000
@@ -30,7 +30,7 @@ export default class ExGame {
         let tickNum = 0,
             tickTime = 0;
         const fun = () => {
-            const n = new Date().getTime();
+            const n = Date.now();
             let event: TickEvent = {
                 currentTick: tickNum,
                 deltaTime: (n - tickTime) / 1000

@@ -11,6 +11,7 @@ import ExMessageAlert from '../../../modules/exmc/server/ui/ExMessageAlert.js';
 import ExActionAlert from '../../../modules/exmc/server/ui/ExActionAlert.js';
 import PomBossBarrier from './barrier/PomBossBarrier.js';
 import { Objective } from '../../../modules/exmc/server/entity/ExScoresManager.js';
+import ExSystem from '../../../modules/exmc/utils/ExSystem.js';
 
 export default class PomDimRuinsSystem extends GameController {
     i_inviolable = new Objective("i_inviolable");
@@ -181,12 +182,12 @@ export default class PomDimRuinsSystem extends GameController {
 
             //脚下方块探测
             tmpV.set(this.player.location);
-            let loc = tmpV.clone();
-            loc.y -= 1;
+            tmpV.y -= 1;
             let block;
             try {
-                block = this.getDimension().getBlock(loc);
-            } catch (e) { }
+                block = this.getDimension().getBlock(tmpV.floor());
+            } catch (err) {}
+            // console.warn(tmpV + "/"+block?.typeId);
             if (block?.typeId === "wb:portal_desertboss") {
                 //守卫遗迹判断
                 this.data.dimBackPoint = new Vector3(this.player.location).add(3, 2, 3);
@@ -386,8 +387,12 @@ export default class PomDimRuinsSystem extends GameController {
             let block: Block | undefined;
             try {
                 block = this.getDimension().getBlock(e.getBlockLocation());
-            } catch (e) { }
+            } catch (err) {
+                console.warn(err);
+                console.warn(e.item.typeId);
+            }
 
+            console.warn("Block " + block?.typeId);
             if (e.item.typeId === "wb:start_key") {
                 //遗迹传送门激活
                 if (block?.typeId === "wb:block_magic_equipment") {

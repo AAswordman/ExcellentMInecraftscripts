@@ -6,6 +6,7 @@ import SetTimeOutSupport from "../../../modules/exmc/interface/SetTimeOutSupport
 import DecBossController from "./DecBossController.js";
 import DecServer from '../DecServer.js';
 import { DecCommonBossLastStage } from "./DecCommonBossLastStage.js";
+import { registerEvent } from "../../../modules/exmc/server/events/eventDecoratorFactory.js";
 
 export class DecHostOfDeepBoss1 extends DecBossController {
     music: ExSound;
@@ -17,15 +18,13 @@ export class DecHostOfDeepBoss1 extends DecBossController {
         }, 500);
     }
     override onDestroy(): void {
-        if(!this.isKilled) this.music.stop();
+        this.music.delayStop(800);
         super.onDestroy();
     }
     override onSpawn(): void {
         super.onSpawn();
     }
-    isKilled = false;
     override onKilled(e: EntityHurtEvent): void {
-        if(e.damageSource.cause !== EntityDamageCause.suicide) this.isKilled = true;
         super.onKilled(e);
     }
 }
@@ -34,17 +33,18 @@ export class DecHostOfDeepBoss2 extends DecBossController {
     constructor(e: Entity, server: DecServer) {
         super(e, server);
         this.music = server.getSound("music.wb.from_the_burning_deep", "4:18");
+        this.setTimeout(() => {
+            this.music.loop(this.exEntity.getExDimension(), this.entity.location);
+        }, 500);
     }
     override onDestroy(): void {
-        if(!this.isKilled) this.music.stop();
+        this.music.delayStop(500);
         super.onDestroy();
     }
     override onSpawn(): void {
         super.onSpawn();
     }
-    isKilled = false;
     override onKilled(e: EntityHurtEvent): void {
-        if(e.damageSource.cause !== EntityDamageCause.suicide) this.isKilled = true;
         super.onKilled(e);
     }
 }
@@ -53,6 +53,9 @@ export class DecHostOfDeepBoss3 extends DecCommonBossLastStage {
     constructor(e: Entity, server: DecServer) {
         super(e, server);
         this.music = server.getSound("music.wb.from_the_burning_deep", "4:18");
+        this.setTimeout(() => {
+            this.music.loop(this.exEntity.getExDimension(), this.entity.location);
+        }, 500);
     }
     override onDestroy(): void {
         this.music.stop();

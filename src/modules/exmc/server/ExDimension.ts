@@ -43,7 +43,6 @@ export default class ExDimension implements ExCommandNativeRunner {
     }
     setBlock(vec: IVector3, blockId: string | BlockType) {
         if (typeof blockId === "string") blockId = MinecraftBlockTypes.get(blockId);
-
         let b = this.getBlock(vec);
         b?.setType(blockId);
         //b?.permutation;

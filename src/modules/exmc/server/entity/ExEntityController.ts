@@ -32,7 +32,7 @@ export default class ExEntityController implements DisposeAble, SetTimeOutSuppor
         this.init(server);
         this.onSpawn();
         eventDecoratorFactory(this.getEvents(), this);
-        console.warn("track "+e.typeId);
+        // console.warn("track " + e.typeId);
     }
     setTimeout(fun: () => void, timeout: number) {
         let time = 0;
@@ -64,11 +64,18 @@ export default class ExEntityController implements DisposeAble, SetTimeOutSuppor
         }
         return false;
     })
+    private destroyTrigger() {
+        if (!this.isDestroyed) {
+            this.isDestroyed = true;
+            this.onDestroy();
+        }
+    }
     onDestroy() {
         this.dispose();
     }
+
+    isDestroyed = false;
     dispose() {
-        console.warn("dispose");
         this.getEvents().cancelAll();
     }
     getEvents() {

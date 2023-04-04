@@ -33,7 +33,7 @@ export default class ExServerEvents implements ExEventManager {
             },
             pattern: () => {
                 ExGame.longTickMonitor.addMonitor((e) => {
-                    ExServerEvents.monitorMap.get("longTickMonitor")?.forEach((fun) => {
+                    ExServerEvents.monitorMap.get("onLongTick")?.forEach((fun) => {
                         fun(e);
                     })
                 });

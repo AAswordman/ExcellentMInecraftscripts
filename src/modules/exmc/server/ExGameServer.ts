@@ -82,7 +82,7 @@ export default class ExGameServer implements SetTimeOutSupport {
         if (ExGameServer.musicMap.has(id)) {
             return ExGameServer.musicMap.get(id)!;
         } else {
-            let m = new ExSound(this.getEvents(), id, t);
+            let m = new ExSound(this, id, t);
             ExGameServer.musicMap.set(id, m);
             return m;
         }
