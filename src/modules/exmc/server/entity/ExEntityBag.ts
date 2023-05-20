@@ -1,6 +1,8 @@
 import ExEntity from './ExEntity.js';
 import {
+    EntityEquipmentInventoryComponent,
     EntityInventoryComponent,
+    EquipmentSlot,
     ItemStack
 } from "@minecraft/server";
 import ExPlayer from './ExPlayer.js';
@@ -8,9 +10,11 @@ import ExPlayer from './ExPlayer.js';
 export default class ExEntityBag {
     private _entity: ExEntity;
     bagComponent: EntityInventoryComponent;
+    equipmentComponent: EntityEquipmentInventoryComponent;
     constructor(entity: ExEntity) {
         this._entity = entity;
-        this.bagComponent = entity.getInventoryComponent();
+        this.bagComponent = entity.getComponent(EntityInventoryComponent.componentId) as EntityInventoryComponent;
+        this.equipmentComponent = entity.getComponent(EntityEquipmentInventoryComponent.componentId) as EntityEquipmentInventoryComponent;
     }
 
     getItem(id: string): ItemStack | undefined;
@@ -52,22 +56,36 @@ export default class ExEntityBag {
         };
         return items;
     }
-
-    clearItem(id: string, amount: number) {
-        for (let i = 0; i < this.size(); i++) {
-            let item = this.getItem(i);
-            if (item?.typeId === id) {
-                let rem = amount - item.amount;
-                if (rem > 0) {
-                    this.setItem(i, undefined);
-                    amount = rem;
-                } else {
-                    item.amount -= amount;
-                    this.setItem(i, item);
-                    break;
+    clearItem(msg: string | number, amount: number) {
+        if (typeof msg === 'string') {
+            let id = msg;
+            let res = 0;
+            for (let i = 0; i < this.size(); i++) {
+                let item = this.getItem(i);
+                if (item?.typeId === id) {
+                    let suc = this.clearItem(i, amount);
+                    res += suc;
+                    amount -= suc;
+                    if (amount <= 0) {
+                        break;
+                    }
                 }
             }
-        };
+            return res;
+        } else {
+            let item = this.getItem(msg);
+            if (item) {
+                if (amount >= item.amount) {
+                    this.setItem(msg, undefined);
+                    return item.amount;
+                } else {
+                    item.amount -= amount;
+                    this.setItem(msg, item);
+                    return amount;
+                }
+            }
+            return 0;
+        }
     }
     size() {
         return this.bagComponent.inventorySize;
@@ -94,5 +112,18 @@ export default class ExEntityBag {
     }
     addItem(item: ItemStack) {
         this.bagComponent.container.addItem(item);
+    }
+    getSlot(pos: number) {
+        return this.bagComponent.container.getSlot(pos);
+    }
+
+    getEquipment(slot: EquipmentSlot) {
+        return this.equipmentComponent.getEquipment(slot);
+    }
+    setEquipment(slot: EquipmentSlot, equip: ItemStack | undefined) {
+        return this.equipmentComponent.setEquipment(slot, equip);
+    }
+    getEquipmentSlot(slot: EquipmentSlot) {
+        return this.equipmentComponent.getEquipmentSlot(slot);
     }
 }

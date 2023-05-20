@@ -1,4 +1,4 @@
-import { MinecraftEffectTypes, MinecraftBlockTypes, ItemStack, Items } from '@minecraft/server';
+import { MinecraftEffectTypes, MinecraftBlockTypes, ItemStack, Items, world, BlockType } from '@minecraft/server';
 import { ModalFormData } from "@minecraft/server-ui";
 import Vector3 from '../../../modules/exmc/math/Vector3.js';
 import ExDimension from '../../../modules/exmc/server/ExDimension.js';
@@ -7,13 +7,14 @@ import ExGameVector3 from '../../../modules/exmc/server/math/ExGameVector3.js';
 import menuFunctionUI from "../data/menuFunctionUI.js";
 import MenuUIAlert from "../ui/MenuUIAlert.js";
 import GameController from "./GameController.js";
+import { Tags } from '@minecraft/server-gametest';
 
 export default class SimpleItemUseFunc extends GameController {
     onJoin(): void {
         this.getEvents().exEvents.blockBreak.subscribe(e => {
             const itemId = this.exPlayer.getBag().getItemOnHand()?.typeId;
             if (itemId === "wb:axex_equipment_a") {
-                if (e.brokenBlockPermutation.type.id === MinecraftBlockTypes.log.id || e.brokenBlockPermutation.type.id === MinecraftBlockTypes.log2.id) {
+                if (e.brokenBlockPermutation.hasTag("log")) {
                     this.chainDigging(new Vector3(e.block), e.brokenBlockPermutation.type.id, 16);
                 }
             } else if (itemId === "wb:pickaxex_equipment_a") {

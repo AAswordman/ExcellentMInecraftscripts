@@ -8,17 +8,18 @@ import ExEntityBag from './ExEntityBag.js';
 
 export default class ExPlayerBag extends ExEntityBag{
     private _player: ExPlayer;
-    override bagComponent: EntityInventoryComponent;
     constructor(player: ExPlayer) {
         super(player);
         this._player = player;
-        this.bagComponent = player.getInventoryComponent();
     }
 
     getItemOnHand() {
-        return this.getItem(this._player.selectedSlot);
+        return this.getItem(this.getSelectedSlot());
     }
     setItemOnHand(item:ItemStack) {
-        return this.setItem(this._player.selectedSlot,item);
+        return this.setItem(this.getSelectedSlot(),item);
+    }
+    getSelectedSlot(){
+        return this._player.selectedSlot;
     }
 }

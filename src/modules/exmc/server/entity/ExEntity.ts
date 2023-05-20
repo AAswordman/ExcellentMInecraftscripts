@@ -1,4 +1,4 @@
-import { Entity, EntityHealthComponent, Vector, EntityInventoryComponent, Player, Dimension, EntityQueryOptions, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent, EntityDamageSource, EntityDamageCause } from '@minecraft/server';
+import { Entity, EntityHealthComponent, Vector, EntityInventoryComponent, Player, Dimension, EntityQueryOptions, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent, EntityDamageSource, EntityDamageCause, EquipmentSlot } from '@minecraft/server';
 import { ExCommandNativeRunner } from '../../interface/ExCommandRunner.js';
 import ExTagManager from '../../interface/ExTagManager.js';
 import ExScoresManager from './ExScoresManager.js';
@@ -102,16 +102,11 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     }
 
     async detectArmor(head: string, chest: string, legs: string, boots: string) {
-        try {
-            let res = await this.command.run("execute if entity @s[hasitem={location=slot.armor.head,item=" + head +
-                "}] if entity @s[hasitem={location=slot.armor.chest,item=" + chest +
-                "}] if entity @s[hasitem={location=slot.armor.legs,item=" + legs +
-                "}] if entity @s[hasitem={location=slot.armor.feet,item=" + boots +
-                "}] run testfor @s");
-            return true;
-        } catch (e) {
-            return false;
-        }
+        const bag = this.getBag();
+        return bag.getEquipment(EquipmentSlot.head)?.typeId == head &&
+            bag.getEquipment(EquipmentSlot.chest)?.typeId == chest &&
+            bag.getEquipment(EquipmentSlot.legs)?.typeId == legs &&
+            bag.getEquipment(EquipmentSlot.feet)?.typeId == boots;
     }
 
     getScoresManager() {
@@ -163,12 +158,8 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         return this.getHealthComponent().value;
     }
 
-    hasInventoryComponent() {
-        return this.hasComponent(EntityInventoryComponent.componentId);
-    }
-    getInventoryComponent() {
-        return <EntityInventoryComponent>this.getComponent(EntityInventoryComponent.componentId);
-    }
+
+
     getBag() {
         return new ExEntityBag(this);
     }
