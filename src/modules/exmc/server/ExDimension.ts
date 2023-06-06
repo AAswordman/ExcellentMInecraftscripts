@@ -42,6 +42,7 @@ export default class ExDimension implements ExCommandNativeRunner {
         return this._dimension.getBlock(vec);
     }
     fillBlocks(start: IVector3, end: IVector3, blockId: string | BlockType, option?: BlockFillOptions) {
+        console.warn("fillBlocks", start, end, blockId);
         if (typeof blockId === "string") blockId = MinecraftBlockTypes.get(blockId);
         this.dimension.fillBlocks(start, end, blockId, option);
         //b?.permutation;

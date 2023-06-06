@@ -38,9 +38,29 @@ export default class Vector3 {
                 this.x = x;
                 this.y = y;
                 this.z = z;
+            } else {
+                this.x = x;
+                this.y = x;
+                this.z = x;
             }
         } else {
             this.set(x.x, x.y, x.z);
+        }
+        return this;
+    }
+    public min(x: IVector3 | number, y?: number, z?: number): Vector3 {
+        if (typeof x === 'number') {
+            if (typeof y === 'number' && typeof z === 'number') {
+                this.x = Math.min(this.x, x);
+                this.y = Math.min(this.y, x);
+                this.z = Math.min(this.z, x);
+            } else {
+                this.x = Math.min(this.x, x);
+                this.y = Math.min(this.y, x);
+                this.z = Math.min(this.z, x);
+            }
+        } else {
+            this.min(x.x, x.y, x.z);
         }
         return this;
     }
@@ -50,6 +70,10 @@ export default class Vector3 {
                 this.x += x;
                 this.y += y;
                 this.z += z;
+            } else {
+                this.x += x;
+                this.y += x;
+                this.z += x;
             }
         } else {
             this.add(x.x, x.y, x.z);
@@ -62,6 +86,10 @@ export default class Vector3 {
                 this.x -= x;
                 this.y -= y;
                 this.z -= z;
+            } else {
+                this.y -= x;
+                this.z -= x;
+                this.x -= x;
             }
         } else {
             this.sub(x.x, x.y, x.z);

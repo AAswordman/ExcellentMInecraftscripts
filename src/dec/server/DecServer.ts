@@ -21,6 +21,9 @@ import VarOnChangeListener from '../../modules/exmc/utils/VarOnChangeListener.js
 import ExEnvironment from '../../modules/exmc/server/env/ExEnvironment.js';
 import { DecHostOfDeepBoss1, DecHostOfDeepBoss2, DecHostOfDeepBoss3 } from './entities/DecHostOfDeepBoss.js';
 import GZIPUtil from '../../modules/exmc/utils/GZIPUtil.js';
+import IStructureSettle from './data/structure/IStructureSettle.js';
+import IStructureDriver from './data/structure/IStructureDriver.js';
+import ExTaskRunner from '../../modules/exmc/server/ExTaskRunner.js';
 
 
 export default class DecServer extends ExGameServer {
@@ -30,6 +33,9 @@ export default class DecServer extends ExGameServer {
 
     nightEventListener: VarOnChangeListener<boolean>;
     tmpV = new Vector3();
+    //test
+    compress = [""];
+
     constructor(config: ExConfig) {
         super(config);
 
@@ -63,16 +69,19 @@ export default class DecServer extends ExGameServer {
             if (e.message.startsWith(">/")) {
                 let cmds = commandAnalysis(e.message.substring(2));
                 let errMsg = "";
+
                 switch (cmds[0]) {
-                    case "help":
+                    case "help": {
                         sender.command.run("function help");
                         break;
-                    case "creators":
+                    }
+                    case "creators": {
                         if (DecGlobal.isDec()) {
                             sender.command.run("function test/creator_list");
                         }
                         break;
-                    case "diemode":
+                    }
+                    case "diemode": {
                         if (cmds[1] === "open") {
                             sender.command.run("function diemode/open");
                         } else if (cmds[1] === "test") {
@@ -81,7 +90,8 @@ export default class DecServer extends ExGameServer {
                             errMsg = "Invalid command " + cmds[1];
                         }
                         break;
-                    case "magic":
+                    }
+                    case "magic": {
                         if (DecGlobal.isDec()) {
                             if (cmds[1] === "display") {
                                 if (e.sender.isOp()) {
@@ -100,13 +110,43 @@ export default class DecServer extends ExGameServer {
                             }
                         }
                         break;
-                    case "_save":
-                        let h = "hello world";
-                        let com = GZIPUtil.zipString(h) ?? "";
-                        console.warn("o: ", h);
-                        console.warn(com);
-                        console.warn(GZIPUtil.unzipString(com));
+                    }
+                    case "_save": {
+                        if (cmds.length<7) return;
+                        let start = new Vector3(Math.floor(parseFloat(cmds[1])), Math.floor(parseFloat(cmds[2])), Math.floor(parseFloat(cmds[3])));
+                        let end = new Vector3(Math.floor(parseFloat(cmds[4])), Math.floor(parseFloat(cmds[5])), Math.floor(parseFloat(cmds[6]))).add(1);
+
+                        let data: string[] = [];
+                        for (let i of new IStructureDriver().save(this.getExDimension(MinecraftDimensionTypes.overworld), start, end)) {
+                            let res = i.toData();
+                            i.dispose();
+                            // console.warn(JSON.stringify(res));
+                            let com = GZIPUtil.zipString(JSON.stringify(res)) ?? "";
+                            data.push(com);
+                            console.warn(com);
+                        }
+
+                        this.compress = data;
+                        // console.warn(GZIPUtil.unzipString(com));
                         break;
+                    }
+                    case "_load": {
+                        let start = new Vector3(Math.floor(parseFloat(cmds[1])), Math.floor(parseFloat(cmds[2])), Math.floor(parseFloat(cmds[3])));
+                        let data = new IStructureSettle();
+                        let task: (() => void)[] = [];
+
+                        for (let comp of this.compress) {
+                            task.push(() => {
+                                data.load(JSON.parse(GZIPUtil.unzipString(comp)));
+                                data.run(this.getExDimension(MinecraftDimensionTypes.overworld), start)
+                                    .then(() => {
+                                        task.shift()?.();
+                                    });
+                            });
+                        }
+                        task.shift()?.();
+                        break;
+                    }
                 }
                 if (errMsg.length !== 0) {
                     sender.command.run(`tellraw @s { "rawtext" : [ { "text" : "Command Error: ${errMsg}" } ] }`);
