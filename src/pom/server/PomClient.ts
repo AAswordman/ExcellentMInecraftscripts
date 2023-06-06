@@ -8,7 +8,6 @@ import { eventDecoratorFactory } from "../../modules/exmc/server/events/eventDec
 import TagCache from "../../modules/exmc/server/storage/cache/TagCache.js";
 import ExSystem from "../../modules/exmc/utils/ExSystem.js";
 import Random from "../../modules/exmc/utils/Random.js";
-import TimeLoopTask from "../../modules/exmc/utils/TimeLoopTask.js";
 import PomTransmission from '../PomTransmission.js';
 import PomServer from "./PomServer.js";
 import GlobalSettings from "./cache/GlobalSettings.js";
@@ -25,6 +24,7 @@ import PomTalentSystem from "./func/PomTalentSystem.js";
 import PomTaskSystem from "./func/PomTaskSystem.js";
 import SimpleItemUseFunc from "./func/SimpleItemUseFunc.js";
 import WarningAlertUI from "./ui/WarningAlertUI.js";
+import TickDelayTask from "../../modules/exmc/utils/TickDelayTask.js";
 
 
 
@@ -34,7 +34,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
     globalSettings: GlobalSettings;
     cache: TagCache<PomData>;
     data: PomData;
-    looper: TimeLoopTask;
+    looper: TickDelayTask;
 
     enchantSystem = new PomEnchantSystem(this);
     talentSystem = new PomTalentSystem(this);
@@ -49,10 +49,10 @@ export default class PomClient extends ExGameClient<PomTransmission> {
         super(server, id, player);
         this.globalSettings = new GlobalSettings(new Objective("wpsetting"));
         this.cache = new TagCache(this.exPlayer);
-        this.looper = new TimeLoopTask(this.getEvents(), () => {
+        this.looper = ExSystem.tickTask(() => {
             this.cache.save();
         });
-        this.looper.delay(10000);
+        this.looper.delay(10 * 20);
         this.looper.start();
         this.data = this.cache.get(new PomData());
 
@@ -97,7 +97,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
         this.gameId = scores.getScore("wbldid");
         if (this.gameId === 0) {
             this.gameId = Math.floor(Math.random() * Random.MAX_VALUE);
-            scores.setScoreAsync("wbldid", this.gameId);
+            scores.setScore("wbldid", this.gameId);
         }
 
         this.gameControllers.forEach(controller => controller.onLoaded());
@@ -112,13 +112,13 @@ export default class PomClient extends ExGameClient<PomTransmission> {
             });
         }
         if (!this.data.licenseRead) {
-            const looper = new TimeLoopTask(this.getEvents(), () => {
+            const looper = ExSystem.tickTask(() => {
                 new WarningAlertUI(this, POMLICENSE, [["同意并继续", (c, ui) => {
                     this.data.licenseRead = true;
                     looper.stop();
                 }]]).showPage();
                 if (!this.data.licenseRead) looper.startOnce();
-            }).delay(1000);
+            }).delay(1 * 20);
             looper.startOnce();
         }
 

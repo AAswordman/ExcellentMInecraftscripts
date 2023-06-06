@@ -1,5 +1,7 @@
 
+import ExServerTickDelayTask from '../server/ExServerTickDelayTask.js';
 import Random from './Random.js';
+import TickDelayTask from './TickDelayTask.js';
 export default class ExSystem {
 
     public static idMap = new Map<any, number>();
@@ -37,5 +39,16 @@ export default class ExSystem {
             else (res += `${String(key)}: {...}\n`);
         }
         return res + '}';
+    }
+    public static isServer(){
+        return true;
+    }
+
+    public static tickTask(tasks:()=>void):TickDelayTask{
+        if(this.isServer()){
+            return new ExServerTickDelayTask(tasks);
+        }else{
+            return new ExServerTickDelayTask(tasks);
+        }
     }
 }

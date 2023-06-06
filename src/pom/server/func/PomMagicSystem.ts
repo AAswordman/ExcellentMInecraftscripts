@@ -1,4 +1,4 @@
-import TimeLoopTask from "../../../modules/exmc/utils/TimeLoopTask.js";
+import ExSystem from "../../../modules/exmc/utils/ExSystem.js";
 import { Talent } from "../cache/TalentData.js";
 import GameController from "./GameController.js";
 
@@ -12,12 +12,12 @@ export default class PomMagicSystem extends GameController {
     additionHealthShow = false;
     additionHealth = 40;
     scoresManager = this.exPlayer.getScoresManager();
-    wbflLooper = new TimeLoopTask(this.getEvents(), () => {
-        if (this.scoresManager.getScore("wbfl") < 200) this.scoresManager.addScoreAsync("wbfl", 2);
-    }).delay(5000);
-    armorCoolingLooper = new TimeLoopTask(this.getEvents(), () => {
-        if (this.scoresManager.getScore("wbkjlq") > 0) this.scoresManager.removeScoreAsync("wbkjlq", 1);
-    }).delay(1000);
+    wbflLooper = ExSystem.tickTask(() => {
+        if (this.scoresManager.getScore("wbfl") < 200) this.scoresManager.addScore("wbfl", 2);
+    }).delay(5 * 20);
+    armorCoolingLooper = ExSystem.tickTask(() => {
+        if (this.scoresManager.getScore("wbkjlq") > 0) this.scoresManager.removeScore("wbkjlq", 1);
+    }).delay(1 * 20);
 
     private _anotherShow: string[] = [];
     private _mapShow = new Map<string, string[]>();
@@ -39,7 +39,7 @@ export default class PomMagicSystem extends GameController {
         this._mapShow.delete(name);
     }
 
-    actionbarShow = new TimeLoopTask(this.getEvents(), () => {
+    actionbarShow = ExSystem.tickTask(() => {
         let fromData: [string, number, boolean, boolean, string][] = [
             [PomMagicSystem.AdditionHPChar, this.additionHealth / 100, true, this.additionHealthShow, "HP"],
             [PomMagicSystem.wbflChar, this.scoresManager.getScore("wbfl") / 200, true, true, "MP"],
@@ -77,7 +77,7 @@ export default class PomMagicSystem extends GameController {
 
         this.exPlayer.titleActionBar(arr.join("\n§r"));
 
-    }).delay(500);
+    }).delay(10);
 
 
     onJoin(): void {
@@ -92,8 +92,12 @@ export default class PomMagicSystem extends GameController {
     }
     upDateByTalent(talentRes: Map<number, number>) {
         let scores = this.exPlayer.getScoresManager();
-        scores.setScoreAsync("wbwqlqjs", Math.round(100 + (talentRes.get(Talent.CHARGING) ?? 0)));
-        this.wbflLooper.delay(5000 / ((1 + (talentRes.get(Talent.SOURCE) ?? 0) / 100) * (1 + scores.getScore("wbdjcg") * 3 / 100)));
-        this.armorCoolingLooper.delay(1 / (1 / 1000 * (1 + (talentRes.get(Talent.RELOAD) ?? 0) / 100)));
+        scores.setScore("wbwqlqjs", Math.round(100 + (talentRes.get(Talent.CHARGING) ?? 0)));
+        this.wbflLooper.stop();
+        this.armorCoolingLooper.stop();
+        this.wbflLooper.delay(5 * 20 / ((1 + (talentRes.get(Talent.SOURCE) ?? 0) / 100) * (1 + scores.getScore("wbdjcg") * 3 / 100)));
+        this.armorCoolingLooper.delay(1 / (1 / (1 * 20) * (1 + (talentRes.get(Talent.RELOAD) ?? 0) / 100)));
+        this.wbflLooper.start();
+        this.armorCoolingLooper.start();
     }
 }

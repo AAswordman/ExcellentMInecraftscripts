@@ -84,6 +84,18 @@ export default class PomDesertBossRuin implements PomRuinCommon {
         this.dispose();
     }
     init(x: number, y: number, z: number, dim: Dimension) {
+        /*
+        The code generates a maze with towers in a 32x32 grid. The maze is created using a random block placement algorithm and a recursive backtracking pathfinding algorithm. The towers are placed randomly on the grid and connected to neighboring towers.  
+        Step by step explanation: 
+- Th    e code sets up the initial variables for the maze and tower placement. 
+- Th    en, a 32x32 2D array called "maze" is created using the "Array.from()" function and filled with zeros. 
+- Ra    ndom blocks are placed on the maze until there are 64 blocks. 
+- A     starting point is set at the top left corner of the maze for the pathfinding algorithm. 
+- Th    e pathfinding algorithm uses a recursive backtracking method to carve a path through the maze from the starting point. 
+- Du    ring the pathfinding, towers are randomly placed on the grid until there are 24 towers.  
+- Th    e towers are connected to nearby towers.  
+- Th    e final result is an array of towers with connections between them and a maze
+        */
         this.x = x;
         this.y = y;
         this.z = z;
@@ -96,9 +108,11 @@ export default class PomDesertBossRuin implements PomRuinCommon {
         const r = new Random(seed);
         const EMPTY = 0, BLOCK = 1, PATH = 2, UNDEF = 3, CENTER = 4, TOWER = 5;
         const getMsg = (x: number, y: number) => {
-            try {
-                return maze[y][x]
-            } catch (e) { return UNDEF; }
+            if (y >= 0 && y < maze.length && x >= 0 && x < maze[y].length) {
+                return maze[y][x];
+            } else {
+                return UNDEF;
+            }
         }
         for (let i = 14; i < 18; i++) {
             for (let j = 14; j < 18; j++) {
@@ -154,12 +168,12 @@ export default class PomDesertBossRuin implements PomRuinCommon {
 
         class Tower {
             height: number;
-            connections: Tower[];
+            connections: Set<Tower>;
             x: number;
             y: number;
             constructor(x: number, y: number, height: number) {
                 this.height = height;
-                this.connections = [];
+                this.connections = new Set();
                 this.x = x;
                 this.y = y;
             }
@@ -169,8 +183,7 @@ export default class PomDesertBossRuin implements PomRuinCommon {
                 }
             }
             connect(t: Tower) {
-                this.connections.push(t);
-                //console.log("Connect",this.toString(),t.toString());
+                this.connections.add(t);
             }
             [Symbol.toStringTag](): string {
                 return this.toString();
@@ -183,9 +196,11 @@ export default class PomDesertBossRuin implements PomRuinCommon {
         const vertex = Array.from(new Array(16), () => new Array<Tower | number>(16).fill(EMPTY));
 
         const getVertex = (x: number, y: number) => {
-            try {
+            if (y >= 0 && y < vertex.length && x >= 0 && x < vertex[y].length) {
                 return vertex[y][x];
-            } catch (e) { return UNDEF; }
+            } else {
+                return UNDEF;
+            }
         }
 
         for (let i = 6; i < 10; i++) {

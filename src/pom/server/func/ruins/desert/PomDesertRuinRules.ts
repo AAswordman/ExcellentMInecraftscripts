@@ -10,6 +10,7 @@ import ExGameVector3 from '../../../../../modules/exmc/server/math/ExGameVector3
 import ExEntity from "../../../../../modules/exmc/server/entity/ExEntity.js";
 import TickDelayTask from '../../../../../modules/exmc/utils/TickDelayTask.js';
 import Vector3 from '../../../../../modules/exmc/math/Vector3.js';
+import ExSystem from "../../../../../modules/exmc/utils/ExSystem.js";
 
 export default class PomDesertRuinRules {
     clear() {
@@ -204,7 +205,7 @@ export default class PomDesertRuinRules {
             if(r.canceled || r.formValues === undefined) break outerLoop;
             const delay = r.formValues[0] * 1000;
             const tmpV = new Vector3();
-            const skillLoop = new TickDelayTask(this.game.getEvents(),() => {
+            const skillLoop = ExSystem.tickTask(() => {
                 tmpV.set(this.game.player.location).add(addPos);
                 this.game.getExDimension().spawnParticle("wb:ruin_desert_rulepre",tmpV);
             }).delay(1);

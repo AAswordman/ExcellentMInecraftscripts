@@ -27,7 +27,7 @@ export default class GlobalScoreBoardCache {
 
     public setNumber(name: string, value: number): void {
         this.entity.nameTag = name;
-        this.entity.getScoresManager().setScoreAsync(this.objective, value);
+        this.entity.getScoresManager().setScore(this.objective, value);
         this.useMap.set(name, value);
     }
     public getNumber(name: string) {
@@ -40,6 +40,6 @@ export default class GlobalScoreBoardCache {
     public deleteNumber(name: string) {
         this.entity.nameTag = name;
         this.useMap.delete(name);
-        return this.entity.getScoresManager().deleteScoreAsync(this.objective);
+        return this.entity.getScoresManager().deleteScore(this.objective);
     }
 }

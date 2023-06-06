@@ -35,7 +35,7 @@ export default class ExCommand {
 
     public static init(server: ExGameServer) {
         this.queue = new Queue();
-        this.delay = new TickDelayTask(server.getEvents(), () => {
+        this.delay = ExSystem.tickTask(() => {
 
             let i = 0;
             while (ExCommand.queue.length > 0 && i < 100) {

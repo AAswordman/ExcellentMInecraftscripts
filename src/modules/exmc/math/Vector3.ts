@@ -11,8 +11,6 @@ export default class Vector3 {
     public static readonly right = new Vector3(1, 0, 0);
     public static readonly up = new Vector3(0, 1, 0);
     public static readonly zero = new Vector3(0, 0, 0);
-
-
     constructor()
     constructor(v: IVector3)
     constructor(x: number, y: number, z: number)
@@ -34,10 +32,7 @@ export default class Vector3 {
     x: number;
     y: number;
     z: number;
-
-    public set(x: number, y: number, z: number): Vector3;
-    public set(x: IVector3): Vector3;
-    public set(x: number | IVector3, y?: number, z?: number) {
+    public set(x: number | IVector3, y?: number, z?: number): Vector3 {
         if (typeof x === 'number') {
             if (typeof y === 'number' && typeof z === 'number') {
                 this.x = x;
@@ -49,10 +44,7 @@ export default class Vector3 {
         }
         return this;
     }
-
-    public add(x: IVector3): Vector3
-    public add(x: number, y: number, z: number): Vector3
-    public add(x: IVector3 | number, y?: number, z?: number) {
+    public add(x: IVector3 | number, y?: number, z?: number): Vector3 {
         if (typeof x === 'number') {
             if (typeof y === 'number' && typeof z === 'number') {
                 this.x += x;
@@ -64,9 +56,7 @@ export default class Vector3 {
         }
         return this;
     }
-    public sub(x: IVector3): Vector3
-    public sub(x: number, y: number, z: number): Vector3
-    public sub(x: IVector3 | number, y?: number, z?: number) {
+    public sub(x: IVector3 | number, y?: number, z?: number): Vector3 {
         if (typeof x === 'number') {
             if (typeof y === 'number' && typeof z === 'number') {
                 this.x -= x;
@@ -78,17 +68,13 @@ export default class Vector3 {
         }
         return this;
     }
-
-    public scl(x: number): Vector3;
-    public scl(x: IVector3): Vector3;
-    public scl(x: number, y: number, z: number): Vector3
     public scl(x: number | IVector3, y?: number, z?: number): Vector3 {
         if (typeof x === 'number') {
             if (typeof y === 'number' && typeof z === 'number') {
                 this.x *= x;
                 this.y *= y;
                 this.z *= z;
-            } else if (y === undefined && z === undefined) {
+            } else {
                 this.x *= x;
                 this.y *= x;
                 this.z *= x;
@@ -98,16 +84,13 @@ export default class Vector3 {
         }
         return this;
     }
-    public div(x: number): Vector3;
-    public div(x: IVector3): Vector3;
-    public div(x: number, y: number, z: number): Vector3
     public div(x: number | IVector3, y?: number, z?: number): Vector3 {
         if (typeof x === 'number') {
             if (typeof y === 'number' && typeof z === 'number') {
                 this.x /= x;
                 this.y /= y;
                 this.z /= z;
-            } else if (y === undefined && z === undefined) {
+            } else {
                 this.x /= x;
                 this.y /= x;
                 this.z /= x;
@@ -117,7 +100,7 @@ export default class Vector3 {
         }
         return this;
     }
-    
+
     public len() {
         return Math.sqrt(this.x ** 2 + this.y ** 2 + this.z ** 2);
     }
@@ -177,9 +160,7 @@ export default class Vector3 {
     }
 
     public normalize() {
-        console.log("nor0: " + this);
         this.div(this.len());
-        console.log("nor1: " + this);
         return this;
     }
 
@@ -187,11 +168,11 @@ export default class Vector3 {
         return new Vector3(this.x, this.y, this.z);
     }
 
-    public toArray(){
-        return [this.x,this.y,this.z];
+    public toArray() {
+        return [this.x, this.y, this.z];
     }
 
-    
+
 }
 
 export interface IVector3 {

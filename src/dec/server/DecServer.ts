@@ -20,6 +20,7 @@ import { DecCommonBossLastStage } from './entities/DecCommonBossLastStage.js';
 import VarOnChangeListener from '../../modules/exmc/utils/VarOnChangeListener.js';
 import ExEnvironment from '../../modules/exmc/server/env/ExEnvironment.js';
 import { DecHostOfDeepBoss1, DecHostOfDeepBoss2, DecHostOfDeepBoss3 } from './entities/DecHostOfDeepBoss.js';
+import GZIPUtil from '../../modules/exmc/utils/GZIPUtil.js';
 
 
 export default class DecServer extends ExGameServer {
@@ -98,6 +99,13 @@ export default class DecServer extends ExGameServer {
                                 errMsg = "Invalid command " + cmds[1];
                             }
                         }
+                        break;
+                    case "_save":
+                        let h = "hello world";
+                        let com = GZIPUtil.zipString(h) ?? "";
+                        console.warn("o: ", h);
+                        console.warn(com);
+                        console.warn(GZIPUtil.unzipString(com));
                         break;
                 }
                 if (errMsg.length !== 0) {

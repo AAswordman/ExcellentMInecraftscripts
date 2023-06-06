@@ -1,4 +1,4 @@
-import { Dimension, EntityQueryOptions, Block, ItemStack, Entity, BlockType, ExplosionOptions, MolangVariableMap, BlockPropertyType, MinecraftBlockTypes } from '@minecraft/server';
+import { Dimension, EntityQueryOptions, Block, ItemStack, Entity, BlockType, ExplosionOptions, MolangVariableMap, BlockPropertyType, MinecraftBlockTypes, BlockFillOptions } from '@minecraft/server';
 import { ExCommandNativeRunner } from '../interface/ExCommandRunner.js';
 import Vector3, { IVector3 } from "../math/Vector3.js";
 import ExGameConfig from './ExGameConfig.js';
@@ -40,6 +40,12 @@ export default class ExDimension implements ExCommandNativeRunner {
     }
     getBlock(vec: IVector3) {
         return this._dimension.getBlock(vec);
+    }
+    fillBlocks(start: IVector3, end: IVector3, blockId: string | BlockType, option?: BlockFillOptions) {
+        if (typeof blockId === "string") blockId = MinecraftBlockTypes.get(blockId);
+        this.dimension.fillBlocks(start, end, blockId, option);
+        //b?.permutation;
+
     }
     setBlock(vec: IVector3, blockId: string | BlockType) {
         if (typeof blockId === "string") blockId = MinecraftBlockTypes.get(blockId);

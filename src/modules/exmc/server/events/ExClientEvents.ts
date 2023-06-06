@@ -16,6 +16,7 @@ import { ItemOnHandChangeEvent } from "./events.js";
 import ExGameConfig from "../ExGameConfig.js";
 import TickDelayTask from "../../utils/TickDelayTask.js";
 import EventHandle, { EventListenerSettings, EventListeners } from './EventHandle.js';
+import ExSystem from "../../utils/ExSystem.js";
 export default class ExClientEvents implements ExEventManager {
 
     private static eventHandlers: EventHandle = new EventHandle();
@@ -81,7 +82,7 @@ export default class ExClientEvents implements ExEventManager {
                     let part = (<Map<Player, ((i: ItemUseOnEvent) => void)[]>>ExClientEvents.eventHandlers.monitorMap[k]);
                     if (!this.onceItemUseOnMap.has(e.source)) {
                         const player = e.source;
-                        this.onceItemUseOnMap.set(e.source, [new TickDelayTask(ExClientEvents.eventHandlers.server.getEvents(), () => {
+                        this.onceItemUseOnMap.set(e.source, [ExSystem.tickTask(() => {
                             let res = this.onceItemUseOnMap.get(player);
                             if (res === undefined) return;
                             res[1] = true;

@@ -1,8 +1,6 @@
-import { Entity, ScoreboardObjective, world } from '@minecraft/server';
+import { Entity, world } from '@minecraft/server';
 import ExNullEntity from "./ExNullEntity.js";
 import ExGameConfig from '../ExGameConfig.js';
-import MathUtil from "../../math/MathUtil.js";
-import ExEntity from './ExEntity.js';
 
 
 export default class ExScoresManager {
@@ -12,37 +10,41 @@ export default class ExScoresManager {
     constructor(e: Entity | ExNullEntity) {
         this.entity = e;
     }
-
-
-    getScore(objective: Objective | string): number {
-        let name = typeof objective === "string" ? objective : objective.name;
+    getIdentity(objective: string) {
         if (this.entity instanceof ExNullEntity) {
             const e = this.entity;
-            return (world.scoreboard.getObjective(name).getScores().find((i) => (i.participant.displayName === e.nameTag))?.score) ?? 0;
+            return world.scoreboard.getObjective(objective).getParticipants().find((i) => (i.displayName === e.nameTag));
         } else {
-            try {
-                return (world.scoreboard.getObjective(name)?.getScore(this.entity.scoreboard)) ?? 0;
-            } catch (err) {
-                const e = this.entity;
-                return (world.scoreboard.getObjective(name).getScores().find((i) => (i.participant === e.scoreboard))?.score) ?? 0;
-            }
+            return this.entity.scoreboard;
         }
     }
-    setScoreAsync(objective: Objective | string, num: number) {
+    getScore(objective: Objective | string): number {
         let name = typeof objective === "string" ? objective : objective.name;
-        this.entity.runCommandAsync(`scoreboard players set ${this.entity instanceof ExNullEntity ? '"' + this.entity.nameTag + '"' : "@s"} ${name} ${num}`);
+        let id = this.getIdentity(name);
+        if (!id) return 0;
+        try { return world.scoreboard.getObjective(name).getScore(id) } catch (e) {
+            return 0;
+        };
     }
-    addScoreAsync(objective: Objective | string, num: number) {
+    setScore(objective: Objective | string, num: number): boolean {
         let name = typeof objective === "string" ? objective : objective.name;
-        this.entity.runCommandAsync(`scoreboard players add ${this.entity instanceof ExNullEntity ? '"' + this.entity.nameTag + '"' : "@s"} ${name} ${num}`);
+        let id = this.getIdentity(name);
+        if (!id) return false;
+        world.scoreboard.getObjective(name).setScore(id, num);
+        return true;
     }
-    removeScoreAsync(objective: Objective | string, num: number) {
-        let name = typeof objective === "string" ? objective : objective.name;
-        this.entity.runCommandAsync(`scoreboard players remove ${this.entity instanceof ExNullEntity ? '"' + this.entity.nameTag + '"' : "@s"} ${name} ${num}`);
+    addScore(objective: Objective | string, num: number) {
+        return this.setScore(objective, this.getScore(objective) + num);
     }
-    deleteScoreAsync(objective: Objective | string) {
-        let name = typeof objective === "string" ? objective : objective.name;
-        this.entity.runCommandAsync(`scoreboard players reset ${this.entity instanceof ExNullEntity ? '"' + this.entity.nameTag + '"' : "@s"} ${name}`);
+    removeScore(objective: Objective | string, num: number) {
+        return this.setScore(objective, this.getScore(objective) - num);
+    }
+    deleteScore(objective: Objective | string): boolean {
+        const name = typeof objective === "string" ? objective : objective.name;
+        const identity = this.getIdentity(name);
+        if (!identity) return false;
+        world.scoreboard.getObjective(name).removeParticipant(identity);
+        return true;
     }
 
 }
@@ -53,12 +55,13 @@ export class Objective {
     }
 
     create(showName: string) {
-        try { world.scoreboard.addObjective(this.name, showName); } catch (e) { }
-        // ExGameConfig.runCommandAsync(`scoreboard objectives add ${this.name} dummy "${showName}"`);
+        try {
+            world.scoreboard.addObjective(this.name, showName);
+        } catch (e) { }
         return this;
     }
     delete() {
-        ExGameConfig.runCommandAsync(`scoreboard objectives remove ${this.name}`);
+        world.scoreboard.removeObjective(this.name);
     }
     setDisplay(mode = "sidebar", ascending = true) {
         if (mode == "sidebar") {
@@ -68,4 +71,4 @@ export class Objective {
         }
         return this;
     }
-};
+}

@@ -4,7 +4,6 @@ import ExEntity from "../../../modules/exmc/server/entity/ExEntity.js";
 import ExPlayer from "../../../modules/exmc/server/entity/ExPlayer.js";
 import ExColorLoreUtil from "../../../modules/exmc/server/item/ExColorLoreUtil.js";
 import ExItem from "../../../modules/exmc/server/item/ExItem.js";
-import TimeLoopTask from "../../../modules/exmc/utils/TimeLoopTask.js";
 import { decodeUnicode } from "../../../modules/exmc/utils/Unicode.js";
 import TalentData, { Occupation, Talent } from "../cache/TalentData.js";
 import isEquipment from "../items/isEquipment.js";
@@ -12,11 +11,13 @@ import GameController from "./GameController.js";
 import ExGameVector3 from '../../../modules/exmc/server/math/ExGameVector3.js';
 import damageShow from "../helper/damageShow.js";
 import MonitorManager from "../../../modules/exmc/utils/MonitorManager.js";
+import ExSystem from '../../../modules/exmc/utils/ExSystem.js';
+import TickDelayTask from '../../../modules/exmc/utils/TickDelayTask.js';
 
 export default class PomTalentSystem extends GameController {
     strikeSkill = true;
     talentRes: Map<number, number> = new Map<number, number>();
-    skillLoop = new TimeLoopTask(this.getEvents(), () => {
+    skillLoop = ExSystem.tickTask(() => {
         if (this.data.talent.occupation.id === Occupation.ASSASSIN.id) this.strikeSkill = true;
         if (this.data.talent.occupation.id === Occupation.PRIEST.id) {
             let health = 999;
@@ -33,9 +34,9 @@ export default class PomTalentSystem extends GameController {
             }
             player.addHealth(this, (this.talentRes.get(Talent.REGENERATE) ?? 0));
         }
-    }).delay(10000);
+    }).delay(10 * 20);
 
-    equiTotalTask: TimeLoopTask | undefined;
+    equiTotalTask: TickDelayTask | undefined;
 
     updateTalentRes() {
         this.talentRes.clear();
@@ -136,7 +137,7 @@ export default class PomTalentSystem extends GameController {
                 };
                 this.hasCauseDamage.addMonitor(lastListener);
                 this.equiTotalTask?.stop();
-                (this.equiTotalTask = new TimeLoopTask(this.getEvents(), () => {
+                (this.equiTotalTask = ExSystem.tickTask(() => {
                     let shouldUpstate = false;
                     maxSecondaryDamage = Math.ceil(Math.max(maxSecondaryDamage, damage / 5));
                     damage = 0;
@@ -151,7 +152,7 @@ export default class PomTalentSystem extends GameController {
                     if (shouldUpstate && bag.getItemOnHand()?.typeId === e?.afterItem?.typeId) {
                         bag.setItem(this.exPlayer.selectedSlot, e.afterItem);
                     }
-                }).delay(5000)).start(); //
+                }).delay(5 * 20)).start(); //
             } else {
                 this.equiTotalTask?.stop();
             }
