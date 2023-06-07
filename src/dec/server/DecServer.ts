@@ -24,6 +24,7 @@ import GZIPUtil from '../../modules/exmc/utils/GZIPUtil.js';
 import IStructureSettle from './data/structure/IStructureSettle.js';
 import IStructureDriver from './data/structure/IStructureDriver.js';
 import ExTaskRunner from '../../modules/exmc/server/ExTaskRunner.js';
+import { decTreeStructure } from './data/structure/DecTreeStructure.js';
 
 
 export default class DecServer extends ExGameServer {
@@ -133,7 +134,10 @@ export default class DecServer extends ExGameServer {
                         task.start(2, 1).then(() => {
                             this.compress = data;
                             console.warn("over");
-                            console.warn(JSON.stringify(data)); 
+                            // for(let i of data){
+                            //     console.warn(i);
+                            // }
+                            console.warn(JSON.stringify(data));
                         });
                         // console.warn(GZIPUtil.unzipString(com));
                         break;
@@ -144,6 +148,23 @@ export default class DecServer extends ExGameServer {
                         let task: (() => void)[] = [];
 
                         for (let comp of this.compress) {
+                            task.push(() => {
+                                data.load(JSON.parse(GZIPUtil.unzipString(comp)));
+                                data.run(this.getExDimension(MinecraftDimensionTypes.overworld), start)
+                                    .then(() => {
+                                        task.shift()?.();
+                                    });
+                            });
+                        }
+                        task.shift()?.();
+                        break;
+                    }
+                    case "_test": {
+                        let start = new Vector3(Math.floor(parseFloat(cmds[1])), Math.floor(parseFloat(cmds[2])), Math.floor(parseFloat(cmds[3])));
+                        let data = new IStructureSettle();
+                        let task: (() => void)[] = [];
+
+                        for (let comp of decTreeStructure) {
                             task.push(() => {
                                 data.load(JSON.parse(GZIPUtil.unzipString(comp)));
                                 data.run(this.getExDimension(MinecraftDimensionTypes.overworld), start)
