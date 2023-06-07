@@ -112,21 +112,29 @@ export default class DecServer extends ExGameServer {
                         break;
                     }
                     case "_save": {
-                        if (cmds.length<7) return;
+                        if (cmds.length < 7) return;
                         let start = new Vector3(Math.floor(parseFloat(cmds[1])), Math.floor(parseFloat(cmds[2])), Math.floor(parseFloat(cmds[3])));
                         let end = new Vector3(Math.floor(parseFloat(cmds[4])), Math.floor(parseFloat(cmds[5])), Math.floor(parseFloat(cmds[6]))).add(1);
 
                         let data: string[] = [];
-                        for (let i of new IStructureDriver().save(this.getExDimension(MinecraftDimensionTypes.overworld), start, end)) {
-                            let res = i.toData();
-                            i.dispose();
-                            // console.warn(JSON.stringify(res));
-                            let com = GZIPUtil.zipString(JSON.stringify(res)) ?? "";
-                            data.push(com);
-                            console.warn(com);
-                        }
-
-                        this.compress = data;
+                        let task = new ExTaskRunner();
+                        const mthis = this;
+                        task.run((function* () {
+                            for (let i of new IStructureDriver().save(mthis.getExDimension(MinecraftDimensionTypes.overworld), start, end)) {
+                                let res = i.toData();
+                                i.dispose();
+                                //console.warn(JSON.stringify(res));
+                                let com = GZIPUtil.zipString(JSON.stringify(res)) ?? "";
+                                data.push(com);
+                                //console.warn(com);
+                                yield true;
+                            }
+                        }).bind(this));
+                        task.start(2, 1).then(() => {
+                            this.compress = data;
+                            console.warn("over");
+                            console.warn(JSON.stringify(data)); 
+                        });
                         // console.warn(GZIPUtil.unzipString(com));
                         break;
                     }

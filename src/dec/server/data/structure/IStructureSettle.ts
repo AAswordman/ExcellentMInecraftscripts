@@ -57,7 +57,7 @@ export default class IStructureSettle implements DisposeAble{
             return false;
         }));
 
-        await runner.start(1, 5);
+        await runner.start(1, 30);
         return true;
     }
     merge(m:IStructureSettle){
