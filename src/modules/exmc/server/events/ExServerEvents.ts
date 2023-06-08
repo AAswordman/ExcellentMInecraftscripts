@@ -1,39 +1,43 @@
-import { world, Events, TickEvent, system } from '@minecraft/server';
+import { world, system, WorldAfterEvents, WorldBeforeEvents } from '@minecraft/server';
 import ExEventManager from "../../interface/ExEventManager.js";
 import ExGameServer from "../ExGameServer.js";
 import ExGameConfig from '../ExGameConfig.js';
 import ExErrorQueue from '../ExErrorQueue.js';
 import ExGame from '../ExGame.js';
+import { ExOtherEventNames, Merge, TickEvent } from './events.js';
+
 
 export default class ExServerEvents implements ExEventManager {
-    public events: Events;
+
+    public events: Merge<{ [K in keyof WorldAfterEvents as `after${Capitalize<K>}`]: WorldAfterEvents[K] },
+        { [K in keyof WorldBeforeEvents as `before${Capitalize<K>}`]: WorldBeforeEvents[K] }>;
     private _server: ExGameServer;
     public exEvents = {
-        "tick": {
+        [ExOtherEventNames.tick]: {
             subscribe: (callback: (arg: TickEvent) => void) => {
-                this._subscribe("tick", callback);
+                this._subscribe(ExOtherEventNames.tick, callback);
             },
             unsubscribe: (callback: (arg: TickEvent) => void) => {
-                this._unsubscribe("tick", callback)
+                this._unsubscribe(ExOtherEventNames.tick, callback)
             },
             pattern: () => {
                 ExGame.tickMonitor.addMonitor((e) => {
-                    ExServerEvents.monitorMap.get("tick")?.forEach((fun) => {
+                    ExServerEvents.monitorMap.get(ExOtherEventNames.tick)?.forEach((fun) => {
                         fun(e);
                     })
                 });
             }
         },
-        "onLongTick": {
+        [ExOtherEventNames.onLongTick]: {
             subscribe: (callback: (arg: TickEvent) => void) => {
-                this._subscribe("onLongTick", callback);
+                this._subscribe(ExOtherEventNames.onLongTick, callback);
             },
             unsubscribe: (callback: (arg: TickEvent) => void) => {
-                this._unsubscribe("onLongTick", callback)
+                this._unsubscribe(ExOtherEventNames.onLongTick, callback)
             },
             pattern: () => {
                 ExGame.longTickMonitor.addMonitor((e) => {
-                    ExServerEvents.monitorMap.get("onLongTick")?.forEach((fun) => {
+                    ExServerEvents.monitorMap.get(ExOtherEventNames.onLongTick)?.forEach((fun) => {
                         fun(e);
                     })
                 });
@@ -64,7 +68,14 @@ export default class ExServerEvents implements ExEventManager {
 
     constructor(server: ExGameServer) {
         this._server = server;
-        this.events = world.events;
+
+        this.events = {} as any;
+        for (let k in world.afterEvents) {
+            (this.events as any)[`after${k[0].toUpperCase()}${k.slice(1)}`] = world.afterEvents[k as keyof WorldAfterEvents];
+        }
+        for (let k in world.beforeEvents) {
+            (this.events as any)[`before${k[0].toUpperCase()}${k.slice(1)}`] = world.beforeEvents[k as keyof WorldBeforeEvents];
+        }
 
         if (!ExServerEvents.init) {
             ExServerEvents.init = true;

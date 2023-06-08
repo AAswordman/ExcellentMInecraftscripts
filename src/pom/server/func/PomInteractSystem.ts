@@ -1,14 +1,14 @@
 import ExGameVector3 from "../../../modules/exmc/server/math/ExGameVector3.js";
 import GameController from "./GameController.js";
-import { TickEvent } from '@minecraft/server';
 import "../../../modules/exmc/utils/native/Array.js"
 import ExEntity from "../../../modules/exmc/server/entity/ExEntity.js";
+import { TickEvent } from "../../../modules/exmc/server/events/events.js";
 
 export default class PomInteractSystem extends GameController {
     listenCannonState?: { (e: TickEvent): void; };
 
     onJoin(): void {
-        this.getEvents().exEvents.itemOnHandChange.subscribe(e => {
+        this.getEvents().exEvents.afterItemOnHandChange.subscribe(e => {
             if (
                 e.afterItem?.typeId === "epic:machanical_operator" ||
                 e.afterItem?.typeId === "epic:alliance_token"

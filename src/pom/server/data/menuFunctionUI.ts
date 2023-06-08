@@ -462,7 +462,7 @@ ${getCharByNum((gj - (150 * (g - 1) ** 2 + 1050 * (g - 1) + 900)) / (300 * g + 9
                                                 .show(client.player)
                                                 .then(e => {
                                                     if (e.canceled) return;
-                                                    i[1] = e?.formValues?.[0] || "";
+                                                    i[1] = String(e?.formValues?.[0] || "");
                                                 }).catch(e => {
                                                     ExErrorQueue.throwError(e);
                                                 })
@@ -484,7 +484,7 @@ ${getCharByNum((gj - (150 * (g - 1) ** 2 + 1050 * (g - 1) + 900)) / (300 * g + 9
                                 "msg": lang.menuUIMsgBailan41 + client.exPlayer.getPosition().floor().toString(),
                                 "type": "button",
                                 "function": (client, ui) => {
-                                    client.data.pointRecord?.point.push([client.exPlayer.getDimension().id, "", client.exPlayer.getPosition().floor()]);
+                                    client.data.pointRecord?.point.push([client.exPlayer.dimension.id, "", client.exPlayer.getPosition().floor()]);
                                     return true;
                                 }
                             });
@@ -644,7 +644,7 @@ ${getCharByNum((gj - (150 * (g - 1) ** 2 + 1050 * (g - 1) + 900)) / (300 * g + 9
                                         .button1(lang.menuUIMsgBailan15, () => {
                                             client.sayTo(lang.menuUIMsgBailan37);
                                             client.sayTo(lang.menuUIMsgBailan37, i[0]);
-                                            client.exPlayer.setPosition(p.getPosition(), p.getDimension());
+                                            client.exPlayer.setPosition(p.getPosition(), p.dimension);
                                         })
                                         .button2(lang.menuUIMsgBailan16, () => {
                                             client.sayTo(lang.menuUIMsgBailan63);
@@ -691,7 +691,7 @@ ${getCharByNum((gj - (150 * (g - 1) ** 2 + 1050 * (g - 1) + 900)) / (300 * g + 9
                                         .button1(lang.menuUIMsgBailan15, () => {
                                             client.sayTo(lang.menuUIMsgBailan37);
                                             client.sayTo(lang.menuUIMsgBailan37, i[0]);
-                                            p.setPosition(client.exPlayer.getPosition(), client.exPlayer.getDimension());
+                                            p.setPosition(client.exPlayer.getPosition(), client.exPlayer.dimension);
                                         })
                                         .button2(lang.menuUIMsgBailan16, () => {
                                             client.sayTo(lang.menuUIMsgBailan73);
@@ -846,10 +846,10 @@ ${getCharByNum((gj - (150 * (g - 1) ** 2 + 1050 * (g - 1) + 900)) / (300 * g + 9
                                         .slider(lang.menuUIMsgBailan93, 1, 60, 1, client.globalSettings.entityCleanerDelay)
                                         .show(client.player).then((e) => {
                                             if (e.canceled) return;
-                                            client.globalSettings.entityCleaner = e.formValues?.[0] ?? false;
-                                            client.globalSettings.entityCleanerLeastNum = e.formValues?.[1] ?? 200;
-                                            client.globalSettings.entityCleanerStrength = e.formValues?.[2] ?? 5;
-                                            client.globalSettings.entityCleanerDelay = e.formValues?.[3] ?? 30;
+                                            client.globalSettings.entityCleaner = Boolean(e.formValues?.[0] ?? false);
+                                            client.globalSettings.entityCleanerLeastNum = Number(e.formValues?.[1] ?? 200);
+                                            client.globalSettings.entityCleanerStrength = Number(e.formValues?.[2] ?? 5);
+                                            client.globalSettings.entityCleanerDelay = Number(e.formValues?.[3] ?? 30);
                                         })
                                         .catch((e) => {
                                             ExErrorQueue.throwError(e);

@@ -1,4 +1,4 @@
-import { Events, TickEvent, system } from '@minecraft/server';
+import { system } from '@minecraft/server';
 import ExEventManager from "../interface/ExEventManager.js";
 import SetTimeOutSupport from "../interface/SetTimeOutSupport.js";
 import TickDelayTask from '../utils/TickDelayTask.js';

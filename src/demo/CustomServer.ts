@@ -8,10 +8,6 @@ export default class CustomServer extends ExGameServer {
     constructor(config: ExConfig) {
         super(config);
 
-        this.getEvents().events.entitySpawn.subscribe(e => {
-
-        });
-
     }
 
     override newClient(id: string, player: Player): ExGameClient {

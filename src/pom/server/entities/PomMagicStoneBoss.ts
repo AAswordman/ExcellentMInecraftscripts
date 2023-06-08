@@ -1,4 +1,4 @@
-import { Entity, EntityHurtEvent, world } from '@minecraft/server';
+import { Entity, EntityHurtAfterEvent, world } from '@minecraft/server';
 import ExGameServer from '../../../modules/exmc/server/ExGameServer.js';
 import ExEntityController from '../../../modules/exmc/server/entity/ExEntityController.js';
 import ExGameConfig from '../../../modules/exmc/server/ExGameConfig.js';
@@ -21,7 +21,7 @@ export default class PomMagicStoneBoss extends PomBossController {
     override onSpawn(): void {
         super.onSpawn();
     }
-    override onKilled(e: EntityHurtEvent): void {
+    override onKilled(e: EntityHurtAfterEvent): void {
         //设置奖励
         for (let c of this.barrier.clientsByPlayer()) {
             c.progressTaskFinish(this.entity.typeId, c.ruinsSystem.causeDamage);

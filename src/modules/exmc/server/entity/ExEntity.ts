@@ -1,13 +1,14 @@
-import { Entity, EntityHealthComponent, Vector, EntityInventoryComponent, Player, Dimension, EntityQueryOptions, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent, EntityDamageSource, EntityDamageCause, EquipmentSlot } from '@minecraft/server';
+import { Entity, EntityHealthComponent, Vector, EntityInventoryComponent, Player, Dimension, EntityQueryOptions, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent, EntityDamageSource, EntityDamageCause, EquipmentSlot, TeleportOptions, EffectType } from '@minecraft/server';
 import { ExCommandNativeRunner } from '../../interface/ExCommandRunner.js';
 import ExTagManager from '../../interface/ExTagManager.js';
 import ExScoresManager from './ExScoresManager.js';
-import Vector3 from '../../math/Vector3.js';
+import Vector3, { IVector3 } from '../../math/Vector3.js';
 import ExEntityBag from './ExEntityBag.js';
 import SetTimeOutSupport from '../../interface/SetTimeOutSupport.js';
 import ExGameVector3 from '../math/ExGameVector3.js';
 import ExCommand from '../env/ExCommand.js';
 import ExDimension from '../ExDimension.js';
+import Vector2, { IVector2 } from '../../math/Vector2.js';
 
 
 export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
@@ -33,7 +34,7 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
             this._damage = damage;
             timeout.setTimeout(() => {
                 let health = this.getHealthComponent();
-                if (health.current > 0.5) health.setCurrent(Math.max(0.5, health.current - (this._damage ?? 0)));
+                if (health.currentValue > 0.5) health.setCurrentValue(Math.max(0.5, health.currentValue - (this._damage ?? 0)));
                 this._damage = undefined;
             }, 0);
         } else {
@@ -75,20 +76,22 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         }
         return (new ExEntity(entity));
     }
-
-    getDimension() {
-        return this._entity.dimension;
+    get exDimension() {
+        return ExDimension.getInstance(this.dimension);
     }
-    getExDimension() {
-        return ExDimension.getInstance(this.getDimension());
+    set exDimension(ex: ExDimension) {
+        this.dimension = ex.dimension;
     }
 
     addTag(str: string) {
         this._entity.addTag(str);
         return str;
     }
-    getTags() {
+    get tags() {
         return this._entity.getTags();
+    }
+    getTags(): string[] {
+        return this.tags;
     }
     hasTag(str: string) {
         return this._entity.hasTag(str);
@@ -119,22 +122,54 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     getPosition() {
         return new Vector3(this.entity.location);
     }
-    getRotation() {
+    setPosition(position: Vector3, dimension?: Dimension) {
+        this.entity.teleport(position, {
+            "dimension": dimension,
+            "keepVelocity": true
+        });
+    }
+
+    get rotation() {
         return this.entity.getRotation();
     }
-
-
-    setPosition(position: Vector3, dimension = this.entity.dimension) {
-        let rot = this.getRotation();
-        this.entity.teleport(position, dimension, rot.x, rot.y);
-
+    set rotation(ivec: IVector2) {
+        this.teleport(this.getPosition(), {
+            "keepVelocity": true,
+            "rotation": ivec
+        });
     }
-    setDimension(dimension: Dimension) {
+
+    teleport(location: Vector3, teleportOptions?: TeleportOptions) {
+        this.entity.teleport(location, teleportOptions);
+    }
+    tryTeleport(location: Vector3, teleportOptions?: TeleportOptions) {
+        this.entity.tryTeleport(location, teleportOptions);
+    }
+    set dimension(dimension: Dimension) {
         this.setPosition(this.getPosition(), dimension);
     }
+    get dimension() {
+        return this._entity.dimension;
+    }
 
-    getViewDirection() {
+    get viewDirection() {
         return new Vector3(this.entity.getViewDirection());
+    }
+    set viewDirection(ivec: Vector3) {
+        this.teleport(this.getPosition(), {
+            "keepVelocity": true,
+            "rotation": {
+                x: ivec.rotateAngleX(),
+                y: ivec.rotateAngleY()
+            }
+        })
+    }
+
+    addEffect(eff: string | EffectType, during: number, aml: number, par: boolean = true) {
+        this.entity.addEffect(eff, during, {
+            "showParticles": par,
+            "amplifier": aml
+        })
     }
 
     hasComponent(name: string) {
@@ -151,11 +186,14 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     getHealthComponent() {
         return (<EntityHealthComponent>this.getComponent(EntityHealthComponent.componentId));
     }
-    getHealth() {
-        return this.getHealthComponent().current;
+    get health() {
+        return this.getHealthComponent().currentValue;
+    }
+    set health(h: number) {
+        this.getHealthComponent().setCurrentValue(h);
     }
     getMaxHealth() {
-        return this.getHealthComponent().value;
+        return this.getHealthComponent().defaultValue;
     }
 
 

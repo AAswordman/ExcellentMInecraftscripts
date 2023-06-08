@@ -1,11 +1,12 @@
 import ExGameServer from "../ExGameServer.js";
 import ExEntity from "./ExEntity.js";
-import { Entity, EntityHurtEvent, System, TickEvent, world, system } from '@minecraft/server';
+import { Entity, System, world, system, EntityHurtAfterEvent } from '@minecraft/server';
 import ExEntityEvents from "./ExEntityEvents.js";
 import ExGameConfig from "../ExGameConfig.js";
 import DisposeAble from "../../interface/DisposeAble.js";
 import SetTimeOutSupport from "../../interface/SetTimeOutSupport.js";
 import { eventDecoratorFactory, registerEvent } from "../events/eventDecoratorFactory.js";
+import { ExOtherEventNames, TickEvent } from "../events/events.js";
 
 export default class ExEntityController implements DisposeAble, SetTimeOutSupport {
     server!: ExGameServer;
@@ -52,7 +53,7 @@ export default class ExEntityController implements DisposeAble, SetTimeOutSuppor
     onSpawn() {
     }
 
-    @registerEvent<ExEntityController>("tick", (ctrl, e: TickEvent) => {
+    @registerEvent<ExEntityController>(ExOtherEventNames.tick, (ctrl, e: TickEvent) => {
         if (e.currentTick % 1 === 0) {
             try {
                 let dim = ctrl.entity.dimension;
@@ -85,8 +86,8 @@ export default class ExEntityController implements DisposeAble, SetTimeOutSuppor
     onDespawn() {
         this.onDestroy();
     }
-    @registerEvent<ExEntityController>("onHurt", (ctrl, e) => ctrl.exEntity.getHealth() <= 0 && !ctrl._isKilled)
-    onKilled(e: EntityHurtEvent) {
+    @registerEvent<ExEntityController>(ExOtherEventNames.afterOnHurt, (ctrl, e) => ctrl.exEntity.health <= 0 && !ctrl._isKilled)
+    onKilled(e: EntityHurtAfterEvent) {
         this._isKilled = true;
     }
 }

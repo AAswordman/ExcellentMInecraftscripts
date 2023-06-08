@@ -1,4 +1,4 @@
-import { ItemDurabilityComponent, Items, ItemStack, MinecraftBlockTypes, MinecraftItemTypes } from "@minecraft/server";
+import { ItemDurabilityComponent,  ItemStack, ItemTypes, MinecraftBlockTypes, MinecraftItemTypes } from "@minecraft/server";
 import Vector3 from "../../../modules/exmc/math/Vector3.js";
 import ExBlock from "../../../modules/exmc/server/block/ExBlock.js";
 import ExColorLoreUtil from "../../../modules/exmc/server/item/ExColorLoreUtil.js";
@@ -9,7 +9,7 @@ import GameController from "./GameController.js";
 export default class PomEnChantSystem extends GameController {
     static blockTranslateData: Map<string, ItemStack> = new Map<string, ItemStack>();
     onJoin(): void {
-        this.getEvents().exEvents.itemOnHandChange.subscribe((e) => {
+        this.getEvents().exEvents.afterItemOnHandChange.subscribe((e) => {
             const bag = this.exPlayer.getBag();
             if (e.afterItem) {
                 let lore = new ExColorLoreUtil(ExItem.getInstance(e.afterItem));
@@ -33,8 +33,8 @@ export default class PomEnChantSystem extends GameController {
             }
         });
         //附魔
-        this.getEvents().exEvents.onceItemUseOn.subscribe((e) => {
-            let pos = new Vector3(e.getBlockLocation());
+        this.getEvents().exEvents.beforeItemUseOn.subscribe((e) => {
+            let pos = new Vector3(e.block);
             let block = this.getExDimension().getBlock(pos);
             if (!block || block.typeId === MinecraftBlockTypes.air.id) return;
             //ExGameConfig.console.log(block.typeId,e.item.typeId);
@@ -61,7 +61,7 @@ export default class PomEnChantSystem extends GameController {
                     let exHandItem = ExItem.getInstance(item);
                     let exSaveItem = ExItem.getInstance(saveItem);
                     let d = exSaveItem.getItemDurabilityComponent().damage;
-                    let exNewItem = new ExItem(new ItemStack(d >= 4 ? MinecraftItemTypes.enchantedBook : Items.get("wb:book_cache")));
+                    let exNewItem = new ExItem(new ItemStack(d >= 4 ? MinecraftItemTypes.enchantedBook : ItemTypes.get("wb:book_cache")));
                     if (exNewItem.hasItemDurabilityComponent()) {
                         (exNewItem.getItemDurabilityComponent()).damage = d + 1;
                     }

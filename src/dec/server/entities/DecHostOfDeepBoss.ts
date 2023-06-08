@@ -1,4 +1,4 @@
-import { Entity, EntityDamageCause, EntityHurtEvent } from "@minecraft/server";
+import { Entity, EntityDamageCause, EntityHurtAfterEvent } from "@minecraft/server";
 import ExGameServer from "../../../modules/exmc/server/ExGameServer.js";
 import ExEntityController from "../../../modules/exmc/server/entity/ExEntityController.js";
 import ExSound from "../../../modules/exmc/server/env/ExSound.js";
@@ -14,7 +14,7 @@ export class DecHostOfDeepBoss1 extends DecBossController {
         super(e, server);
         this.music = server.getSound("music.wb.from_the_burning_deep", "4:18");
         this.setTimeout(() => {
-            this.music.loop(this.exEntity.getExDimension(), this.entity.location);
+            this.music.loop(this.exEntity.exDimension, this.entity.location);
         }, 500);
     }
     override onDestroy(): void {
@@ -24,7 +24,7 @@ export class DecHostOfDeepBoss1 extends DecBossController {
     override onSpawn(): void {
         super.onSpawn();
     }
-    override onKilled(e: EntityHurtEvent): void {
+    override onKilled(e: EntityHurtAfterEvent): void {
         super.onKilled(e);
     }
 }
@@ -34,7 +34,7 @@ export class DecHostOfDeepBoss2 extends DecBossController {
         super(e, server);
         this.music = server.getSound("music.wb.from_the_burning_deep", "4:18");
         this.setTimeout(() => {
-            this.music.loop(this.exEntity.getExDimension(), this.entity.location);
+            this.music.loop(this.exEntity.exDimension, this.entity.location);
         }, 500);
     }
     override onDestroy(): void {
@@ -44,7 +44,7 @@ export class DecHostOfDeepBoss2 extends DecBossController {
     override onSpawn(): void {
         super.onSpawn();
     }
-    override onKilled(e: EntityHurtEvent): void {
+    override onKilled(e: EntityHurtAfterEvent): void {
         super.onKilled(e);
     }
 }
@@ -54,7 +54,7 @@ export class DecHostOfDeepBoss3 extends DecCommonBossLastStage {
         super(e, server);
         this.music = server.getSound("music.wb.from_the_burning_deep", "4:18");
         this.setTimeout(() => {
-            this.music.loop(this.exEntity.getExDimension(), this.entity.location);
+            this.music.loop(this.exEntity.exDimension, this.entity.location);
         }, 500);
     }
     override onDestroy(): void {

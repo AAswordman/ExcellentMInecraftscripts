@@ -42,7 +42,7 @@ export default class IStructureDriver {
                 let id;
                 for (let z = 0; z < box.z; z++) {
                     tmpV.set(start).add(x, y, z);
-                    id = dim.getBlock(tmpV).type.id;
+                    id = dim.getBlock(tmpV)!.type.id;
                     if (id !== last) {
                         if (last !== "") {
                             if (last !== MinecraftBlockTypes.air.id) a1.fill([x + offset.x, y + offset.y, zlast + offset.z], [x + 1 + offset.x, y + 1 + offset.y, z + offset.z], last);

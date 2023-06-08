@@ -1,4 +1,4 @@
-import { MinecraftEffectTypes, MinecraftBlockTypes, ItemStack, Items, world, BlockType } from '@minecraft/server';
+import { MinecraftEffectTypes, MinecraftBlockTypes, ItemStack, world, BlockType, ItemTypes } from '@minecraft/server';
 import { ModalFormData } from "@minecraft/server-ui";
 import Vector3 from '../../../modules/exmc/math/Vector3.js';
 import ExDimension from '../../../modules/exmc/server/ExDimension.js';
@@ -7,11 +7,10 @@ import ExGameVector3 from '../../../modules/exmc/server/math/ExGameVector3.js';
 import menuFunctionUI from "../data/menuFunctionUI.js";
 import MenuUIAlert from "../ui/MenuUIAlert.js";
 import GameController from "./GameController.js";
-import { Tags } from '@minecraft/server-gametest';
 
 export default class SimpleItemUseFunc extends GameController {
     onJoin(): void {
-        this.getEvents().exEvents.blockBreak.subscribe(e => {
+        this.getEvents().exEvents.afterBlockBreak.subscribe(e => {
             const itemId = this.exPlayer.getBag().getItemOnHand()?.typeId;
             if (itemId === "wb:axex_equipment_a") {
                 if (e.brokenBlockPermutation.hasTag("log")) {
@@ -23,15 +22,13 @@ export default class SimpleItemUseFunc extends GameController {
                 }
             }
         });
-        this.getEvents().exEvents.onceItemUseOn.subscribe(e => {
-            if (e.item.typeId === "wb:technology_world_explorer") {
-                this.sayTo(this.getExDimension().getBlock(e.getBlockLocation()).typeId);
+        this.getEvents().exEvents.beforeItemUseOn.subscribe(e => {
+            if (e.itemStack.typeId === "wb:technology_world_explorer") {
+                this.sayTo(e.block?.typeId ?? "");
             }
         });
-        this.getEvents().exEvents.itemUse.subscribe((e) => {
-            const {
-                item
-            } = e;
+        this.getEvents().exEvents.beforeItemUse.subscribe((e) => {
+            const item = e.itemStack;
 
             if (item.typeId == "wb:power") {
                 if (!this.data.lang) {
@@ -51,10 +48,10 @@ export default class SimpleItemUseFunc extends GameController {
                 }
             } else if (item.typeId === "wb:jet_pack") {
                 // jet pack
-                this.player.addEffect(MinecraftEffectTypes.levitation, 7, 15, false);
-                this.player.addEffect(MinecraftEffectTypes.slowFalling, 150, 3, false);
+                this.exPlayer.addEffect(MinecraftEffectTypes.levitation, 7, 15, false);
+                this.exPlayer.addEffect(MinecraftEffectTypes.slowFalling, 150, 3, false);
 
-                this.exPlayer.getDimension().spawnEntity("wb:ball_jet_pack", this.exPlayer.getPosition().sub(this.exPlayer.getViewDirection().scl(2)));
+                this.exPlayer.dimension.spawnEntity("wb:ball_jet_pack", this.exPlayer.getPosition().sub(this.exPlayer.viewDirection.scl(2)));
             } else if (item.typeId === "wb:start_key") {
 
             } else if (item.typeId === "wb:technology_world_explorer") {
@@ -99,7 +96,7 @@ export default class SimpleItemUseFunc extends GameController {
         if (posData.has(pos)) return;
         posData.add(pos);
         const dim = ExDimension.getInstance(this.getDimension());
-        const id = dim.getBlock(v).typeId;
+        const id = dim.getBlock(v)?.typeId;
         if (id === idType || o) {
             dim.digBlock(v);
             this.chainDigging(v.add(0, 1, 0), idType, times, posData);
@@ -131,7 +128,7 @@ export default class SimpleItemUseFunc extends GameController {
     initialMagicPickaxe() {
         if (this.globalSettings.initialMagicPickaxe) {
             if (!this.data.initialMagicPickaxe) {
-                this.exPlayer.getBag().addItem(new ItemStack(Items.get("wb:pickaxex_equipment_a")));
+                this.exPlayer.getBag().addItem(new ItemStack(ItemTypes.get("wb:pickaxex_equipment_a")));
                 this.data.initialMagicPickaxe = true;
             }
         }

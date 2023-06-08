@@ -10,15 +10,6 @@ import Random from "../modules/exmc/utils/Random.js";
 export default class CustomClient extends ExGameClient {
     constructor(server: ExGameServer, id: string, player: Player) {
         super(server, id, player);
-
-        this.getEvents().exEvents.onceItemUseOn.subscribe(e => {
-            if (e.item.typeId === MinecraftItemTypes.stick.id && this.getExDimension().getBlock(e.getBlockLocation()).typeId === MinecraftBlockTypes.obsidian.id) {
-
-
-                
-            }
-
-        });
     }
 
     override onJoin(): void {

@@ -4,9 +4,10 @@ import ExGameClient from "./ExGameClient.js";
 
 import "../../reflect-metadata/Reflect.js"
 import ExSystem from "../utils/ExSystem.js";
-import { TickEvent, system } from "@minecraft/server";
+import { system } from "@minecraft/server";
 import ExServerEvents from "./events/ExServerEvents.js";
 import MonitorManager from "../utils/MonitorManager.js";
+import { TickEvent } from "./events/events.js";
 
 export default class ExGame {
     static tickMonitor = new MonitorManager<[TickEvent]>();

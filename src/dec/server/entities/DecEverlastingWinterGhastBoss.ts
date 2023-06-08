@@ -1,4 +1,4 @@
-import { Entity, EntityHurtEvent } from "@minecraft/server";
+import { Entity } from "@minecraft/server";
 import ExGameServer from "../../../modules/exmc/server/ExGameServer.js";
 import ExEntityController from "../../../modules/exmc/server/entity/ExEntityController.js";
 import ExSound from "../../../modules/exmc/server/env/ExSound.js";
@@ -13,7 +13,7 @@ export class DecEverlastingWinterGhastBoss1 extends DecBossController {
         super(e, server);
         this.music = server.getSound("music.wb.ghost_tears", "2:16");
         this.setTimeout(() => {
-            this.music.loop(this.exEntity.getExDimension(), this.entity.location);
+            this.music.loop(this.exEntity.exDimension, this.entity.location);
         }, 500);
     }
     override onDestroy(): void {
@@ -30,7 +30,7 @@ export class DecEverlastingWinterGhastBoss2 extends DecCommonBossLastStage {
         super(e, server);
         this.music = server.getSound("music.wb.the_peotry_of_ghost", "3:12");
         this.setTimeout(() => {
-            this.music.loop(this.exEntity.getExDimension(), this.entity.location);
+            this.music.loop(this.exEntity.exDimension, this.entity.location);
         }, 500);
     }
     override onDestroy(): void {

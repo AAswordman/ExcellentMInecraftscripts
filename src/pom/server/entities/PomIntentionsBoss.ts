@@ -1,15 +1,11 @@
 
-import { Entity, EntityHurtEvent, world, TickEvent } from '@minecraft/server';
-import ExGameServer from '../../../modules/exmc/server/ExGameServer.js';
-import ExEntityController from '../../../modules/exmc/server/entity/ExEntityController.js';
-import ExGameConfig from '../../../modules/exmc/server/ExGameConfig.js';
+import { Entity, EntityHurtAfterEvent } from '@minecraft/server';
 import PomBossController from './PomBossController.js';
 import PomServer from '../PomServer.js';
-import PomClient from '../PomClient.js';
-import ExSound from '../../../modules/exmc/server/env/ExSound.js';
 import { registerEvent } from '../../../modules/exmc/server/events/eventDecoratorFactory.js';
 import ExErrorQueue from '../../../modules/exmc/server/ExErrorQueue.js';
 import VarOnChangeListener from '../../../modules/exmc/utils/VarOnChangeListener.js';
+import { TickEvent } from '../../../modules/exmc/server/events/events.js';
 
 export class PomIntentionsBoss1 extends PomBossController {
     static typeId = "wb:intentions_first";
@@ -27,7 +23,7 @@ export class PomIntentionsBoss1 extends PomBossController {
     override onSpawn(): void {
         super.onSpawn();
     }
-    override onKilled(e: EntityHurtEvent): void {
+    override onKilled(e: EntityHurtAfterEvent): void {
         super.onKilled(e);
     }
     override onFail(): void {
@@ -62,7 +58,7 @@ export class PomIntentionsBoss2 extends PomBossController {
     override onSpawn(): void {
         super.onSpawn();
     }
-    override onKilled(e: EntityHurtEvent): void {
+    override onKilled(e: EntityHurtAfterEvent): void {
         super.onKilled(e);
     }
     override onFail(): void {
@@ -94,12 +90,12 @@ export class PomIntentionsBoss3 extends PomBossController {
         this.state = new VarOnChangeListener((n) => {
             switch (n) {
                 case 9:
-                    this.exEntity.getExDimension().spawnParticle("wb:ruin_mind_boss_third_par", this.exEntity.getPosition());
+                    this.exEntity.exDimension.spawnParticle("wb:ruin_mind_boss_third_par", this.exEntity.getPosition());
                     break;
                 case 1:
                 case 2:
                 case 3:
-                    this.exEntity.getExDimension().spawnParticle("wb:ruin_mind_boss_second_par", this.exEntity.getPosition());
+                    this.exEntity.exDimension.spawnParticle("wb:ruin_mind_boss_second_par", this.exEntity.getPosition());
                     break;
             }
         }, 1);
@@ -139,7 +135,7 @@ export class PomIntentionsBoss3 extends PomBossController {
     override onSpawn(): void {
         super.onSpawn();
     }
-    override onKilled(e: EntityHurtEvent): void {
+    override onKilled(e: EntityHurtAfterEvent): void {
         //设置奖励
         for (let c of this.barrier.clientsByPlayer()) {
             c.progressTaskFinish(this.entity.typeId, c.ruinsSystem.causeDamage);

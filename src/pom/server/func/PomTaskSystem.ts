@@ -101,7 +101,7 @@ export default class PomTaskSystem extends GameController {
             }
         }
 
-        this.getEvents().exEvents.blockBreak.subscribe(e => {
+        this.getEvents().exEvents.afterBlockBreak.subscribe(e => {
             // ExGameConfig.console.log(e.brokenBlockPermutation.type.id);
             if (!this.data.tasks) return;
             if (this.recordDailyArray.has(e.brokenBlockPermutation.type.id)) {
@@ -109,11 +109,11 @@ export default class PomTaskSystem extends GameController {
             }
             // s
         });
-        this.getEvents().exEvents.playerHitEntity.subscribe(e => {
+        this.getEvents().exEvents.afterPlayerHitEntity.subscribe(e => {
             if (!this.data.tasks) return;
 
             if (this.recordDailyArray.has(e.hurtEntity.typeId)) {
-                if (ExEntity.getInstance(e.hurtEntity).getHealth() < 0) {
+                if (ExEntity.getInstance(e.hurtEntity).getMaxHealth() < 0) {
                     this.data.tasks.daily.cache[e.hurtEntity.typeId] = 1 + (this.data.tasks.daily.cache[e.hurtEntity.typeId] ?? 0);
                 }
             }

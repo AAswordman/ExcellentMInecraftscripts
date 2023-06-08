@@ -1,4 +1,4 @@
-import { Player, MinecraftDimensionTypes, Entity, ItemStack, MinecraftEffectTypes, ChatEvent, MinecraftItemTypes } from '@minecraft/server';
+import { Player, MinecraftDimensionTypes, Entity, ItemStack, MinecraftEffectTypes, MinecraftItemTypes } from '@minecraft/server';
 import ExConfig from "../../modules/exmc/ExConfig.js";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import DecClient from "./DecClient.js";
@@ -24,7 +24,7 @@ import GZIPUtil from '../../modules/exmc/utils/GZIPUtil.js';
 import IStructureSettle from './data/structure/IStructureSettle.js';
 import IStructureDriver from './data/structure/IStructureDriver.js';
 import ExTaskRunner from '../../modules/exmc/server/ExTaskRunner.js';
-import { decTreeStructure } from './data/structure/DecTreeStructure.js';
+import { decTreeStructure } from './data/structure/decTreeStructure.js';
 
 
 export default class DecServer extends ExGameServer {
@@ -63,7 +63,7 @@ export default class DecServer extends ExGameServer {
             }
         }, false);
 
-        this.getEvents().events.beforeChat.subscribe(e => {
+        this.getEvents().events.beforeChatSend.subscribe(e => {
             let cmdRunner = this.getExDimension(MinecraftDimensionTypes.overworld);
             let sender = ExPlayer.getInstance(e.sender);
 
@@ -184,18 +184,19 @@ export default class DecServer extends ExGameServer {
             }
         });
 
-        this.getEvents().events.blockBreak.subscribe(e => {
+        this.getEvents().events.afterBlockBreak.subscribe(e => {
             const entity = ExPlayer.getInstance(e.player);
             //防破坏方块 i_inviolable计分板控制
             if (entity.getScoresManager().getScore(this.i_inviolable) > 1) {
-                e.dimension.getBlock(e.block.location).setType(e.brokenBlockPermutation.type);
-                entity.getExDimension().command.run("kill @e[type=item,r=2,x=" + e.block.x + ",y=" + e.block.y + ",z=" + e.block.z + "]")
-                e.player.addEffect(MinecraftEffectTypes.nausea, 200, 0, true);
-                e.player.addEffect(MinecraftEffectTypes.blindness, 200, 0, true);
-                e.player.addEffect(MinecraftEffectTypes.darkness, 400, 0, true);
-                e.player.addEffect(MinecraftEffectTypes.wither, 100, 0, true);
-                e.player.addEffect(MinecraftEffectTypes.miningFatigue, 600, 2, true);
-                e.player.addEffect(MinecraftEffectTypes.hunger, 600, 1, true);
+                e.dimension.getBlock(e.block.location)?.setType(e.brokenBlockPermutation.type);
+                let ep = ExPlayer.getInstance(e.player);
+                entity.exDimension.command.run("kill @e[type=item,r=2,x=" + e.block.x + ",y=" + e.block.y + ",z=" + e.block.z + "]")
+                ep.addEffect(MinecraftEffectTypes.blindness, 200, 0, true);
+                ep.addEffect(MinecraftEffectTypes.darkness, 400, 0, true);
+                ep.addEffect(MinecraftEffectTypes.wither, 100, 0, true);
+                ep.addEffect(MinecraftEffectTypes.miningFatigue, 600, 2, true);
+                ep.addEffect(MinecraftEffectTypes.hunger, 600, 1, true);
+                ep.addEffect(MinecraftEffectTypes.nausea, 200, 0, true);
                 entity.command.run("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }")
             }
         });
@@ -205,7 +206,7 @@ export default class DecServer extends ExGameServer {
                 const entity = ExEntity.getInstance(e.source);
                 //防爆 i_inviolable计分板控制
                 if (entity.getScoresManager().getScore(this.i_damp) > 0) {
-                    entity.getExDimension().spawnParticle("dec:damp_explosion_particle", e.source.location);
+                    entity.exDimension.spawnParticle("dec:damp_explosion_particle", e.source.location);
                     e.cancel = true;
                 }
             }
@@ -214,7 +215,7 @@ export default class DecServer extends ExGameServer {
         this.getEvents().events.beforeItemUseOn.subscribe(e => {
             const entity = ExEntity.getInstance(e.source);
             //防放方块
-            if (entity.getScoresManager().getScore(this.i_soft) > 0 && e.item.typeId != "dec:iron_key" && e.item.typeId != "dec:frozen_power") {
+            if (entity.getScoresManager().getScore(this.i_soft) > 0 && e.itemStack.typeId != "dec:iron_key" && e.itemStack.typeId != "dec:frozen_power") {
                 e.cancel = true;
             }
         });

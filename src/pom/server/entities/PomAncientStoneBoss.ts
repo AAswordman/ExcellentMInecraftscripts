@@ -1,4 +1,4 @@
-import { Entity, EntityDamageCause, EntityHurtEvent, world } from '@minecraft/server';
+import { Entity, EntityDamageCause, EntityHurtAfterEvent, world } from '@minecraft/server';
 import ExGameServer from '../../../modules/exmc/server/ExGameServer.js';
 import ExEntityController from '../../../modules/exmc/server/entity/ExEntityController.js';
 import ExGameConfig from '../../../modules/exmc/server/ExGameConfig.js';
@@ -22,14 +22,14 @@ export default class PomAncientStoneBoss extends PomBossController {
         if (!this.exEntity.hasIsBabyComponent() && this.isFisrtCall){
             this.server.say({ rawtext: [{ translate: "text.wb:summon_ancient_stone.name" }] });
             this.setTimeout(() => {
-                this.music.loop(this.exEntity.getExDimension(), this.entity.location);
+                this.music.loop(this.exEntity.exDimension, this.entity.location);
             }, 500);
         }
     }
     override onSpawn(): void {
         super.onSpawn();
     }
-    override onKilled(e: EntityHurtEvent): void {
+    override onKilled(e: EntityHurtAfterEvent): void {
         //设置奖励
         if (this.exEntity.hasIsBabyComponent()) {
             for (let c of this.barrier.clientsByPlayer()) {

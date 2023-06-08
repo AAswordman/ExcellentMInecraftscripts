@@ -1,6 +1,7 @@
-import { Events, TickEvent } from "@minecraft/server";
+
 import ExEventManager from "../interface/ExEventManager.js";
 import SetTimeOutSupport from "../interface/SetTimeOutSupport.js";
+import { TickEvent } from "../server/events/events.js";
 
 export default class TimeLoopTask {
     timeOut: ExEventManager;

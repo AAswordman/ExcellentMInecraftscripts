@@ -1,7 +1,7 @@
 import ExGameServer from "./ExGameServer.js";
 import ExGameConfig from "./ExGameConfig.js";
 import ExClientEvents from "./events/ExClientEvents.js";
-import { ChatEvent, Dimension, Player, TickEvent, world } from '@minecraft/server';
+import { ChatSendAfterEvent, ChatSendBeforeEvent, Dimension, Player, world } from '@minecraft/server';
 import ExPlayer from "./entity/ExPlayer.js";
 import SetTimeOutSupport from "../interface/SetTimeOutSupport.js";
 import ExDimension from "./ExDimension.js";
@@ -13,11 +13,12 @@ import { basicFinalType } from "../interface/types.js";
 import "../../reflect-metadata/Reflect.js"
 import { eventDecoratorFactory } from "./events/eventDecoratorFactory.js";
 import notUtillTask from "../utils/notUtillTask.js";
+import { TickEvent } from "./events/events.js";
 
 export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingPool> implements SetTimeOutSupport {
     private _events: ExClientEvents;
 
-    debuggerChatTest = (e: ChatEvent) => {
+    debuggerChatTest = (e: ChatSendBeforeEvent) => {
         if (e.message.startsWith("*/"))
             ExGameConfig.console.info(eval(e.message.substring(2, e.message.length)));
     }
@@ -73,7 +74,7 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
         if (type !== undefined) {
             return world.getDimension(type);
         } else {
-            return this.exPlayer.getDimension();
+            return this.exPlayer.dimension;
         }
     }
     getExDimension(type: string | undefined = undefined) {
@@ -141,7 +142,7 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
 
     asDebugger() {
         this.player.addTag("debugger");
-        this._events.exEvents.chat.subscribe(this.debuggerChatTest);
+        this._events.exEvents.beforeChatSend.subscribe(this.debuggerChatTest);
     }
     notDebugger() {
         this.player.removeTag("debugger");

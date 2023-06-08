@@ -1,22 +1,15 @@
 import ExGameClient from "../ExGameClient.js";
-import {
-    BeforeChatEvent,
-    BeforeItemUseOnEvent,
-    BlockBreakEvent,
-    ChatEvent,
-    ItemUseEvent,
-    ItemUseOnEvent,
-    TickEvent
-} from "@minecraft/server";
+import { BlockBreakAfterEvent, ChatSendAfterEvent, ChatSendBeforeEvent, EntityHitAfterEvent, EntityHurtAfterEvent, ItemUseAfterEvent, ItemUseBeforeEvent, ItemUseOnAfterEvent, ItemUseOnBeforeEvent } from "@minecraft/server";
 import ExEventManager from "../../interface/ExEventManager.js";
 import ExGameServer from '../ExGameServer.js';
-import { Player, EntityHurtEvent, ItemStack, EntityHitEvent, Entity } from '@minecraft/server';
+import { Player, ItemStack, Entity } from '@minecraft/server';
 import ExPlayer from '../entity/ExPlayer.js';
-import { ItemOnHandChangeEvent } from "./events.js";
+import { ExEventNames, ExOtherEventNames, ItemOnHandChangeEvent, TickEvent } from "./events.js";
 import ExGameConfig from "../ExGameConfig.js";
 import TickDelayTask from "../../utils/TickDelayTask.js";
 import EventHandle, { EventListenerSettings, EventListeners } from './EventHandle.js';
 import ExSystem from "../../utils/ExSystem.js";
+
 export default class ExClientEvents implements ExEventManager {
 
     private static eventHandlers: EventHandle = new EventHandle();
@@ -34,92 +27,100 @@ export default class ExClientEvents implements ExEventManager {
     _client: ExGameClient;
 
     static exEventSetting: EventListenerSettings = {
-        itemUse: {
+        [ExEventNames.beforeItemUse]: {
             pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
             filter: {
                 "name": "source"
             }
         },
-        chat: {
+        [ExEventNames.afterChatSend]: {
             pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
             filter: {
                 "name": "sender"
             }
         },
-        beforeChat: {
+        [ExEventNames.afterChatSend]: {
             pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
             filter: {
                 "name": "sender"
             }
         },
-        tick: {
+        [ExEventNames.beforeChatSend]: {
+            pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
+            filter: {
+                "name": "sender"
+            }
+        },
+        [ExOtherEventNames.tick]: {
             pattern: ExClientEvents.eventHandlers.registerToServerByServerEvent
         },
-        entityHit: {
+        [ExOtherEventNames.onLongTick]: {
+            pattern: ExClientEvents.eventHandlers.registerToServerByServerEvent
+        },
+        [ExEventNames.afterEntityHit]: {
             pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
             filter: {
                 "name": "entity"
             }
         },
-        itemUseOn: {
+        [ExEventNames.afterItemUseOn]: {
             pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
             filter: {
                 "name": "source"
             }
         },
-
-        beforeItemUseOn: {
+        [ExEventNames.beforeItemUseOn]: {
             pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
             filter: {
                 "name": "source"
             }
         },
-        onceItemUseOn: {
-            pattern: (registerName: string, k: string) => {
-                this.onceItemUseOnMap = new Map<Entity, [TickDelayTask, boolean]>();
-                ExClientEvents.eventHandlers.server.getEvents().register(registerName, (e: ItemUseOnEvent) => {
-                    if (!(e.source instanceof Player)) return;
-                    let part = (<Map<Player, ((i: ItemUseOnEvent) => void)[]>>ExClientEvents.eventHandlers.monitorMap[k]);
-                    if (!this.onceItemUseOnMap.has(e.source)) {
-                        const player = e.source;
-                        this.onceItemUseOnMap.set(e.source, [ExSystem.tickTask(() => {
-                            let res = this.onceItemUseOnMap.get(player);
-                            if (res === undefined) return;
-                            res[1] = true;
-                        }).delay(3), true]);
-                    }
+        // onceItemUseOn: {
+        //     pattern: (registerName: string, k: string) => {
+        //         this.onceItemUseOnMap = new Map<Entity, [TickDelayTask, boolean]>();
+        //         ExClientEvents.eventHandlers.server.getEvents().register(registerName, (e: ItemUseOnEvent) => {
+        //             if (!(e.source instanceof Player)) return;
+        //             let part = (<Map<Player, ((i: ItemUseOnEvent) => void)[]>>ExClientEvents.eventHandlers.monitorMap[k]);
+        //             if (!this.onceItemUseOnMap.has(e.source)) {
+        //                 const player = e.source;
+        //                 this.onceItemUseOnMap.set(e.source, [ExSystem.tickTask(() => {
+        //                     let res = this.onceItemUseOnMap.get(player);
+        //                     if (res === undefined) return;
+        //                     res[1] = true;
+        //                 }).delay(3), true]);
+        //             }
 
-                    let res = this.onceItemUseOnMap.get(e.source);
-                    if (res === undefined) return;
-                    if (res[1]) {
-                        res[1] = false;
-                        part.get(e.source)?.forEach((v) => v(e));
-                    }
-                    res[0].stop();
-                    res[0].startOnce();
+        //             let res = this.onceItemUseOnMap.get(e.source);
+        //             if (res === undefined) return;
+        //             if (res[1]) {
+        //                 res[1] = false;
+        //                 part.get(e.source)?.forEach((v) => v(e));
+        //             }
+        //             res[0].stop();
+        //             res[0].startOnce();
 
-                });
-            },
-            filter: {
-                "name": "source"
-            },
-            name: "itemUseOn"
-        },
-        playerHitEntity: {
+        //         });
+        //     },
+        //     filter: {
+        //         "name": "source"
+        //     },
+        //     name: "itemUseOn"
+        // },
+        [ExOtherEventNames.afterPlayerHitEntity]: {
             pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
             filter: {
                 "name": "damageSource.damagingEntity"
             },
-            name: "entityHurt"
+            name: ExEventNames.afterEntityHurt
         },
-        playerHurt: {
+        [ExOtherEventNames.afterPlayerHurt]: {
             pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
             filter: {
                 "name": "hurtEntity"
             },
-            name: "entityHurt"
+            name: ExEventNames.afterEntityHurt
         },
-        itemOnHandChange: {
+        [ExOtherEventNames.afterItemOnHandChange]: {
             pattern: (registerName: string, k: string) => {
                 this.onHandItemMap = new Map<Player, [ItemStack | undefined, number]>();
                 ExClientEvents.eventHandlers.server.getEvents().register(registerName, (e: TickEvent) => {
@@ -139,12 +140,10 @@ export default class ExClientEvents implements ExEventManager {
 
                 });
             },
-            name: "onLongTick"
+            name: ExOtherEventNames.onLongTick
         },
-        onLongTick: {
-            pattern: ExClientEvents.eventHandlers.registerToServerByServerEvent
-        },
-        blockBreak: {
+        
+        [ExEventNames.afterBlockBreak]: {
             pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
             filter: {
                 "name": "player"
@@ -153,20 +152,19 @@ export default class ExClientEvents implements ExEventManager {
     }
 
     exEvents = {
-        itemUse: new Listener<ItemUseEvent>(this, "itemUse"),
-        chat: new Listener<ChatEvent>(this, "chat"),
-        beforeChat: new Listener<BeforeChatEvent>(this, "beforeChat"),
-        tick: new Listener<TickEvent>(this, "tick"),
-        entityHit: new Listener<EntityHitEvent>(this, "entityHit"),
-        itemUseOn: new Listener<ItemUseOnEvent>(this, "itemUseOn"),
-
-        beforeItemUseOn: new Listener<BeforeItemUseOnEvent>(this, "beforeItemUseOn"),
-        onceItemUseOn: new Listener<BeforeItemUseOnEvent>(this, "onceItemUseOn"),
-        playerHitEntity: new Listener<EntityHurtEvent>(this, "playerHitEntity"),
-        playerHurt: new Listener<EntityHurtEvent>(this, "playerHurt"),
-        itemOnHandChange: new Listener<ItemOnHandChangeEvent>(this, "itemOnHandChange"),
-        onLongTick: new Listener<TickEvent>(this, "onLongTick"),
-        blockBreak: new Listener<BlockBreakEvent>(this, "blockBreak")
+        [ExEventNames.beforeItemUse]: new Listener<ItemUseBeforeEvent>(this, ExEventNames.beforeItemUse),
+        [ExEventNames.afterItemUse]: new Listener<ItemUseAfterEvent>(this, ExEventNames.beforeItemUse),
+        [ExEventNames.afterChatSend]: new Listener<ChatSendAfterEvent>(this, ExEventNames.afterChatSend),
+        [ExEventNames.beforeChatSend]: new Listener<ChatSendBeforeEvent>(this, ExEventNames.beforeChatSend),
+        [ExOtherEventNames.tick]: new Listener<TickEvent>(this, ExOtherEventNames.tick),
+        [ExOtherEventNames.onLongTick]: new Listener<TickEvent>(this, ExOtherEventNames.onLongTick),
+        [ExEventNames.afterEntityHit]: new Listener<EntityHitAfterEvent>(this, ExEventNames.afterEntityHit),
+        [ExEventNames.afterItemUseOn]: new Listener<ItemUseOnAfterEvent>(this, ExEventNames.afterItemUseOn),
+        [ExEventNames.beforeItemUseOn]: new Listener<ItemUseOnBeforeEvent>(this, ExEventNames.beforeItemUseOn),
+        [ExOtherEventNames.afterPlayerHitEntity]: new Listener<EntityHurtAfterEvent>(this, ExOtherEventNames.afterPlayerHitEntity),
+        [ExOtherEventNames.afterPlayerHurt]: new Listener<EntityHurtAfterEvent>(this, ExOtherEventNames.afterPlayerHurt),
+        [ExOtherEventNames.afterItemOnHandChange]: new Listener<ItemOnHandChangeEvent>(this, ExOtherEventNames.afterItemOnHandChange),
+        [ExEventNames.afterBlockBreak]: new Listener<BlockBreakAfterEvent>(this, ExEventNames.afterBlockBreak)
     };
 
     public static init(s: ExGameServer) {

@@ -1,5 +1,6 @@
 import ExEventManager from "../../interface/ExEventManager.js";
 import ExSystem from "../../utils/ExSystem.js";
+import { ExEventNames, ExOtherEventNames } from './events';
 
 export function eventDecoratorFactory<T extends Object>(manager: ExEventManager, target: T) {
     for (let i of ExSystem.keys(target)) {
@@ -20,7 +21,7 @@ export function eventDecoratorFactory<T extends Object>(manager: ExEventManager,
 }
 
 
-export function registerEvent<T>(eventName: string, condition?: (obj: T, e: any) => boolean) {
+export function registerEvent<T>(eventName: keyof (typeof ExEventNames & typeof ExOtherEventNames), condition?: (obj: T, e: any) => boolean) {
     return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
         Reflect.defineMetadata("eventName", eventName, target, propertyName);
         Reflect.defineMetadata("eventCondition", condition, target, propertyName);

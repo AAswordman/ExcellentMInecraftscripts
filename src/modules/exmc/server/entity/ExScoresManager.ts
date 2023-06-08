@@ -15,7 +15,7 @@ export default class ExScoresManager {
             const e = this.entity;
             return world.scoreboard.getObjective(objective).getParticipants().find((i) => (i.displayName === e.nameTag));
         } else {
-            return this.entity.scoreboard;
+            return this.entity.scoreboardIdentity;
         }
     }
     getScore(objective: Objective | string): number {

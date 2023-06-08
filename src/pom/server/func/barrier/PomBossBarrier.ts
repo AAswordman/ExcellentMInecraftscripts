@@ -16,7 +16,7 @@ import VarOnChangeListener from '../../../../modules/exmc/utils/VarOnChangeListe
 export default class PomBossBarrier implements DisposeAble {
     center: Vector3;
     particle(arg0: string) {
-        this.dim.spawnParticle(arg0,this.center);
+        this.dim.spawnParticle(arg0, this.center);
     }
     tickEvent: () => void;
     manager: ExEventManager;
@@ -25,10 +25,10 @@ export default class PomBossBarrier implements DisposeAble {
     fog?: string;
     deathTimes: number = 0;
 
-    fogListener = new VarOnChangeListener((n,l)=>{
+    fogListener = new VarOnChangeListener((n, l) => {
         this.dim.command.run(`fog @a[x=${this.center.x},y=${this.center.y},z=${this.center.z},r=128] remove "ruin_fog"`);
         this.fog = n;
-    },"");
+    }, "");
     static find(startPos: IVector3) {
         for (let [k, v] of this.map) {
             if (v.area.contains(startPos)) {
@@ -104,8 +104,14 @@ export default class PomBossBarrier implements DisposeAble {
                         // notUtillTask(this.server,() => ExPlayer.getInstance(e).getHealth()>0,()=>{
                         this.server.setTimeout(() => {
                             if (this.dim.dimension !== e.dimension) {
-                                e.addEffect(MinecraftEffectTypes.resistance, 14 * 20, 10, true);
-                                e.addEffect(MinecraftEffectTypes.weakness, 14 * 20, 10, true);
+                                e.addEffect(MinecraftEffectTypes.resistance, 14 * 20, {
+                                    "amplifier": 10,
+                                    "showParticles": false
+                                });
+                                e.addEffect(MinecraftEffectTypes.weakness, 14 * 20, {
+                                    "amplifier": 10,
+                                    "showParticles": false
+                                });
                             }
                             ExPlayer.getInstance(e).setPosition(this.area.center(), this.dim.dimension)
                         }, 2000);

@@ -1,6 +1,6 @@
 import ExGameClient from "./ExGameClient.js";
 import ExDimension from "./ExDimension.js";
-import { world, MinecraftDimensionTypes, PlayerJoinEvent, Player, TickEvent, PlayerLeaveEvent, system, RawMessage, EntitySpawnEvent } from "@minecraft/server";
+import { world, MinecraftDimensionTypes, PlayerJoinAfterEvent, Player, PlayerLeaveAfterEvent, system, RawMessage, EntitySpawnAfterEvent } from "@minecraft/server";
 import ExGameConfig from "./ExGameConfig.js";
 import initConsole from "../utils/Console.js";
 import ExServerEvents from "./events/ExServerEvents.js";
@@ -17,6 +17,7 @@ import "../../reflect-metadata/Reflect.js";
 import { eventDecoratorFactory, registerEvent } from "./events/eventDecoratorFactory.js";
 import notUtillTask from "../utils/notUtillTask.js";
 import ExSound from "./env/ExSound.js";
+import { ExEventNames, TickEvent } from "./events/events.js";
 
 
 export default class ExGameServer implements SetTimeOutSupport {
@@ -36,7 +37,7 @@ export default class ExGameServer implements SetTimeOutSupport {
             ExGameConfig.config = config;
 
             if (!config.watchDog) {
-                system.events.beforeWatchdogTerminate.subscribe((e) => {
+                system.beforeEvents.watchdogTerminate.subscribe((e) => {
                     e.cancel = true;
                 });
             }
@@ -58,8 +59,8 @@ export default class ExGameServer implements SetTimeOutSupport {
         this.entityControllers.set(id, ec);
     }
 
-    @registerEvent("entitySpawn")
-    onEntitySpawn(e: EntitySpawnEvent) {
+    @registerEvent(ExEventNames.afterEntitySpawn)
+    onEntitySpawn(e: EntitySpawnAfterEvent) {
         const entityConstructor = this.entityControllers.get(e.entity.typeId);
         if (entityConstructor) {
             new (entityConstructor)(e.entity, this);
@@ -117,8 +118,8 @@ export default class ExGameServer implements SetTimeOutSupport {
         return undefined;
     }
 
-    @registerEvent("playerJoin")
-    onClientJoin(event: PlayerJoinEvent) {
+    @registerEvent(ExEventNames.afterPlayerJoin)
+    onClientJoin(event: PlayerJoinAfterEvent) {
         const playerName = event.playerName;
 
         notUtillTask(this, () => {
@@ -134,8 +135,8 @@ export default class ExGameServer implements SetTimeOutSupport {
             });
     }
 
-    @registerEvent("playerLeave")
-    onClientLeave(event: PlayerLeaveEvent) {
+    @registerEvent(ExEventNames.afterPlayerLeave)
+    onClientLeave(event: PlayerLeaveAfterEvent) {
         let client = this.findClientByName(event.playerName);
         if (client === undefined) {
             ExGameConfig.console.error(event.playerName + "client is not exists");

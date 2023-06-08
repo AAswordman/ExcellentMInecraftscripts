@@ -27,8 +27,8 @@ export default class PomTalentSystem extends GameController {
                 location: this.player.location
             })) {
                 let exp = ExPlayer.getInstance(p);
-                if (exp.getHealth() < health) {
-                    health = exp.getHealth();
+                if (exp.health < health) {
+                    health = exp.health;
                     player = exp;
                 }
             }
@@ -57,7 +57,7 @@ export default class PomTalentSystem extends GameController {
 
     onJoin(): void {
 
-        this.getEvents().exEvents.playerHitEntity.subscribe((e) => {
+        this.getEvents().exEvents.afterPlayerHitEntity.subscribe((e) => {
             let item = this.exPlayer.getBag().getItemOnHand();
             let damageFac = 0;
             let extraDamage = 0;
@@ -109,7 +109,7 @@ export default class PomTalentSystem extends GameController {
             target.removeHealth(this, damage);
         });
 
-        this.getEvents().exEvents.playerHurt.subscribe((e) => {
+        this.getEvents().exEvents.afterPlayerHurt.subscribe((e) => {
             let damage = (this.exPlayer.getPreRemoveHealth() ?? 0) + e.damage;
             let add = 0;
             add += damage * (this.talentRes.get(Talent.DEFENSE) ?? 0) / 100;
@@ -120,7 +120,7 @@ export default class PomTalentSystem extends GameController {
         });
 
         let lastListener = (d: number) => { };
-        this.getEvents().exEvents.itemOnHandChange.subscribe((e) => {
+        this.getEvents().exEvents.afterItemOnHandChange.subscribe((e) => {
             let bag = this.exPlayer.getBag();
             if (e.afterItem && isEquipment(e.afterItem.typeId)) {
                 const lore = new ExColorLoreUtil(e.afterItem);

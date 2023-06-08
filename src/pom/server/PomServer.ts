@@ -1,4 +1,4 @@
-import { ChatEvent, Entity, EntityDamageCause, EntityHurtEvent, GameMode, MinecraftBlockTypes, MinecraftDimensionTypes, MinecraftEffectTypes, MinecraftEntityTypes, Player } from '@minecraft/server';
+import { ChatSendBeforeEvent, Entity, EntityDamageCause, EntityHurtAfterEvent, GameMode, MinecraftBlockTypes, MinecraftDimensionTypes, MinecraftEffectTypes, MinecraftEntityTypes, Player } from '@minecraft/server';
 import ExConfig from "../../modules/exmc/ExConfig.js";
 import Vector3 from '../../modules/exmc/math/Vector3.js';
 import ExDimension from "../../modules/exmc/server/ExDimension.js";
@@ -33,6 +33,7 @@ import itemCanChangeBlock from './items/itemCanChangeBlock.js';
 import PomBossBarrier from './func/barrier/PomBossBarrier.js';
 import ExEnvironment from '../../modules/exmc/server/env/ExEnvironment.js';
 import ExSystem from '../../modules/exmc/utils/ExSystem.js';
+import { ExEventNames, ExOtherEventNames } from '../../modules/exmc/server/events/events.js';
 // import * as b from "brain.js";
 
 
@@ -362,24 +363,26 @@ export default class PomServer extends ExGameServer {
         }
 
         //遗迹保护
-        this.getEvents().events.blockBreak.subscribe(e => {
+        this.getEvents().events.afterBlockBreak.subscribe(e => {
             if (e.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && (isInProtectArea(e.block))) {
                 let ex = ExPlayer.getInstance(e.player);
                 // if (ex.getGameMode() === GameMode.creative) return;
-                e.dimension.getBlock(e.block.location).setType(e.brokenBlockPermutation.type);
-                ex.getExDimension().command.run("kill @e[type=item,r=2,x=" + e.block.x + ",y=" + e.block.y + ",z=" + e.block.z + "]")
-                e.player.addEffect(MinecraftEffectTypes.nausea, 200, 0, true);
-                e.player.addEffect(MinecraftEffectTypes.blindness, 200, 0, true);
-                e.player.addEffect(MinecraftEffectTypes.darkness, 400, 0, true);
-                e.player.addEffect(MinecraftEffectTypes.wither, 100, 0, true);
-                e.player.addEffect(MinecraftEffectTypes.miningFatigue, 600, 2, true);
-                e.player.addEffect(MinecraftEffectTypes.hunger, 600, 1, true);
+                let b = e.dimension.getBlock(e.block.location);
+                if (!b) return;
+                b.setType(e.brokenBlockPermutation.type);
+                ex.exDimension.command.run("kill @e[type=item,r=2,x=" + e.block.x + ",y=" + e.block.y + ",z=" + e.block.z + "]")
+                ex.addEffect(MinecraftEffectTypes.nausea, 200, 0, true);
+                ex.addEffect(MinecraftEffectTypes.darkness, 400, 0, true);
+                ex.addEffect(MinecraftEffectTypes.wither, 100, 0, true);
+                ex.addEffect(MinecraftEffectTypes.miningFatigue, 600, 2, true);
+                ex.addEffect(MinecraftEffectTypes.hunger, 600, 1, true);
+                ex.addEffect(MinecraftEffectTypes.blindness, 200, 0, true);
                 ex.command.run("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }");
             }
         });
 
         this.getEvents().events.beforeItemUseOn.subscribe(e => {
-            if (e.source.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && (isInProtectArea(e.getBlockLocation()))) {
+            if (e.source.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && (isInProtectArea(e.block))) {
                 // if (e.source instanceof Player) {
                 //     let ex = ExPlayer.getInstance(e.source);
                 //     if (ex.getGameMode() === GameMode.creative) return;
@@ -403,7 +406,7 @@ export default class PomServer extends ExGameServer {
             if (e.source.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && (
                 isInProtectArea(e.source.location)
             )) {
-                if (itemCanChangeBlock(e.item.typeId)) {
+                if (itemCanChangeBlock(e.itemStack.typeId)) {
                     e.cancel = true;
 
                 };
@@ -491,7 +494,7 @@ export default class PomServer extends ExGameServer {
         this.ruinFuncLooper.start();
 
         //末影人清理
-        this.getEvents().events.entitySpawn.subscribe(e => {
+        this.getEvents().events.afterEntitySpawn.subscribe(e => {
             if (e.entity.typeId === MinecraftEntityTypes.enderman.id) {
                 if (e.entity.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) &&
                     (
@@ -540,13 +543,13 @@ export default class PomServer extends ExGameServer {
     //     this.fakePlayerSpawnLoc = new BlockLocation(e.sender.location.x, e.sender.location.y, e.sender.location.z);
     //     ExPlayer.getInstance(e.sender).command.run("gametest run Pom:fakeplayer")
     // }
-    @registerEvent<PomServer>("chat", (server, e: ChatEvent) => e.message === "time")
-    time(e: ChatEvent) {
+    @registerEvent<PomServer>(ExEventNames.beforeChatSend, (server, e: ChatSendBeforeEvent) => e.message === "time")
+    time(e: ChatSendBeforeEvent) {
         new ExEnvironment().print();
     }
 
-    @registerEvent<PomServer>("entityHurt", (server, e: EntityHurtEvent) => server.setting.damageShow && e.damageSource.cause !== EntityDamageCause.suicide)
-    damageShow(e: EntityHurtEvent) {
+    @registerEvent<PomServer>(ExEventNames.afterEntityHurt, (server, e: EntityHurtAfterEvent) => server.setting.damageShow && e.damageSource.cause !== EntityDamageCause.suicide)
+    damageShow(e: EntityHurtAfterEvent) {
         damageShow(ExDimension.getInstance(e.hurtEntity.dimension), e.damage, e.hurtEntity.location);
     }
 
