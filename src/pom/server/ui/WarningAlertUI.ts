@@ -7,7 +7,7 @@ import ExInterworkingPool from '../../../modules/exmc/interface/ExInterworkingPo
 
 
 export default class WarningAlertUI<T extends ExGameClient> {
-    
+
     private _uiBody: string;
     private _client: T;
     private _button: [string, (client: T, ui: WarningAlertUI<T>) => void][];
@@ -23,15 +23,17 @@ export default class WarningAlertUI<T extends ExGameClient> {
     }
 
     showPage() {
-        let ui = new ExActionAlert()
-            .title("__pomAlertWarning")
-            .body(this._uiBody);
-        for (let [str, v] of this._button) {
-            ui.button(str, () => {
-                v(this._client,this);
-            });
-        }
-        ui.show(this._client.player);
+        this._client.setTimeout(() => {
+            let ui = new ExActionAlert()
+                .title("__pomAlertWarning")
+                .body(this._uiBody);
+            for (let [str, v] of this._button) {
+                ui.button(str, () => {
+                    v(this._client, this);
+                });
+            }
+            ui.show(this._client.player);
+        }, 0);
 
     }
 }

@@ -5,7 +5,6 @@ import ExGameServer from "../../modules/exmc/server/ExGameServer.js";
 import ExPlayer from "../../modules/exmc/server/entity/ExPlayer.js";
 import { Objective } from "../../modules/exmc/server/entity/ExScoresManager.js";
 import { eventDecoratorFactory } from "../../modules/exmc/server/events/eventDecoratorFactory.js";
-import TagCache from "../../modules/exmc/server/storage/cache/TagCache.js";
 import ExSystem from "../../modules/exmc/utils/ExSystem.js";
 import Random from "../../modules/exmc/utils/Random.js";
 import PomTransmission from '../PomTransmission.js';
@@ -25,6 +24,7 @@ import PomTaskSystem from "./func/PomTaskSystem.js";
 import SimpleItemUseFunc from "./func/SimpleItemUseFunc.js";
 import WarningAlertUI from "./ui/WarningAlertUI.js";
 import TickDelayTask from "../../modules/exmc/utils/TickDelayTask.js";
+import EntityPropCache from "../../modules/exmc/server/storage/cache/EntityPropCache.js";
 
 
 
@@ -32,7 +32,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
     gameControllers: GameController[] = [];
     gameId !: number;
     globalSettings: GlobalSettings;
-    cache: TagCache<PomData>;
+    cache: EntityPropCache<PomData>;
     data: PomData;
     looper: TickDelayTask;
 
@@ -48,7 +48,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
     constructor(server: ExGameServer, id: string, player: Player) {
         super(server, id, player);
         this.globalSettings = new GlobalSettings(new Objective("wpsetting"));
-        this.cache = new TagCache(this.exPlayer);
+        this.cache = new EntityPropCache(this.exPlayer.entity);
         this.looper = ExSystem.tickTask(() => {
             this.cache.save();
         });

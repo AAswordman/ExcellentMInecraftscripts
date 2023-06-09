@@ -43,4 +43,13 @@ export default class TagCache<T>{
         }
 
     }
+    delete() {
+        for (const tag of this.manager.getTags()) {
+            if (tag.startsWith("__cache:")) {
+                this.manager.removeTag(tag);
+                return tag.substring("__cache:".length);
+            }
+        }
+        return undefined;
+    }
 }

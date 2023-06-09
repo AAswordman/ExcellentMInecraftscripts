@@ -37,7 +37,7 @@ export default class ExGameServer implements SetTimeOutSupport {
             ExGameConfig.config = config;
 
             if (!config.watchDog) {
-                system.beforeEvents.watchdogTerminate.subscribe((e) => {
+                system.events.beforeWatchdogTerminate.subscribe((e) => {
                     e.cancel = true;
                 });
             }

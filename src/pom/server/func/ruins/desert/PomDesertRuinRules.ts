@@ -234,8 +234,8 @@ export default class PomDesertRuinRules {
                             maxDistance: 15,
                             location: tmpV
                         }).forEach(e => {
-                            let c = ExEntity.getInstance(e).getHealthComponent();
-                            c.setCurrentValue(c.currentValue + num);
+                            let ep = ExEntity.getInstance(e);
+                            ep.health -= num;
                         });
                         break;
                     }
@@ -245,8 +245,8 @@ export default class PomDesertRuinRules {
                             excludeTags: (this.game.player.hasTag("wbmsyh") ? ["wbmsyh"] : []),
                             location: tmpV
                         }).forEach(e => {
-                            let c = ExEntity.getInstance(e).getHealthComponent();
-                            c.setCurrentValue(Math.max(0, c.currentValue - num));
+                            let ep = ExEntity.getInstance(e);
+                            ep.health -= num;
                         });
                         break;
                     }
@@ -270,7 +270,11 @@ export default class PomDesertRuinRules {
                         this.game.getExDimension().getEntities({
                             maxDistance: 15,
                             location: tmpV
-                        }).forEach(e => (e.addEffect(eff, 600, { "amplifier": 1, "showParticles": false })));
+                        }).forEach(e => {
+                            //e.addEffect(eff, 600, { "amplifier": 1, "showParticles": false });
+                            e.addEffect(eff, 600, 1, false);
+                        }
+                        );
                         break;
                     }
                 }
