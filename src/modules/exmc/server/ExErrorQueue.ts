@@ -17,6 +17,11 @@ export default class ExErrorQueue {
 export function to<T>(p: Promise<T>) {
     return p.then(res => [res, undefined]).catch(err => { ExErrorQueue.throwError(err); return [undefined, err]; });
 }
+export function tofunc<T>(p: (...args:unknown[]) => Promise<T>) {
+    return (...args:unknown[]) => {
+        return to(p(...args));
+    };
+}
 
 export function ignorn<T>(fun: () => T) {
     try {

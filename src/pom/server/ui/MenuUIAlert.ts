@@ -1,6 +1,6 @@
 import PomClient from "../PomClient.js";
 import ExActionAlert from "../../../modules/exmc/server/ui/ExActionAlert.js";
-import { to } from "../../../modules/exmc/server/ExErrorQueue.js";
+import { to, tofunc } from "../../../modules/exmc/server/ExErrorQueue.js";
 import ExGameConfig from "../../../modules/exmc/server/ExGameConfig.js";
 import ExGameClient from '../../../modules/exmc/server/ExGameClient.js';
 import ExInterworkingPool from '../../../modules/exmc/interface/ExInterworkingPool.js';
@@ -54,7 +54,7 @@ export default class MenuUIAlert<T extends ExGameClient> {
         to(this.upDatePage());
     }
     async upDatePage() {
-        this._client.setTimeout(async () => {
+        this._client.setTimeout(tofunc(async () => {
             let page = this._uiJson[this.choose[0]].page;
             if (typeof (page) === "function") {
                 page = page(this._client, this);
@@ -174,7 +174,7 @@ export default class MenuUIAlert<T extends ExGameClient> {
                 }
             }
             alert.show(this._client.player);
-        }, 0);
+        }), 0);
     }
 }
 

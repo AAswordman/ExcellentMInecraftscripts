@@ -34,7 +34,7 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
             this._damage = damage;
             timeout.setTimeout(() => {
                 let health = this.getHealthComponent();
-                if (health.value > 0.5) health.setCurrent(Math.max(0.5, health.value - (this._damage ?? 0)));
+                if (health.current > 0.5) health.setCurrent(Math.max(0.5, health.current - (this._damage ?? 0)));
                 this._damage = undefined;
             }, 0);
         } else {

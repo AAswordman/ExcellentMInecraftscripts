@@ -61,6 +61,8 @@ export default class ExGameServer implements SetTimeOutSupport {
 
     @registerEvent(ExEventNames.afterEntitySpawn)
     onEntitySpawn(e: EntitySpawnAfterEvent) {
+        let id;
+        try { id = e.entity.typeId } catch (e) { return; }
         const entityConstructor = this.entityControllers.get(e.entity.typeId);
         if (entityConstructor) {
             new (entityConstructor)(e.entity, this);
