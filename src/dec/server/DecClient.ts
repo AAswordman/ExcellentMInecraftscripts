@@ -149,12 +149,12 @@ export default class DecClient extends ExGameClient {
                     let t_n = MathUtil.randomInteger(1, 3);
                     let c_n = itemOnHand;
                     let lor: string[] = [];
-                    let t = DecGlobal.isDec()? DecTasks:PomTasks;
+                    let t = DecGlobal.isDec() ? DecTasks : PomTasks;
                     for (let i = 0; i < t_n; i++) {
                         //lor.push(numTranToTask(randonNumber(0, 9)) + numTranToTask(randonNumber(0, 9)) + numTranToTask(randonNumber(0, 9)))
                         //lor.push("Ao Ao " + numTranToTask(MathUtil.randomInteger(0, 9)));
                         lor.push(numTranToTask(Random.choice(t).id));
-                        
+
                     }
                     c_n.setLore(lor);
                     bag.setItemOnHand(c_n);
@@ -254,10 +254,12 @@ export default class DecClient extends ExGameClient {
         this.getEvents().exEvents.afterItemUse.subscribe(e => {
             //魔法卷轴
             if (e.itemStack.typeId == "dec:magic_scroll_blue") {
-                if (DecGlobal.isDec())
-                    taskUi(this, e.itemStack);
-                else
-                    ExGame.postMessageBetweenClient(this, PomServer, "taskUi", ["paperTask", "1"]);
+                this.setTimeout(() => {
+                    if (DecGlobal.isDec())
+                        taskUi(this, e.itemStack);
+                    else
+                        ExGame.postMessageBetweenClient(this, PomServer, "taskUi", ["paperTask", "1"]);
+                }, 0);
             }
         });
     }

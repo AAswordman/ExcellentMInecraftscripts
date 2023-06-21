@@ -53,6 +53,7 @@ export default class EntityPropCache<T>{
         if (nfrom !== this.tagFrom) {
             let m = GZIPUtil.zipString(nfrom)
             this.entity.setDynamicProperty("__cache:", m);
+            this.entity.setDynamicProperty("__cacheO:", nfrom);
             ExGameConfig.console.info("setDynamicProperty len "+m.length);
             this.tagFrom = nfrom;
         }
