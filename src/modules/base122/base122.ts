@@ -100,7 +100,7 @@ function encodeFromBase64(base64String: string): Array<any> {
  * or Buffer with raw data bytes or a string of bytes (i.e. the type of argument to btoa())
  * @returns {Array} The data in a regular array representing byte values.
  */
-function decode(base122Data: Uint8Array | Buffer): Array<number> {
+function decode(base122Data: Uint8Array | Buffer | string): Array<number> {
     let strData = typeof(base122Data) == 'string' ? base122Data : utf8DataToString(base122Data)
     , decoded: number[] = []
     , decodedIndex = 0
