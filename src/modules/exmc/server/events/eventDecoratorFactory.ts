@@ -1,6 +1,6 @@
 import ExEventManager from "../../interface/ExEventManager.js";
 import ExSystem from "../../utils/ExSystem.js";
-import { ExEventNames, ExOtherEventNames } from './events';
+import { ExEventNames, ExOtherEventNames } from './events.js';
 
 export function eventDecoratorFactory<T extends Object>(manager: ExEventManager, target: T) {
     for (let i of ExSystem.keys(target)) {

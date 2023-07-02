@@ -1,6 +1,6 @@
 import Vector3 from "../../../../modules/exmc/math/Vector3.js";
 import { Dimension, MinecraftBlockTypes, Block } from '@minecraft/server';
-import ExDimension from "../../../../modules/exmc/server/ExDimension";
+import ExDimension from "../../../../modules/exmc/server/ExDimension.js";
 import ExTaskRunner from "../../../../modules/exmc/server/ExTaskRunner.js";
 import Random from "../../../../modules/exmc/utils/Random.js";
 import DisposeAble from "../../../../modules/exmc/interface/DisposeAble.js";
