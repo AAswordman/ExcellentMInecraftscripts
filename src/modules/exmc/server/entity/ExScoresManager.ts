@@ -13,7 +13,7 @@ export default class ExScoresManager {
     getIdentity(objective: string) {
         if (this.entity instanceof ExNullEntity) {
             const e = this.entity;
-            return world.scoreboard.getObjective(objective).getParticipants().find((i) => (i.displayName === e.nameTag));
+            return world.scoreboard.getObjective(objective).getScores().find(i => i.participant.displayName === e.nameTag)?.participant;
         } else {
             return this.entity.scoreboardIdentity;
         }
@@ -29,6 +29,9 @@ export default class ExScoresManager {
     setScore(objective: Objective | string, num: number): boolean {
         let name = typeof objective === "string" ? objective : objective.name;
         let id = this.getIdentity(name);
+        if (!id && this.entity instanceof ExNullEntity) {
+            this.entity.runCommandAsync(`scoreboard players set ${'"' + this.entity.nameTag + '"'} ${name} ${num}`);
+        }
         if (!id) return false;
         world.scoreboard.getObjective(name).setScore(id, num);
         return true;

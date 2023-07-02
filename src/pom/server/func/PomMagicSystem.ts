@@ -89,6 +89,9 @@ export default class PomMagicSystem extends GameController {
         this.actionbarShow.start();
     }
     onLeave(): void {
+        this.wbflLooper.stop();
+        this.armorCoolingLooper.stop();
+        this.actionbarShow.stop();
     }
     upDateByTalent(talentRes: Map<number, number>) {
         let scores = this.exPlayer.getScoresManager();

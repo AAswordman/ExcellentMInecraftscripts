@@ -8,7 +8,6 @@ import * as desertCommand from "../../ruins/desert/PomDesertRuinCommmand.js";
 import { MinecraftEntityTypes, MinecraftEffectTypes, Player } from '@minecraft/server';
 import ExGameVector3 from '../../../../../modules/exmc/server/math/ExGameVector3.js';
 import ExEntity from "../../../../../modules/exmc/server/entity/ExEntity.js";
-import TickDelayTask from '../../../../../modules/exmc/utils/TickDelayTask.js';
 import Vector3 from '../../../../../modules/exmc/math/Vector3.js';
 import ExSystem from "../../../../../modules/exmc/utils/ExSystem.js";
 

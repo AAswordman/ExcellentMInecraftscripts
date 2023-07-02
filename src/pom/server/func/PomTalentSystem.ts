@@ -176,7 +176,8 @@ export default class PomTalentSystem extends GameController {
         })(this);
     }
     onLeave(): void {
-
+        this.skillLoop.stop();
+        this.equiTotalTask?.stop();
     }
 
 }
