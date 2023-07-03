@@ -1,7 +1,8 @@
-import { system } from '@minecraft/server';
+
 import ExEventManager from "../interface/ExEventManager.js";
 import SetTimeOutSupport from "../interface/SetTimeOutSupport.js";
 import TickDelayTask from '../utils/TickDelayTask.js';
+import ExGame from "./ExGame.js";
 
 export default class ExServerTickDelayTask implements TickDelayTask {
     func?: () => void;
@@ -27,7 +28,7 @@ export default class ExServerTickDelayTask implements TickDelayTask {
         this.func = () => {
             this.looper();
         }
-        this.id = system.runTimeout(this!.func, this.time);
+        this.id = ExGame.runTimeout(this!.func, this.time);
     }
     start() {
         if (this.isStarted()) return;
@@ -35,14 +36,14 @@ export default class ExServerTickDelayTask implements TickDelayTask {
             this.looper();
         }
 
-        this.id = system.runInterval(this!.func, this.time);
+        this.id = ExGame.runInterval(this!.func, this.time);
     }
 
     stop() {
         if (!this.func) return;
         if (!this.id) throw new Error("error id is required");
         
-        system.clearRun(this.id);
+        ExGame.clearRun(this.id);
         this.func = undefined;
     }
 }

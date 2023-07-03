@@ -15,19 +15,7 @@ export class ArmorData {
         this.boots = boots;
     }
     detect(p: ExPlayer) {
-        return p.detectArmor(this.head, this.chest, this.legs, this.boots);
-    }
-    async find(c: ExCommandRunner) {
-        try {
-            let res = await c.run("execute as @a if entity @s[hasitem={location=slot.armor.head,item=" + this.head +
-                "}] if entity @s[hasitem={location=slot.armor.chest,item=" + this.chest +
-                "}] if entity @s[hasitem={location=slot.armor.legs,item=" + this.legs +
-                "}] if entity @s[hasitem={location=slot.armor.feet,item=" + this.boots +
-                "}] run tag @s add armorTest:" + this.name);
-            return res;
-        } catch (e) {
-            return e;
-        }
+        return p.detectAllArmor(this.head, this.chest, this.legs, this.boots);
     }
 }
 

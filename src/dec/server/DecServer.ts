@@ -229,41 +229,6 @@ export default class DecServer extends ExGameServer {
             if (e.currentTick % 100 === 0) {
                 //夜晚事件
                 this.nightEventListener.upDate(new ExEnvironment().isNight());
-
-                //盔甲探测
-                let prom: Promise<boolean>[] = [];
-                for (const client of <IterableIterator<DecClient>>this.getClients()) {
-                    prom.push(client.checkArmor());
-                }
-                to(Promise.all(prom).then((e) => {
-                    if (!e.every(i => i)) {
-                        let prom2: Promise<unknown>[] = [];
-                        if (DecGlobal.isDec()) {
-                            for (let k in ArmorPlayerDec) {
-                                prom2.push((<ArmorData>(<any>ArmorPlayerDec)[k]).find(this.getExDimension(MinecraftDimensionTypes.overworld).command));
-                            }
-                        } else {
-                            for (let k in ArmorPlayerPom) {
-                                prom2.push((<ArmorData>(<any>ArmorPlayerPom)[k]).find(this.getExDimension(MinecraftDimensionTypes.overworld).command));
-                            }
-                        }
-                        to(Promise.all(prom2).then((x) => {
-                            for (const client of <IterableIterator<DecClient>>this.getClients()) {
-                                let flag = false;
-                                for (let tag of client.player.getTags()) {
-                                    if (tag.startsWith("armorTest:")) {
-                                        client.player.removeTag(tag);
-                                        client.chooseArmor((<any>ArmorPlayerPom)[tag.split(":")[1]]);
-                                        flag = true;
-                                    }
-                                }
-                                if (!flag) {
-                                    client.chooseArmor(undefined);
-                                }
-                            }
-                        }));
-                    }
-                }));
             }
         });
 

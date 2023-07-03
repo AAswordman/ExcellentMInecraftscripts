@@ -263,9 +263,32 @@ export default class DecClient extends ExGameClient {
                 }, 0);
             }
         });
+
+        this.getEvents().exEvents.onLongTick.subscribe(e => {
+            if (e.currentTick % 20 === 0) {
+                if (this.checkArmor()) {
+                    //非空
+                    if (!this.exPlayer.detectAnyArmor()) {
+                        let armors;
+                        if (DecGlobal.isDec()) {
+                            armors = ArmorPlayerDec;
+                        } else {
+                            armors = ArmorPlayerPom;
+                        }
+                        for (let a in armors) {
+                            const armor = ((armors as any)[a] as ArmorData)
+                            if (armor.detect(this.exPlayer)) {
+                                this.chooseArmor(armor);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        })
     }
 
-    async checkArmor() {
+    checkArmor() {
         if (!DecGlobal.isDec()) {
             if (this.useArmor === ArmorPlayerPom.ink) {
                 this.player.triggerEvent("armor_ink")
@@ -275,7 +298,7 @@ export default class DecClient extends ExGameClient {
                 this.player.triggerEvent("hostile_mode");
             }
         }
-        return this.useArmor ? (await this.useArmor.detect(this.exPlayer)) : false;
+        return this.useArmor ? (this.useArmor.detect(this.exPlayer)) : false;
     }
     chooseArmor(a: ArmorData | undefined) {
         this.useArmor = a;

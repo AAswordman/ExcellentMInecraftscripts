@@ -104,11 +104,18 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         return this._entity.runCommandAsync(str);
     }
 
-    async detectArmor(head: string, chest: string, legs: string, boots: string) {
+    detectAllArmor(head?: string, chest?: string, legs?: string, boots?: string) {
         const bag = this.getBag();
         return bag.getEquipment(EquipmentSlot.head)?.typeId == head &&
             bag.getEquipment(EquipmentSlot.chest)?.typeId == chest &&
             bag.getEquipment(EquipmentSlot.legs)?.typeId == legs &&
+            bag.getEquipment(EquipmentSlot.feet)?.typeId == boots;
+    }
+    detectAnyArmor(head?: string, chest?: string, legs?: string, boots?: string) {
+        const bag = this.getBag();
+        return bag.getEquipment(EquipmentSlot.head)?.typeId == head ||
+            bag.getEquipment(EquipmentSlot.chest)?.typeId == chest ||
+            bag.getEquipment(EquipmentSlot.legs)?.typeId == legs ||
             bag.getEquipment(EquipmentSlot.feet)?.typeId == boots;
     }
 

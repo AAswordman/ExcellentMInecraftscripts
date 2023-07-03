@@ -8,6 +8,7 @@ import { system } from "@minecraft/server";
 import ExServerEvents from "./events/ExServerEvents.js";
 import MonitorManager from "../utils/MonitorManager.js";
 import { TickEvent } from "./events/events.js";
+import ExErrorQueue from "./ExErrorQueue.js";
 
 export default class ExGame {
     static tickMonitor = new MonitorManager<[TickEvent]>();
@@ -25,7 +26,7 @@ export default class ExGame {
             tickNum += 1;
             this.tickMonitor.trigger(event);
         }
-        system.runInterval(fun, 1);
+        ExGame.runInterval(fun, 1);
     }
     static {
         let tickNum = 0,
@@ -40,7 +41,7 @@ export default class ExGame {
             tickNum += 1;
             this.longTickMonitor.trigger(event);
         }
-        system.runInterval(fun, 5);
+        ExGame.runInterval(fun, 5);
     }
     static serverMap = new Map<typeof ExGameServer, ExGameServer>;
     static createServer(serverCons: typeof ExGameServer, config: ExConfig) {
@@ -51,19 +52,58 @@ export default class ExGame {
 
     }
     static postMessageBetweenClient<T extends ExGameClient>(client: T, s: typeof ExGameServer, exportName: string, args: any[]) {
-        let server = this.serverMap.get(s);
-        if (!server) return;
-        let finder = server.findClientByPlayer(client.player);
-        if (!finder) return;
-        for (let k of ExSystem.keys(finder)) {
-            let data = Reflect.getMetadata("exportName", finder, k);
-            if (data === exportName) {
-                Reflect.get(finder, k).apply(finder, args);
+        ExGame.run(() => {
+            let server = this.serverMap.get(s);
+            if (!server) return;
+            let finder = server.findClientByPlayer(client.player);
+            if (!finder) return;
+            for (let k of ExSystem.keys(finder)) {
+                let data = Reflect.getMetadata("exportName", finder, k);
+                if (data === exportName) {
+                    Reflect.get(finder, k).apply(finder, args);
+                }
             }
-        }
+        });
     }
     static thread() {
 
+    }
+
+    static clearRun(runId: number): void {
+        system.clearRun(runId);
+    }
+
+    static run(callback: () => void): number {
+        return system.run(() => {
+            try {
+                callback();
+            } catch (err) {
+                ExErrorQueue.reportError(err);
+                throw err;
+            }
+        });
+    }
+
+    static runInterval(callback: () => void, tickInterval?: number): number {
+        return system.runInterval(() => {
+            try {
+                callback();
+            } catch (err) {
+                ExErrorQueue.reportError(err);
+                throw err;
+            }
+        }, tickInterval);
+    }
+
+    static runTimeout(callback: () => void, tickDelay?: number): number {
+        return system.runTimeout(() => {
+            try {
+                callback();
+            } catch (err) {
+                ExErrorQueue.reportError(err);
+                throw err;
+            }
+        }, tickDelay);
     }
 }
 

@@ -1,4 +1,4 @@
-import { MinecraftBlockTypes, MinecraftDimensionTypes, Block, MinecraftEffectTypes, EntityHurtAfterEvent } from '@minecraft/server';
+import { MinecraftBlockTypes, MinecraftDimensionTypes, Block, MinecraftEffectTypes, EntityHurtAfterEvent, Entity } from '@minecraft/server';
 import GameController from "./GameController.js";
 import RuinsLoaction from "./ruins/RuinsLoaction.js";
 import { ExBlockArea } from '../../../modules/exmc/server/block/ExBlockArea.js';
@@ -20,7 +20,7 @@ export default class PomDimRuinsSystem extends GameController {
     causeDamage = 0;
     deathTimes = 0;
     private _causeDamageShow = false;
-    causeDamageMonitor: any;
+    causeDamageMonitor: { (args_0: number, args_1: Entity): void;} | undefined;
     barrier?: PomBossBarrier;
     deathTimesListener?: (e: EntityHurtAfterEvent) => void;
     public get causeDamageShow() {

@@ -6,7 +6,7 @@ import ExErrorQueue from '../ExErrorQueue.js';
 import ExGame from '../ExGame.js';
 import { ExOtherEventNames, Merge, TickEvent } from './events.js';
 
-
+//顶层事件分发
 export default class ExServerEvents implements ExEventManager {
 
     public events: Merge<{ [K in keyof AfterEvents as `after${Capitalize<K>}`]: AfterEvents[K] },
@@ -66,15 +66,63 @@ export default class ExServerEvents implements ExEventManager {
         }), 1);
     }
 
+    static interceptor = new Map<any, any>();
+
     constructor(server: ExGameServer) {
         this._server = server;
 
         this.events = {} as any;
         for (let k in world.afterEvents) {
-            (this.events as any)[`after${k[0].toUpperCase()}${k.slice(1)}`] = world.afterEvents[k as keyof AfterEvents];
+            const v = world.afterEvents[k as keyof AfterEvents];
+            (this.events as any)[`after${k[0].toUpperCase()}${k.slice(1)}`] = {
+                subscribe: (a: (arg: any) => void) => {
+                    if (!ExServerEvents.interceptor.has(a)) {
+                        ExServerEvents.interceptor.set(a, (e: any) => {
+                            try {
+                                a(e);
+                            } catch (err) {
+                                ExErrorQueue.reportError(err);
+                                throw err;
+                            }
+                        });
+                    }
+                    return v.subscribe(ExServerEvents.interceptor.get(a));
+                },
+                unsubscribe: (a: (arg: any) => void) => {
+                    if (!ExServerEvents.interceptor.has(a)) {
+                        return;
+                    }
+                    const f = ExServerEvents.interceptor.get(a);
+                    ExServerEvents.interceptor.delete(a);
+                    return v.unsubscribe(f);
+                }
+            };
         }
         for (let k in world.beforeEvents) {
-            (this.events as any)[`before${k[0].toUpperCase()}${k.slice(1)}`] = world.beforeEvents[k as keyof BeforeEvents];
+            const v = world.beforeEvents[k as keyof BeforeEvents];
+            (this.events as any)[`before${k[0].toUpperCase()}${k.slice(1)}`] = {
+                subscribe: (a: (arg: any) => void) => {
+                    if (!ExServerEvents.interceptor.has(a)) {
+                        ExServerEvents.interceptor.set(a, (e: any) => {
+                            try {
+                                a(e);
+                            } catch (err) {
+                                ExErrorQueue.reportError(err);
+                                throw err;
+                            }
+                        });
+                    }
+                    return v.subscribe(ExServerEvents.interceptor.get(a));
+                },
+                unsubscribe: (a: (arg: any) => void) => {
+                    if (!ExServerEvents.interceptor.has(a)) {
+                        return;
+                    }
+                    const f = ExServerEvents.interceptor.get(a);
+                    ExServerEvents.interceptor.delete(a);
+                    return v.unsubscribe(f);
+                }
+            };
         }
 
         if (!ExServerEvents.init) {

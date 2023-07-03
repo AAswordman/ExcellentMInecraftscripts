@@ -1,4 +1,4 @@
-import { MinecraftEffectTypes, MinecraftBlockTypes, ItemStack, world, BlockType, ItemTypes } from '@minecraft/server';
+import { MinecraftEffectTypes, MinecraftBlockTypes, ItemStack, world, BlockType, ItemTypes, system } from '@minecraft/server';
 import { ModalFormData } from "@minecraft/server-ui";
 import Vector3 from '../../../modules/exmc/math/Vector3.js';
 import ExDimension from '../../../modules/exmc/server/ExDimension.js';
@@ -10,6 +10,8 @@ import GameController from "./GameController.js";
 
 export default class SimpleItemUseFunc extends GameController {
     onJoin(): void {
+
+        //连锁挖矿
         this.getEvents().exEvents.afterBlockBreak.subscribe(e => {
             const itemId = this.exPlayer.getBag().getItemOnHand()?.typeId;
             if (itemId === "wb:axex_equipment_a") {
@@ -32,26 +34,30 @@ export default class SimpleItemUseFunc extends GameController {
 
             if (item.typeId == "wb:power") {
                 if (!this.data.lang) {
-                    new ModalFormData()
-                        .title("Choose a language")
-                        .dropdown("Language List", ["English", "简体中文"], 0)
-                        .show(this.player).then((e) => {
-                            if (!e.canceled) {
-                                this.data.lang = (e.formValues && e.formValues[0] == 0) ? "en" : "zh";
-                            }
-                        })
-                        .catch((e) => {
-                            ExErrorQueue.throwError(e);
-                        });
+                    this.setTimeout(() => {
+                        new ModalFormData()
+                            .title("Choose a language")
+                            .dropdown("Language List", ["English", "简体中文"], 0)
+                            .show(this.player).then((e) => {
+                                if (!e.canceled) {
+                                    this.data.lang = (e.formValues && e.formValues[0] == 0) ? "en" : "zh";
+                                }
+                            })
+                            .catch((e) => {
+                                ExErrorQueue.throwError(e);
+                            });
+                    }, 0);
                 } else {
                     new MenuUIAlert(this.client, menuFunctionUI(this.getLang())).showPage("main", "notice");
                 }
             } else if (item.typeId === "wb:jet_pack") {
                 // jet pack
-                this.exPlayer.addEffect(MinecraftEffectTypes.levitation, 7, 15, false);
-                this.exPlayer.addEffect(MinecraftEffectTypes.slowFalling, 150, 3, false);
+                this.setTimeout(() => {
+                    this.exPlayer.addEffect(MinecraftEffectTypes.levitation, 7, 15, false);
+                    this.exPlayer.addEffect(MinecraftEffectTypes.slowFalling, 150, 3, false);
 
-                this.exPlayer.dimension.spawnEntity("wb:ball_jet_pack", this.exPlayer.getPosition().sub(this.exPlayer.viewDirection.scl(2)));
+                    this.exPlayer.dimension.spawnEntity("wb:ball_jet_pack", this.exPlayer.getPosition().sub(this.exPlayer.viewDirection.scl(2)));
+                }, 0);
             } else if (item.typeId === "wb:start_key") {
 
             } else if (item.typeId === "wb:technology_world_explorer") {
@@ -79,6 +85,10 @@ export default class SimpleItemUseFunc extends GameController {
                     ]);
                 }
             }
+        });
+
+        this.getEvents().exEvents.afterItemOnHandChange.subscribe((e) => {
+
         });
 
     }
