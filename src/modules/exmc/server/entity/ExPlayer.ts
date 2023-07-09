@@ -1,4 +1,4 @@
-import { EffectType, GameMode, MinecraftEntityTypes } from '@minecraft/server';
+import { Dimension, EffectType, GameMode, MinecraftEntityTypes } from '@minecraft/server';
 import { Player, Entity } from '@minecraft/server';
 import ExCommand from '../env/ExCommand.js';
 import { to } from "../ExErrorQueue.js";
@@ -6,6 +6,8 @@ import ExEntity from "./ExEntity.js";
 import ExGameVector3 from '../math/ExGameVector3.js';
 import ExPlayerBag from './ExPlayerBag.js';
 import ExScoresManager from './ExScoresManager.js';
+import { IVector2 } from '../../math/Vector2.js';
+import Vector3 from '../../math/Vector3.js';
 
 
 export default class ExPlayer extends ExEntity {
@@ -75,6 +77,25 @@ export default class ExPlayer extends ExEntity {
     }
     public set selectedSlot(value: number) {
         this.entity.selectedSlot = value;
+    }
+
+    override set viewDirection(ivec: Vector3) {
+        this.teleport(this.getPosition(), {
+            "rotation": {
+                x: ivec.rotateAngleX(),
+                y: ivec.rotateAngleY()
+            }
+        })
+    }
+    override setPosition(position: Vector3, dimension?: Dimension) {
+        this.entity.teleport(position, {
+            "dimension": dimension
+        });
+    }
+    override set rotation(ivec: IVector2) {
+        this.teleport(this.getPosition(), {
+            "rotation": ivec
+        });
     }
 
     protected constructor(player: Player) {
