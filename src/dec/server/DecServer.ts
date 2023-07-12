@@ -22,7 +22,7 @@ import IStructureSettle from './data/structure/IStructureSettle.js';
 import IStructureDriver from './data/structure/IStructureDriver.js';
 import ExTaskRunner from '../../modules/exmc/server/ExTaskRunner.js';
 import { decTreeStructure } from './data/structure/decTreeStructure.js';
-import { MinecraftEffectTypes } from '@minecraft/vanilla-data';
+import { MinecraftEffectTypes } from '../../modules/vanilla-data/lib/index.js';
 
 
 export default class DecServer extends ExGameServer {

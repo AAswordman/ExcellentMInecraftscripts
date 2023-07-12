@@ -15,7 +15,7 @@ import ExNullEntity from "../../modules/exmc/server/entity/ExNullEntity.js";
 import GlobalScoreBoardCache from "../../modules/exmc/server/storage/cache/GlobalScoreBoardCache.js";
 import { Objective } from "../../modules/exmc/server/entity/ExScoresManager.js";
 import Random from "../../modules/exmc/utils/Random.js";
-import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
+import { MinecraftEffectTypes } from "../../modules/vanilla-data/lib/index.js";
 
 
 export default class DecClient extends ExGameClient {
