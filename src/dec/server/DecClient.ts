@@ -30,8 +30,19 @@ export default class DecClient extends ExGameClient {
     override onJoin(): void {
         super.onJoin();
         //副手效果
+        let time_20 = 20
         this.getEvents().exEvents.tick.subscribe((e) => {
             const item = this.exPlayer.getBag().itemOnOffHand;
+            if (time_20 > 0) {
+                time_20 -= 1
+            } else {
+                time_20 = 20
+                //射手子弹袋
+                if (this.player.getItemCooldown('gun') >= 6 && item?.typeId == 'dec:archer_bullet_bag') {
+                    this.player.startItemCooldown('gun',this.player.getItemCooldown('gun') - 6)
+                }
+            }
+
         });
 
         this.getEvents().exEvents.afterPlayerHurt.subscribe(e => {
