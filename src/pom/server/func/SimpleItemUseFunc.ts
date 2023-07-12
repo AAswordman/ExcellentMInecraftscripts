@@ -7,7 +7,7 @@ import ExGameVector3 from '../../../modules/exmc/server/math/ExGameVector3.js';
 import menuFunctionUI from "../data/menuFunctionUI.js";
 import MenuUIAlert from "../ui/MenuUIAlert.js";
 import GameController from "./GameController.js";
-import { MinecraftEffectTypes } from '@minecraft/vanilla-data';
+import { MinecraftEffectTypes } from '../../../modules/vanilla-data/lib/index.js';
 
 export default class SimpleItemUseFunc extends GameController {
     onJoin(): void {
