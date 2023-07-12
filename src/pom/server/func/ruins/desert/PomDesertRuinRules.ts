@@ -5,11 +5,12 @@ import Random from "../../../../../modules/exmc/utils/Random.js";
 import GameController from "../../GameController.js";
 
 import * as desertCommand from "../../ruins/desert/PomDesertRuinCommmand.js";
-import { MinecraftEntityTypes, MinecraftEffectTypes, Player } from '@minecraft/server';
+import { MinecraftEntityTypes, Player } from '@minecraft/server';
 import ExGameVector3 from '../../../../../modules/exmc/server/math/ExGameVector3.js';
 import ExEntity from "../../../../../modules/exmc/server/entity/ExEntity.js";
 import Vector3 from '../../../../../modules/exmc/math/Vector3.js';
 import ExSystem from "../../../../../modules/exmc/utils/ExSystem.js";
+import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 
 export default class PomDesertRuinRules {
     clear() {
@@ -258,21 +259,20 @@ export default class PomDesertRuinRules {
                             break;
                         }
                         case desertCommand.MAIN.EFFECT: {
-                            let eff = MinecraftEffectTypes.absorption;
+                            let eff = MinecraftEffectTypes.Absorption;
                             switch (value) {
-                                case desertCommand.EFFECT.WITHER: eff = MinecraftEffectTypes.wither; break;
-                                case desertCommand.EFFECT.BLIND: eff = MinecraftEffectTypes.blindness; break;
-                                case desertCommand.EFFECT.DEFENSE: eff = MinecraftEffectTypes.resistance; break;
-                                case desertCommand.EFFECT.SPEED: eff = MinecraftEffectTypes.speed; break;
-                                case desertCommand.EFFECT.STRENGTH: eff = MinecraftEffectTypes.strength; break;
-                                case desertCommand.EFFECT.WEAKNESS: eff = MinecraftEffectTypes.weakness; break;
+                                case desertCommand.EFFECT.WITHER: eff = MinecraftEffectTypes.Wither; break;
+                                case desertCommand.EFFECT.BLIND: eff = MinecraftEffectTypes.Blindness; break;
+                                case desertCommand.EFFECT.DEFENSE: eff = MinecraftEffectTypes.Resistance; break;
+                                case desertCommand.EFFECT.SPEED: eff = MinecraftEffectTypes.Speed; break;
+                                case desertCommand.EFFECT.STRENGTH: eff = MinecraftEffectTypes.Strength; break;
+                                case desertCommand.EFFECT.WEAKNESS: eff = MinecraftEffectTypes.Weakness; break;
                             }
                             this.game.getExDimension().getEntities({
                                 maxDistance: 15,
                                 location: tmpV
                             }).forEach(e => {
-                                //e.addEffect(eff, 600, { "amplifier": 1, "showParticles": false });
-                                e.addEffect(eff, 600, 1, false);
+                                e.addEffect(eff, 600, { "amplifier": 1, "showParticles": false });
                             }
                             );
                             break;

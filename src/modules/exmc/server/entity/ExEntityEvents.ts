@@ -39,13 +39,13 @@ export default class ExEntityEvents implements ExEventManager {
         [ExOtherEventNames.tick]: {
             pattern: ExEntityEvents.eventHandlers.registerToServerByServerEvent
         },
-        [ExOtherEventNames.afterEntityHit]: {
+        [ExEventNames.afterEntityHitBlock]: {
             pattern: ExEntityEvents.eventHandlers.registerToServerByEntity,
             filter: {
                 "name": "entity"
             }
         },
-        [ExOtherEventNames.afterOnHitEntity]: {
+        [ExEventNames.afterEntityHitEntity]: {
             pattern: ExEntityEvents.eventHandlers.registerToServerByEntity,
             filter: {
                 "name": "damageSource.damagingEntity"
@@ -66,11 +66,11 @@ export default class ExEntityEvents implements ExEventManager {
                     for (let i of (<Map<Player, ((e: ItemOnHandChangeEvent) => void)[]>>ExEntityEvents.eventHandlers.monitorMap[k])) {
                         let lastItemCache = this.onHandItemMap.get(i[0]);
                         let lastItem = lastItemCache?.[0];
-                        let nowItem = ExPlayer.getInstance(i[0]).getBag().getItemOnHand();
+                        let nowItem = ExPlayer.getInstance(i[0]).getBag().itemOnMainHand;
 
                         if (lastItem?.typeId !== nowItem?.typeId || i[0].selectedSlot !== lastItemCache?.[1]) {
                             i[1].forEach((f) => {
-                                f(new ItemOnHandChangeEvent(lastItem, ExPlayer.getInstance(i[0]).getBag().getItemOnHand(), i[0]));
+                                f(new ItemOnHandChangeEvent(lastItem, ExPlayer.getInstance(i[0]).getBag().itemOnMainHand, i[0]));
                             });
 
                             this.onHandItemMap.set(i[0], [nowItem, i[0].selectedSlot]);
@@ -96,8 +96,8 @@ export default class ExEntityEvents implements ExEventManager {
         [ExEventNames.beforeItemUse]: new Listener<MouseEvent>(this, ExEventNames.beforeItemUse),
         [ExEventNames.afterItemUse]: new Listener<MouseEvent>(this, ExEventNames.afterItemUse),
         [ExOtherEventNames.tick]: new Listener<TickEvent>(this, ExOtherEventNames.tick),
-        [ExOtherEventNames.afterEntityHit]: new Listener<EntityHurtAfterEvent>(this, ExOtherEventNames.afterEntityHit),
-        [ExOtherEventNames.afterOnHitEntity]: new Listener<EntityHurtAfterEvent>(this, ExOtherEventNames.afterOnHitEntity),
+        [ExEventNames.afterEntityHitBlock]: new Listener<EntityHurtAfterEvent>(this, ExEventNames.afterEntityHitBlock),
+        [ExEventNames.afterEntityHitEntity]: new Listener<EntityHurtAfterEvent>(this, ExEventNames.afterEntityHitEntity),
         [ExOtherEventNames.afterOnHurt]: new Listener<EntityHurtAfterEvent>(this, ExOtherEventNames.afterOnHurt),
         [ExOtherEventNames.afterItemOnHandChange]: new Listener<ItemOnHandChangeEvent>(this,ExOtherEventNames.afterItemOnHandChange),
         [ExOtherEventNames.onLongTick]: new Listener<TrackEvent>(this, ExOtherEventNames.onLongTick),

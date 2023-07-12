@@ -8,28 +8,29 @@ import ExPlayerBag from './ExPlayerBag.js';
 import ExScoresManager from './ExScoresManager.js';
 import { IVector2 } from '../../math/Vector2.js';
 import Vector3 from '../../math/Vector3.js';
+import ExGameConfig from '../ExGameConfig.js';
 
 
 export default class ExPlayer extends ExEntity {
-    
+
     private bag;
     private scoresManager;
 
-    override get entity(){
+    override get entity() {
         return super.entity as Player;
     }
-    override set entity(e:Player){
+    override set entity(e: Player) {
         super.entity = e;
     }
 
     setGameMode(mode: GameMode) {
-        switch(mode){
+        switch (mode) {
             case GameMode.survival: this.runCommandAsync(`gamemode 0`); break;
             case GameMode.creative: this.runCommandAsync(`gamemode 1`); break;
             case GameMode.adventure: this.runCommandAsync(`gamemode 2`); break;
             case GameMode.spectator: this.runCommandAsync(`gamemode 3`); break;
         }
-        
+
     }
     getGameMode(): GameMode {
         let c = GameMode.creative;
@@ -111,6 +112,7 @@ export default class ExPlayer extends ExEntity {
     static override getInstance(source: Player): ExPlayer {
         let entity = <any>source;
         if (this.propertyNameCache in entity) {
+            ExGameConfig.console.log("Property " + (entity[this.propertyNameCache] as ExPlayer).entity === entity)
             return entity[this.propertyNameCache];
         }
         return (entity[this.propertyNameCache] = new ExPlayer(entity));

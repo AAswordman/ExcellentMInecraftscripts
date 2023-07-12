@@ -22,7 +22,9 @@ export default class ExScoresManager {
         let name = typeof objective === "string" ? objective : objective.name;
         let id = this.getIdentity(name);
         if (!id) return 0;
-        try { return world.scoreboard.getObjective(name).getScore(id) } catch (e) {
+        try {
+            return world.scoreboard.getObjective(name).getScore(id) ?? 0
+        } catch (e) {
             return 0;
         };
     }

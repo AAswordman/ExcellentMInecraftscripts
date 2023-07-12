@@ -34,7 +34,7 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
             this._damage = damage;
             timeout.setTimeout(() => {
                 let health = this.getHealthComponent();
-                if (health.current > 0.5) health.setCurrent(Math.max(0.5, health.current - (this._damage ?? 0)));
+                if (health.currentValue > 0.5) health.setCurrentValue(Math.max(0.5, health.currentValue - (this._damage ?? 0)));
                 this._damage = undefined;
             }, 0);
         } else {
@@ -106,17 +106,17 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
 
     detectAllArmor(head?: string, chest?: string, legs?: string, boots?: string) {
         const bag = this.getBag();
-        return bag.getEquipment(EquipmentSlot.head)?.typeId == head &&
-            bag.getEquipment(EquipmentSlot.chest)?.typeId == chest &&
-            bag.getEquipment(EquipmentSlot.legs)?.typeId == legs &&
-            bag.getEquipment(EquipmentSlot.feet)?.typeId == boots;
+        return bag.equipmentOnHead?.typeId == head &&
+            bag.equipmentOnChest?.typeId == chest &&
+            bag.equipmentOnLegs?.typeId == legs &&
+            bag.equipmentOnFeet?.typeId == boots;
     }
     detectAnyArmor(head?: string, chest?: string, legs?: string, boots?: string) {
         const bag = this.getBag();
-        return bag.getEquipment(EquipmentSlot.head)?.typeId == head ||
-            bag.getEquipment(EquipmentSlot.chest)?.typeId == chest ||
-            bag.getEquipment(EquipmentSlot.legs)?.typeId == legs ||
-            bag.getEquipment(EquipmentSlot.feet)?.typeId == boots;
+        return bag.equipmentOnHead?.typeId == head ||
+            bag.equipmentOnChest?.typeId == chest ||
+            bag.equipmentOnLegs?.typeId == legs ||
+            bag.equipmentOnFeet?.typeId == boots;
     }
 
     getScoresManager() {
@@ -172,14 +172,12 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         })
     }
 
-    addEffect(eff: EffectType, during: number, aml: number, par: boolean = true) {
-        this.entity.addEffect(eff, during, aml, par);
-        // this.entity.addEffect(eff, during, {
-        //     "showParticles": par,
-        //     "amplifier": aml
-        // });
+    addEffect(eff: EffectType|string, during: number, aml: number, par: boolean = true) {
+        this.entity.addEffect(eff, during, {
+            "showParticles": par,
+            "amplifier": aml
+        });
     }
-
     hasComponent(name: string) {
         return this._entity.hasComponent(name);
     }
@@ -195,13 +193,13 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         return (<EntityHealthComponent>this.getComponent(EntityHealthComponent.componentId));
     }
     get health() {
-        return this.getHealthComponent().current;
+        return this.getHealthComponent().currentValue;
     }
     set health(h: number) {
-        this.getHealthComponent().setCurrent(Math.max(0, h));
+        this.getHealthComponent().setCurrentValue(Math.max(0, h));
     }
     getMaxHealth() {
-        return this.getHealthComponent().value;
+        return this.getHealthComponent().defaultValue;
     }
 
 

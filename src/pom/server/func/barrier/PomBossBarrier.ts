@@ -8,11 +8,12 @@ import ExGameVector3 from "../../../../modules/exmc/server/math/ExGameVector3.js
 import Vector3, { IVector3 } from "../../../../modules/exmc/math/Vector3.js";
 import ExEventManager from '../../../../modules/exmc/interface/ExEventManager.js';
 import PomServer from "../../PomServer.js";
-import { Player, Entity, MinecraftEffectTypes } from '@minecraft/server';
+import { Player, Entity } from '@minecraft/server';
 import PomClient from "../../PomClient.js";
 import PomBossController from "../../entities/PomBossController.js";
 import { ignorn } from "../../../../modules/exmc/server/ExErrorQueue.js";
 import VarOnChangeListener from '../../../../modules/exmc/utils/VarOnChangeListener.js';
+import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 export default class PomBossBarrier implements DisposeAble {
     center: Vector3;
     particle(arg0: string) {
@@ -105,8 +106,8 @@ export default class PomBossBarrier implements DisposeAble {
                         this.server.setTimeout(() => {
                             if (this.dim.dimension !== e.dimension) {
                                 let ep = ExPlayer.getInstance(e);
-                                ep.addEffect(MinecraftEffectTypes.resistance, 14 * 20, 10, false);
-                                ep.addEffect(MinecraftEffectTypes.weakness, 14 * 20, 10, false);
+                                ep.addEffect(MinecraftEffectTypes.Resistance, 14 * 20, 10, false);
+                                ep.addEffect(MinecraftEffectTypes.Weakness, 14 * 20, 10, false);
                             }
                             ExPlayer.getInstance(e).setPosition(this.area.center(), this.dim.dimension)
                         }, 2000);

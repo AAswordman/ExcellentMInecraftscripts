@@ -18,10 +18,14 @@ export default class ExEntityBag {
     }
 
     getItem(id: string): ItemStack | undefined;
+    getItem(slot: EquipmentSlot): ItemStack | undefined;
     getItem(slot: number): ItemStack | undefined;
     getItem(arg: string | number) {
         if (typeof (arg) === "number") {
             return this.bagComponent.container.getItem(arg);
+        }
+        if(arg in EquipmentSlot){
+            return this.getEquipment(arg as EquipmentSlot);
         }
         let search = this.searchItem(arg);
         if (search === -1) {
@@ -104,17 +108,26 @@ export default class ExEntityBag {
         return this.bagComponent.restrictToOwner;
     }
 
-    setItem(slot: number, item: ItemStack | undefined) {
+    setItem(slot: number | EquipmentSlot, item: ItemStack | undefined) {
+        if(typeof slot === 'string') {
+            return this.setEquipment(slot,item);
+        }
         return this.bagComponent.container.setItem(slot, <ItemStack>item);
     }
 
-    hasItem(itemId: string) {
+    hasItem(itemId: string,containsEq = false) {
+        if(containsEq){
+            //TTOD 懒得写了
+        }
         return this.searchItem(itemId) !== -1;
     }
     addItem(item: ItemStack) {
         this.bagComponent.container.addItem(item);
     }
-    getSlot(pos: number) {
+    getSlot(pos: number | EquipmentSlot) {
+        if(typeof pos === 'string') {
+            return this.getEquipmentSlot(pos);
+        }
         return this.bagComponent.container.getSlot(pos);
     }
 
@@ -126,5 +139,43 @@ export default class ExEntityBag {
     }
     getEquipmentSlot(slot: EquipmentSlot) {
         return this.equipmentComponent.getEquipmentSlot(slot);
+    }
+
+    
+    get itemOnMainHand() {
+        return this.getItem(EquipmentSlot.mainhand);
+    }
+    set itemOnMainHand(item: ItemStack | undefined) {
+        this.setItem(EquipmentSlot.mainhand, item);
+    }
+    get itemOnOffHand() {
+        return this.getItem(EquipmentSlot.offhand);
+    }
+    set itemOnOffHand(item: ItemStack | undefined) {
+        this.setItem(EquipmentSlot.offhand, item);
+    }
+    get equipmentOnHead() {
+        return this.getItem(EquipmentSlot.head);
+    }
+    set equipmentOnHead(item: ItemStack | undefined) {
+        this.setItem(EquipmentSlot.head, item);
+    }
+    get equipmentOnChest() {
+        return this.getItem(EquipmentSlot.chest);
+    }
+    set equipmentOnChest(item: ItemStack | undefined) {
+        this.setItem(EquipmentSlot.chest, item);
+    }
+    get equipmentOnFeet() {
+        return this.getItem(EquipmentSlot.feet);
+    }
+    set equipmentOnFeet(item: ItemStack | undefined) {
+        this.setItem(EquipmentSlot.feet, item);
+    }
+    get equipmentOnLegs() {
+        return this.getItem(EquipmentSlot.legs);
+    }
+    set equipmentOnLegs(item: ItemStack | undefined) {
+        this.setItem(EquipmentSlot.legs, item);
     }
 }

@@ -1,4 +1,4 @@
-import { world, system, AfterEvents, BeforeEvents } from '@minecraft/server';
+import { world, system, WorldAfterEvents, WorldBeforeEvents } from '@minecraft/server';
 import ExEventManager from "../../interface/ExEventManager.js";
 import ExGameServer from "../ExGameServer.js";
 import ExGameConfig from '../ExGameConfig.js';
@@ -9,8 +9,8 @@ import { ExOtherEventNames, Merge, TickEvent } from './events.js';
 //顶层事件分发
 export default class ExServerEvents implements ExEventManager {
 
-    public events: Merge<{ [K in keyof AfterEvents as `after${Capitalize<K>}`]: AfterEvents[K] },
-        { [K in keyof BeforeEvents as `before${Capitalize<K>}`]: BeforeEvents[K] }>;
+    public events: Merge<{ [K in keyof WorldAfterEvents as `after${Capitalize<K>}`]: WorldAfterEvents[K] },
+        { [K in keyof WorldBeforeEvents as `before${Capitalize<K>}`]: WorldBeforeEvents[K] }>;
     private _server: ExGameServer;
     public exEvents = {
         [ExOtherEventNames.tick]: {
@@ -73,7 +73,7 @@ export default class ExServerEvents implements ExEventManager {
 
         this.events = {} as any;
         for (let k in world.afterEvents) {
-            const v = world.afterEvents[k as keyof AfterEvents];
+            const v = world.afterEvents[k as keyof WorldAfterEvents];
             (this.events as any)[`after${k[0].toUpperCase()}${k.slice(1)}`] = {
                 subscribe: (a: (arg: any) => void) => {
                     if (!ExServerEvents.interceptor.has(a)) {
@@ -99,7 +99,7 @@ export default class ExServerEvents implements ExEventManager {
             };
         }
         for (let k in world.beforeEvents) {
-            const v = world.beforeEvents[k as keyof BeforeEvents];
+            const v = world.beforeEvents[k as keyof WorldBeforeEvents];
             (this.events as any)[`before${k[0].toUpperCase()}${k.slice(1)}`] = {
                 subscribe: (a: (arg: any) => void) => {
                     if (!ExServerEvents.interceptor.has(a)) {

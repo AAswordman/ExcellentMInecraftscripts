@@ -1,4 +1,4 @@
-import { MinecraftEffectTypes, MinecraftBlockTypes, ItemStack, world, BlockType, ItemTypes, system } from '@minecraft/server';
+import {  MinecraftBlockTypes, ItemStack, world, BlockType, ItemTypes, system, EffectTypes, EffectType } from '@minecraft/server';
 import { ModalFormData } from "@minecraft/server-ui";
 import Vector3 from '../../../modules/exmc/math/Vector3.js';
 import ExDimension from '../../../modules/exmc/server/ExDimension.js';
@@ -7,13 +7,14 @@ import ExGameVector3 from '../../../modules/exmc/server/math/ExGameVector3.js';
 import menuFunctionUI from "../data/menuFunctionUI.js";
 import MenuUIAlert from "../ui/MenuUIAlert.js";
 import GameController from "./GameController.js";
+import { MinecraftEffectTypes } from '@minecraft/vanilla-data';
 
 export default class SimpleItemUseFunc extends GameController {
     onJoin(): void {
 
         //连锁挖矿
         this.getEvents().exEvents.afterBlockBreak.subscribe(e => {
-            const itemId = this.exPlayer.getBag().getItemOnHand()?.typeId;
+            const itemId = this.exPlayer.getBag().itemOnMainHand?.typeId;
             if (itemId === "wb:axex_equipment_a") {
                 if (e.brokenBlockPermutation.hasTag("log")) {
                     this.chainDigging(new Vector3(e.block), e.brokenBlockPermutation.type.id, 16);
@@ -53,8 +54,8 @@ export default class SimpleItemUseFunc extends GameController {
             } else if (item.typeId === "wb:jet_pack") {
                 // jet pack
                 this.setTimeout(() => {
-                    this.exPlayer.addEffect(MinecraftEffectTypes.levitation, 7, 15, false);
-                    this.exPlayer.addEffect(MinecraftEffectTypes.slowFalling, 150, 3, false);
+                    this.exPlayer.addEffect(MinecraftEffectTypes.Levitation, 7, 15, false);
+                    this.exPlayer.addEffect(MinecraftEffectTypes.SlowFalling, 150, 3, false);
 
                     this.exPlayer.dimension.spawnEntity("wb:ball_jet_pack", this.exPlayer.getPosition().sub(this.exPlayer.viewDirection.scl(2)));
                 }, 0);

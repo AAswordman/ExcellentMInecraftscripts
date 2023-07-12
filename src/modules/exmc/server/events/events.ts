@@ -1,4 +1,4 @@
-import { ItemStack, Player, AfterEvents, BeforeEvents, world } from '@minecraft/server';
+import { ItemStack, Player, WorldAfterEvents, WorldBeforeEvents, world } from '@minecraft/server';
 export class ItemOnHandChangeEvent {
     readonly source: Player;
     readonly beforeItem: ItemStack | undefined;
@@ -22,8 +22,8 @@ export type Merge<T, P> = {
     [K in keyof (T & P)]: K extends keyof P ? P[K] : K extends keyof T ? T[K] : never;
 };
 let exEventNames: Merge<
-  { [K in keyof AfterEvents as `after${Capitalize<K>}`]: `after${Capitalize<K>}` },
-  { [K in keyof BeforeEvents as `before${Capitalize<K>}`]: `before${Capitalize<K>}` }
+  { [K in keyof WorldAfterEvents as `after${Capitalize<K>}`]: `after${Capitalize<K>}` },
+  { [K in keyof WorldBeforeEvents as `before${Capitalize<K>}`]: `before${Capitalize<K>}` }
 > = {} as any;
 for (let k in world.afterEvents) {
     (exEventNames as any)[`after${k[0].toUpperCase()}${k.slice(1)}`] = `after${k[0].toUpperCase()}${k.slice(1)}`;
@@ -35,10 +35,9 @@ let exOtherEventNameMap = {
     "tick": "tick",
     "onLongTick": "onLongTick",
     "afterPlayerHurt": "afterPlayerHurt",
+    "afterPlayerHitBlock": "afterPlayerHitBlock",
     "afterPlayerHitEntity": "afterPlayerHitEntity",
     "afterItemOnHandChange": "afterItemOnHandChange",
-    "afterEntityHit": "afterEntityHit",
-    "afterOnHitEntity":"afterOnHitEntity",
     "afterOnHurt":"afterOnHurt"
 }
 
