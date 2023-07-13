@@ -29,6 +29,7 @@ export default class DecServer extends ExGameServer {
     i_inviolable: Objective;
     i_damp: Objective;
     i_soft: Objective;
+    bullet_type: Objective;
 
     nightEventListener: VarOnChangeListener<boolean>;
     tmpV = new Vector3();
@@ -41,6 +42,7 @@ export default class DecServer extends ExGameServer {
         this.i_inviolable = new Objective("i_inviolable").create("i_inviolable");
         this.i_damp = new Objective("i_damp").create("i_damp");
         this.i_soft = new Objective("i_soft").create("i_soft");
+        this.bullet_type = new Objective("bullet_type").create("bullet_type");
         //new Objective("harmless").create("harmless");
         this.nightEventListener = new VarOnChangeListener(e => {
             if (e) {
