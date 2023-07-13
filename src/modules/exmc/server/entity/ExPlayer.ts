@@ -9,6 +9,8 @@ import ExScoresManager from './ExScoresManager.js';
 import { IVector2 } from '../../math/Vector2.js';
 import Vector3 from '../../math/Vector3.js';
 import ExGameConfig from '../ExGameConfig.js';
+import ExGame from '../ExGame.js';
+import ExSystem from '../../utils/ExSystem.js';
 
 
 export default class ExPlayer extends ExEntity {
@@ -112,10 +114,15 @@ export default class ExPlayer extends ExEntity {
     static override getInstance(source: Player): ExPlayer {
         let entity = <any>source;
         if (this.propertyNameCache in entity) {
-            ExGameConfig.console.log("Property " + (entity[this.propertyNameCache] as ExPlayer).entity === entity)
+            // ExGameConfig.console.log("Property id " + (entity as Player).name + "//" + (ExSystem.getId((entity[this.propertyNameCache] as ExPlayer).entity) == ExSystem.getId(entity)))
+            // ExGameConfig.console.log("Property == " + (entity[this.propertyNameCache] as ExPlayer).entity == entity)
+            // if((entity[this.propertyNameCache] as ExPlayer).entity != entity) (entity[this.propertyNameCache] as ExPlayer).entity = entity;
             return entity[this.propertyNameCache];
         }
         return (entity[this.propertyNameCache] = new ExPlayer(entity));
+    }
+    static deleteInstance(source: any) {
+        delete source[this.propertyNameCache]
     }
 
     override getScoresManager(): ExScoresManager {

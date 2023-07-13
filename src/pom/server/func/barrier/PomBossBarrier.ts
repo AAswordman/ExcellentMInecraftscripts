@@ -28,7 +28,7 @@ export default class PomBossBarrier implements DisposeAble {
     deathTimes: number = 0;
 
     fogListener = new VarOnChangeListener((n, l) => {
-        this.dim.command.run(`fog @a[x=${this.center.x},y=${this.center.y},z=${this.center.z},r=128] remove "ruin_fog"`);
+        this.clearFog();
         this.fog = n;
     }, "");
     static find(startPos: IVector3) {
@@ -98,6 +98,7 @@ export default class PomBossBarrier implements DisposeAble {
     update() {
         this.dim.spawnParticle("wb:boss_barrier", this.center);
         for (let e of this.server.getPlayers()) {
+            
             if (!e.location) continue;
             // console.warn(this.area.contains(e.location))
             if (this.players.has(e)) {
@@ -133,7 +134,11 @@ export default class PomBossBarrier implements DisposeAble {
 
     }
     stop() {
+        this.clearFog();
         this.dispose();
+    }
+    clearFog(){
+        this.dim.command.run(`fog @a[x=${this.center.x},y=${this.center.y},z=${this.center.z},r=128] remove "ruin_fog"`);
     }
     changeFog(name: string) {
         this.fogListener.upDate(name);

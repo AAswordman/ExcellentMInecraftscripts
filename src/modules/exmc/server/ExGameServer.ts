@@ -90,7 +90,7 @@ export default class ExGameServer implements SetTimeOutSupport {
             return m;
         }
     }
-                              
+
 
 
     getClients() {
@@ -141,12 +141,13 @@ export default class ExGameServer implements SetTimeOutSupport {
     onClientLeave(event: PlayerLeaveAfterEvent) {
         let client = this.findClientByName(event.playerName);
         if (client === undefined) {
-            ExGameConfig.console.error(event.playerName + "client is not exists");
+            ExGameConfig.console.error(event.playerName + " client is not exists");
             return;
         }
         client.onLeave();
         this.clients.delete(client.clientId);
         this.clients_nameMap.delete(event.playerName);
+        
     }
 
     newClient(id: string, player: Player): ExGameClient {

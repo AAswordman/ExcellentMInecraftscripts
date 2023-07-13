@@ -4,7 +4,7 @@ import Random from './Random.js';
 import TickDelayTask from './TickDelayTask.js';
 export default class ExSystem {
 
-    public static idMap = new Map<any, number>();
+    public static idMap = new WeakMap<any, number>();
     public static getId(x: any) {
         if (this.idMap.has(x)) {
             return this.idMap.get(x);
