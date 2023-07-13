@@ -43,11 +43,14 @@ export default class DecClient extends ExGameClient {
                         player.startItemCooldown(itemCategory, Math.max(player.getItemCooldown(itemCategory) - tickDecrease, 0))
                     }
                 }
-                decreaseCooldownEqu(this.player,'gun',7,'dec:archer_bullet_bag')
-                decreaseCooldownEqu(this.player,'gun',6,'dec:lava_bullet_bag')
+                decreaseCooldownEqu(this.player,'gun',9,'dec:archer_bullet_bag')
+                decreaseCooldownEqu(this.player,'gun',7,'dec:lava_bullet_bag')
                 decreaseCooldownEqu(this.player,'gun',4,'dec:blood_bullet_bag')
                 decreaseCooldownEqu(this.player,'gun',3,'dec:hunter_bullet_bag')
+                decreaseCooldownEqu(this.player,'gun',3,'dec:pirate_bullet_bag')
                 decreaseCooldownEqu(this.player,'gun',2,'dec:bullet_bag')
+                decreaseCooldownEqu(this.player,'catapult',5,'dec:stones_bag')
+                decreaseCooldownEqu(this.player,'catapult',13,'dec:archer_stones_bag')
             }
 
         });
