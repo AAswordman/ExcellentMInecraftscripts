@@ -37,10 +37,17 @@ export default class DecClient extends ExGameClient {
                 time_20 -= 1
             } else {
                 time_20 = 20
-                //射手子弹袋
-                if (this.player.getItemCooldown('gun') >= 6 && item?.typeId == 'dec:archer_bullet_bag') {
-                    this.player.startItemCooldown('gun',this.player.getItemCooldown('gun') - 6)
+                function decreaseCooldownEqu(player:Player,itemCategory: string, tickDecrease: number,equipmentTest:string) {
+                    if (
+                        player.getItemCooldown(itemCategory) > 0 && item?.typeId == equipmentTest) {
+                        player.startItemCooldown(itemCategory, Math.max(player.getItemCooldown(itemCategory) - tickDecrease, 0))
+                    }
                 }
+                decreaseCooldownEqu(this.player,'gun',7,'dec:archer_bullet_bag')
+                decreaseCooldownEqu(this.player,'gun',6,'dec:lava_bullet_bag')
+                decreaseCooldownEqu(this.player,'gun',4,'dec:blood_bullet_bag')
+                decreaseCooldownEqu(this.player,'gun',3,'dec:hunter_bullet_bag')
+                decreaseCooldownEqu(this.player,'gun',2,'dec:bullet_bag')
             }
 
         });
