@@ -47,7 +47,7 @@ export default class DecClient extends ExGameClient {
                 this.decreaseCooldownEqu('gun', 2, 'dec:bullet_bag');
                 this.decreaseCooldownEqu('catapult', 5, 'dec:stones_bag');
                 this.decreaseCooldownEqu('catapult', 13, 'dec:archer_stones_bag');
-                decreaseCooldownEqu(this.player,'staff',4,'dec:magic_surge_core');
+                this.decreaseCooldownEqu('staff',4,'dec:magic_surge_core');
             }
 
         });
