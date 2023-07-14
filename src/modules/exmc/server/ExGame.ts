@@ -23,7 +23,7 @@ export default class ExGame {
                 deltaTime: (n - tickTime) / 1000
             };
             tickTime = n;
-            tickNum += 1;
+            tickNum = (tickNum + 1) % 72000;
             this.tickMonitor.trigger(event);
         }
         ExGame.runInterval(fun, 1);
@@ -38,7 +38,7 @@ export default class ExGame {
                 deltaTime: (n - tickTime) / 1000
             };
             tickTime = n;
-            tickNum += 1;
+            tickNum = (tickNum + 1) % 72000;
             this.longTickMonitor.trigger(event);
         }
         ExGame.runInterval(fun, 5);

@@ -27,30 +27,27 @@ export default class DecClient extends ExGameClient {
 
     tmpV = new Vector3(0, 0, 0);
     globalscores = new GlobalScoreBoardCache(new Objective("global"));
+    decreaseCooldownEqu(itemCategory: string, tickDecrease: number, equipmentTest: string) {
+        const item = this.exPlayer.getBag().itemOnOffHand;
+        if (
+            this.player.getItemCooldown(itemCategory) > 0 && item?.typeId == equipmentTest) {
+            this.player.startItemCooldown(itemCategory, Math.max(this.player.getItemCooldown(itemCategory) - tickDecrease, 0))
+        }
+    }
     override onJoin(): void {
         super.onJoin();
         //副手效果
-        let time_20 = 20
-        this.getEvents().exEvents.tick.subscribe((e) => {
-            const item = this.exPlayer.getBag().itemOnOffHand;
-            if (time_20 > 0) {
-                time_20 -= 1
-            } else {
-                time_20 = 20
-                function decreaseCooldownEqu(player:Player,itemCategory: string, tickDecrease: number,equipmentTest:string) {
-                    if (
-                        player.getItemCooldown(itemCategory) > 0 && item?.typeId == equipmentTest) {
-                        player.startItemCooldown(itemCategory, Math.max(player.getItemCooldown(itemCategory) - tickDecrease, 0))
-                    }
-                }
-                decreaseCooldownEqu(this.player,'gun',9,'dec:archer_bullet_bag')
-                decreaseCooldownEqu(this.player,'gun',7,'dec:lava_bullet_bag')
-                decreaseCooldownEqu(this.player,'gun',4,'dec:blood_bullet_bag')
-                decreaseCooldownEqu(this.player,'gun',3,'dec:hunter_bullet_bag')
-                decreaseCooldownEqu(this.player,'gun',3,'dec:pirate_bullet_bag')
-                decreaseCooldownEqu(this.player,'gun',2,'dec:bullet_bag')
-                decreaseCooldownEqu(this.player,'catapult',5,'dec:stones_bag')
-                decreaseCooldownEqu(this.player,'catapult',13,'dec:archer_stones_bag')
+        this.getEvents().exEvents.onLongTick.subscribe((e) => {
+            if (e.currentTick % 4 === 0) {
+                this.decreaseCooldownEqu('gun', 9, 'dec:archer_bullet_bag');
+                this.decreaseCooldownEqu('gun', 7, 'dec:lava_bullet_bag');
+                this.decreaseCooldownEqu('gun', 4, 'dec:blood_bullet_bag');
+                this.decreaseCooldownEqu('gun', 3, 'dec:hunter_bullet_bag');
+                this.decreaseCooldownEqu('gun', 3, 'dec:pirate_bullet_bag');
+                this.decreaseCooldownEqu('gun', 2, 'dec:bullet_bag');
+                this.decreaseCooldownEqu('catapult', 5, 'dec:stones_bag');
+                this.decreaseCooldownEqu('catapult', 13, 'dec:archer_stones_bag');
+                decreaseCooldownEqu(this.player,'staff',4,'dec:magic_surge_core');
             }
 
         });
