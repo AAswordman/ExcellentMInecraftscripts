@@ -37,21 +37,34 @@ export default class DecClient extends ExGameClient {
                 time_20 -= 1
             } else {
                 time_20 = 20
-                function decreaseCooldownEqu(player:Player,itemCategory: string, tickDecrease: number,equipmentTest:string) {
+                function decreaseCooldownEqu(player: Player, itemCategory: string, tickDecrease: number, equipmentTest: string) {
                     if (
                         player.getItemCooldown(itemCategory) > 0 && item?.typeId == equipmentTest) {
                         player.startItemCooldown(itemCategory, Math.max(player.getItemCooldown(itemCategory) - tickDecrease, 0))
                     }
                 }
-                decreaseCooldownEqu(this.player,'gun',9,'dec:archer_bullet_bag')
-                decreaseCooldownEqu(this.player,'gun',7,'dec:lava_bullet_bag')
-                decreaseCooldownEqu(this.player,'gun',4,'dec:blood_bullet_bag')
-                decreaseCooldownEqu(this.player,'gun',3,'dec:hunter_bullet_bag')
-                decreaseCooldownEqu(this.player,'gun',3,'dec:pirate_bullet_bag')
-                decreaseCooldownEqu(this.player,'gun',2,'dec:bullet_bag')
-                decreaseCooldownEqu(this.player,'catapult',5,'dec:stones_bag')
-                decreaseCooldownEqu(this.player,'catapult',13,'dec:archer_stones_bag')
-                decreaseCooldownEqu(this.player,'staff',4,'dec:magic_surge_core')
+                decreaseCooldownEqu(this.player, 'gun', 9, 'dec:archer_bullet_bag')
+                decreaseCooldownEqu(this.player, 'gun', 7, 'dec:lava_bullet_bag')
+                decreaseCooldownEqu(this.player, 'gun', 4, 'dec:blood_bullet_bag')
+                decreaseCooldownEqu(this.player, 'gun', 3, 'dec:hunter_bullet_bag')
+                decreaseCooldownEqu(this.player, 'gun', 3, 'dec:pirate_bullet_bag')
+                decreaseCooldownEqu(this.player, 'gun', 2, 'dec:bullet_bag')
+                decreaseCooldownEqu(this.player, 'catapult', 5, 'dec:stones_bag')
+                decreaseCooldownEqu(this.player, 'catapult', 13, 'dec:archer_stones_bag')
+                decreaseCooldownEqu(this.player, 'staff', 4, 'dec:magic_surge_core')
+                decreaseCooldownEqu(this.player, 'staff', 3, 'dec:alchemic_stone')
+                decreaseCooldownEqu(this.player, 'katana', 6, 'dec:fire_heart')
+                decreaseCooldownEqu(this.player, 'magic_book', 4, 'dec:herb_bag')
+                decreaseCooldownEqu(this.player, 'magic_book', 7, 'dec:shadow_feather')
+                decreaseCooldownEqu(this.player, 'staff', 8, 'dec:tear_from_dream')
+                decreaseCooldownEqu(this.player, 'staff', 6, 'dec:time_compass')
+                decreaseCooldownEqu(this.player, 'missile', 3, 'dec:diamond_ring')
+                decreaseCooldownEqu(this.player, 'missile', 4, 'dec:emerald_ring')
+                decreaseCooldownEqu(this.player, 'missile', 7, 'dec:ender_ring')
+                decreaseCooldownEqu(this.player, 'missile', 6, 'dec:fire_ring')
+                decreaseCooldownEqu(this.player, 'missile', 4, 'dec:gold_ring')
+                decreaseCooldownEqu(this.player, 'missile', 5, 'dec:heart_ring')
+                decreaseCooldownEqu(this.player, 'missile', 3, 'dec:natural_ring')
             }
 
         });
