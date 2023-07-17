@@ -90,21 +90,21 @@ export default class SimpleItemUseFunc extends GameController {
             }
         });
 
-        let target: undefined | Entity;
-        this.getEvents().exEvents.afterPlayerShootProj.subscribe((e) => {
-            if (target) {
-                const ec = this.client.getServer().createEntityController(e.projectile, PomOccupationSkillTrack);
-                ec.setTarget(target);
+        // let target: undefined | Entity;
+        // this.getEvents().exEvents.afterPlayerShootProj.subscribe((e) => {
+        //     if (target) {
+        //         const ec = this.client.getServer().createEntityController(e.projectile, PomOccupationSkillTrack);
+        //         ec.setTarget(target);
 
-            }
-            // if(e.afterItem?.typeId === MinecraftItemTypes.Stick){
-            //     this.exPlayer.selectedSlot = e.beforeSlot;
+        //     }
+        //     // if(e.afterItem?.typeId === MinecraftItemTypes.Stick){
+        //     //     this.exPlayer.selectedSlot = e.beforeSlot;
 
-            // }
-        });
-        this.getEvents().exEvents.afterPlayerHitEntity.subscribe(e => {
-            target = e.hurtEntity;
-        });
+        //     // }
+        // });
+        // this.getEvents().exEvents.afterPlayerHitEntity.subscribe(e => {
+        //     target = e.hurtEntity;
+        // });
 
     }
     chainDigging(v: Vector3, idType: string, times: number, posData?: Set<string>) {

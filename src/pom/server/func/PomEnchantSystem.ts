@@ -14,7 +14,7 @@ export default class PomEnChantSystem extends GameController {
             if (e.afterItem) {
                 let lore = new ExColorLoreUtil(ExItem.getInstance(e.afterItem));
                 if (lore.search("enchants") !== null) {
-                    for (let i of lore.colorEntries("enchants")) {
+                    for (let i of lore.entries("enchants")) {
                         try {
                             this.player.runCommandAsync("enchant @s " + i[0].replace(/[A-Z]/g, (s) => {
                                 return "_" + s.toLowerCase();
