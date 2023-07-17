@@ -62,7 +62,7 @@ export default class PomTalentSystem extends GameController {
             let damageFac = 0;
             let extraDamage = 0;
             let target = ExEntity.getInstance(e.hurtEntity);
-            let dis = target.getPosition().distance(this.exPlayer.getPosition());
+            let dis = target.position.distance(this.exPlayer.position);
             if (!item) {
                 let CLOAD_PIERCING = this.talentRes.get(Talent.CLOAD_PIERCING) ?? 0;
 
@@ -125,7 +125,10 @@ export default class PomTalentSystem extends GameController {
             if (e.afterItem && isEquipment(e.afterItem.typeId)) {
                 const lore = new ExColorLoreUtil(e.afterItem);
                 TalentData.calculateTalentToLore(this.data.talent.talents, this.data.talent.occupation, ExItem.getInstance(e.afterItem), this.getLang());
-                if (e.afterItem.typeId.startsWith("dec:")) lore.setTag("在主手时: +40％攻击伤害");
+                if (e.afterItem.typeId.startsWith("dec:")) {
+                    lore.setTag("在主手时: +40％攻击伤害");
+                    lore.sort();
+                }
                 bag.setItem(this.exPlayer.selectedSlot, e.afterItem);
                 let maxSingleDamage = parseFloat(lore.getValueUseMap("total", this.getLang().maxSingleDamage) ?? "0");
                 let maxSecondaryDamage = parseFloat(lore.getValueUseMap("total", this.getLang().maxSecondaryDamage) ?? "0");
@@ -150,6 +153,7 @@ export default class PomTalentSystem extends GameController {
                         shouldUpstate = true;
                     }
                     if (shouldUpstate && bag.itemOnMainHand?.typeId === e?.afterItem?.typeId) {
+                        lore.sort();
                         bag.setItem(this.exPlayer.selectedSlot, e.afterItem);
                     }
                 }).delay(5 * 20)).start(); //
@@ -158,6 +162,9 @@ export default class PomTalentSystem extends GameController {
             }
             this.exPlayer.triggerEvent("hp:" + Math.round((20 + (this.talentRes.get(Talent.VIENTIANE) ?? 0))));
         });
+
+
+        //追逐箭
 
     }
     hasBeenDamaged = new MonitorManager<[number,Entity|undefined]>();

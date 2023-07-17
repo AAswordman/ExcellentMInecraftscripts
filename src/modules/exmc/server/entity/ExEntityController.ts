@@ -53,11 +53,10 @@ export default class ExEntityController implements DisposeAble, SetTimeOutSuppor
     onSpawn() {
     }
 
-    @registerEvent<ExEntityController>(ExOtherEventNames.tick, (ctrl, e: TickEvent) => {
+    @registerEvent<ExEntityController>(ExOtherEventNames.beforeTick, (ctrl, e: TickEvent) => {
         if (e.currentTick % 1 === 0) {
             try {
                 let dim = ctrl.entity.dimension;
-                // console.warn(dim === undefined)
                 return dim === undefined;
             } catch (o) {
                 return true;
@@ -65,7 +64,7 @@ export default class ExEntityController implements DisposeAble, SetTimeOutSuppor
         }
         return false;
     })
-    private destroyTrigger() {
+    public destroyTrigger() {
         if (!this.isDestroyed) {
             this.isDestroyed = true;
             this.onDestroy();

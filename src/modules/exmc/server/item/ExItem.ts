@@ -1,7 +1,8 @@
 import { ItemDurabilityComponent, ItemEnchantsComponent, ItemStack } from "@minecraft/server";
 import ExLoreManager from "../../interface/ExLoreManager.js";
+import ExTagManager from "../../interface/ExTagManager.js";
 
-export default class ExItem implements ExLoreManager {
+export default class ExItem implements ExLoreManager, ExTagManager {
     getItem(): ItemStack {
         return this._item;
     }
@@ -10,6 +11,19 @@ export default class ExItem implements ExLoreManager {
     private _item: ItemStack;
     constructor(item: ItemStack) {
         this._item = item;
+    }
+    getTags(): string[] {
+        return this._item.getTags();
+    }
+    addTag(tag: string): string {
+        throw new Error("cant add tag");
+
+    }
+    hasTag(tag: string): boolean {
+        return this._item.hasTag(tag);
+    }
+    removeTag(tag: string): string {
+        throw new Error("cant remove tag");
     }
     static getInstance(source: ItemStack): ExItem {
         let item = <any>source;

@@ -8,7 +8,7 @@ import { ExEventNames, ExOtherEventNames, ItemOnHandChangeEvent, TickEvent } fro
 import ExEntityController from "./ExEntityController.js";
 export default class ExEntityEvents implements ExEventManager {
 
-    private static eventHandlers: EventHandle = new EventHandle();
+    private static eventHandlers: EventHandle<ExEntityEvents["exEvents"]> = new EventHandle();
 
     _subscribe(arg0: string, callback: (arg: any) => void) {
         ExEntityEvents.eventHandlers.subscribe(this._ctrl.entity, arg0, callback);
@@ -17,13 +17,12 @@ export default class ExEntityEvents implements ExEventManager {
         ExEntityEvents.eventHandlers.unsubscribe(this._ctrl.entity, arg0, callback);
     }
     cancelAll() {
-        console.warn("destroy all events");
         ExEntityEvents.eventHandlers.unsubscribeAll(this._ctrl.entity);
     }
 
     _ctrl: ExEntityController;
 
-    static exEventSetting: EventListenerSettings = {
+    static exEventSetting: EventListenerSettings<ExEntityEvents["exEvents"]> = {
         [ExEventNames.beforeItemUse]: {
             pattern: ExEntityEvents.eventHandlers.registerToServerByEntity,
             filter: {
@@ -37,6 +36,9 @@ export default class ExEntityEvents implements ExEventManager {
             }
         },
         [ExOtherEventNames.tick]: {
+            pattern: ExEntityEvents.eventHandlers.registerToServerByServerEvent
+        },
+        [ExOtherEventNames.beforeTick]: {
             pattern: ExEntityEvents.eventHandlers.registerToServerByServerEvent
         },
         [ExEventNames.afterEntityHitBlock]: {
@@ -70,7 +72,7 @@ export default class ExEntityEvents implements ExEventManager {
 
                         if (lastItem?.typeId !== nowItem?.typeId || i[0].selectedSlot !== lastItemCache?.[1]) {
                             i[1].forEach((f) => {
-                                f(new ItemOnHandChangeEvent(lastItem, ExPlayer.getInstance(i[0]).getBag().itemOnMainHand, i[0]));
+                                f(new ItemOnHandChangeEvent(lastItem, lastItemCache?.[1] ?? 0, nowItem, i[0].selectedSlot, i[0]));
                             });
 
                             this.onHandItemMap.set(i[0], [nowItem, i[0].selectedSlot]);
@@ -100,7 +102,8 @@ export default class ExEntityEvents implements ExEventManager {
         [ExEventNames.afterEntityHitEntity]: new Listener<EntityHurtAfterEvent>(this, ExEventNames.afterEntityHitEntity),
         [ExOtherEventNames.afterOnHurt]: new Listener<EntityHurtAfterEvent>(this, ExOtherEventNames.afterOnHurt),
         [ExOtherEventNames.afterItemOnHandChange]: new Listener<ItemOnHandChangeEvent>(this,ExOtherEventNames.afterItemOnHandChange),
-        [ExOtherEventNames.onLongTick]: new Listener<TrackEvent>(this, ExOtherEventNames.onLongTick),
+        [ExOtherEventNames.onLongTick]: new Listener<TickEvent>(this, ExOtherEventNames.onLongTick),
+        [ExOtherEventNames.beforeTick]: new Listener<TickEvent>(this, ExOtherEventNames.beforeTick),
         [ExEventNames.afterBlockBreak]: new Listener<BlockBreakAfterEvent>(this, ExEventNames.afterBlockBreak)
     };
     
@@ -113,7 +116,6 @@ export default class ExEntityEvents implements ExEventManager {
 
     constructor(ctrl: ExEntityController) {
         this._ctrl = ctrl;
-        console.warn("regist events");
     }
     register(name: string, fun: (...arg: unknown[]) => void) {
         let func: (...arg: unknown[]) => void = fun;

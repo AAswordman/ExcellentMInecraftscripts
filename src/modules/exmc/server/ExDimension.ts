@@ -8,8 +8,13 @@ import ExCommand from './env/ExCommand.js';
 export default class ExDimension implements ExCommandNativeRunner {
     public command = new ExCommand(this);
 
-    spawnParticle(p: string, v: IVector3) {
-        this._dimension.spawnParticle(p, v, new MolangVariableMap())
+    spawnParticle(p: string, v: IVector3, varMap = new MolangVariableMap()) {
+        try {
+            this._dimension.spawnParticle(p, v, varMap);
+            return true;
+        } catch (e) {
+            return false;
+        }
     }
     createExplosion(location: IVector3, radius: number, explosionOptions?: ExplosionOptions): void {
         //console.warn(location, radius, explosionOptions);

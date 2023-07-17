@@ -82,21 +82,28 @@ export default class ExPlayer extends ExEntity {
         this.entity.selectedSlot = value;
     }
 
+    override get viewDirection() {
+        return super.viewDirection;
+    }
     override set viewDirection(ivec: Vector3) {
-        this.teleport(this.getPosition(), {
+        this.teleport(this.position, {
             "rotation": {
                 x: ivec.rotateAngleX(),
                 y: ivec.rotateAngleY()
             }
         })
     }
+    
     override setPosition(position: Vector3, dimension?: Dimension) {
         this.entity.teleport(position, {
             "dimension": dimension
         });
     }
+    override get rotation(){
+        return super.rotation;
+    }
     override set rotation(ivec: IVector2) {
-        this.teleport(this.getPosition(), {
+        this.teleport(this.position, {
             "rotation": ivec
         });
     }

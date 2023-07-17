@@ -11,6 +11,7 @@ import { TickEvent } from "./events/events.js";
 import ExErrorQueue from "./ExErrorQueue.js";
 
 export default class ExGame {
+    static beforeTickMonitor = new MonitorManager<[TickEvent]>();
     static tickMonitor = new MonitorManager<[TickEvent]>();
     static longTickMonitor = new MonitorManager<[TickEvent]>();
     static {
@@ -24,6 +25,7 @@ export default class ExGame {
             };
             tickTime = n;
             tickNum = (tickNum + 1) % 72000;
+            this.beforeTickMonitor.trigger(event);
             this.tickMonitor.trigger(event);
         }
         ExGame.runInterval(fun, 1);

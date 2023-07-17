@@ -13,7 +13,7 @@ import Vector2, { IVector2 } from '../../math/Vector2.js';
 
 export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     public command = new ExCommand(this);
-
+    
     public damage(d: number, source?: EntityDamageSource) {
         this.entity.applyDamage(d, source)
     }
@@ -24,7 +24,7 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
             "damagingEntity": this.entity
         })
     }
-
+    
     private _damage: number | undefined;
     getPreRemoveHealth() {
         return this._damage;
@@ -46,19 +46,22 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     }
     static propertyNameCache = "exCache";
     private _entity: Entity;
-
+    
     public get nameTag(): string {
         return this._entity.nameTag;
     }
     public set nameTag(value: string) {
         this._entity.nameTag = value;
     }
-
+    
     public get entity(): Entity {
         return this._entity;
     }
     public set entity(value: Entity) {
         this._entity = value;
+    }
+    getVelocity() {
+        return new Vector3(this._entity.getVelocity());
     }
 
     protected constructor(entity: Entity) {
@@ -126,8 +129,11 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         this._entity.triggerEvent(name);
     }
 
-    getPosition() {
+    get position() {
         return new Vector3(this.entity.location);
+    }
+    set position(position: Vector3) {
+        this.setPosition(position);
     }
     setPosition(position: Vector3, dimension?: Dimension) {
         this.entity.teleport(position, {
@@ -140,7 +146,7 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         return this.entity.getRotation();
     }
     set rotation(ivec: IVector2) {
-        this.teleport(this.getPosition(), {
+        this.teleport(this.position, {
             "keepVelocity": true,
             "rotation": ivec
         });
@@ -153,7 +159,7 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         this.entity.tryTeleport(location, teleportOptions);
     }
     set dimension(dimension: Dimension) {
-        this.setPosition(this.getPosition(), dimension);
+        this.setPosition(this.position, dimension);
     }
     get dimension() {
         return this._entity.dimension;
@@ -163,7 +169,7 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         return new Vector3(this.entity.getViewDirection());
     }
     set viewDirection(ivec: Vector3) {
-        this.teleport(this.getPosition(), {
+        this.teleport(this.position, {
             "keepVelocity": true,
             "rotation": {
                 x: ivec.rotateAngleX(),

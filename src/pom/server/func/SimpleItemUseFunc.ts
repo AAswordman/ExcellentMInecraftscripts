@@ -1,4 +1,4 @@
-import {  MinecraftBlockTypes, ItemStack, world, BlockType, ItemTypes, system, EffectTypes, EffectType } from '@minecraft/server';
+import { MinecraftBlockTypes, ItemStack, world, BlockType, ItemTypes, system, EffectTypes, EffectType, Entity } from '@minecraft/server';
 import { ModalFormData } from "@minecraft/server-ui";
 import Vector3 from '../../../modules/exmc/math/Vector3.js';
 import ExDimension from '../../../modules/exmc/server/ExDimension.js';
@@ -8,6 +8,8 @@ import menuFunctionUI from "../data/menuFunctionUI.js";
 import MenuUIAlert from "../ui/MenuUIAlert.js";
 import GameController from "./GameController.js";
 import { MinecraftEffectTypes } from '../../../modules/vanilla-data/lib/index.js';
+import { MinecraftItemTypes } from '../../../modules/vanilla-data/lib/mojang-item.js';
+import PomOccupationSkillTrack from '../entities/PomOccupationSkillTrack.js';
 
 export default class SimpleItemUseFunc extends GameController {
     onJoin(): void {
@@ -57,7 +59,7 @@ export default class SimpleItemUseFunc extends GameController {
                     this.exPlayer.addEffect(MinecraftEffectTypes.Levitation, 7, 15, false);
                     this.exPlayer.addEffect(MinecraftEffectTypes.SlowFalling, 150, 3, false);
 
-                    this.exPlayer.dimension.spawnEntity("wb:ball_jet_pack", this.exPlayer.getPosition().sub(this.exPlayer.viewDirection.scl(2)));
+                    this.exPlayer.dimension.spawnEntity("wb:ball_jet_pack", this.exPlayer.position.sub(this.exPlayer.viewDirection.scl(2)));
                 }, 0);
             } else if (item.typeId === "wb:start_key") {
 
@@ -88,8 +90,20 @@ export default class SimpleItemUseFunc extends GameController {
             }
         });
 
-        this.getEvents().exEvents.afterItemOnHandChange.subscribe((e) => {
+        let target: undefined | Entity;
+        this.getEvents().exEvents.afterPlayerShootProj.subscribe((e) => {
+            if (target) {
+                const ec = this.client.getServer().createEntityController(e.projectile, PomOccupationSkillTrack);
+                ec.setTarget(target);
 
+            }
+            // if(e.afterItem?.typeId === MinecraftItemTypes.Stick){
+            //     this.exPlayer.selectedSlot = e.beforeSlot;
+
+            // }
+        });
+        this.getEvents().exEvents.afterPlayerHitEntity.subscribe(e => {
+            target = e.hurtEntity;
         });
 
     }

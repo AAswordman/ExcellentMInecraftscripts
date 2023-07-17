@@ -15,14 +15,14 @@ export default class ExColorLoreUtil extends LoreUtil {
     override setValueUseMap(key: string, use: string, value: string): void {
         super.setValueUseMap("§r§l§f" + key, "§r§o§b" + use, "§r§o§e" + value);
     }
-    override *entries(key?: string) {
+    *colorEntries(key?: string) {
         for (let i of super.entries(key)) {
-            yield [i[0].startsWith("§") ? i[0].substring(6) : i[0], i[1].startsWith("§") ? i[1].substring(6) : i[1]];
+            yield [this.removeColorCode(i[0]), this.removeColorCode(i[1])];
         }
     }
     override search(key: string): Piece | undefined {
         let lore = this.getLore();
-        key = (key.startsWith("§") ? key.substring(6) : key)
+        key = this.removeColorCode(key);
         for (let i = 0; i < lore.length; i++) {
 
             if ((lore[i].startsWith("§") ? lore[i].substring(6) : lore[i]).startsWith(key + " : ")) {
