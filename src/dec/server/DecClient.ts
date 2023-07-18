@@ -307,6 +307,7 @@ export default class DecClient extends ExGameClient {
 
         this.getEvents().exEvents.onLongTick.subscribe(e => {
             if (e.currentTick % 20 === 0) {
+                //盔甲选择
                 if (this.checkArmor()) {
                     //非空
                     if (!this.exPlayer.detectAnyArmor()) {
@@ -325,8 +326,11 @@ export default class DecClient extends ExGameClient {
                         }
                     }
                 }
+
+                //设置防御
+
             }
-        })
+        });
     }
 
     checkArmor() {

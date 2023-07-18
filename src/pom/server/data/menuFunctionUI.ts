@@ -483,10 +483,10 @@ ${getCharByNum((gj - (150 * (g - 1) ** 2 + 1050 * (g - 1) + 900)) / (300 * g + 9
                                 );
                             }
                             arr.push({
-                                "msg": lang.menuUIMsgBailan41 + client.exPlayer.getPosition().floor().toString(),
+                                "msg": lang.menuUIMsgBailan41 + client.exPlayer.position.floor().toString(),
                                 "type": "button",
                                 "function": (client, ui) => {
-                                    client.data.pointRecord?.point.push([client.exPlayer.dimension.id, "", client.exPlayer.getPosition().floor()]);
+                                    client.data.pointRecord?.point.push([client.exPlayer.dimension.id, "", client.exPlayer.position.floor()]);
                                     return true;
                                 }
                             });
@@ -626,7 +626,7 @@ ${getCharByNum((gj - (150 * (g - 1) ** 2 + 1050 * (g - 1) + 900)) / (300 * g + 9
                             const p = ExPlayer.getInstance(i[0]);
                             arr.push({
                                 "type": "button",
-                                "msg": `${p.nameTag}${client.globalSettings.playerTpListShowPos ? " (pos:" + p.getPosition().floor() + ")" : ""}`,
+                                "msg": `${p.nameTag}${client.globalSettings.playerTpListShowPos ? " (pos:" + p.position.floor() + ")" : ""}`,
                                 "function": (client, ui) => {
                                     let bag = client.exPlayer.getBag();
                                     if (!bag.hasItem("wb:conveyor_issue") && client.globalSettings.tpNeedItem) {
@@ -646,7 +646,7 @@ ${getCharByNum((gj - (150 * (g - 1) ** 2 + 1050 * (g - 1) + 900)) / (300 * g + 9
                                             .button1(lang.menuUIMsgBailan15, () => {
                                                 client.sayTo(lang.menuUIMsgBailan37);
                                                 client.sayTo(lang.menuUIMsgBailan37, i[0]);
-                                                client.exPlayer.setPosition(p.getPosition(), p.dimension);
+                                                client.exPlayer.setPosition(p.position, p.dimension);
                                             })
                                             .button2(lang.menuUIMsgBailan16, () => {
                                                 client.sayTo(lang.menuUIMsgBailan63);
@@ -669,7 +669,7 @@ ${getCharByNum((gj - (150 * (g - 1) ** 2 + 1050 * (g - 1) + 900)) / (300 * g + 9
                             const p = ExPlayer.getInstance(i[0]);
                             arr.push({
                                 "type": "button",
-                                "msg": `${p.nameTag}${client.globalSettings.playerTpListShowPos ? " (pos:" + p.getPosition().floor() + ")" : ""}`,
+                                "msg": `${p.nameTag}${client.globalSettings.playerTpListShowPos ? " (pos:" + p.position.floor() + ")" : ""}`,
                                 "function": (client, ui) => {
                                     let bag = client.exPlayer.getBag();
                                     if (!bag.hasItem("wb:conveyor_issue") && client.globalSettings.tpNeedItem) {
@@ -690,11 +690,11 @@ ${getCharByNum((gj - (150 * (g - 1) ** 2 + 1050 * (g - 1) + 900)) / (300 * g + 9
                                     }
                                     client.sayTo(lang.menuUIMsgBailan67);
                                     client.setTimeout(() => {
-                                        new ExMessageAlert().title(lang.menuUIMsgBailan58).body(`玩家 ${client.player.nameTag} §r邀请你传送到 pos:${client.exPlayer.getPosition().floor()} ，是否接受？`)
+                                        new ExMessageAlert().title(lang.menuUIMsgBailan58).body(`玩家 ${client.player.nameTag} §r邀请你传送到 pos:${client.exPlayer.position.floor()} ，是否接受？`)
                                             .button1(lang.menuUIMsgBailan15, () => {
                                                 client.sayTo(lang.menuUIMsgBailan37);
                                                 client.sayTo(lang.menuUIMsgBailan37, i[0]);
-                                                p.setPosition(client.exPlayer.getPosition(), client.exPlayer.dimension);
+                                                p.setPosition(client.exPlayer.position, client.exPlayer.dimension);
                                             })
                                             .button2(lang.menuUIMsgBailan16, () => {
                                                 client.sayTo(lang.menuUIMsgBailan73);

@@ -28,6 +28,21 @@ export default class ExServerEvents implements ExEventManager {
                 });
             }
         },
+        [ExOtherEventNames.beforeTick]: {
+            subscribe: (callback: (arg: TickEvent) => void) => {
+                this._subscribe(ExOtherEventNames.beforeTick, callback);
+            },
+            unsubscribe: (callback: (arg: TickEvent) => void) => {
+                this._unsubscribe(ExOtherEventNames.beforeTick, callback)
+            },
+            pattern: () => {
+                ExGame.beforeTickMonitor.addMonitor((e) => {
+                    ExServerEvents.monitorMap.get(ExOtherEventNames.beforeTick)?.forEach((fun) => {
+                        fun(e);
+                    })
+                });
+            }
+        },
         [ExOtherEventNames.onLongTick]: {
             subscribe: (callback: (arg: TickEvent) => void) => {
                 this._subscribe(ExOtherEventNames.onLongTick, callback);

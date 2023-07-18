@@ -10,6 +10,7 @@ import ExActionAlert from '../../../modules/exmc/server/ui/ExActionAlert.js';
 import PomBossBarrier from './barrier/PomBossBarrier.js';
 import { Objective } from '../../../modules/exmc/server/entity/ExScoresManager.js';
 import { MinecraftEffectTypes } from '../../../modules/vanilla-data/lib/index.js';
+import ExGameConfig from '../../../modules/exmc/server/ExGameConfig.js';
 
 export default class PomDimRuinsSystem extends GameController {
     i_inviolable = new Objective("i_inviolable");

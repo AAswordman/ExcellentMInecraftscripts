@@ -1,6 +1,6 @@
 import ExGameClient from "./ExGameClient.js";
 import ExDimension from "./ExDimension.js";
-import { world, MinecraftDimensionTypes, PlayerJoinAfterEvent, Player, PlayerLeaveAfterEvent, system, RawMessage, EntitySpawnAfterEvent } from "@minecraft/server";
+import { world, MinecraftDimensionTypes, PlayerJoinAfterEvent, Player, PlayerLeaveAfterEvent, system, RawMessage, EntitySpawnAfterEvent, Entity } from "@minecraft/server";
 import ExGameConfig from "./ExGameConfig.js";
 import initConsole from "../utils/Console.js";
 import ExServerEvents from "./events/ExServerEvents.js";
@@ -42,7 +42,7 @@ export default class ExGameServer implements SetTimeOutSupport {
                 });
             }
             ExGameConfig.console = initConsole(ExGameConfig);
-            ExErrorQueue.init(this);
+            ExErrorQueue.init();
             ExTickQueue.init(this);
             ExCommand.init(this);
             ExClientEvents.init(this);
@@ -67,6 +67,10 @@ export default class ExGameServer implements SetTimeOutSupport {
         if (entityConstructor) {
             new (entityConstructor)(e.entity, this);
         }
+    }
+
+    createEntityController<T extends ExEntityController>(e:Entity,ec:new (e: Entity, server: ExGameServer) => (T)) {
+        return new ec(e,this);
     }
 
     getDimension(dimensionId: string) {
@@ -100,6 +104,13 @@ export default class ExGameServer implements SetTimeOutSupport {
         let players = [];
         for (let k of this.clients) {
             players.push(k[1].player);
+        }
+        return players;
+    }
+    getExPlayers() {
+        let players = [];
+        for (let k of this.clients) {
+            players.push(k[1].exPlayer);
         }
         return players;
     }

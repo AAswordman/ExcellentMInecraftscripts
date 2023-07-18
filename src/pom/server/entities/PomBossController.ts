@@ -11,7 +11,7 @@ export default class PomBossController extends ExEntityController {
     isFisrtCall = false;
     constructor(e: Entity, server: PomServer) {
         super(e, server);
-        this.startPos = this.exEntity.getPosition();
+        this.startPos = this.exEntity.position;
         let barrier = PomBossBarrier.find(this.startPos);
 
         if (!barrier) {

@@ -1,3 +1,4 @@
+import { system } from '@minecraft/server';
 import ExGameServer from './ExGameServer.js';
 export default class ExErrorQueue {
     private static errorStack: unknown[] = [];
@@ -19,12 +20,12 @@ export default class ExErrorQueue {
     public static getError() {
         return this.errorFlow;
     }
-    public static init(server: ExGameServer) {
-        server.getEvents().exEvents.tick.subscribe(tick => {
+    public static init() {
+        system.runInterval(() => {
             if (this.errorStack.length > 0) {
                 throw this.errorStack.shift();
             }
-        });
+        }, 1);
     }
 }
 
