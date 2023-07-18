@@ -62,8 +62,12 @@ export default class DecClient extends ExGameClient {
                 this.decreaseCooldownEqu('missile', 5, 'dec:heart_ring')
                 this.decreaseCooldownEqu('missile', 3, 'dec:natural_ring')
             }
-
         });
+        this.getEvents().exEvents.afterItemUse.subscribe((e)=>{
+            if(e.itemStack.hasComponent('minecraft:cooldown')){
+                //这里写有饰品时触发的东西
+            }
+        })
 
         this.getEvents().exEvents.afterPlayerHurt.subscribe(e => {
 
