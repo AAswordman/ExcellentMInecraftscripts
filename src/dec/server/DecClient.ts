@@ -62,8 +62,12 @@ export default class DecClient extends ExGameClient {
                 this.decreaseCooldownEqu('missile', 5, 'dec:heart_ring')
                 this.decreaseCooldownEqu('missile', 3, 'dec:natural_ring')
             }
-
         });
+        this.getEvents().exEvents.afterItemUse.subscribe((e)=>{
+            if(e.itemStack.hasComponent('minecraft:cooldown')){
+                //这里写有饰品时触发的东西
+            }
+        })
 
         this.getEvents().exEvents.afterPlayerHurt.subscribe(e => {
 
@@ -286,6 +290,10 @@ export default class DecClient extends ExGameClient {
             /*if (p.getItemCooldown("village_portal") > 10) {
                 p.startItemCooldown("village_portal",p.getItemCooldown("village_portal")-10)
             }*/
+
+            if (scores.getScore('i_heavy') > 0) {//防末影珍珠的放function/global里的
+                p.runCommandAsync('tag @e[r=10,type=ender_pearl] add no_ender_pearl')
+            }
         });
 
         this.getEvents().exEvents.afterItemUse.subscribe(e => {
