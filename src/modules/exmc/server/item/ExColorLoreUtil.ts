@@ -20,8 +20,8 @@ export default class ExColorLoreUtil{
     setValueUseMap(key: string, use: string, value: string): void {
         this.lore.setValueUseMap("§r§l§f" + key, "§r§o§b" + use, "§r§o§e" + value);
     }
-    setValueUseDefault(key:string, value: string): void {
-        this.lore.setValueUseDefault("§r§l§f" + key,"§r§o§e" + value);
+    setValueUseDefault(key:string, value: string|number): void {
+        this.lore.setValueUseDefault("§r§b" + key,(typeof value === "number" ? "§r§e":"§r§a") + value);
     }
     getValueUseDefault(key:string) {
         return this.lore.getValueUseDefault("§r§l§f" + key);

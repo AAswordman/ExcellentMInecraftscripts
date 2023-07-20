@@ -7,6 +7,7 @@ import DisposeAble from "../../interface/DisposeAble.js";
 import SetTimeOutSupport from "../../interface/SetTimeOutSupport.js";
 import { eventDecoratorFactory, registerEvent } from "../events/eventDecoratorFactory.js";
 import { ExOtherEventNames, TickEvent } from "../events/events.js";
+import { falseIfError } from "../../utils/tool.js";
 
 export default class ExEntityController implements DisposeAble, SetTimeOutSupport {
     server!: ExGameServer;
@@ -54,15 +55,7 @@ export default class ExEntityController implements DisposeAble, SetTimeOutSuppor
     }
 
     @registerEvent<ExEntityController>(ExOtherEventNames.beforeTick, (ctrl, e: TickEvent) => {
-        if (e.currentTick % 1 === 0) {
-            try {
-                let dim = ctrl.entity.dimension;
-                return dim === undefined;
-            } catch (o) {
-                return true;
-            }
-        }
-        return false;
+        return !falseIfError(() => ctrl.entity.dimension);
     })
     public destroyTrigger() {
         if (!this.isDestroyed) {
