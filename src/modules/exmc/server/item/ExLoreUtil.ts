@@ -19,7 +19,7 @@ export default class LoreUtil implements ExLoreManager {
     }
 
     getLore() {
-        return this.item.getLore();
+        return this.item.getLore() ?? [];
     }
 
     setLore(lore: string[]) {
@@ -45,15 +45,6 @@ export default class LoreUtil implements ExLoreManager {
         if (!piece) return undefined;
         // key : value
         return piece.get().substring(key.length + 3);
-    }
-
-
-    hasTag(key: string) {
-        let lore = this.getLore();
-        for (let i of lore) {
-            if (i.startsWith(key)) return true;
-        }
-        return false;
     }
 
     getValueUseRepeat(key: string) {
@@ -90,11 +81,6 @@ export default class LoreUtil implements ExLoreManager {
         piece.revise(key + " : " + value).set();
     }
 
-    setTag(key: string) {
-        if (this.hasTag(key)) return;
-        this.append(key);
-    }
-
     setValueUseRepeat(key: string, value: string, num: number) {
         this.setValueUseDefault(key, new Array(num).fill(value).join(""));
     }
@@ -116,11 +102,49 @@ export default class LoreUtil implements ExLoreManager {
             }
             return;
         } else {
-            for (let i of this.getLore()) {
-                yield [...i.trim().split(" : ")];
+            const first = new Piece(this, -1);
+            while (first.hasNext()) {
+                first.next();
+                if (!first.get().includes(" : ")) break;
+            }
+            first.pre();
+            while (first.hasNext()) {
+                first.next();
+                yield [...first.get().trim().split(" : ")];
             }
             return;
         }
+    }
+
+    setTags(str:string[]){
+        this.deleteTags();
+        this.setLore(str.concat(this.getLore()));
+    }
+
+    deleteTags(){
+        const first = new Piece(this, -1);
+        while (first.hasNext()) {
+            first.next();
+            if (first.get().includes(" : ")) {
+                first.pre();
+                break;
+            };
+        }
+        first.next();
+        this.setLore(this.getLore().slice(first.index));
+    }
+
+    getTags() {
+        const first = new Piece(this, -1);
+        while (first.hasNext()) {
+            first.next();
+            if (first.get().includes(" : ")) {
+                first.pre();
+                break;
+            };
+        }
+        first.next();
+        return this.getLore().slice(0, first.index);
     }
 
     setValueUseMap(key: string, use: string, value: string) {
@@ -177,7 +201,14 @@ export default class LoreUtil implements ExLoreManager {
         let keyMap: Map<string, string[]> = new Map<string, string[]>();
         let tab = "  ";
         let key = "";
-        let piece = new Piece(this, -1);
+        const piece = new Piece(this, -1);
+        while (piece.hasNext()) {
+            piece.next();
+            if (piece.get().includes(" : ")) {
+                piece.pre();
+                break;
+            };
+        }
         while (piece.hasNext()) {
             piece.next();
             if (!piece.get().startsWith(tab)) {
@@ -204,7 +235,7 @@ export default class LoreUtil implements ExLoreManager {
             res.push(k + " : ");
             res = res.concat(arr.map((e) => tab + e));
         }
-        this.setLore(res);
+        this.setLore(this.getTags().concat(res));
     }
 
     removeColorCode(s: string) {

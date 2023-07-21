@@ -8,6 +8,7 @@ export class ItemTagComponentGroup<T>{
 }
 const itemTagComponentType = {
     use_data_group: [new ItemTagComponentGroup<string[]>("", [])],
+    armor_protection: [0],
     armor_physical_protection: [0],
     armor_magic_protection: [0],
     armor_physical_reduction: [0],
@@ -57,7 +58,7 @@ export default class ItemTagComponent {
     }
     getComponentWithGroup<T extends (keyof ItemTagComponentType)>(key: T, group = this.currentGroup): ItemTagComponentType[T][0] {
         const c = this.getComponent(key);
-        if (c.length === 0) throw new Error("read unknown component type");
+        if(!c||c.length === 0) return itemTagComponentType[key][0];
 
         if (group >= c.length) {
             return c[c.length - 1];

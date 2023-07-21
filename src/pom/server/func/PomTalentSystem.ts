@@ -39,6 +39,8 @@ export default class PomTalentSystem extends GameController {
 
     equiTotalTask: TickDelayTask | undefined;
 
+    itemOnHandComp?: ItemTagComponent;
+
     updateTalentRes() {
         this.talentRes.clear();
 
@@ -113,26 +115,36 @@ export default class PomTalentSystem extends GameController {
 
                 let comp = new ItemTagComponent(ExItem.getInstance(e.afterItem));
                 comp.setGroup(comp.dataGroupJudge(this.client));
-                if (comp.hasComponent("actual_level")) lore.setValueUseDefault("装备等级", "LV." + comp.getComponentWithGroup("actual_level"));
-                if (comp.hasComponent("movement_addition")) lore.setValueUseDefault("移速加成", comp.getComponentWithGroup("movement_addition"));
-                if (comp.hasComponent("sneak_movement_addition")) lore.setValueUseDefault("移速（潜行）加成", comp.getComponentWithGroup("sneak_movement_addition"));
-                if (comp.hasComponent("attack_addition")) lore.setValueUseDefault("额外攻击", comp.getComponentWithGroup("attack_addition"));
-                if (comp.hasComponent("remarks")) lore.setValueUseDefault("备注", comp.getComponentWithGroup("remarks"));
+                let base: string[] = [];
+                if (comp.hasComponent("actual_level")) base.push(`§r§e基础属性` + "  §r§6LV." + comp.getComponentWithGroup("actual_level"));
+                if (comp.hasComponent("armor_protection")) base.push("§r§7•护甲值§6+" + comp.getComponentWithGroup("movement_addition"));
+
                 if (comp.hasComponent("armor_type")) {
-                    let typeMsg = comp.getComponentWithGroup("armor_type");
-                    lore.setValueUseDefault("盔甲类型", typeMsg.tagName + ": " + typeMsg.data);
-                    lore.setValueUseDefault("盔甲物抗", comp.getComponentWithGroup("armor_physical_protection") + "％ + " + comp.getComponentWithGroup("armor_physical_reduction"));
-                    lore.setValueUseDefault("盔甲法抗", comp.getComponentWithGroup("armor_magic_protection") + "％");
+                    //let typeMsg = comp.getComponentWithGroup("armor_type");
+                    //lore.setValueUseDefault("盔甲类型", typeMsg.tagName + ": " + typeMsg.data);
+                    if (comp.hasComponent("armor_physical_protection")) base.push("§r§7•物理抗性§6+" + comp.getComponentWithGroup("armor_physical_protection") + "％§r§7 | 受到的物理伤害§6-" + comp.getComponentWithGroup("armor_physical_reduction") ?? 0);
+                    if (comp.hasComponent("armor_magic_protection")) base.push("§r§7•魔法抗性§6+" + comp.getComponentWithGroup("armor_magic_protection") + "％");
                 }
+                let smove = comp.getComponentWithGroup("sneak_movement_addition") ?? 0;
+                if (comp.hasComponent("movement_addition")) {
+                    base.push("§r§7•移动速度§6+" + comp.getComponentWithGroup("movement_addition"));
+
+                    if (comp.hasComponent("sneak_movement_addition"))
+                        base[base.length - 1] += ("§r§7 | 潜行移速" + (smove < 0 ? "§4" + smove : "§6+" + smove));
+                } else if (comp.hasComponent("sneak_movement_addition")) base.push("§r§7•潜行移速" + (smove < 0 ? "§4" + smove : "§6+" + smove));
                 if (comp.hasComponent("equipment_type")) {
                     if (e.afterItem.typeId.startsWith("dec:")) {
-                        lore.setTag("在主手时: +40％攻击伤害");
+                        base.push("§r§7•在主手时: +40％§7攻击伤害");
                     }
-                    let typeMsg = comp.getComponentWithGroup("equipment_type");
-                    lore.setValueUseDefault("武器类型", typeMsg.tagName + ": " + typeMsg.data);
+                    // let typeMsg = comp.getComponentWithGroup("equipment_type");
+                    // lore.setValueUseDefault("武器类型", typeMsg.tagName + ": " + typeMsg.data);
                 }
-
+                if (base.length > 0) {
+                    base[base.length - 1] = base[base.length - 1] + "§r";
+                    lore.setTags(base);
+                }
                 lore.sort();
+                this.itemOnHandComp = comp;
 
                 bag.itemOnMainHand = e.afterItem;
 
