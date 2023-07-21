@@ -48,6 +48,14 @@ export default class ExGameServer implements SetTimeOutSupport {
             ExClientEvents.init(this);
             ExEntityEvents.init(this);
         }
+        for (const p of world.getAllPlayers()) {
+            if (!this.playerIsInSet.has(p.name)) {
+                this.onClientJoin({
+                    "playerId": p.id,
+                    "playerName": p.name
+                });
+            }
+        }
         eventDecoratorFactory(this.getEvents(), this);
     }
 
@@ -69,8 +77,8 @@ export default class ExGameServer implements SetTimeOutSupport {
         }
     }
 
-    createEntityController<T extends ExEntityController>(e:Entity,ec:new (e: Entity, server: ExGameServer) => (T)) {
-        return new ec(e,this);
+    createEntityController<T extends ExEntityController>(e: Entity, ec: new (e: Entity, server: ExGameServer) => (T)) {
+        return new ec(e, this);
     }
 
     getDimension(dimensionId: string) {
@@ -131,9 +139,12 @@ export default class ExGameServer implements SetTimeOutSupport {
         return undefined;
     }
 
+    private playerIsInSet = new Set<string>();
+
     @registerEvent(ExEventNames.afterPlayerJoin)
     onClientJoin(event: PlayerJoinAfterEvent) {
         const playerName = event.playerName;
+        this.playerIsInSet.add(playerName);
 
         notUtillTask(this, () => {
             return world.getAllPlayers().findIndex(p => p.name === playerName) !== -1;
@@ -150,6 +161,8 @@ export default class ExGameServer implements SetTimeOutSupport {
 
     @registerEvent(ExEventNames.afterPlayerLeave)
     onClientLeave(event: PlayerLeaveAfterEvent) {
+        this.playerIsInSet.delete(event.playerName);
+
         let client = this.findClientByName(event.playerName);
         if (client === undefined) {
             ExGameConfig.console.error(event.playerName + " client is not exists");
@@ -158,7 +171,7 @@ export default class ExGameServer implements SetTimeOutSupport {
         client.onLeave();
         this.clients.delete(client.clientId);
         this.clients_nameMap.delete(event.playerName);
-        
+
     }
 
     newClient(id: string, player: Player): ExGameClient {

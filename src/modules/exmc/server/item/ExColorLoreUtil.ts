@@ -6,25 +6,18 @@ export default class ExColorLoreUtil{
     constructor(item: ExLoreManager) {
         this.lore = new LoreUtil(item);
     }
-    setTag(key: string): void {
-        this.lore.setTag("§r§n§6" + key);
-    }
-    hasTag(key: string): boolean {
-        let res = this.lore.hasTag(key.startsWith("§") ? key : "§r§n§6" + key);
-        return res;
-    }
     getValueUseMap(key: string, use: string): string | undefined {
-        let res = this.lore.getValueUseMap("§r§l§f" + key, "§r§o§b" + use);
+        let res = this.lore.getValueUseMap("§r§l" + key, "§r§o§b" + use);
         return res?.startsWith("§") ? res.substring(6) : res;
     }
     setValueUseMap(key: string, use: string, value: string): void {
-        this.lore.setValueUseMap("§r§l§f" + key, "§r§o§b" + use, "§r§o§e" + value);
+        this.lore.setValueUseMap("§r§l" + key, "§r§o§b" + use, "§r§o§e" + value);
     }
-    setValueUseDefault(key:string, value: string): void {
-        this.lore.setValueUseDefault("§r§l§f" + key,"§r§o§e" + value);
+    setValueUseDefault(key:string, value: string|number): void {
+        this.lore.setValueUseDefault("§r§b" + key,(typeof value === "number" ? "§r§e":"§r§a") + value);
     }
     getValueUseDefault(key:string) {
-        return this.lore.getValueUseDefault("§r§l§f" + key);
+        return this.lore.getValueUseDefault("§r§l" + key);
     }
     *entries(key?: string) {
         for (let i of this.lore.entries(key)) {
@@ -38,10 +31,16 @@ export default class ExColorLoreUtil{
         this.lore.setLore(l);
     }
     delete(name:string){
-        this.lore.delete("§r§l§f" + name);
-        this.lore.delete("§r§n§6" + name);
+        this.lore.delete("§r§l" + name);
+        this.lore.delete("§r§6§6" + name);
     }
     search(name:string){
-        return this.lore.search("§r§l§f" + name) || this.lore.search("§r§n§6" + name);
+        return this.lore.search("§r§l" + name) || this.lore.search("§r§6§6" + name);
+    }
+    setTags(str:string[]){
+        this.lore.setTags(str);
+    }
+    getTags(){
+        return this.lore.getTags();
     }
 }

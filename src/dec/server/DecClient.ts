@@ -47,7 +47,7 @@ export default class DecClient extends ExGameClient {
                 this.decreaseCooldownEqu('gun', 2, 'dec:bullet_bag');
                 this.decreaseCooldownEqu('catapult', 5, 'dec:stones_bag');
                 this.decreaseCooldownEqu('catapult', 13, 'dec:archer_stones_bag');
-                this.decreaseCooldownEqu('staff',4,'dec:magic_surge_core');
+                this.decreaseCooldownEqu('staff', 4, 'dec:magic_surge_core');
                 this.decreaseCooldownEqu('staff', 3, 'dec:alchemic_stone')
                 this.decreaseCooldownEqu('katana', 6, 'dec:fire_heart')
                 this.decreaseCooldownEqu('magic_book', 4, 'dec:herb_bag')
@@ -64,8 +64,8 @@ export default class DecClient extends ExGameClient {
                 this.decreaseCooldownEqu('missile', 7, 'dec:dust_ring')
             }
         });
-        this.getEvents().exEvents.afterItemUse.subscribe((e)=>{
-            if(e.itemStack.hasComponent('minecraft:cooldown')){
+        this.getEvents().exEvents.afterItemUse.subscribe((e) => {
+            if (e.itemStack.hasComponent('minecraft:cooldown')) {
                 //这里写有饰品时触发的东西
             }
         })
@@ -293,7 +293,7 @@ export default class DecClient extends ExGameClient {
             }*/
 
             if (scores.getScore('i_heavy') > 0) {//防末影珍珠的放function/global里的
-                p.runCommandAsync('tag @e[r=10,type=ender_pearl] add no_ender_pearl')
+                this.exPlayer.command.run('tag @e[r=10,type=ender_pearl] add no_ender_pearl')
             }
         });
 

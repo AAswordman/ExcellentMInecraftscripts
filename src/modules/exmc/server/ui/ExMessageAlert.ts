@@ -14,12 +14,12 @@ export default class ExMessageAlert {
 	}
 	button1(text:string, fun:()=>void) {
 		this._alert.button1(text);
-		this.buttonEvent[1] = (fun);
+		this.buttonEvent[0] = (fun);
 		return this;
 	}
 	button2(text:string, fun:()=>void) {
 		this._alert.button2(text);
-		this.buttonEvent[0] = (fun);
+		this.buttonEvent[1] = (fun);
 		return this;
 	}
 	show(player:Player) {
