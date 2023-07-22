@@ -14,6 +14,8 @@ import MonitorManager from "../../../modules/exmc/utils/MonitorManager.js";
 import ExSystem from '../../../modules/exmc/utils/ExSystem.js';
 import TickDelayTask from '../../../modules/exmc/utils/TickDelayTask.js';
 import ItemTagComponent from '../data/ItemTagComponent.js';
+import { ArmorData } from '../../../dec/server/items/ArmorData.js';
+import VarOnChangeListener from '../../../modules/exmc/utils/VarOnChangeListener.js';
 
 export default class PomTalentSystem extends GameController {
     strikeSkill = true;
@@ -40,7 +42,44 @@ export default class PomTalentSystem extends GameController {
     equiTotalTask: TickDelayTask | undefined;
 
     itemOnHandComp?: ItemTagComponent;
+    headComp?: ItemTagComponent;
+    chestComp?: ItemTagComponent;
+    legComp?: ItemTagComponent;
+    feetComp?: ItemTagComponent;
 
+    armor_movement_addition: [number, number, number] = [0, 0, 0];
+    armor_attack_addition = 0;
+    armor_protection: [number, number, number] = [0, 0, 0];
+
+    movement: [number, number, number] = [0.1, 0.1, 0.03];
+    movement_addition: [number, number, number] = [0, 0, 0];
+    attack_addition = 0;
+
+    movementChanger = new VarOnChangeListener((n, l) => {
+        if (n) {
+            this.exPlayer.triggerEvent("movement_" + MathUtil.round(MathUtil.clamp(this.movement[1] + this.movement_addition[1], 0, 0.2), 3));
+        } else {
+            this.exPlayer.triggerEvent("movement_" + MathUtil.round(MathUtil.clamp(this.movement[0] + this.movement_addition[0], 0, 0.2), 3));
+        }
+        this.exPlayer.triggerEvent("underwater_" + MathUtil.round(MathUtil.clamp(this.movement[2] + this.movement_addition[2], 0, 0.2), 3));
+    }, false);
+
+    armorUpdater = new VarOnChangeListener((n, l) => {
+        const bag = this.exPlayer.getBag();
+        const head = bag.equipmentOnHead, chest = bag.equipmentOnChest,
+            legs = bag.equipmentOnLegs, feet = bag.equipmentOnFeet;
+        if (head) this.headComp = new ItemTagComponent(ExItem.getInstance(head));
+        if (chest) this.chestComp = new ItemTagComponent(ExItem.getInstance(chest));
+        if (legs) this.legComp = new ItemTagComponent(ExItem.getInstance(legs));
+        if (feet) this.feetComp = new ItemTagComponent(ExItem.getInstance(feet));
+
+        this.updateArmorData();
+        this.updatePlayerAttribute();
+    }, "");
+
+    chooseArmor(a: ArmorData) {
+
+    }
     updateTalentRes() {
         this.talentRes.clear();
 
@@ -58,7 +97,63 @@ export default class PomTalentSystem extends GameController {
         //this.exPlayer.triggerEvent("hp:" + Math.round((20 + (this.talentRes.get(Talent.VIENTIANE) ?? 0))));
     }
 
+    //更新盔甲属性（在不换甲的情况下）
+    updateArmorData() {
+        this.headComp?.setGroup(this.headComp.dataGroupJudge(this.client));
+        this.chestComp?.setGroup(this.chestComp.dataGroupJudge(this.client));
+        this.legComp?.setGroup(this.legComp.dataGroupJudge(this.client));
+        this.feetComp?.setGroup(this.feetComp.dataGroupJudge(this.client));
+
+        this.attack_addition = (this.headComp?.getComponentWithGroup("attack_addition") ?? 0)
+            + (this.chestComp?.getComponentWithGroup("attack_addition") ?? 0)
+            + (this.legComp?.getComponentWithGroup("attack_addition") ?? 0)
+            + (this.feetComp?.getComponentWithGroup("attack_addition") ?? 0);
+        this.armor_movement_addition = (["movement_addition", "sneak_movement_addition", "underwater_movement_addition"] as any[])
+            .map(e =>
+                (this.headComp?.getComponentWithGroup(e) ?? 0)
+                + (this.chestComp?.getComponentWithGroup(e) ?? 0)
+                + (this.legComp?.getComponentWithGroup(e) ?? 0)
+                + (this.feetComp?.getComponentWithGroup(e) ?? 0)) as any;
+        this.armor_protection = (["armor_magic_protection", "armor_physical_protection", "armor_physical_reduction"] as any[])
+            .map(e =>
+                (this.headComp?.getComponentWithGroup(e) ?? 0)
+                + (this.chestComp?.getComponentWithGroup(e) ?? 0)
+                + (this.legComp?.getComponentWithGroup(e) ?? 0)
+                + (this.feetComp?.getComponentWithGroup(e) ?? 0)) as any;
+    }
+
+    //更新玩家属性（不改变手持）
+    updatePlayerAttribute() {
+        //攻击还没写
+
+        //保护
+        this.exPlayer.triggerEvent(`damage_senser:mg_${MathUtil.clamp(Math.round(this.armor_protection[0] / 2) * 2, 0, 60)
+            }_ph_${MathUtil.clamp(Math.round(this.armor_protection[1] / 2) * 2, 0, 60)
+            }_ph2_${MathUtil.clamp(Math.round(this.armor_protection[2]), 0, 4)
+            }`);
+
+        //速度
+        this.movement_addition[0] = this.armor_movement_addition[0] + (this.itemOnHandComp?.getComponentWithGroup("movement_addition") ?? 0)
+        this.movement_addition[1] = this.armor_movement_addition[1] + (this.itemOnHandComp?.getComponentWithGroup("sneak_movement_addition") ?? 0)
+        this.movement_addition[2] = this.armor_movement_addition[2] + (this.itemOnHandComp?.getComponentWithGroup("underwater_movement_addition") ?? 0)
+        this.movementChanger.force();
+    }
+
+
     onJoin(): void {
+        this.getEvents().exEvents.onLongTick.subscribe(e => {
+            if (e.currentTick % 20 === 0) {
+                const bag = this.exPlayer.getBag();
+                const head = bag.equipmentOnHead, chest = bag.equipmentOnChest,
+                    legs = bag.equipmentOnLegs, feet = bag.equipmentOnFeet;
+
+                this.armorUpdater.upDate(head?.typeId + "|" + chest?.typeId + "|" + legs?.typeId + "|" + feet?.typeId);
+            }
+        });
+        this.getEvents().exEvents.tick.subscribe(e => {
+            this.movementChanger.upDate(this.player.isSneaking);
+        });
+
 
         this.getEvents().exEvents.afterPlayerHitEntity.subscribe((e) => {
             let item = this.exPlayer.getBag().itemOnMainHand;
@@ -130,8 +225,8 @@ export default class PomTalentSystem extends GameController {
                     base.push("§r§7•移动速度§6+" + comp.getComponentWithGroup("movement_addition"));
 
                     if (comp.hasComponent("sneak_movement_addition"))
-                        base[base.length - 1] += ("§r§7 | 潜行移速" + (smove < 0 ? "§4" + smove : "§6+" + smove));
-                } else if (comp.hasComponent("sneak_movement_addition")) base.push("§r§7•潜行移速" + (smove < 0 ? "§4" + smove : "§6+" + smove));
+                        base[base.length - 1] += ("§r§7 | 潜行移速" + (smove < 0 ? "§c" + smove : "§6+" + smove));
+                } else if (comp.hasComponent("sneak_movement_addition")) base.push("§r§7•潜行移速" + (smove < 0 ? "§c" + smove : "§6+" + smove));
                 if (comp.hasComponent("equipment_type")) {
                     if (e.afterItem.typeId.startsWith("dec:")) {
                         base.push("§r§7•在主手时: +40％§7攻击伤害");
@@ -181,10 +276,54 @@ export default class PomTalentSystem extends GameController {
                 }
             } else {
                 this.equiTotalTask?.stop();
+                this.itemOnHandComp = undefined;
             }
+            this.updatePlayerAttribute();
             this.exPlayer.triggerEvent("hp:" + Math.round((20 + (this.talentRes.get(Talent.VIENTIANE) ?? 0))));
         });
+
+        let testCauseDamage = 0;
+        let testRoundDamage = 0;
+        let testBeDamaged = 0;
+        let delay = 0;
+        this.getEvents().exEvents.beforeChatSend.subscribe(data => {
+            if (data.message.startsWith(">/_debugger")) {
+                if (!this.debugger) {
+                    this.debugger = true;
+                    this.client.magicSystem.registActionbarPass("debugger");
+                    this.hasBeenDamaged.addMonitor(e => {
+                        testBeDamaged += e;
+                    });
+                    this.hasCauseDamage.addMonitor(e => {
+                        testCauseDamage += e;
+                    });
+                    this.getEvents().exEvents.onLongTick.subscribe(e => {
+                        delay += e.deltaTime;
+                        const nArr: string[] = [
+                            `造成伤害: ` + testCauseDamage,
+                            `造成秒伤: ` + testCauseDamage/delay,
+                            `被伤害: ` + testBeDamaged,
+                            `被秒伤害: ` + testBeDamaged/delay,
+                            `周围伤害采集: ` + testRoundDamage
+                        ];
+                        this.client.magicSystem.setActionbarByPass("debugger", nArr);
+                    });
+                    this.client.getServer().getEvents().events.afterEntityHurt.subscribe(e => {
+                        console.warn(this.exPlayer.position.sub(e.hurtEntity.location).len());
+                        if (this.exPlayer.position.sub(e.hurtEntity.location).len() < 16) {
+                            testRoundDamage += e.damage;
+                        }
+                    });
+                }else{
+                    testBeDamaged = 0;
+                    testCauseDamage = 0;
+                    testRoundDamage = 0;
+                }
+            }
+        });
+
     }
+    debugger = false;
     hasBeenDamaged = new MonitorManager<[number, Entity | undefined]>();
     hasCauseDamage = new MonitorManager<[number, Entity]>();
 
@@ -204,5 +343,7 @@ export default class PomTalentSystem extends GameController {
         this.skillLoop.stop();
         this.equiTotalTask?.stop();
     }
+
+
 
 }

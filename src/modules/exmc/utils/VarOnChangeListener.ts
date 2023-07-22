@@ -12,4 +12,7 @@ export default class VarOnChangeListener<T>{
             this.trigger(v,last);
         }
     }
+    force(){
+        this.trigger(this.value,this.value);
+    }
 }

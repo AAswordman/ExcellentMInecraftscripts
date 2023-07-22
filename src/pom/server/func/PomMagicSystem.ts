@@ -77,7 +77,7 @@ export default class PomMagicSystem extends GameController {
 
         this.exPlayer.titleActionBar(arr.join("\n§r"));
 
-    }).delay(10);
+    }).delay(5);
 
 
     onJoin(): void {

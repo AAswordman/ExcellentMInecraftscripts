@@ -29,6 +29,7 @@ export default class PomMagicStoneBoss extends PomBossController {
         }
         this.server.say({ rawtext: [{ translate: "text.wb:defeat_magic_stoneman.name" }] });
 
+        
         console.warn("onWin");
         this.stopBarrier();
         super.onKilled(e);

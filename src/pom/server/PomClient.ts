@@ -25,6 +25,7 @@ import SimpleItemUseFunc from "./func/SimpleItemUseFunc.js";
 import WarningAlertUI from "./ui/WarningAlertUI.js";
 import TickDelayTask from "../../modules/exmc/utils/TickDelayTask.js";
 import EntityPropCache from "../../modules/exmc/server/storage/cache/EntityPropCache.js";
+import { ArmorData } from "../../dec/server/items/ArmorData.js";
 
 
 
@@ -179,5 +180,8 @@ export default class PomClient extends ExGameClient<PomTransmission> {
     progressTaskFinish(name: string, damage: number): void {
         this.taskSystem.progressTaskFinish(name, damage);
     }
-
+    @receiveMessage("chooseArmor")
+    chooseArmor(a:ArmorData){
+        this.talentSystem.chooseArmor(a);
+    }
 }

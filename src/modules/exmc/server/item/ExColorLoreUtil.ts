@@ -32,10 +32,10 @@ export default class ExColorLoreUtil{
     }
     delete(name:string){
         this.lore.delete("§r§l" + name);
-        this.lore.delete("§r§6§6" + name);
+        this.lore.delete("§r§b" + name);
     }
     search(name:string){
-        return this.lore.search("§r§l" + name) || this.lore.search("§r§6§6" + name);
+        return this.lore.search("§r§l" + name) || this.lore.search("§r§b" + name);
     }
     setTags(str:string[]){
         this.lore.setTags(str);

@@ -19,4 +19,7 @@ export default class MathUtil {
         let length = Math.floor(Math.random() * (max - min + 1));
         return min + length;
     }
+    static round(x:number,n:number){
+        return Math.round(x*(10**n))/(10**n);
+    }
 }

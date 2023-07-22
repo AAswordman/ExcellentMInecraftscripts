@@ -16,6 +16,7 @@ import GlobalScoreBoardCache from "../../modules/exmc/server/storage/cache/Globa
 import { Objective } from "../../modules/exmc/server/entity/ExScoresManager.js";
 import Random from "../../modules/exmc/utils/Random.js";
 import { MinecraftEffectTypes } from "../../modules/vanilla-data/lib/index.js";
+import PomClient from "../../pom/server/PomClient.js";
 
 
 export default class DecClient extends ExGameClient {
@@ -351,6 +352,7 @@ export default class DecClient extends ExGameClient {
     }
     chooseArmor(a: ArmorData | undefined) {
         this.useArmor = a;
+        ExGame.postMessageBetweenClient(this, PomServer, "chooseArmor", [a]);
     }
 
     override onLoaded(): void {

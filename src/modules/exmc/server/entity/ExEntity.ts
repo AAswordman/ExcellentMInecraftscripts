@@ -126,6 +126,7 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         return new ExScoresManager(this._entity);
     }
     triggerEvent(name: string) {
+        // console.warn(name+' trigger event');
         this._entity.triggerEvent(name);
     }
 

@@ -222,6 +222,8 @@ BunBun不是笨笨    在矿里的小金呀
                         let scores = ExPlayer.getInstance(source).getScoresManager();
                         let msg = [`   ${lang.menuUIMsgBailan94}: ${client.gameId}`,
                         `   ${lang.menuUIMsgBailan96}: ${scores.getScore("wbfl")}`,
+                        `   ${`物理防御`}: ${MathUtil.clamp(Math.round(client.talentSystem.armor_protection[0] / 2) * 2, 0, 60)} + ${MathUtil.clamp(Math.round(client.talentSystem.armor_protection[2]), 0, 4)}`,
+                        `   ${`魔法防御`}: ${MathUtil.clamp(Math.round(client.talentSystem.armor_protection[1] / 2) * 2, 0, 60)}`,
                         `   ${lang.menuUIMsgBailan97}: ${scores.getScore("wbwqlq")}`,
                         `   ${lang.menuUIMsgBailan98}: ${scores.getScore("wbkjlqcg")}`,
                         `   ${lang.menuUIMsgBailan99}: ${source.hasTag("wbmsyh") ? lang.menuUIMsgBailan15 : lang.menuUIMsgBailan16}`,
