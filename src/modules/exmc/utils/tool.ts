@@ -10,3 +10,9 @@ export function falseIfError<T>(func: () => T) {
         return false;
     }
 }
+
+export type ExTend<T> = Menu extends (infer I)[] ?
+    (I extends object ? I & { active: boolean } : I)[] :
+    never
+export type AlsoInstanceType<T extends { prototype: any }> =
+    T["prototype"];

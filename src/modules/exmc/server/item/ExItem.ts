@@ -1,60 +1,34 @@
 import { ItemDurabilityComponent, ItemEnchantsComponent, ItemStack } from "@minecraft/server";
 import ExLoreManager from "../../interface/ExLoreManager.js";
 import ExTagManager from "../../interface/ExTagManager.js";
+import { AlsoInstanceType } from "../../utils/tool.js";
+if (ItemStack.prototype === undefined) ItemStack.prototype = {} as any;
 
-export default class ExItem implements ExLoreManager, ExTagManager {
-    getItem(): ItemStack {
-        return this._item;
-    }
-    static propertyNameCache = "exCache";
+const compId = {
+    [ItemDurabilityComponent.componentId]: ItemDurabilityComponent,
+    [ItemEnchantsComponent.componentId]: ItemEnchantsComponent
+};
+type CompId = typeof compId;
 
-    private _item: ItemStack;
-    constructor(item: ItemStack) {
-        this._item = item;
-    }
-    getTags(): string[] {
-        return this._item.getTags();
-    }
-    addTag(tag: string): string {
-        throw new Error("cant add tag");
-
-    }
-    hasTag(tag: string): boolean {
-        return this._item.hasTag(tag);
-    }
-    removeTag(tag: string): string {
-        throw new Error("cant remove tag");
-    }
-    static getInstance(source: ItemStack): ExItem {
-        let item = <any>source;
-        if (this.propertyNameCache in item) {
-            return item[this.propertyNameCache];
-        }
-        return (item[this.propertyNameCache] = new ExItem(item));
-    }
-    getLore(): string[] {
-        return this._item.getLore() ?? [];
-    }
-    setLore(lore: string[]) {
-        if (lore.indexOf(" ") !== -1) lore.splice(lore.indexOf(" "), 1);
-        this._item.setLore(lore.length == 0 ? [Math.random() > 0.9 ? "mojang nmsl" : " "] : lore);
-    }
-    getComponent(str: string) {
-        return this._item.getComponent(str);
-    }
-    hasComponent(str: string) {
-        return this._item.hasComponent(str);
-    }
-    getEnchantsComponent(): ItemEnchantsComponent {
-        return <ItemEnchantsComponent>this.getComponent(ItemEnchantsComponent.componentId);
-    }
-    hasEnchantsComponent() {
-        return this.hasComponent(ItemEnchantsComponent.componentId);
-    }
-    getItemDurabilityComponent(): ItemDurabilityComponent {
-        return <ItemDurabilityComponent>this.getComponent(ItemDurabilityComponent.componentId);
-    }
-    hasItemDurabilityComponent() {
-        return this.hasComponent(ItemDurabilityComponent.componentId);
+declare module "@minecraft/server" {
+    export interface ItemStack extends ExLoreManager, ExTagManager {
+        addTag(tag: string): string;
+        removeTag(tag: string): string;
+        getComponentById<T extends keyof CompId>(key: T): AlsoInstanceType<CompId[T]> | undefined;
+        hasComponentById<T extends keyof CompId>(key: T): boolean;
     }
 }
+Object.assign(ItemStack.prototype, {
+    addTag: function (tag: string): string {
+        throw new Error("cant add tag");
+    },
+    removeTag: function (tag: string): string {
+        throw new Error("cant remove tag");
+    },
+    hasComponentById<T extends keyof CompId>(key: T): boolean {
+        return (this as ItemStack).hasComponent(key);
+    },
+    getComponentById<T extends keyof CompId>(key: T) {
+        return (this as ItemStack).getComponent(key);
+    }
+});

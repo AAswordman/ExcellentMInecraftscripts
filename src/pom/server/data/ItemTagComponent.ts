@@ -9,6 +9,7 @@ export class ItemTagComponentGroup<T>{
 const itemTagComponentType = {
     use_data_group: [new ItemTagComponentGroup<string[]>("", [])],
     armor_protection: [0],
+    armor_resilience: [0],
     armor_physical_protection: [0],
     armor_magic_protection: [0],
     armor_physical_reduction: [0],

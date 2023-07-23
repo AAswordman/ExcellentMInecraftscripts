@@ -3,7 +3,7 @@ import MathUtil from "../../../modules/exmc/math/MathUtil.js";
 import ExEntity from "../../../modules/exmc/server/entity/ExEntity.js";
 import ExPlayer from "../../../modules/exmc/server/entity/ExPlayer.js";
 import ExColorLoreUtil from "../../../modules/exmc/server/item/ExColorLoreUtil.js";
-import ExItem from "../../../modules/exmc/server/item/ExItem.js";
+import "../../../modules/exmc/server/item/ExItem.js";
 import { decodeUnicode } from "../../../modules/exmc/utils/Unicode.js";
 import TalentData, { Occupation, Talent } from "../cache/TalentData.js";
 import isEquipment from "../items/isEquipment.js";
@@ -68,10 +68,11 @@ export default class PomTalentSystem extends GameController {
         const bag = this.exPlayer.getBag();
         const head = bag.equipmentOnHead, chest = bag.equipmentOnChest,
             legs = bag.equipmentOnLegs, feet = bag.equipmentOnFeet;
-        if (head) this.headComp = new ItemTagComponent(ExItem.getInstance(head));
-        if (chest) this.chestComp = new ItemTagComponent(ExItem.getInstance(chest));
-        if (legs) this.legComp = new ItemTagComponent(ExItem.getInstance(legs));
-        if (feet) this.feetComp = new ItemTagComponent(ExItem.getInstance(feet));
+        this.headComp = undefined, this.chestComp = undefined, this.legComp = undefined, this.feetComp = undefined;
+        if (head) this.headComp = new ItemTagComponent(head);
+        if (chest) this.chestComp = new ItemTagComponent(chest);
+        if (legs) this.legComp = new ItemTagComponent(legs);
+        if (feet) this.feetComp = new ItemTagComponent(feet);
 
         this.updateArmorData();
         this.updatePlayerAttribute();
@@ -80,6 +81,10 @@ export default class PomTalentSystem extends GameController {
     chooseArmor(a: ArmorData) {
 
     }
+    calculateExemptionByData(protection: number, resilience: number) {
+        return -(4 * protection * resilience) / (resilience + 8) / (protection - 125);
+    }
+
     updateTalentRes() {
         this.talentRes.clear();
 
@@ -120,16 +125,22 @@ export default class PomTalentSystem extends GameController {
                 + (this.chestComp?.getComponentWithGroup(e) ?? 0)
                 + (this.legComp?.getComponentWithGroup(e) ?? 0)
                 + (this.feetComp?.getComponentWithGroup(e) ?? 0)) as any;
+        const dataList: [number, number] = (["armor_protection", "armor_resilience"] as any[])
+            .map(e =>
+                (this.headComp?.getComponentWithGroup(e) ?? 0)
+                + (this.chestComp?.getComponentWithGroup(e) ?? 0)
+                + (this.legComp?.getComponentWithGroup(e) ?? 0)
+                + (this.feetComp?.getComponentWithGroup(e) ?? 0)) as any;
+        this.armor_protection[1] = 100 * (1 - (1 - this.armor_protection[1] / 100) * (1 - this.calculateExemptionByData(...dataList)));
     }
 
     //更新玩家属性（不改变手持）
     updatePlayerAttribute() {
         //攻击还没写
-
         //保护
-        this.exPlayer.triggerEvent(`damage_senser:mg_${MathUtil.clamp(Math.round(this.armor_protection[0] / 2) * 2, 0, 60)
-            }_ph_${MathUtil.clamp(Math.round(this.armor_protection[1] / 2) * 2, 0, 60)
-            }_ph2_${MathUtil.clamp(Math.round(this.armor_protection[2]), 0, 4)
+        this.exPlayer.triggerEvent(`damage_senser:mg_${MathUtil.clamp(Math.round(this.armor_protection[0] / 4) * 4, 0, 80)
+            }_ph_${MathUtil.clamp(Math.round(this.armor_protection[1] / 2) * 2, 0, 100)
+            }_ph2_${MathUtil.clamp(Math.round(this.armor_protection[2]), 0, 3)
             }`);
 
         //速度
@@ -172,7 +183,7 @@ export default class PomTalentSystem extends GameController {
             let SUDDEN_STRIKE = this.talentRes.get(Talent.SUDDEN_STRIKE) ?? 0;
             if (item) {
                 if (item.typeId.startsWith("dec:")) damageFac += 0.4;
-                let lore = new ExColorLoreUtil(ExItem.getInstance(item));
+                let lore = new ExColorLoreUtil(item);
             }
             if (this.strikeSkill) {
                 if (this.data.talent.occupation.id === Occupation.ASSASSIN.id) this.skillLoop.startOnce();
@@ -208,11 +219,11 @@ export default class PomTalentSystem extends GameController {
                 const lore = new ExColorLoreUtil(e.afterItem);
                 //TalentData.calculateTalentToLore(this.data.talent.talents, this.data.talent.occupation, ExItem.getInstance(e.afterItem), this.getLang());
 
-                let comp = new ItemTagComponent(ExItem.getInstance(e.afterItem));
+                let comp = new ItemTagComponent(e.afterItem);
                 comp.setGroup(comp.dataGroupJudge(this.client));
                 let base: string[] = [];
                 if (comp.hasComponent("actual_level")) base.push(`§r§e基础属性` + "  §r§6LV." + comp.getComponentWithGroup("actual_level"));
-                if (comp.hasComponent("armor_protection")) base.push("§r§7•护甲值§6+" + comp.getComponentWithGroup("movement_addition"));
+                if (comp.hasComponent("armor_protection")) base.push("§r§7•护甲值§6+" + comp.getComponentWithGroup("movement_addition") + "§r§7 | 护甲韧性§6+" + comp.getComponentWithGroup("armor_resilience") ?? 0);
 
                 if (comp.hasComponent("armor_type")) {
                     //let typeMsg = comp.getComponentWithGroup("armor_type");
@@ -301,9 +312,9 @@ export default class PomTalentSystem extends GameController {
                         delay += e.deltaTime;
                         const nArr: string[] = [
                             `造成伤害: ` + testCauseDamage,
-                            `造成秒伤: ` + testCauseDamage/delay,
+                            `造成秒伤: ` + testCauseDamage / delay,
                             `被伤害: ` + testBeDamaged,
-                            `被秒伤害: ` + testBeDamaged/delay,
+                            `被秒伤害: ` + testBeDamaged / delay,
                             `周围伤害采集: ` + testRoundDamage
                         ];
                         this.client.magicSystem.setActionbarByPass("debugger", nArr);
@@ -314,7 +325,7 @@ export default class PomTalentSystem extends GameController {
                             testRoundDamage += e.damage;
                         }
                     });
-                }else{
+                } else {
                     testBeDamaged = 0;
                     testCauseDamage = 0;
                     testRoundDamage = 0;

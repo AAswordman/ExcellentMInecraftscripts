@@ -1,27 +1,39 @@
-import { Block, world, BlockType } from '@minecraft/server';
+import { Block, world, BlockType, MinecraftBlockTypes } from '@minecraft/server';
 import ExDimension from '../ExDimension.js';
 import Vector3 from "../../math/Vector3.js";
+import { AlsoInstanceType } from '../../utils/tool.js';
 
+if (Block.prototype === undefined) Block.prototype = {} as any;
 
-export default class ExBlock{
-	private _block: Block;
-	constructor(block: Block) {
-		this._block = block;
-	}
+const compId = {
 
-	static propertyNameCache = "exCache";
-	static getInstance(source: Block): ExBlock {
-		let block = <any>source;
-		if (this.propertyNameCache in block) {
-			return block[this.propertyNameCache];
-		}
-		return (block[this.propertyNameCache] = new ExBlock(block));
-	}
+};
+type CompId = typeof compId;
 
-	getPosition(){
-		return new Vector3(this._block);
-	}
-	transTo(blockId:string){
-		ExDimension.getInstance(this._block.dimension).setBlock(this.getPosition(),blockId);
-	}
+declare module "@minecraft/server" {
+    export interface Block {
+        addTag(tag: string): string;
+        removeTag(tag: string): string;
+        getComponentById<T extends keyof CompId>(key: T): AlsoInstanceType<CompId[T]> | undefined;
+        get position(): Vector3;
+        transTo(blockId: string | BlockType): void;
+    }
 }
+Object.assign(Block.prototype, {
+    addTag: function (tag: string): string {
+        throw new Error("cant add tag");
+    },
+    removeTag: function (tag: string): string {
+        throw new Error("cant remove tag");
+    },
+    getComponentById<T extends keyof CompId>(key: T) {
+        return (this as unknown as Block).getComponent(key);
+    },
+    get position() {
+        return new Vector3(this);
+    },
+    transTo(blockId: string | BlockType) {
+        (this as unknown as Block).dimension.getBlock(this as unknown as Block)
+            ?.setType(typeof blockId === "string" ? MinecraftBlockTypes.get(blockId) : blockId);
+    }
+});
