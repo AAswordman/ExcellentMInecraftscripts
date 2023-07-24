@@ -314,7 +314,7 @@ export default class DecClient extends ExGameClient {
         this.getEvents().exEvents.onLongTick.subscribe(e => {
             if (e.currentTick % 20 === 0) {
                 //盔甲选择
-                if (this.checkArmor()) {
+                if (!this.checkArmor()) {
                     //非空
                     if (!this.exPlayer.detectAnyArmor()) {
                         let armors;
@@ -323,13 +323,20 @@ export default class DecClient extends ExGameClient {
                         } else {
                             armors = ArmorPlayerPom;
                         }
+                        let flag = true;
                         for (let a in armors) {
                             const armor = ((armors as any)[a] as ArmorData)
                             if (armor.detect(this.exPlayer)) {
                                 this.chooseArmor(armor);
+                                flag = false;
                                 break;
                             }
                         }
+                        if (flag) {
+                            this.chooseArmor(undefined);
+                        }
+                    } else {
+                        this.chooseArmor(undefined);
                     }
                 }
 

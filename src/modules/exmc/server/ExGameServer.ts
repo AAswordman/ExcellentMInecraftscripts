@@ -18,6 +18,7 @@ import { eventDecoratorFactory, registerEvent } from "./events/eventDecoratorFac
 import notUtillTask from "../utils/notUtillTask.js";
 import ExSound from "./env/ExSound.js";
 import { ExEventNames, TickEvent } from "./events/events.js";
+import { falseIfError } from "../utils/tool.js";
 
 
 export default class ExGameServer implements SetTimeOutSupport {
@@ -69,6 +70,7 @@ export default class ExGameServer implements SetTimeOutSupport {
 
     @registerEvent(ExEventNames.afterEntitySpawn)
     onEntitySpawn(e: EntitySpawnAfterEvent) {
+        if(!falseIfError(() => (e.entity.typeId))) return;
         let id;
         try { id = e.entity.typeId } catch (e) { return; }
         const entityConstructor = this.entityControllers.get(e.entity.typeId);
