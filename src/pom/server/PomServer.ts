@@ -10,7 +10,6 @@ import ExEntity from '../../modules/exmc/server/entity/ExEntity.js';
 import ExPlayer from '../../modules/exmc/server/entity/ExPlayer.js';
 import { Objective } from "../../modules/exmc/server/entity/ExScoresManager.js";
 import { registerEvent } from '../../modules/exmc/server/events/eventDecoratorFactory.js';
-import ExGameVector3 from '../../modules/exmc/server/math/ExGameVector3.js';
 import Random from "../../modules/exmc/utils/Random.js";
 import TickDelayTask from '../../modules/exmc/utils/TickDelayTask.js';
 import TimeLoopTask from "../../modules/exmc/utils/TimeLoopTask.js";

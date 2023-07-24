@@ -81,7 +81,6 @@ export default class ItemTagComponent {
                 if (client.exPlayer.hasTag(i)) return c;
                 c++;
             }
-
         } else if (this.groupBasedOn === "occupation") {
             let c = 0;
             for (let i of Occupation.keys) {
