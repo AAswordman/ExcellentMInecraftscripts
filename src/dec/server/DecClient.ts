@@ -29,7 +29,7 @@ export default class DecClient extends ExGameClient {
     }
 
     tmpV = new Vector3(0, 0, 0);
-    globalscores = new GlobalScoreBoardCache(new Objective("global"));
+    globalscores = new GlobalScoreBoardCache(new Objective("global"),false);
     decreaseCooldownEqu(itemCategory: string, tickDecrease: number, equipmentTest: string) {
         const item = this.exPlayer.getBag().itemOnOffHand;
         if (

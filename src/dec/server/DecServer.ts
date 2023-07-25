@@ -25,6 +25,8 @@ import { decTreeStructure } from './data/structure/decTreeStructure.js';
 import { MinecraftEffectTypes } from '../../modules/vanilla-data/lib/index.js';
 import DecNukeController from './entities/DecNukeController.js';
 import ExNullEntity from '../../modules/exmc/server/entity/ExNullEntity.js';
+import GlobalScoreBoardCache from '../../modules/exmc/server/storage/cache/GlobalScoreBoardCache.js';
+import MathUtil from '../../modules/exmc/math/MathUtil.js';
 
 
 export default class DecServer extends ExGameServer {
@@ -36,6 +38,8 @@ export default class DecServer extends ExGameServer {
 
     nightEventListener: VarOnChangeListener<boolean>;
     tmpV = new Vector3();
+    globalscores = new GlobalScoreBoardCache(new Objective("global"), false);
+
     //test
     compress = [""];
 
@@ -44,6 +48,7 @@ export default class DecServer extends ExGameServer {
 
         this.i_inviolable = new Objective("i_inviolable").create("i_inviolable");
         this.i_damp = new Objective("i_damp").create("i_damp");
+
         this.i_soft = new Objective("i_soft").create("i_soft");
         this.i_heavy = new Objective("i_heavy").create("i_heavy");
         this.bullet_type = new Objective("bullet_type").create("bullet_type");
@@ -51,16 +56,16 @@ export default class DecServer extends ExGameServer {
         this.nightEventListener = new VarOnChangeListener(e => {
             if (e) {
                 // is night
-                this.getExDimension(MinecraftDimensionTypes.overworld).command.run([
-                    "scoreboard players random NightRandom global 1 100",
-                    "scoreboard players set IsDay global 0",
-                    "scoreboard players set IsNight global 1"
-                ]);
+                if (this.globalscores.getNumber("NightRandom") === 0) {
+                    this.globalscores.setNumber("NightRandom", MathUtil.randomInteger(1, 100));
+                    this.globalscores.setNumber("IsDay", 0);
+                    this.globalscores.setNumber("IsNight", 1);
+                }
             } else {
+                this.globalscores.setNumber("NightRandom", 0);
+                this.globalscores.setNumber("IsDay", 1);
+                this.globalscores.setNumber("IsNight", 0);
                 this.getExDimension(MinecraftDimensionTypes.overworld).command.run([
-                    "scoreboard players set IsDay global 1",
-                    "scoreboard players set IsNight global 0",
-                    "scoreboard players set NightRandom global 0",
                     "fog @a remove \"night_event\""
                 ]);
             }
@@ -233,33 +238,37 @@ export default class DecServer extends ExGameServer {
                 "scoreboard players remove @e[scores={harmless=1..}] harmless 1"
             ]);
 
-            let night_event_n = new ExNullEntity('NightRandom')
-            let night_event = night_event_n.getScoresManager().getScore('global')
-            function nightEvent(fog: string, eventEntity: string, maxSpawn: number) {
-                world.getDimension('overworld').runCommandAsync('fog @a[tag=dOverworld] push ' + fog + ' "night_event"')
-                world.getDimension('overworld').runCommandAsync('execute at @a[tag=dOverworld,c=' + maxSpawn.toString() + '] run summon ' + eventEntity + ' ~~~')
+            let night_event = this.globalscores.getNumber("NightRandom");
+            const nightEvent = (fog: string, eventEntity: string, maxSpawn: number) => {
+                this.getExDimension('overworld').command.run(['fog @a[tag=dOverworld] push ' + fog + ' "night_event"']);
+                let i = 0;
+                for (let p of this.getExDimension('overworld').getPlayers()) {
+                    if (i >= maxSpawn) break;
+                    this.getExDimension('overworld').spawnEntity(eventEntity, p.location);
+                    i += 1;
+                }
             }
             if (e.currentTick % 400 === 0) {
                 switch (night_event) {
                     case 1:
                         //尸潮
-                        nightEvent('dec:event_zombie_wave','dec:event_zombie_wave',6)
+                        nightEvent('dec:event_zombie_wave', 'dec:event_zombie_wave', 6)
                         break;
                     case 2:
                         //骷髅夜
-                        nightEvent('dec:event_skeleton_wave','dec:event_skeleton_wave',6)
+                        nightEvent('dec:event_skeleton_wave', 'dec:event_skeleton_wave', 6)
                         break;
                     case 3:
                         //暗影之夜
-                        nightEvent('dec:event_shadow_night','dec:event_shadow_night',3)
+                        nightEvent('dec:event_shadow_night', 'dec:event_shadow_night', 3)
                         break;
                     case 5:
                         //万圣夜
-                        nightEvent('dec:event_halloween','dec:event_halloween',7)
+                        nightEvent('dec:event_halloween', 'dec:event_halloween', 7)
                         break;
                     case 6:
                         //寂静之夜
-                        nightEvent('dec:event_silent_night','dec:event_silent_night',2)
+                        nightEvent('dec:event_silent_night', 'dec:event_silent_night', 2)
                         break;
                 }
             }
@@ -267,7 +276,7 @@ export default class DecServer extends ExGameServer {
                 switch (night_event) {
                     case 4:
                         //寒潮
-                        nightEvent('dec:event_cold_wave','dec:event_cold_wave',7)
+                        nightEvent('dec:event_cold_wave', 'dec:event_cold_wave', 7)
                         break;
                 }
             }

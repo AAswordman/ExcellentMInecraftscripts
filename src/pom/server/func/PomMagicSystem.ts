@@ -11,6 +11,7 @@ export default class PomMagicSystem extends GameController {
 
 
     additionHealthShow = false;
+    healthShow = true;
     additionHealth = 40;
     gameHealth = 40;
     scoresManager = this.exPlayer.getScoresManager();
@@ -44,6 +45,7 @@ export default class PomMagicSystem extends GameController {
     actionbarShow = ExSystem.tickTask(() => {
         let fromData: [string, number, boolean, boolean, string][] = [
             [PomMagicSystem.AdditionHPChar, this.additionHealth / 100, true, this.additionHealthShow, "HP"],
+            [PomMagicSystem.AdditionHPChar, this.gameHealth / 100, true, this.healthShow, "HP"],
             [PomMagicSystem.wbflChar, this.scoresManager.getScore("wbfl") / 200, true, true, "MP"],
             [PomMagicSystem.weaponCoolingChar, this.scoresManager.getScore("wbwqlq") / 20, false, true, "CD"],
             [PomMagicSystem.armorCoolingChar, this.scoresManager.getScore("wbkjlqcg") / 20, false, true, "CD"]];
