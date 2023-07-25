@@ -239,7 +239,7 @@ export default class DecServer extends ExGameServer {
                 world.getDimension('overworld').runCommandAsync('fog @a[tag=dOverworld] push ' + fog + ' "night_event"')
                 world.getDimension('overworld').runCommandAsync('execute at @a[tag=dOverworld,c=' + maxSpawn.toString() + '] run summon ' + eventEntity + ' ~~~')
             }
-            if (e.currentTick % 80 === 0) {
+            if (e.currentTick % 400 === 0) {
                 switch (night_event) {
                     case 1:
                         //尸潮
@@ -263,7 +263,7 @@ export default class DecServer extends ExGameServer {
                         break;
                 }
             }
-            if (e.currentTick % 40 === 0) {
+            if (e.currentTick % 200 === 0) {
                 switch (night_event) {
                     case 4:
                         //寒潮
