@@ -48,6 +48,7 @@ export default class DecClient extends ExGameClient {
     }
     override onJoin(): void {
         super.onJoin();
+        this.player.runCommandAsync('fog @a remove \"night_event\"')
         this.getEvents().exEvents.onLongTick.subscribe((e) => {
             if (e.currentTick % 40 === 0) {
                 this.totemEffect('dec:gingerbread_totem', ['function item/gingerbread_totem']);
