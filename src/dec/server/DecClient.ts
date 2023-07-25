@@ -1,4 +1,4 @@
-import { EffectType, EntityHealthComponent, MinecraftDimensionTypes, Player, world } from "@minecraft/server";
+import { EffectType, EntityHealthComponent, EquipmentSlot, MinecraftDimensionTypes, Player, world } from "@minecraft/server";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import ExGameServer from "../../modules/exmc/server/ExGameServer.js";
 import { ArmorData, ArmorPlayerDec, ArmorPlayerPom } from "./items/ArmorData.js";
@@ -17,6 +17,8 @@ import { Objective } from "../../modules/exmc/server/entity/ExScoresManager.js";
 import Random from "../../modules/exmc/utils/Random.js";
 import { MinecraftEffectTypes } from "../../modules/vanilla-data/lib/index.js";
 import PomClient from "../../pom/server/PomClient.js";
+import ExPlayerBag from '../../modules/exmc/server/entity/ExPlayerBag';
+import ExPlayer from '../../modules/exmc/server/entity/ExPlayer';
 
 
 export default class DecClient extends ExGameClient {
@@ -35,11 +37,27 @@ export default class DecClient extends ExGameClient {
             this.player.startItemCooldown(itemCategory, Math.max(this.player.getItemCooldown(itemCategory) - tickDecrease, 0))
         }
     }
+    totemEffect(equipmentTest: string, commands: Array<string>) {
+        const item_main = this.exPlayer.getBag().itemOnMainHand;
+        const item_off = this.exPlayer.getBag().itemOnOffHand;
+        if (item_main?.typeId == equipmentTest || item_off?.typeId == equipmentTest) {
+            for (let c of commands) {
+                this.player.runCommandAsync(c)
+            }
+        }
+    }
     override onJoin(): void {
         super.onJoin();
-        //副手效果
         this.getEvents().exEvents.onLongTick.subscribe((e) => {
+            if (e.currentTick % 40 === 0) {
+                this.totemEffect('dec:gingerbread_totem', ['function item/gingerbread_totem']);
+            };
+            if (e.currentTick % 120 === 0) {
+                this.totemEffect('dec:ocean_totem', ['function item/ocean_totem']);
+                this.totemEffect('dec:fire_totem', ['function item/fire_totem']);
+            };
             if (e.currentTick % 4 === 0) {
+                this.totemEffect('dec:energy_totem', ['function item/energy_totem']);
                 this.decreaseCooldownEqu('gun', 9, 'dec:archer_bullet_bag');
                 this.decreaseCooldownEqu('gun', 7, 'dec:lava_bullet_bag');
                 this.decreaseCooldownEqu('gun', 4, 'dec:blood_bullet_bag');
@@ -49,19 +67,19 @@ export default class DecClient extends ExGameClient {
                 this.decreaseCooldownEqu('catapult', 5, 'dec:stones_bag');
                 this.decreaseCooldownEqu('catapult', 13, 'dec:archer_stones_bag');
                 this.decreaseCooldownEqu('staff', 4, 'dec:magic_surge_core');
-                this.decreaseCooldownEqu('staff', 3, 'dec:alchemic_stone')
-                this.decreaseCooldownEqu('katana', 6, 'dec:fire_heart')
-                this.decreaseCooldownEqu('magic_book', 4, 'dec:herb_bag')
-                this.decreaseCooldownEqu('magic_book', 7, 'dec:shadow_feather')
-                this.decreaseCooldownEqu('staff', 8, 'dec:tear_from_dream')
-                this.decreaseCooldownEqu('staff', 6, 'dec:time_compass')
-                this.decreaseCooldownEqu('missile', 3, 'dec:diamond_ring')
-                this.decreaseCooldownEqu('missile', 4, 'dec:emerald_ring')
-                this.decreaseCooldownEqu('missile', 7, 'dec:ender_ring')
-                this.decreaseCooldownEqu('missile', 6, 'dec:fire_ring')
-                this.decreaseCooldownEqu('missile', 4, 'dec:gold_ring')
-                this.decreaseCooldownEqu('missile', 5, 'dec:heart_ring')
-                this.decreaseCooldownEqu('missile', 3, 'dec:natural_ring')
+                this.decreaseCooldownEqu('staff', 3, 'dec:alchemic_stone');
+                this.decreaseCooldownEqu('katana', 6, 'dec:fire_heart');
+                this.decreaseCooldownEqu('magic_book', 4, 'dec:herb_bag');
+                this.decreaseCooldownEqu('magic_book', 7, 'dec:shadow_feather');
+                this.decreaseCooldownEqu('staff', 8, 'dec:tear_from_dream');
+                this.decreaseCooldownEqu('staff', 6, 'dec:time_compass');
+                this.decreaseCooldownEqu('missile', 3, 'dec:diamond_ring');
+                this.decreaseCooldownEqu('missile', 4, 'dec:emerald_ring');
+                this.decreaseCooldownEqu('missile', 7, 'dec:ender_ring');
+                this.decreaseCooldownEqu('missile', 6, 'dec:fire_ring');
+                this.decreaseCooldownEqu('missile', 4, 'dec:gold_ring');
+                this.decreaseCooldownEqu('missile', 5, 'dec:heart_ring');
+                this.decreaseCooldownEqu('missile', 3, 'dec:natural_ring');
                 this.decreaseCooldownEqu('missile', 7, 'dec:dust_ring')
             }
         });
@@ -236,6 +254,11 @@ export default class DecClient extends ExGameClient {
 
 
             if (e.currentTick % 20 === 0) {
+                //深渊之翼
+                if (this.exPlayer.getBag().getSlot(EquipmentSlot.chest).typeId == 'dec:wings_from_deep') {
+                    ep.addEffect(MinecraftEffectTypes.JumpBoost, 6 * 20, 1, true)
+                    ep.addEffect(MinecraftEffectTypes.SlowFalling, 6 * 20, 0, true)
+                }
                 //紫水晶套装效果
                 if (this.useArmor === ArmorPlayerDec.amethyst) {
                     if (DecGlobal.isDec()) {

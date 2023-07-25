@@ -1,4 +1,4 @@
-import { Player, MinecraftDimensionTypes, Entity, ItemStack, MinecraftItemTypes, Effect } from '@minecraft/server';
+import { Player, MinecraftDimensionTypes, Entity, ItemStack, MinecraftItemTypes, Effect, world } from '@minecraft/server';
 import ExConfig from "../../modules/exmc/ExConfig.js";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import DecClient from "./DecClient.js";
@@ -24,6 +24,7 @@ import ExTaskRunner from '../../modules/exmc/server/ExTaskRunner.js';
 import { decTreeStructure } from './data/structure/decTreeStructure.js';
 import { MinecraftEffectTypes } from '../../modules/vanilla-data/lib/index.js';
 import DecNukeController from './entities/DecNukeController.js';
+import ExNullEntity from '../../modules/exmc/server/entity/ExNullEntity.js';
 
 
 export default class DecServer extends ExGameServer {
@@ -60,7 +61,6 @@ export default class DecServer extends ExGameServer {
                     "scoreboard players set IsDay global 1",
                     "scoreboard players set IsNight global 0",
                     "scoreboard players set NightRandom global 0",
-                    "scoreboard players set @a night_event 0",
                     "fog @a remove \"night_event\""
                 ]);
             }
@@ -232,6 +232,45 @@ export default class DecServer extends ExGameServer {
                 "scoreboard players remove @e[scores={i_heavy=1..}] i_heavy 1",
                 "scoreboard players remove @e[scores={harmless=1..}] harmless 1"
             ]);
+
+            let night_event_n = new ExNullEntity('NightRandom')
+            let night_event = night_event_n.getScoresManager().getScore('global')
+            function nightEvent(fog: string, eventEntity: string, maxSpawn: number) {
+                world.getDimension('overworld').runCommandAsync('fog @a[tag=dOverworld] push ' + fog + ' "night_event"')
+                world.getDimension('overworld').runCommandAsync('execute at @a[tag=dOverworld,c=' + maxSpawn.toString() + '] run summon ' + eventEntity + ' ~~~')
+            }
+            if (e.currentTick % 80 === 0) {
+                switch (night_event) {
+                    case 1:
+                        //尸潮
+                        nightEvent('dec:event_zombie_wave','dec:event_zombie_wave',6)
+                        break;
+                    case 2:
+                        //骷髅夜
+                        nightEvent('dec:event_skeleton_wave','dec:event_skeleton_wave',6)
+                        break;
+                    case 3:
+                        //暗影之夜
+                        nightEvent('dec:event_shadow_night','dec:event_shadow_night',3)
+                        break;
+                    case 5:
+                        //万圣夜
+                        nightEvent('dec:event_halloween','dec:event_halloween',7)
+                        break;
+                    case 6:
+                        //寂静之夜
+                        nightEvent('dec:event_silent_night','dec:event_silent_night',2)
+                        break;
+                }
+            }
+            if (e.currentTick % 40 === 0) {
+                switch (night_event) {
+                    case 4:
+                        //寒潮
+                        nightEvent('dec:event_cold_wave','dec:event_cold_wave',7)
+                        break;
+                }
+            }
 
             if (e.currentTick % 100 === 0) {
                 //夜晚事件
