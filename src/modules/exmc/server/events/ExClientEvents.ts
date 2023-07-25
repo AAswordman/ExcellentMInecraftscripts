@@ -1,5 +1,5 @@
 import ExGameClient from "../ExGameClient.js";
-import { BlockBreakAfterEvent, ChatSendAfterEvent, ChatSendBeforeEvent, EntityHitBlockAfterEvent, EntityHitEntityAfterEvent, EntityHurtAfterEvent, EntityIsTamedComponent, IItemDefinitionAfterEventSignal, ItemDefinitionTriggeredAfterEvent, ItemDefinitionTriggeredBeforeEvent, ItemUseAfterEvent, ItemUseBeforeEvent, ItemUseOnAfterEvent, ItemUseOnBeforeEvent } from '@minecraft/server';
+import { BlockBreakAfterEvent, ChatSendAfterEvent, ChatSendBeforeEvent, EntityHitBlockAfterEvent, EntityHitEntityAfterEvent, EntityHurtAfterEvent, EntityIsTamedComponent, IItemDefinitionAfterEventSignal, ItemDefinitionTriggeredAfterEvent, ItemDefinitionTriggeredBeforeEvent, ItemUseAfterEvent, ItemUseBeforeEvent, ItemUseOnAfterEvent, ItemUseOnBeforeEvent, PlayerSpawnAfterEvent } from '@minecraft/server';
 import ExEventManager from "../../interface/ExEventManager.js";
 import ExGameServer from '../ExGameServer.js';
 import { Player, ItemStack, Entity } from '@minecraft/server';
@@ -172,10 +172,11 @@ export default class ExClientEvents implements ExEventManager {
         },
         [ExOtherEventNames.afterPlayerShootProj]: {
             pattern: (registerName: string, k: string) => {
-                const func = (p: Entity, item: ItemStack) => {
+                const func = (p: Entity, e: { "itemStack": ItemStack }) => {
                     let liss = ExClientEvents.eventHandlers.monitorMap[k].get(p);
                     if (!liss || liss.length === 0) return;
-                    let arr:Entity[] = [];
+                    
+                    let arr: Entity[] = [];
                     const viewDic = ExEntity.getInstance(p).viewDirection;
                     const viewLen = viewDic.len();
                     const tmpV = new Vector3();
@@ -186,7 +187,7 @@ export default class ExClientEvents implements ExEventManager {
                     })) {
                         tmpV.set(e.getVelocity());
                         const len = tmpV.len();
-                        if(len === 0) continue;
+                        if (len === 0) continue;
                         console.warn(Math.acos(tmpV.mul(viewDic) / viewLen / tmpV.len()))
                         if (tmpV.len() > 0.3
                             && Math.acos(tmpV.mul(viewDic) / viewLen / tmpV.len()) < 0.25) {
@@ -196,21 +197,27 @@ export default class ExClientEvents implements ExEventManager {
                     if (arr.length > 0) {
                         // console.warn("Entity :"+ arr.map(e => e.typeId).join());
                         for (let i of liss) {
-                            i(new PlayerShootProjectileEvent(p,arr[0]));
+                            i(new PlayerShootProjectileEvent(p, arr[0]));
                         }
                     }
                 };
 
                 ExClientEvents.eventHandlers.server.getEvents().events.afterItemDefinitionEvent.subscribe((e) => {
-                    func(e.source, e.itemStack);
+                    func(e.source, e);
                 });
                 ExClientEvents.eventHandlers.server.getEvents().events.afterItemReleaseUse.subscribe((e) => {
-                    func(e.source, e.itemStack);
+                    func(e.source, e);
                 });
             }
         },
 
         [ExEventNames.afterBlockBreak]: {
+            pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
+            filter: {
+                "name": "player"
+            }
+        },
+        [ExEventNames.afterPlayerSpawn]: {
             pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
             filter: {
                 "name": "player"
@@ -236,7 +243,8 @@ export default class ExClientEvents implements ExEventManager {
         [ExOtherEventNames.afterPlayerHurt]: new Listener<EntityHurtAfterEvent>(this, ExOtherEventNames.afterPlayerHurt),
         [ExOtherEventNames.afterItemOnHandChange]: new Listener<ItemOnHandChangeEvent>(this, ExOtherEventNames.afterItemOnHandChange),
         [ExOtherEventNames.afterPlayerShootProj]: new Listener<PlayerShootProjectileEvent>(this, ExOtherEventNames.afterPlayerShootProj),
-        [ExEventNames.afterBlockBreak]: new Listener<BlockBreakAfterEvent>(this, ExEventNames.afterBlockBreak)
+        [ExEventNames.afterBlockBreak]: new Listener<BlockBreakAfterEvent>(this, ExEventNames.afterBlockBreak),
+        [ExEventNames.afterPlayerSpawn]: new Listener<PlayerSpawnAfterEvent>(this, ExEventNames.afterPlayerSpawn)
     };
 
     public static init(s: ExGameServer) {

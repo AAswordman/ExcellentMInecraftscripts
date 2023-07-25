@@ -13,8 +13,8 @@ export default class ExEntityBag {
     equipmentComponent: EntityEquipmentInventoryComponent;
     constructor(entity: ExEntity) {
         this._entity = entity;
-        this.bagComponent = entity.getComponent(EntityInventoryComponent.componentId) as EntityInventoryComponent;
-        this.equipmentComponent = entity.getComponent(EntityEquipmentInventoryComponent.componentId) as EntityEquipmentInventoryComponent;
+        this.bagComponent = entity.getComponent("minecraft:inventory")!;
+        this.equipmentComponent = entity.getComponent("minecraft:equipment_inventory")!;
     }
 
     getItem(id: string): ItemStack | undefined;

@@ -1,6 +1,6 @@
 import ExGameClient from "./ExGameClient.js";
 import ExDimension from "./ExDimension.js";
-import { world, MinecraftDimensionTypes, PlayerJoinAfterEvent, Player, PlayerLeaveAfterEvent, system, RawMessage, EntitySpawnAfterEvent, Entity } from "@minecraft/server";
+import { world, MinecraftDimensionTypes, PlayerJoinAfterEvent, Player, PlayerLeaveAfterEvent, system, RawMessage, EntitySpawnAfterEvent, Entity, Dimension } from "@minecraft/server";
 import ExGameConfig from "./ExGameConfig.js";
 import initConsole from "../utils/Console.js";
 import ExServerEvents from "./events/ExServerEvents.js";
@@ -26,6 +26,7 @@ export default class ExGameServer implements SetTimeOutSupport {
     clients_nameMap;
     _events;
     entityControllers: Map<string, typeof ExEntityController> = new Map();
+    static dimensionMap = new Map<string,Dimension>();
     static isInitialized: boolean;
 
     constructor(config: ExConfig) {
@@ -36,6 +37,10 @@ export default class ExGameServer implements SetTimeOutSupport {
         if (!ExGameServer.isInitialized) {
             ExGameServer.isInitialized = true;
             ExGameConfig.config = config;
+
+            ExGameServer.dimensionMap.set(MinecraftDimensionTypes.nether,world.getDimension(MinecraftDimensionTypes.nether));
+            ExGameServer.dimensionMap.set(MinecraftDimensionTypes.overworld,world.getDimension(MinecraftDimensionTypes.overworld));
+            ExGameServer.dimensionMap.set(MinecraftDimensionTypes.theEnd,world.getDimension(MinecraftDimensionTypes.theEnd));
 
             if (!config.watchDog) {
                 system.beforeEvents.watchdogTerminate.subscribe((e) => {
@@ -84,7 +89,7 @@ export default class ExGameServer implements SetTimeOutSupport {
     }
 
     getDimension(dimensionId: string) {
-        return world.getDimension(dimensionId);
+        return ExGameServer.dimensionMap.get(dimensionId)!;
     }
     getExDimension(dimensionId: string) {
         return ExDimension.getInstance(this.getDimension(dimensionId));

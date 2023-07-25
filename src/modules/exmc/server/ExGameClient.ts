@@ -14,13 +14,16 @@ import "../../reflect-metadata/Reflect.js"
 import { eventDecoratorFactory } from "./events/eventDecoratorFactory.js";
 import notUtillTask from "../utils/notUtillTask.js";
 import { TickEvent } from "./events/events.js";
+import ExGame from "./ExGame.js";
 
 export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingPool> implements SetTimeOutSupport {
     private _events: ExClientEvents;
 
     debuggerChatTest = (e: ChatSendBeforeEvent) => {
-        if (e.message.startsWith("*/"))
-            ExGameConfig.console.info(eval(e.message.substring(2, e.message.length)));
+        ExGame.run(() => {
+            if (e.message.startsWith("*/"))
+                ExGameConfig.console.info(eval(e.message.substring(2, e.message.length)));
+        });
     }
     player: Player;
     exPlayer: ExPlayer;
