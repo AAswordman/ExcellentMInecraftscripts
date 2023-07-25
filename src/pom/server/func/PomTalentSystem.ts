@@ -1,4 +1,4 @@
-import { EntityQueryOptions, Entity, EntityAttributeComponent } from '@minecraft/server';
+import { EntityQueryOptions, Entity, EntityAttributeComponent, EntityDamageCause } from '@minecraft/server';
 import MathUtil from "../../../modules/exmc/math/MathUtil.js";
 import ExEntity from "../../../modules/exmc/server/entity/ExEntity.js";
 import ExPlayer from "../../../modules/exmc/server/entity/ExPlayer.js";
@@ -41,6 +41,39 @@ export default class PomTalentSystem extends GameController {
         }
     }).delay(10 * 20);
 
+    static magicDamageType = new Set([
+        EntityDamageCause.fire,
+        EntityDamageCause.fireTick,
+        EntityDamageCause.lava,
+        EntityDamageCause.magic,
+        EntityDamageCause.freezing,
+        EntityDamageCause.drowning,
+        EntityDamageCause.temperature,
+        EntityDamageCause.thorns,
+        EntityDamageCause.wither]);
+    static physicalDamageType = new Set([
+        EntityDamageCause.anvil,
+        EntityDamageCause.contact,
+        EntityDamageCause.magma,
+        EntityDamageCause.lightning,
+        EntityDamageCause.fireworks,
+        EntityDamageCause.entityAttack,
+        EntityDamageCause.contact,
+        EntityDamageCause.blockExplosion,
+        EntityDamageCause.entityExplosion,
+        EntityDamageCause.fall,
+        EntityDamageCause.fallingBlock,
+        EntityDamageCause.flyIntoWall,
+        EntityDamageCause.override,
+        EntityDamageCause.projectile,
+        EntityDamageCause.piston,
+        EntityDamageCause.stalactite,
+        EntityDamageCause.stalagmite,
+        EntityDamageCause.suffocation
+    ]);
+
+
+
     equiTotalTask: TickDelayTask | undefined;
 
     itemOnHandComp?: ItemTagComponent;
@@ -64,6 +97,12 @@ export default class PomTalentSystem extends GameController {
             this.exPlayer.triggerEvent("movement_" + MathUtil.round(MathUtil.clamp(this.movement[0] + this.movement_addition[0], 0, 0.2), 3));
         }
         this.exPlayer.triggerEvent("underwater_" + MathUtil.round(MathUtil.clamp(this.movement[2] + this.movement_addition[2], 0, 0.2), 3));
+        // if (n) {
+        //     this.exPlayer.movement = (MathUtil.round(MathUtil.clamp(this.movement[1] + this.movement_addition[1], 0, 0.2), 3));
+        // } else {
+        //     this.exPlayer.movement = (MathUtil.round(MathUtil.clamp(this.movement[0] + this.movement_addition[0], 0, 0.2), 3));
+        // }
+        // this.exPlayer.triggerEvent("underwater_" + MathUtil.round(MathUtil.clamp(this.movement[2] + this.movement_addition[2], 0, 0.2), 3));
     }, false);
 
     armorUpdater = new VarOnChangeListener((n, l) => {
@@ -204,16 +243,29 @@ export default class PomTalentSystem extends GameController {
             target.removeHealth(this, damage);
         });
 
+
+
         this.getEvents().exEvents.afterPlayerHurt.subscribe((e) => {
+            console.warn(e.damage);
+            console.warn(e.damageSource);
+
             let damage = (this.exPlayer.getPreRemoveHealth() ?? 0) + e.damage;
             let add = 0;
             add += damage * (this.talentRes.get(Talent.DEFENSE) ?? 0) / 100;
+
+            if(this.client.magicSystem.gameHealth + add <= 0){
+                this.player.applyDamage(99999999,e.damageSource);
+            }
 
             this.exPlayer.addHealth(this, add);
             this.hasBeenDamaged.trigger(e.damage - add, e.damageSource.damagingEntity);
         });
 
         let lastListener = (d: number) => { };
+        this.getEvents().exEvents.afterPlayerSpawn.subscribe(e => {
+            this.exPlayer.triggerEvent("hp:100000");
+            this.exPlayer.health = 50000;
+        });
         this.getEvents().exEvents.afterItemOnHandChange.subscribe((e) => {
             let bag = this.exPlayer.getBag();
             if (e.afterItem) {
@@ -292,7 +344,7 @@ export default class PomTalentSystem extends GameController {
                 this.itemOnHandComp = undefined;
             }
             this.updatePlayerAttribute();
-            this.exPlayer.triggerEvent("hp:" + Math.round((20 + (this.talentRes.get(Talent.VIENTIANE) ?? 0))));
+            this.exPlayer.triggerEvent("hp:100000");
         });
 
         let testCauseDamage = 0;

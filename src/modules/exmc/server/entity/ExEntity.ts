@@ -1,4 +1,4 @@
-import { Entity, EntityHealthComponent, Vector, EntityInventoryComponent, Player, Dimension, EntityQueryOptions, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent, EntityDamageSource, EntityDamageCause, EquipmentSlot, TeleportOptions, EffectType } from '@minecraft/server';
+import { Entity, EntityHealthComponent, Vector, EntityInventoryComponent, Player, Dimension, EntityQueryOptions, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent, EntityDamageSource, EntityDamageCause, EquipmentSlot, TeleportOptions, EffectType, EntityEquipmentInventoryComponent } from '@minecraft/server';
 import { ExCommandNativeRunner } from '../../interface/ExCommandRunner.js';
 import ExTagManager from '../../interface/ExTagManager.js';
 import ExScoresManager from './ExScoresManager.js';
@@ -9,7 +9,21 @@ import ExGameVector3 from '../math/ExGameVector3.js';
 import ExCommand from '../env/ExCommand.js';
 import ExDimension from '../ExDimension.js';
 import Vector2, { IVector2 } from '../../math/Vector2.js';
+import { AlsoInstanceType } from '../../utils/tool.js';
+import { EntityMovementComponent } from '@minecraft/server';
 
+
+const compId = {
+    [EntityIsBabyComponent.componentId]: EntityIsBabyComponent,
+    [EntityMarkVariantComponent.componentId]: EntityMarkVariantComponent,
+    [EntityVariantComponent.componentId]: EntityVariantComponent,
+    [EntityInventoryComponent.componentId]: EntityInventoryComponent,
+    [EntityEquipmentInventoryComponent.componentId]: EntityEquipmentInventoryComponent,
+    [EntityIsChargedComponent.componentId]: EntityIsChargedComponent,
+    [EntityMovementComponent.componentId]: EntityMovementComponent,
+    [EntityHealthComponent.componentId]: EntityHealthComponent
+};
+type CompId = typeof compId;
 
 export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     public command = new ExCommand(this);
@@ -33,8 +47,8 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         if (this._damage === undefined) {
             this._damage = damage;
             timeout.setTimeout(() => {
-                let health = this.getHealthComponent();
-                if (health.currentValue > 0.5) health.setCurrentValue(Math.max(0.5, health.currentValue - (this._damage ?? 0)));
+                let health = this.getComponent("minecraft:health")!;
+                if (health.currentValue > 0.01) health.setCurrentValue(Math.max(0.5, health.currentValue - (this._damage ?? 0)));
                 this._damage = undefined;
             }, 0);
         } else {
@@ -185,28 +199,28 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
             "amplifier": aml
         });
     }
-    hasComponent(name: string) {
-        return this._entity.hasComponent(name);
+    hasComponent<T extends keyof CompId>(key: T) {
+        return this._entity.hasComponent(key);
     }
 
-    getComponent(name: string) {
-        return this._entity.getComponent(name);
-    }
-
-    hasHealthComponent() {
-        return this.hasComponent(EntityHealthComponent.componentId);
-    }
-    getHealthComponent() {
-        return (<EntityHealthComponent>this.getComponent(EntityHealthComponent.componentId));
+    getComponent<T extends keyof CompId>(key: T): AlsoInstanceType<CompId[T]> | undefined {
+        return this._entity.getComponent(key);
     }
     get health() {
-        return this.getHealthComponent().currentValue;
+        return this.getComponent("minecraft:health")!.currentValue;
     }
     set health(h: number) {
-        this.getHealthComponent().setCurrentValue(Math.max(0, h));
+        this.getComponent("minecraft:health")!.setCurrentValue(Math.max(0, h));
     }
     getMaxHealth() {
-        return this.getHealthComponent().defaultValue;
+        return this.getComponent("minecraft:health")!.defaultValue;
+    }
+
+    get movement(){
+        return this.getComponent("minecraft:movement")!.currentValue;
+    }
+    set movement(num:number){
+        this.getComponent("minecraft:movement")?.setCurrentValue(num);
     }
 
 
@@ -214,29 +228,10 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     getBag() {
         return new ExEntityBag(this);
     }
-
-    hasVariantComponent() {
-        return this.hasComponent(EntityVariantComponent.componentId);
-    }
-    getVariantComponent() {
-        return <EntityVariantComponent>this.getComponent(EntityVariantComponent.componentId);
-    }
     getVariant() {
-        return this.getVariantComponent()?.value ?? 0;
-    }
-    hasMarkVariantComponent() {
-        return this.hasComponent(EntityMarkVariantComponent.componentId);
-    }
-    getMarkVariantComponent() {
-        return <EntityMarkVariantComponent>this.getComponent(EntityMarkVariantComponent.componentId);
+        return this.getComponent("minecraft:variant")?.value ?? 0;
     }
     getMarkVariant() {
-        return this.getMarkVariantComponent()?.value ?? 0;
-    }
-    hasIsBabyComponent() {
-        return this.hasComponent(EntityIsBabyComponent.componentId);
-    }
-    hasIsChargedComponent() {
-        return this.hasComponent(EntityIsChargedComponent.componentId);
+        return this.getComponent("minecraft:variant")?.value ?? 0;
     }
 }
