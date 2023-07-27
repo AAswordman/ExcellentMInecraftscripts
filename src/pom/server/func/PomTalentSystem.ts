@@ -18,8 +18,9 @@ import { ArmorData } from '../../../dec/server/items/ArmorData.js';
 import VarOnChangeListener from '../../../modules/exmc/utils/VarOnChangeListener.js';
 import ExGame from '../../../modules/exmc/server/ExGame.js';
 import TimeLoopTask from '../../../modules/exmc/utils/TimeLoopTask.js';
-import { PlayerShootProjectileEvent } from '../../../modules/exmc/server/events/events.js';
+import { PlayerShootProjectileEvent, TickEvent } from '../../../modules/exmc/server/events/events.js';
 import PomOccupationSkillTrack from '../entities/PomOccupationSkillTrack.js';
+import ExDimension from '../../../modules/exmc/server/ExDimension.js';
 
 export default class PomTalentSystem extends GameController {
     strikeSkill = true;
@@ -239,6 +240,7 @@ export default class PomTalentSystem extends GameController {
                 damageShow(this.getExDimension(), damage, target.entity.location);
             }
             this.hasCauseDamage.trigger(e.damage + damage, e.hurtEntity);
+            usetarget = e.hurtEntity;
 
             if (damage >= target.health) {
                 target.entity.applyDamage(99999999, {
@@ -377,18 +379,31 @@ export default class PomTalentSystem extends GameController {
         });
 
         //设置职业技能
-        let target: Entity | undefined;
+        this.getEvents().exEvents.afterItemUse.subscribe(event =>event.itemStack.triggerEvent("shoot"))
+
+        let usetarget: Entity | undefined;
         const trackingArrow = (e: PlayerShootProjectileEvent) => {
-            if (target) {
-                this.client.getServer().createEntityController(e.projectile, PomOccupationSkillTrack).setTarget(target);
+            if (usetarget?.isValid()) {
+                this.client.getServer().createEntityController(e.projectile, PomOccupationSkillTrack).setTarget(usetarget);
                 this.getEvents().exEvents.afterPlayerShootProj.unsubscribe(trackingArrow);
+                this.getEvents().exEvents.onLongTick.unsubscribe(targetParticle);
+
             }
         };
+        const targetParticle = (e: TickEvent) => {
+            if (usetarget?.isValid()) {
+                ExDimension.getInstance(usetarget.dimension).spawnParticle("wb:skill_tracking_arrow_par", usetarget.location);
+            }
+        }
+
         this.getEvents().exEvents.afterItemOnHandChange.subscribe(e => {
-            if (e.afterItem?.typeId === "wb:skill_tracking_arrow" && this.player.getItemCooldown("occupation_skill_1")) {
-                this.player.startItemCooldown("occupation_skill_1", 5);
+            if (e.afterItem?.typeId === "wb:skill_tracking_arrow") {
                 this.exPlayer.selectedSlot = e.beforeSlot;
-                this.getEvents().exEvents.afterPlayerShootProj.subscribe(trackingArrow);
+                if (this.player.getItemCooldown("occupation_skill_1") == 0) {
+                    this.player.startItemCooldown("occupation_skill_1", 5 * 20);
+                    this.getEvents().exEvents.afterPlayerShootProj.subscribe(trackingArrow);
+                    this.getEvents().exEvents.onLongTick.subscribe(targetParticle);
+                }
             }
         });
 

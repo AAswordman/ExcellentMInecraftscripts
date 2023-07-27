@@ -1,5 +1,5 @@
 import ExGameClient from "../ExGameClient.js";
-import { BlockBreakAfterEvent, ChatSendAfterEvent, ChatSendBeforeEvent, EntityHealthChangedAfterEvent, EntityHitBlockAfterEvent, EntityHitEntityAfterEvent, EntityHurtAfterEvent, EntityIsTamedComponent, IItemDefinitionAfterEventSignal, ItemDefinitionTriggeredAfterEvent, ItemDefinitionTriggeredBeforeEvent, ItemUseAfterEvent, ItemUseBeforeEvent, ItemUseOnAfterEvent, ItemUseOnBeforeEvent, PlayerSpawnAfterEvent, ProjectileHitAfterEvent } from '@minecraft/server';
+import { BlockBreakAfterEvent, ChatSendAfterEvent, ChatSendBeforeEvent, EntityHealthChangedAfterEvent, EntityHitBlockAfterEvent, EntityHitEntityAfterEvent, EntityHurtAfterEvent, EntityIsTamedComponent, IItemDefinitionAfterEventSignal, ItemDefinitionTriggeredAfterEvent, ItemDefinitionTriggeredBeforeEvent, ItemReleaseUseAfterEvent, ItemStopUseAfterEvent, ItemUseAfterEvent, ItemUseBeforeEvent, ItemUseOnAfterEvent, ItemUseOnBeforeEvent, PlayerSpawnAfterEvent, ProjectileHitAfterEvent } from '@minecraft/server';
 import ExEventManager from "../../interface/ExEventManager.js";
 import ExGameServer from '../ExGameServer.js';
 import { Player, ItemStack, Entity } from '@minecraft/server';
@@ -57,6 +57,12 @@ export default class ExClientEvents implements ExEventManager {
             }
         },
         [ExEventNames.afterItemStopUse]: {
+            pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
+            filter: {
+                "name": "source"
+            }
+        },
+        [ExEventNames.afterItemReleaseUse]: {
             pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
             filter: {
                 "name": "source"
@@ -189,7 +195,7 @@ export default class ExClientEvents implements ExEventManager {
                         const len = tmpV.len();
                         if (len === 0) continue;
                         console.warn(Math.acos(tmpV.mul(viewDic) / viewLen / tmpV.len()))
-                        if (tmpV.len() > 0.3
+                        if (tmpV.len() > 0.15
                             && Math.acos(tmpV.mul(viewDic) / viewLen / tmpV.len()) < 0.25) {
                             arr.push(e);
                         }
@@ -206,6 +212,9 @@ export default class ExClientEvents implements ExEventManager {
                     func(e.source, e);
                 });
                 ExClientEvents.eventHandlers.server.getEvents().events.afterItemReleaseUse.subscribe((e) => {
+                    func(e.source, e);
+                });
+                ExClientEvents.eventHandlers.server.getEvents().events.afterItemStopUse.subscribe((e) => {
                     func(e.source, e);
                 });
             }
@@ -236,7 +245,8 @@ export default class ExClientEvents implements ExEventManager {
         [ExEventNames.afterItemDefinitionEvent]: new Listener<ItemDefinitionTriggeredAfterEvent>(this, ExEventNames.afterItemDefinitionEvent),
         [ExEventNames.beforeItemUse]: new Listener<ItemUseBeforeEvent>(this, ExEventNames.beforeItemUse),
         [ExEventNames.afterItemUse]: new Listener<ItemUseAfterEvent>(this, ExEventNames.afterItemUse),
-        [ExEventNames.afterItemStopUse]: new Listener<ItemUseAfterEvent>(this, ExEventNames.afterItemStopUse),
+        [ExEventNames.afterItemStopUse]: new Listener<ItemStopUseAfterEvent>(this, ExEventNames.afterItemStopUse),
+        [ExEventNames.afterItemReleaseUse]: new Listener<ItemReleaseUseAfterEvent>(this, ExEventNames.afterItemReleaseUse),
         [ExEventNames.afterChatSend]: new Listener<ChatSendAfterEvent>(this, ExEventNames.afterChatSend),
         [ExEventNames.beforeChatSend]: new Listener<ChatSendBeforeEvent>(this, ExEventNames.beforeChatSend),
         [ExOtherEventNames.tick]: new Listener<TickEvent>(this, ExOtherEventNames.tick),
