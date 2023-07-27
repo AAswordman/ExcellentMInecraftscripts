@@ -240,11 +240,11 @@ export default class DecServer extends ExGameServer {
 
             let night_event = this.globalscores.getNumber("NightRandom");
             const nightEvent = (fog: string, eventEntity: string, maxSpawn: number) => {
-                this.getExDimension('overworld').command.run(['fog @a[tag=dOverworld] push ' + fog + ' "night_event"']);
+                this.getExDimension(MinecraftDimensionTypes.overworld).command.run(['fog @a[tag=dOverworld] push ' + fog + ' "night_event"']);
                 let i = 0;
-                for (let p of this.getExDimension('overworld').getPlayers()) {
+                for (let p of this.getExDimension(MinecraftDimensionTypes.overworld).getPlayers()) {
                     if (i >= maxSpawn) break;
-                    this.getExDimension('overworld').spawnEntity(eventEntity, p.location);
+                    this.getExDimension(MinecraftDimensionTypes.overworld).spawnEntity(eventEntity, p.location);
                     i += 1;
                 }
             }

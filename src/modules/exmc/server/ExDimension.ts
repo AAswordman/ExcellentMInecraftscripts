@@ -93,7 +93,6 @@ export default class ExDimension implements ExCommandNativeRunner {
     runCommandAsync(str: string) {
         return this._dimension.runCommandAsync(str);
     }
-
     static propertyNameCache = "exCache";
     static getInstance(source: Dimension): ExDimension {
         let dimension = <any>source;

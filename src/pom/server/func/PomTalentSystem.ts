@@ -1,4 +1,4 @@
-import { EntityQueryOptions, Entity, EntityAttributeComponent, EntityDamageCause } from '@minecraft/server';
+import { EntityQueryOptions, Entity, EntityAttributeComponent, EntityDamageCause, EntityApplyDamageByProjectileOptions, EntityApplyDamageOptions } from '@minecraft/server';
 import MathUtil from "../../../modules/exmc/math/MathUtil.js";
 import ExEntity from "../../../modules/exmc/server/entity/ExEntity.js";
 import ExPlayer from "../../../modules/exmc/server/entity/ExPlayer.js";
@@ -244,17 +244,31 @@ export default class PomTalentSystem extends GameController {
         });
 
 
-
         this.getEvents().exEvents.afterPlayerHurt.subscribe((e) => {
-            console.warn(e.damage);
-            console.warn(e.damageSource);
-
+            // console.warn(e.damage);
             let damage = (this.exPlayer.getPreRemoveHealth() ?? 0) + e.damage;
             let add = 0;
             add += damage * (this.talentRes.get(Talent.DEFENSE) ?? 0) / 100;
 
-            if(this.client.magicSystem.gameHealth + add <= 0){
-                this.player.applyDamage(99999999,e.damageSource);
+
+            if (this.client.magicSystem.gameHealth - e.damage + add <= 0) {
+                if (e.damageSource.cause === EntityDamageCause.projectile) {
+                    if (e.damageSource.damagingEntity) {
+                        this.player.applyDamage(99999999, {
+                            "damagingEntity": e.damageSource.damagingEntity,
+                            "damagingProjectile": e.damageSource.damagingProjectile?.isValid() ?
+                                e.damageSource.damagingProjectile : (e.damageSource.damagingEntity)
+                        });
+                    } else {
+                        this.player.applyDamage(99999999);
+                    }
+                } else {
+                    this.player.applyDamage(99999999, {
+                        "damagingEntity": e.damageSource.damagingEntity,
+                        "cause": e.damageSource.cause
+                    });
+                }
+                return;
             }
 
             this.exPlayer.addHealth(this, add);

@@ -1,4 +1,4 @@
-import { Entity, EntityHealthComponent, Vector, EntityInventoryComponent, Player, Dimension, EntityQueryOptions, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent, EntityDamageSource, EntityDamageCause, EquipmentSlot, TeleportOptions, EffectType, EntityEquipmentInventoryComponent } from '@minecraft/server';
+import { Entity, EntityHealthComponent, Vector, EntityInventoryComponent, Player, Dimension, EntityQueryOptions, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent, EntityDamageSource, EntityDamageCause, EquipmentSlot, TeleportOptions, EffectType, EntityEquipmentInventoryComponent, EntityAttributeComponent } from '@minecraft/server';
 import { ExCommandNativeRunner } from '../../interface/ExCommandRunner.js';
 import ExTagManager from '../../interface/ExTagManager.js';
 import ExScoresManager from './ExScoresManager.js';
