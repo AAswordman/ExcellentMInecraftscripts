@@ -91,7 +91,7 @@ export default class DecClient extends ExGameClient {
             
         })
 
-        this.getEvents().exEvents.afterItemStopUse.subscribe((e) => {
+        this.getEvents().exEvents.afterItemReleaseUse.subscribe((e) => {
             //物品使用后清除skill_count
             this.player.runCommandAsync('say finish')
             if(e.itemStack.getTags().includes('use_skill_count')){
