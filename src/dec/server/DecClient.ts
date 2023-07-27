@@ -86,13 +86,16 @@ export default class DecClient extends ExGameClient {
         });
 
         this.getEvents().exEvents.afterItemOnHandChange.subscribe((e) => {
-            ExPlayer.getInstance(e.source).getScoresManager().setScore('skill_count',0)
+            //切换物品清除skill_count
+            this.exPlayer.getScoresManager().setScore('skill_count',0)
             
         })
 
-        this.getEvents().exEvents.afterItemStopUse.subscribe((e) => {
-            if(e.itemStack.getTags().includes('tag:tag:use_skill_count')){
-                ExPlayer.getInstance((<Player>e.source)).getScoresManager().setScore('skill_count',0)
+        this.getEvents().exEvents.afterItemReleaseUse.subscribe((e) => {
+            //物品使用后清除skill_count
+            this.player.runCommandAsync('say finish')
+            if(e.itemStack.getTags().includes('use_skill_count')){
+                this.exPlayer.getScoresManager().setScore('skill_count',0)
             }
         })
 
