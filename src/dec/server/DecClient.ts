@@ -91,13 +91,12 @@ export default class DecClient extends ExGameClient {
             
         })
 
-        this.getEvents().exEvents.afterItemReleaseUse.subscribe((e) => {
+        /*this.getEvents().exEvents.afterItemReleaseUse.subscribe((e) => {
             //物品使用后清除skill_count
-            this.player.runCommandAsync('say finish')
             if(e.itemStack.getTags().includes('use_skill_count')){
                 this.exPlayer.getScoresManager().setScore('skill_count',0)
             }
-        })
+        })*/
 
         this.getEvents().exEvents.afterItemUse.subscribe((e) => {
             if (e.itemStack.hasComponent('minecraft:cooldown')) {
