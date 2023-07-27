@@ -18,6 +18,8 @@ import { ArmorData } from '../../../dec/server/items/ArmorData.js';
 import VarOnChangeListener from '../../../modules/exmc/utils/VarOnChangeListener.js';
 import ExGame from '../../../modules/exmc/server/ExGame.js';
 import TimeLoopTask from '../../../modules/exmc/utils/TimeLoopTask.js';
+import { PlayerShootProjectileEvent } from '../../../modules/exmc/server/events/events.js';
+import PomOccupationSkillTrack from '../entities/PomOccupationSkillTrack.js';
 
 export default class PomTalentSystem extends GameController {
     strikeSkill = true;
@@ -84,11 +86,12 @@ export default class PomTalentSystem extends GameController {
 
     armor_movement_addition: [number, number, number] = [0, 0, 0];
     armor_attack_addition = 0;
-    armor_protection: [number, number, number] = [0, 0, 0];
+    armor_protection: [number, number, number, number] = [0, 0, 0, 0];
 
     movement: [number, number, number] = [0.1, 0.1, 0.03];
     movement_addition: [number, number, number] = [0, 0, 0];
     attack_addition = 0;
+
 
     movementChanger = new VarOnChangeListener((n, l) => {
         if (n) {
@@ -150,7 +153,7 @@ export default class PomTalentSystem extends GameController {
         this.legComp?.setGroup(this.legComp.dataGroupJudge(this.client));
         this.feetComp?.setGroup(this.feetComp.dataGroupJudge(this.client));
 
-        this.attack_addition = (this.headComp?.getComponentWithGroup("attack_addition") ?? 0)
+        this.armor_attack_addition = (this.headComp?.getComponentWithGroup("attack_addition") ?? 0)
             + (this.chestComp?.getComponentWithGroup("attack_addition") ?? 0)
             + (this.legComp?.getComponentWithGroup("attack_addition") ?? 0)
             + (this.feetComp?.getComponentWithGroup("attack_addition") ?? 0);
@@ -160,7 +163,7 @@ export default class PomTalentSystem extends GameController {
                 + (this.chestComp?.getComponentWithGroup(e) ?? 0)
                 + (this.legComp?.getComponentWithGroup(e) ?? 0)
                 + (this.feetComp?.getComponentWithGroup(e) ?? 0)) as any;
-        this.armor_protection = (["armor_magic_protection", "armor_physical_protection", "armor_physical_reduction"] as any[])
+        this.armor_protection = (["armor_magic_protection", "armor_physical_protection", "armor_magic_reduction", "armor_physical_reduction"] as any[])
             .map(e =>
                 (this.headComp?.getComponentWithGroup(e) ?? 0)
                 + (this.chestComp?.getComponentWithGroup(e) ?? 0)
@@ -178,12 +181,9 @@ export default class PomTalentSystem extends GameController {
     //更新玩家属性（不改变手持）
     updatePlayerAttribute() {
         //攻击还没写
+        this.attack_addition = this.armor_attack_addition + (this.itemOnHandComp?.getComponentWithGroup("attack_addition") ?? 0);
         //保护
-        this.exPlayer.triggerEvent(`damage_senser:mg_${MathUtil.clamp(Math.round(this.armor_protection[0] / 4) * 4, 0, 80)
-            }_ph_${MathUtil.clamp(Math.round(this.armor_protection[1] / 2) * 2, 0, 100)
-            }_ph2_${MathUtil.clamp(Math.round(this.armor_protection[2]), 0, 3)
-            }`);
-
+        console.warn(this.armor_protection);
         //速度
         this.movement_addition[0] = this.armor_movement_addition[0] + (this.itemOnHandComp?.getComponentWithGroup("movement_addition") ?? 0)
         this.movement_addition[1] = this.armor_movement_addition[1] + (this.itemOnHandComp?.getComponentWithGroup("sneak_movement_addition") ?? 0)
@@ -206,7 +206,7 @@ export default class PomTalentSystem extends GameController {
             this.movementChanger.upDate(this.player.isSneaking);
         });
 
-
+        //玩家攻击生物增伤
         this.getEvents().exEvents.afterPlayerHitEntity.subscribe((e) => {
             let item = this.exPlayer.getBag().itemOnMainHand;
             let damageFac = 0;
@@ -240,16 +240,31 @@ export default class PomTalentSystem extends GameController {
             }
             this.hasCauseDamage.trigger(e.damage + damage, e.hurtEntity);
 
+            if (damage >= target.health) {
+                target.entity.applyDamage(99999999, {
+                    "cause": EntityDamageCause.entityAttack,
+                    "damagingEntity": this.player
+                })
+            }
             target.removeHealth(this, damage);
         });
 
-
+        //玩家减伤
         this.getEvents().exEvents.afterPlayerHurt.subscribe((e) => {
-            // console.warn(e.damage);
             let damage = (this.exPlayer.getPreRemoveHealth() ?? 0) + e.damage;
             let add = 0;
-            add += damage * (this.talentRes.get(Talent.DEFENSE) ?? 0) / 100;
-
+            let actualDamageFactor = (1 - ((this.talentRes.get(Talent.DEFENSE) ?? 0) / 100));
+            if (PomTalentSystem.magicDamageType.has(e.damageSource.cause)) {
+                actualDamageFactor *= (1 - this.armor_protection[0] / 100)
+                add += this.armor_protection[2]
+            } else if (PomTalentSystem.physicalDamageType.has(e.damageSource.cause)) {
+                actualDamageFactor *= (1 - this.armor_protection[1] / 100)
+                add += this.armor_protection[3]
+            }
+            add += damage * (1 - actualDamageFactor);
+            add = Math.min(add, damage);
+            // console.warn(actualDamageFactor);
+            // console.warn(add);
 
             if (this.client.magicSystem.gameHealth - e.damage + add <= 0) {
                 if (e.damageSource.cause === EntityDamageCause.projectile) {
@@ -297,7 +312,7 @@ export default class PomTalentSystem extends GameController {
                     //let typeMsg = comp.getComponentWithGroup("armor_type");
                     //lore.setValueUseDefault("盔甲类型", typeMsg.tagName + ": " + typeMsg.data);
                     if (comp.hasComponent("armor_physical_protection")) base.push("§r§7•物理抗性§6+" + comp.getComponentWithGroup("armor_physical_protection") + "％§r§7 | 受到的物理伤害§6-" + comp.getComponentWithGroup("armor_physical_reduction") ?? 0);
-                    if (comp.hasComponent("armor_magic_protection")) base.push("§r§7•魔法抗性§6+" + comp.getComponentWithGroup("armor_magic_protection") + "％");
+                    if (comp.hasComponent("armor_magic_protection")) base.push("§r§7•魔法抗性§6+" + comp.getComponentWithGroup("armor_magic_protection") + "％§r§7 | 受到的魔法伤害§6-" + comp.getComponentWithGroup("armor_magic_reduction") ?? 0);
                 }
                 let smove = comp.getComponentWithGroup("sneak_movement_addition") ?? 0;
                 if (comp.hasComponent("movement_addition")) {
@@ -361,6 +376,24 @@ export default class PomTalentSystem extends GameController {
             this.exPlayer.triggerEvent("hp:100000");
         });
 
+        //设置职业技能
+        let target: Entity | undefined;
+        const trackingArrow = (e: PlayerShootProjectileEvent) => {
+            if (target) {
+                this.client.getServer().createEntityController(e.projectile, PomOccupationSkillTrack).setTarget(target);
+                this.getEvents().exEvents.afterPlayerShootProj.unsubscribe(trackingArrow);
+            }
+        };
+        this.getEvents().exEvents.afterItemOnHandChange.subscribe(e => {
+            if (e.afterItem?.typeId === "wb:skill_tracking_arrow" && this.player.getItemCooldown("occupation_skill_1")) {
+                this.player.startItemCooldown("occupation_skill_1", 5);
+                this.exPlayer.selectedSlot = e.beforeSlot;
+                this.getEvents().exEvents.afterPlayerShootProj.subscribe(trackingArrow);
+            }
+        });
+
+
+        //debugger
         let testCauseDamage = 0;
         let testRoundDamage = 0;
         let testBeDamaged = 0;
