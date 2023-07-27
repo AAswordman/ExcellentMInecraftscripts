@@ -13,6 +13,7 @@ const itemTagComponentType = {
     armor_physical_protection: [0],
     armor_magic_protection: [0],
     armor_physical_reduction: [0],
+    armor_magic_reduction: [0],
     armor_type: [new ItemTagComponentGroup<string>("", "")],
     equipment_type: [new ItemTagComponentGroup<string>("", "")],
     movement_addition: [0],

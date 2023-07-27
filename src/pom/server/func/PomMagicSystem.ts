@@ -1,3 +1,4 @@
+import MathUtil from "../../../modules/exmc/math/MathUtil.js";
 import ExSystem from "../../../modules/exmc/utils/ExSystem.js";
 import VarOnChangeListener from "../../../modules/exmc/utils/VarOnChangeListener.js";
 import { Talent } from "../cache/TalentData.js";
@@ -77,11 +78,11 @@ export default class PomMagicSystem extends GameController {
         const oldData = this.lastFromData;
         let fromData: (string | number)[] = [
             this.gameHealth,
-            100 * this.gameHealth / 40 + "%",
-            100 * this.scoresManager.getScore("wbfl") / 200 + "%",
+            MathUtil.clamp(100 * this.gameHealth / 40, 0, 100) + "%",
+            MathUtil.clamp(100 * this.scoresManager.getScore("wbfl") / 200, 0, 100) + "%",
             this.scoresManager.getScore("wbfl"),
-            100 * this.scoresManager.getScore("wbwqlq") / 20 + "%",
-            100 * this.scoresManager.getScore("wbkjlqcg") / 20 + "%"
+            MathUtil.clamp(100 * this.scoresManager.getScore("wbwqlq") / 20, 0, 100) + "%",
+            MathUtil.clamp(100 * this.scoresManager.getScore("wbkjlqcg") / 20, 0, 100) + "%"
         ];
         this.lastFromData = fromData;
 
