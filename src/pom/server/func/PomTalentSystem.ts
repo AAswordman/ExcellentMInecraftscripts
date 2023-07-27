@@ -122,6 +122,7 @@ export default class PomTalentSystem extends GameController {
         this.updateArmorData();
         this.updatePlayerAttribute();
     }, "");
+    skill_stateNum: number[] = [];
 
     chooseArmor(a: ArmorData) {
 
@@ -184,7 +185,6 @@ export default class PomTalentSystem extends GameController {
         //攻击还没写
         this.attack_addition = this.armor_attack_addition + (this.itemOnHandComp?.getComponentWithGroup("attack_addition") ?? 0);
         //保护
-        console.warn(this.armor_protection);
         //速度
         this.movement_addition[0] = this.armor_movement_addition[0] + (this.itemOnHandComp?.getComponentWithGroup("movement_addition") ?? 0)
         this.movement_addition[1] = this.armor_movement_addition[1] + (this.itemOnHandComp?.getComponentWithGroup("sneak_movement_addition") ?? 0)
@@ -379,15 +379,17 @@ export default class PomTalentSystem extends GameController {
         });
 
         //设置职业技能
-        this.getEvents().exEvents.afterItemUse.subscribe(event =>event.itemStack.triggerEvent("shoot"))
-
+        this.getEvents().exEvents.afterItemUse.subscribe(event => event.itemStack.triggerEvent("shoot"))
+        this.skill_stateNum = [0, 0];
         let usetarget: Entity | undefined;
         const trackingArrow = (e: PlayerShootProjectileEvent) => {
             if (usetarget?.isValid()) {
                 this.client.getServer().createEntityController(e.projectile, PomOccupationSkillTrack).setTarget(usetarget);
-                this.getEvents().exEvents.afterPlayerShootProj.unsubscribe(trackingArrow);
-                this.getEvents().exEvents.onLongTick.unsubscribe(targetParticle);
-
+                this.skill_stateNum[0] -= 1;
+                if (this.skill_stateNum[0] <= 0) {
+                    this.getEvents().exEvents.afterPlayerShootProj.unsubscribe(trackingArrow);
+                    this.getEvents().exEvents.onLongTick.unsubscribe(targetParticle);
+                }
             }
         };
         const targetParticle = (e: TickEvent) => {
@@ -401,8 +403,11 @@ export default class PomTalentSystem extends GameController {
                 this.exPlayer.selectedSlot = e.beforeSlot;
                 if (this.player.getItemCooldown("occupation_skill_1") == 0) {
                     this.player.startItemCooldown("occupation_skill_1", 5 * 20);
-                    this.getEvents().exEvents.afterPlayerShootProj.subscribe(trackingArrow);
-                    this.getEvents().exEvents.onLongTick.subscribe(targetParticle);
+                    if (this.skill_stateNum[0] <= 0) {
+                        this.getEvents().exEvents.afterPlayerShootProj.subscribe(trackingArrow);
+                        this.getEvents().exEvents.onLongTick.subscribe(targetParticle);
+                    }
+                    this.skill_stateNum[0] += 1;
                 }
             }
         });

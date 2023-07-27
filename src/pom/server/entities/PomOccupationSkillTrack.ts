@@ -29,7 +29,7 @@ export default class PomOccupationSkillTrack extends ExEntityController {
                 this.destroyTrigger();
             }
 
-            tmpV.set(loc).sub(this.entity.location);
+            tmpV.set(loc).sub(this.entity.location).add(0,0.8,0);
             tmpP.set(tmpV).normalize().scl(tmpV.mul(this.entity.getVelocity()) / tmpV.len())
                 .sub(this.entity.getVelocity());
             this.entity.applyImpulse(tmpP.scl(0.2));
