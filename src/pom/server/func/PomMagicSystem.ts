@@ -1,8 +1,16 @@
+import { world, DynamicPropertiesDefinition, MinecraftEntityTypes } from "@minecraft/server";
 import MathUtil from "../../../modules/exmc/math/MathUtil.js";
 import ExSystem from "../../../modules/exmc/utils/ExSystem.js";
 import VarOnChangeListener from "../../../modules/exmc/utils/VarOnChangeListener.js";
 import { Talent } from "../cache/TalentData.js";
 import GameController from "./GameController.js";
+import ExGame from "../../../modules/exmc/server/ExGame.js";
+import TickDelayTask from "../../../modules/exmc/utils/TickDelayTask.js";
+
+world.afterEvents.worldInitialize.subscribe((e) => {
+    let def = new DynamicPropertiesDefinition().defineNumber("health", 40);
+    e.propertyRegistry.registerEntityTypeDynamicProperties(def, MinecraftEntityTypes.player);
+});
 
 export default class PomMagicSystem extends GameController {
     public static readonly weaponCoolingChar = "";
@@ -15,6 +23,8 @@ export default class PomMagicSystem extends GameController {
     healthShow = true;
     additionHealth = 40;
     gameHealth = 40;
+    gameMaxHealth = 40;
+    gameShield = 0;
     scoresManager = this.exPlayer.getScoresManager();
     wbflLooper = ExSystem.tickTask(() => {
         if (this.scoresManager.getScore("wbfl") < 200) this.scoresManager.addScore("wbfl", 2);
@@ -25,7 +35,9 @@ export default class PomMagicSystem extends GameController {
 
     private _anotherShow: string[] = [];
     private _mapShow = new Map<string, string[]>();
-
+    healthSaver = ExSystem.tickTask(() => {
+        this.player.setDynamicProperty('health', this.gameHealth);
+    }).delay(20 * 5);
     registActionbarPass(name: string) {
         this._mapShow.set(name, []);
         return <string[]>this.getActionbarByPass(name);
@@ -78,11 +90,12 @@ export default class PomMagicSystem extends GameController {
         const oldData = this.lastFromData;
         let fromData: (string | number)[] = [
             this.gameHealth,
-            MathUtil.clamp(100 * this.gameHealth / 40, 0, 100) + "%",
+            MathUtil.clamp(100 * this.gameHealth / this.gameMaxHealth, 0, 100) + "%",
             MathUtil.clamp(100 * this.scoresManager.getScore("wbfl") / 200, 0, 100) + "%",
             this.scoresManager.getScore("wbfl"),
             MathUtil.clamp(100 * this.scoresManager.getScore("wbwqlq") / 20, 0, 100) + "%",
-            MathUtil.clamp(100 * this.scoresManager.getScore("wbkjlqcg") / 20, 0, 100) + "%"
+            MathUtil.clamp(100 * this.scoresManager.getScore("wbkjlqcg") / 20, 0, 100) + "%",
+            MathUtil.clamp(100 * this.gameShield / this.gameMaxHealth, 0, 100) + "%",
         ];
         this.lastFromData = fromData;
 
@@ -126,7 +139,7 @@ export default class PomMagicSystem extends GameController {
         const health = this.exPlayer.getComponent("minecraft:health");
         let healthListener = new VarOnChangeListener((n, l) => {
             let change = n - (l ?? 0);
-            this.gameHealth += change;
+            this.gameHealth = Math.min(this.gameHealth+change,this.gameMaxHealth);
             this.exPlayer.health = 50000;
             healthListener.value = 50000;
         }, health!.currentValue);
@@ -139,6 +152,8 @@ export default class PomMagicSystem extends GameController {
         this.getEvents().exEvents.afterPlayerSpawn.subscribe(e => {
             this.gameHealth = 40;
         });
+        this.healthSaver.start();
+        this.gameHealth = this.player.getDynamicProperty("health") as number ?? 0;
     }
 
     onLoaded(): void {
@@ -150,6 +165,7 @@ export default class PomMagicSystem extends GameController {
         this.wbflLooper.stop();
         this.armorCoolingLooper.stop();
         this.actionbarShow.stop();
+        this.healthSaver.stop();
     }
     upDateByTalent(talentRes: Map<number, number>) {
         let scores = this.exPlayer.getScoresManager();

@@ -146,6 +146,7 @@ export default class PomTalentSystem extends GameController {
             this.skillLoop.stop();
         }
         //this.exPlayer.triggerEvent("hp:" + Math.round((20 + (this.talentRes.get(Talent.VIENTIANE) ?? 0))));
+        this.client.magicSystem.gameMaxHealth = Math.round((40 + (this.talentRes.get(Talent.VIENTIANE) ?? 0)));
     }
 
     //更新盔甲属性（在不换甲的情况下）
