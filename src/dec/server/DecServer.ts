@@ -21,7 +21,6 @@ import GZIPUtil from '../../modules/exmc/utils/GZIPUtil.js';
 import IStructureSettle from './data/structure/IStructureSettle.js';
 import IStructureDriver from './data/structure/IStructureDriver.js';
 import ExTaskRunner from '../../modules/exmc/server/ExTaskRunner.js';
-import { decTreeStructure } from './data/structure/decTreeStructure.js';
 import { MinecraftEffectTypes } from '../../modules/vanilla-data/lib/index.js';
 import DecNukeController from './entities/DecNukeController.js';
 import ExNullEntity from '../../modules/exmc/server/entity/ExNullEntity.js';
@@ -168,20 +167,20 @@ export default class DecServer extends ExGameServer {
                         break;
                     }
                     case "_test": {
-                        let start = new Vector3(Math.floor(parseFloat(cmds[1])), Math.floor(parseFloat(cmds[2])), Math.floor(parseFloat(cmds[3])));
-                        let data = new IStructureSettle();
-                        let task: (() => void)[] = [];
+                        // let start = new Vector3(Math.floor(parseFloat(cmds[1])), Math.floor(parseFloat(cmds[2])), Math.floor(parseFloat(cmds[3])));
+                        // let data = new IStructureSettle();
+                        // let task: (() => void)[] = [];
 
-                        for (let comp of decTreeStructure) {
-                            task.push(() => {
-                                data.load(JSON.parse(GZIPUtil.unzipString(comp)));
-                                data.run(this.getExDimension(MinecraftDimensionTypes.overworld), start)
-                                    .then(() => {
-                                        task.shift()?.();
-                                    });
-                            });
-                        }
-                        task.shift()?.();
+                        // for (let comp of decTreeStructure) {
+                        //     task.push(() => {
+                        //         data.load(JSON.parse(GZIPUtil.unzipString(comp)));
+                        //         data.run(this.getExDimension(MinecraftDimensionTypes.overworld), start)
+                        //             .then(() => {
+                        //                 task.shift()?.();
+                        //             });
+                        //     });
+                        // }
+                        // task.shift()?.();
                         break;
                     }
                 }

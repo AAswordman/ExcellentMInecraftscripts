@@ -132,7 +132,7 @@ export default class PomMagicSystem extends GameController {
 
         this.exPlayer.titleActionBar(arr1.join("") + arr2.join("\n§r"));
 
-    }).delay(4);
+    }).delay(8);
 
 
     onJoin(): void {
@@ -154,6 +154,7 @@ export default class PomMagicSystem extends GameController {
         });
         this.healthSaver.start();
         this.gameHealth = this.player.getDynamicProperty("health") as number ?? 0;
+        this.actionbarShow.delay(this.globalSettings.uiUpdateDelay);
     }
 
     onLoaded(): void {

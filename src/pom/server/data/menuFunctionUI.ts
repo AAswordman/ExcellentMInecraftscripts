@@ -224,8 +224,8 @@ BunBun不是笨笨    在矿里的小金呀
                         let scores = ExPlayer.getInstance(source).getScoresManager();
                         let msg = [`   ${lang.menuUIMsgBailan94}: ${client.gameId}`,
                         `   ${lang.menuUIMsgBailan96}: ${scores.getScore("wbfl")}`,
-                        `   ${`物理防御`}: ${MathUtil.clamp(Math.round(client.talentSystem.armor_protection[0] / 2) * 2, 0, 60)} + ${MathUtil.clamp(Math.round(client.talentSystem.armor_protection[2]), 0, 4)}`,
-                        `   ${`魔法防御`}: ${MathUtil.clamp(Math.round(client.talentSystem.armor_protection[1] / 2) * 2, 0, 60)}`,
+                        `   ${`物理防御`}: ${MathUtil.round(1 - (1 - client.getDifficulty().physicalDefenseAddFactor) * (1 - client.talentSystem.armor_protection[1] / 100), 3) * 100}％ + ${Math.round(client.talentSystem.armor_protection[3])}`,
+                        `   ${`魔法防御`}: ${MathUtil.round(1 - (1 - client.getDifficulty().magicDefenseAddFactor) * (1 - client.talentSystem.armor_protection[0] / 100), 3) * 100}％ + ${Math.round(client.talentSystem.armor_protection[2])}`,
                         `   ${lang.menuUIMsgBailan97}: ${scores.getScore("wbwqlq")}`,
                         `   ${lang.menuUIMsgBailan98}: ${scores.getScore("wbkjlqcg")}`,
                         `   ${lang.menuUIMsgBailan99}: ${source.hasTag("wbmsyh") ? lang.menuUIMsgBailan15 : lang.menuUIMsgBailan16}`,
@@ -914,7 +914,31 @@ ${getCharByNum((gj - (150 * (g - 1) ** 2 + 1050 * (g - 1) + 900)) / (300 * g + 9
                                         })
                                     return false;
                                 }
-                            }];
+                            },
+                            {
+                                "type": "button",
+                                "msg": "ui刷新间隔(tick)",
+                                "function": (client, ui): boolean => {
+                                    let map = pomDifficultyMap;
+                                    new ModalFormData()
+                                        .title("Choose a tick")
+                                        .slider("tick", 4, 20, 1, 8)
+                                        .show(client.player).then((e) => {
+                                            if (!e.canceled) {
+                                                let v = (e.formValues?.[0]);
+                                                client.globalSettings.uiUpdateDelay = Number(v ?? 30);
+                                                client.magicSystem.actionbarShow.stop();
+                                                client.magicSystem.actionbarShow.delay(client.globalSettings.uiUpdateDelay);
+                                                client.magicSystem.actionbarShow.start();
+                                            }
+                                        })
+                                        .catch((e) => {
+                                            ExErrorQueue.throwError(e);
+                                        });
+                                    return false;
+                                }
+                            }
+                            ];
                         } else {
                             return [{
                                 "type": "text",

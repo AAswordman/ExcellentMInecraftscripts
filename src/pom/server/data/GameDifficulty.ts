@@ -16,9 +16,9 @@ export class PomGameFoolDifficulty implements GameDifficulty {
     healthAddionion = 20;
     physicalDefenseAddFactor = 0.4;
     magicDefenseAddFactor = 0.3;
-    damageAddFactor = 2;
-    magicpointAddFactor = 2.5;
-    coolingFactor = 2;
+    damageAddFactor = 1.7;
+    magicpointAddFactor = 2.2;
+    coolingFactor = 1.8;
     LevelFactor = 8;
 }
 export class PomGameEasyDifficulty implements GameDifficulty {

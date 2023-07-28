@@ -238,6 +238,7 @@ export default class PomTalentSystem extends GameController {
 
 
             let damage = e.damage * damageFac + extraDamage;
+            console.warn(damage);
             if (this.globalSettings.damageShow) {
                 damageShow(this.getExDimension(), damage, target.entity.location);
             }
@@ -270,7 +271,7 @@ export default class PomTalentSystem extends GameController {
             // console.warn(actualDamageFactor);
             // console.warn(add);
 
-            if (this.client.magicSystem.gameHealth - e.damage + add <= 0) {
+            if (this.client.magicSystem.gameHealth - damage + add <= 0) {
                 if (e.damageSource.cause === EntityDamageCause.projectile) {
                     if (e.damageSource.damagingEntity) {
                         this.player.applyDamage(99999999, {
@@ -382,7 +383,6 @@ export default class PomTalentSystem extends GameController {
         });
 
         //设置职业技能
-        this.getEvents().exEvents.afterItemUse.subscribe(event => event.itemStack.triggerEvent("shoot"))
         this.skill_stateNum = [0, 0];
         let usetarget: Entity | undefined;
         const trackingArrow = (e: PlayerShootProjectileEvent) => {

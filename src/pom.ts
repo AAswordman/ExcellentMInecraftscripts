@@ -9,5 +9,6 @@ config.addonVersion = "1.7.7B1";
 config.gameVersion = "1.20.0";
 config.watchDog = false;
 config.debug = true;
+
 ExGame.createServer(PomServer, config);
 ExGame.createServer(DecServer, config);

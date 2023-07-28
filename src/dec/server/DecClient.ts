@@ -1,4 +1,4 @@
-import { EffectType, EntityHealthComponent, EquipmentSlot, MinecraftDimensionTypes, Player, world } from "@minecraft/server";
+import { EffectType, EntityDamageCause, EntityHealthComponent, EquipmentSlot, ItemStack, MinecraftDimensionTypes, Player, world } from "@minecraft/server";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import ExGameServer from "../../modules/exmc/server/ExGameServer.js";
 import { ArmorData, ArmorPlayerDec, ArmorPlayerPom } from "./items/ArmorData.js";
@@ -19,6 +19,7 @@ import { MinecraftEffectTypes } from "../../modules/vanilla-data/lib/index.js";
 import PomClient from "../../pom/server/PomClient.js";
 import ExPlayerBag from '../../modules/exmc/server/entity/ExPlayerBag';
 import ExPlayer from '../../modules/exmc/server/entity/ExPlayer';
+import ExSystem from "../../modules/exmc/utils/ExSystem.js";
 
 
 export default class DecClient extends ExGameClient {
@@ -29,11 +30,10 @@ export default class DecClient extends ExGameClient {
     }
 
     tmpV = new Vector3(0, 0, 0);
-    globalscores = new GlobalScoreBoardCache(new Objective("global"),false);
-    decreaseCooldownEqu(itemCategory: string, tickDecrease: number, equipmentTest: string) {
-        const item = this.exPlayer.getBag().itemOnOffHand;
-        if (
-            this.player.getItemCooldown(itemCategory) > 0 && item?.typeId == equipmentTest) {
+    globalscores = new GlobalScoreBoardCache(new Objective("global"), false);
+    decreaseCooldownEqu(item: ItemStack, itemCategory: string, tickDecrease: number, equipmentTest: string) {
+        if (item.typeId == equipmentTest &&
+            this.player.getItemCooldown(itemCategory) > 0) {
             this.player.startItemCooldown(itemCategory, Math.max(this.player.getItemCooldown(itemCategory) - tickDecrease, 0))
         }
     }
@@ -58,37 +58,41 @@ export default class DecClient extends ExGameClient {
                 this.totemEffect('dec:fire_totem', ['function item/fire_totem']);
             };
             if (e.currentTick % 4 === 0) {
+                const item = this.exPlayer.getBag().itemOnOffHand;
+
                 this.totemEffect('dec:energy_totem', ['function item/energy_totem']);
-                this.decreaseCooldownEqu('gun', 9, 'dec:archer_bullet_bag');
-                this.decreaseCooldownEqu('gun', 7, 'dec:lava_bullet_bag');
-                this.decreaseCooldownEqu('gun', 4, 'dec:blood_bullet_bag');
-                this.decreaseCooldownEqu('gun', 3, 'dec:hunter_bullet_bag');
-                this.decreaseCooldownEqu('gun', 3, 'dec:pirate_bullet_bag');
-                this.decreaseCooldownEqu('gun', 2, 'dec:bullet_bag');
-                this.decreaseCooldownEqu('catapult', 5, 'dec:stones_bag');
-                this.decreaseCooldownEqu('catapult', 13, 'dec:archer_stones_bag');
-                this.decreaseCooldownEqu('staff', 4, 'dec:magic_surge_core');
-                this.decreaseCooldownEqu('staff', 3, 'dec:alchemic_stone');
-                this.decreaseCooldownEqu('katana', 6, 'dec:fire_heart');
-                this.decreaseCooldownEqu('magic_book', 4, 'dec:herb_bag');
-                this.decreaseCooldownEqu('magic_book', 7, 'dec:shadow_feather');
-                this.decreaseCooldownEqu('staff', 8, 'dec:tear_from_dream');
-                this.decreaseCooldownEqu('staff', 6, 'dec:time_compass');
-                this.decreaseCooldownEqu('missile', 3, 'dec:diamond_ring');
-                this.decreaseCooldownEqu('missile', 4, 'dec:emerald_ring');
-                this.decreaseCooldownEqu('missile', 7, 'dec:ender_ring');
-                this.decreaseCooldownEqu('missile', 6, 'dec:fire_ring');
-                this.decreaseCooldownEqu('missile', 4, 'dec:gold_ring');
-                this.decreaseCooldownEqu('missile', 5, 'dec:heart_ring');
-                this.decreaseCooldownEqu('missile', 3, 'dec:natural_ring');
-                this.decreaseCooldownEqu('missile', 7, 'dec:dust_ring')
+                if (item) {
+                    this.decreaseCooldownEqu(item, 'gun', 9, 'dec:archer_bullet_bag');
+                    this.decreaseCooldownEqu(item, 'gun', 7, 'dec:lava_bullet_bag');
+                    this.decreaseCooldownEqu(item, 'gun', 4, 'dec:blood_bullet_bag');
+                    this.decreaseCooldownEqu(item, 'gun', 3, 'dec:hunter_bullet_bag');
+                    this.decreaseCooldownEqu(item, 'gun', 3, 'dec:pirate_bullet_bag');
+                    this.decreaseCooldownEqu(item, 'gun', 2, 'dec:bullet_bag');
+                    this.decreaseCooldownEqu(item, 'catapult', 5, 'dec:stones_bag');
+                    this.decreaseCooldownEqu(item, 'catapult', 13, 'dec:archer_stones_bag');
+                    this.decreaseCooldownEqu(item, 'staff', 4, 'dec:magic_surge_core');
+                    this.decreaseCooldownEqu(item, 'staff', 3, 'dec:alchemic_stone');
+                    this.decreaseCooldownEqu(item, 'katana', 6, 'dec:fire_heart');
+                    this.decreaseCooldownEqu(item, 'magic_book', 4, 'dec:herb_bag');
+                    this.decreaseCooldownEqu(item, 'magic_book', 7, 'dec:shadow_feather');
+                    this.decreaseCooldownEqu(item, 'staff', 8, 'dec:tear_from_dream');
+                    this.decreaseCooldownEqu(item, 'staff', 6, 'dec:time_compass');
+                    this.decreaseCooldownEqu(item, 'missile', 3, 'dec:diamond_ring');
+                    this.decreaseCooldownEqu(item, 'missile', 4, 'dec:emerald_ring');
+                    this.decreaseCooldownEqu(item, 'missile', 7, 'dec:ender_ring');
+                    this.decreaseCooldownEqu(item, 'missile', 6, 'dec:fire_ring');
+                    this.decreaseCooldownEqu(item, 'missile', 4, 'dec:gold_ring');
+                    this.decreaseCooldownEqu(item, 'missile', 5, 'dec:heart_ring');
+                    this.decreaseCooldownEqu(item, 'missile', 3, 'dec:natural_ring');
+                    this.decreaseCooldownEqu(item, 'missile', 7, 'dec:dust_ring');
+                }
             }
         });
 
         this.getEvents().exEvents.afterItemOnHandChange.subscribe((e) => {
             //切换物品清除skill_count
-            this.exPlayer.getScoresManager().setScore('skill_count',0)
-            
+            this.exPlayer.getScoresManager().setScore('skill_count', 0)
+
         })
 
         /*this.getEvents().exEvents.afterItemReleaseUse.subscribe((e) => {
@@ -175,18 +179,13 @@ export default class DecClient extends ExGameClient {
 
 
             if (!DecGlobal.isDec() && !this.player.hasTag("wbkjlq")) {
+                const tmpV = new Vector3();
                 switch (this.useArmor) {
                     case ArmorPlayerPom.bloodsucking:
                         this.exPlayer.command.run("function armor/bloodsucking");
                         break;
                     case ArmorPlayerPom.senior_bloodsucking:
                         this.exPlayer.command.run("function armor/bloodsucking2");
-                        break;
-                    case ArmorPlayerPom.ink:
-                        //this.exPlayer.command.run("function armor/ink");
-                        break;
-                    case ArmorPlayerPom.senior_ink:
-                        //this.exPlayer.command.run("function armor/ink2");
                         break;
                     case ArmorPlayerPom.senior_seal:
                         this.exPlayer.command.run("function armor/seal2");
@@ -195,9 +194,38 @@ export default class DecClient extends ExGameClient {
                         this.exPlayer.command.run("function armor/seal");
                         break;
                     case ArmorPlayerPom.senior_water:
+                        for (let e of this.getExDimension().getEntities({
+                            "maxDistance": 10,
+                            "excludeTags": (this.exPlayer.hasTag("wbmsyh") ? ["wbmsyh"] : undefined),
+                            "location": this.player.location
+                        })) {
+                            try {
+                                e.applyDamage(5, {
+                                    "cause": EntityDamageCause.entityAttack,
+                                    "damagingEntity": this.player
+                                });
+                                let direction = tmpV.set(e.location).sub(this.player.location).normalize();
+                                e.applyKnockback(direction.x, direction.z, 4, 1);
+                            } catch (e) { }
+                        }
+
                         this.exPlayer.command.run("function armor/water2");
                         break;
                     case ArmorPlayerPom.water:
+                        for (let e of this.getExDimension().getEntities({
+                            "maxDistance": 10,
+                            "excludeTags": (this.exPlayer.hasTag("wbmsyh") ? ["wbmsyh"] : undefined),
+                            "location": this.player.location
+                        })) {
+                            try {
+                                e.applyDamage(5, {
+                                    "cause": EntityDamageCause.entityAttack,
+                                    "damagingEntity": this.player
+                                });
+                                let direction = tmpV.set(e.location).sub(this.player.location).normalize();
+                                e.applyKnockback(direction.x, direction.z, 3, 0.5);
+                            } catch (e) { }
+                        }
                         this.exPlayer.command.run("function armor/water");
                         break;
                     case ArmorPlayerPom.senior_equipment:
@@ -211,6 +239,17 @@ export default class DecClient extends ExGameClient {
                         break;
                     case ArmorPlayerPom.forget:
                         this.exPlayer.command.run("function armor/forget");
+                        break;
+                    case ArmorPlayerPom.senior_ink:
+                        this.exPlayer.addHealth(this, e.damage);
+                        // this.exPlayer.health += e.damage;
+                        this.exPlayer.command.run("function armor/ink2");
+                        break;
+                    case ArmorPlayerPom.ink:
+                        // this.exPlayer.health += e.damage;
+                        this.exPlayer.addHealth(this, e.damage);
+
+                        this.exPlayer.command.run("function armor/ink");
                         break;
                 }
             }
@@ -385,15 +424,6 @@ export default class DecClient extends ExGameClient {
     }
 
     checkArmor() {
-        if (!DecGlobal.isDec()) {
-            if (this.useArmor === ArmorPlayerPom.ink) {
-                this.player.triggerEvent("armor_ink")
-            } else if (this.useArmor === ArmorPlayerPom.senior_ink) {
-                this.player.triggerEvent("armor_senior_ink")
-            } else {
-                this.player.triggerEvent("hostile_mode");
-            }
-        }
         return this.useArmor ? (this.useArmor.detect(this.exPlayer)) : false;
     }
     chooseArmor(a: ArmorData | undefined) {
