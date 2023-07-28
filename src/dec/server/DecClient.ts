@@ -106,7 +106,7 @@ export default class DecClient extends ExGameClient {
             if (e.itemStack.hasComponent('minecraft:cooldown')) {
                 //这里写有饰品时触发的东西
             }
-        })
+        });
 
         this.getEvents().exEvents.afterPlayerHurt.subscribe(e => {
 
@@ -316,10 +316,10 @@ export default class DecClient extends ExGameClient {
                 //紫水晶套装效果
                 if (this.useArmor === ArmorPlayerDec.amethyst) {
                     if (DecGlobal.isDec()) {
-                        let mg = scores.getScore("magicpoint");
+                        let mg = scores.getScore("wbfl");
                         if (11 <= mg && mg <= 29) {
                             this.getExDimension().spawnParticle("dec:amethyst_armor_magic_increase_particle", p.location);
-                            scores.addScore("magicpoint", 1);
+                            scores.addScore("wbfl", 1);
                         }
                     } else {
                         let mg = scores.getScore("wbfl");
@@ -352,10 +352,10 @@ export default class DecClient extends ExGameClient {
                 //木叶套装效果
                 if (this.useArmor === ArmorPlayerDec.wood) {
                     if (DecGlobal.isDec()) {
-                        let mg = scores.getScore("magicpoint");
+                        let mg = scores.getScore("wbfl");
                         if (mg <= 15) {
                             this.getExDimension().spawnParticle("dec:wood_armor_magic_increase_particle", p.location);
-                            scores.addScore("magicpoint", 1);
+                            scores.addScore("wbfl", 1);
                         }
                     } else {
                         let mg = scores.getScore("wbfl");

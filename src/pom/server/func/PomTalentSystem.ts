@@ -210,6 +210,7 @@ export default class PomTalentSystem extends GameController {
 
         //玩家攻击生物增伤
         this.getEvents().exEvents.afterPlayerHitEntity.subscribe((e) => {
+            if(e.damage > 10000000) return;
             let item = this.exPlayer.getBag().itemOnMainHand;
             let damageFac = 0;
             let extraDamage = 0;
@@ -238,7 +239,7 @@ export default class PomTalentSystem extends GameController {
 
 
             let damage = e.damage * damageFac + extraDamage;
-            console.warn(damage);
+            // console.warn(damage);
             if (this.globalSettings.damageShow) {
                 damageShow(this.getExDimension(), damage, target.entity.location);
             }
@@ -256,6 +257,7 @@ export default class PomTalentSystem extends GameController {
 
         //玩家减伤
         this.getEvents().exEvents.afterPlayerHurt.subscribe((e) => {
+            if(e.damage > 10000000) return;
             let damage = (this.exPlayer.getPreRemoveHealth() ?? 0) + e.damage;
             let add = 0;
             let actualDamageFactor = (1 - ((this.talentRes.get(Talent.DEFENSE) ?? 0) / 100));
@@ -312,7 +314,7 @@ export default class PomTalentSystem extends GameController {
                 comp.setGroup(comp.dataGroupJudge(this.client));
                 let base: string[] = [];
                 if (comp.hasComponent("actual_level")) base.push(`§r§e基础属性` + "  §r§6LV." + comp.getComponentWithGroup("actual_level"));
-                if (comp.hasComponent("armor_protection")) base.push("§r§7•护甲值§6+" + comp.getComponentWithGroup("movement_addition") + "§r§7 | 护甲韧性§6+" + comp.getComponentWithGroup("armor_resilience") ?? 0);
+                if (comp.hasComponent("armor_protection")) base.push("§r§7•护甲值§6+" + comp.getComponentWithGroup("armor_protection") + "§r§7 | 护甲韧性§6+" + comp.getComponentWithGroup("armor_resilience") ?? 0);
 
                 if (comp.hasComponent("armor_type")) {
                     //let typeMsg = comp.getComponentWithGroup("armor_type");
