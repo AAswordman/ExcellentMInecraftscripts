@@ -26,6 +26,7 @@ import WarningAlertUI from "./ui/WarningAlertUI.js";
 import TickDelayTask from "../../modules/exmc/utils/TickDelayTask.js";
 import EntityPropCache from "../../modules/exmc/server/storage/cache/EntityPropCache.js";
 import { ArmorData } from "../../dec/server/items/ArmorData.js";
+import { GameDifficulty, pomDifficultyMap } from "./data/GameDifficulty.js";
 
 
 
@@ -171,6 +172,11 @@ export default class PomClient extends ExGameClient<PomTransmission> {
     override getServer(): PomServer {
         return <PomServer>super.getServer();
     }
+
+    getDifficulty():GameDifficulty{
+        return (pomDifficultyMap).get(this.globalSettings.gameDifficulty+"")!;
+    }
+
 
     @receiveMessage("taskUi")
     taskUI(page?: string, subpage?: string): void {

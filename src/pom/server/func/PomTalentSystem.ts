@@ -146,7 +146,7 @@ export default class PomTalentSystem extends GameController {
             this.skillLoop.stop();
         }
         //this.exPlayer.triggerEvent("hp:" + Math.round((20 + (this.talentRes.get(Talent.VIENTIANE) ?? 0))));
-        this.client.magicSystem.gameMaxHealth = Math.round((40 + (this.talentRes.get(Talent.VIENTIANE) ?? 0)));
+        this.client.magicSystem.gameMaxHealth = Math.round(this.client.getDifficulty().healthAddionion + (40 + (this.talentRes.get(Talent.VIENTIANE) ?? 0)));
     }
 
     //更新盔甲属性（在不换甲的情况下）
@@ -233,6 +233,7 @@ export default class PomTalentSystem extends GameController {
                 this.strikeSkill = false;
                 damageFac += SUDDEN_STRIKE / 100;
             }
+            damageFac += (this.client.getDifficulty().damageAddFactor - 1)
 
 
 
@@ -258,11 +259,11 @@ export default class PomTalentSystem extends GameController {
             let add = 0;
             let actualDamageFactor = (1 - ((this.talentRes.get(Talent.DEFENSE) ?? 0) / 100));
             if (PomTalentSystem.magicDamageType.has(e.damageSource.cause)) {
-                actualDamageFactor *= (1 - this.armor_protection[0] / 100)
-                add += this.armor_protection[2]
+                actualDamageFactor *= (1 - this.armor_protection[0] / 100) * (1 - this.client.getDifficulty().magicDefenseAddFactor);
+                add += this.armor_protection[2];
             } else if (PomTalentSystem.physicalDamageType.has(e.damageSource.cause)) {
-                actualDamageFactor *= (1 - this.armor_protection[1] / 100)
-                add += this.armor_protection[3]
+                actualDamageFactor *= (1 - this.armor_protection[1] / 100) * (1 - this.client.getDifficulty().physicalDefenseAddFactor);
+                add += this.armor_protection[3];
             }
             add += damage * (1 - actualDamageFactor);
             add = Math.min(add, damage);
@@ -282,14 +283,15 @@ export default class PomTalentSystem extends GameController {
                     }
                 } else {
                     this.player.applyDamage(99999999, {
-                        "damagingEntity": e.damageSource.damagingEntity,
+                        "damagingEntity": e.damageSource.damagingEntity?.isValid() ? e.damageSource.damagingEntity : undefined,
                         "cause": e.damageSource.cause
                     });
                 }
                 return;
             }
 
-            this.exPlayer.addHealth(this, add);
+            this.client.magicSystem.gameHealth += add;
+            // this.exPlayer.addHealth(this, add);
             this.hasBeenDamaged.trigger(e.damage - add, e.damageSource.damagingEntity);
         });
 

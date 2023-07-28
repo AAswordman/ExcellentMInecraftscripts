@@ -2,6 +2,12 @@ import GlobalScoreBoardCache from "../../../modules/exmc/server/storage/cache/Gl
 import Random from "../../../modules/exmc/utils/Random.js";
 
 export default class GlobalSettings extends GlobalScoreBoardCache {
+    public get gameDifficulty() {
+        return this.getNumber("gameDifficulty") ?? 2;
+    }
+    public set gameDifficulty(value: number) {
+        this.setNumber("gameDifficulty", value);
+    }
     public get playerTpListShowPos(): boolean {
         return this.getBoolean("playerTpListShowPos");
     }
@@ -63,20 +69,20 @@ export default class GlobalSettings extends GlobalScoreBoardCache {
         this.setBoolean("ownerExists", value);
     }
     public get entityCleanerLeastNum() {
-        return this.getNumber("entityCleanerLeastNum") || 200;
+        return this.getNumber("entityCleanerLeastNum") ?? 200;
     }
     public set entityCleanerLeastNum(value: number) {
         this.setNumber("entityCleanerLeastNum", value);
     }
 
     public get entityCleanerStrength() {
-        return this.getNumber("entityCleanerStrength") || 5;
+        return this.getNumber("entityCleanerStrength") ?? 5;
     }
     public set entityCleanerStrength(value: number) {
         this.setNumber("entityCleanerStrength", value);
     }
     public get entityCleanerDelay() {
-        return this.getNumber("entityCleanerDelay") || 30;
+        return this.getNumber("entityCleanerDelay") ?? 30;
     }
     public set entityCleanerDelay(value: number) {
         this.setNumber("entityCleanerDelay", value);
