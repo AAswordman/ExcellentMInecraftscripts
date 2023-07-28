@@ -58,7 +58,7 @@ export default class TalentData {
     static calculateTalent(occupation: Occupation, talentId: number, level: number) {
         switch (talentId) {
             case Talent.VIENTIANE:
-                return level * (TalentData.isOccupationTalent(occupation, talentId) ? 20 : 10) / 40;
+                return level * (TalentData.isOccupationTalent(occupation, talentId) ? 40 : 20) / 40;
                 break;
             case Talent.CLOAD_PIERCING:
                 return level * (TalentData.isOccupationTalent(occupation, talentId) ? 80 : 40) / 40;
@@ -70,7 +70,7 @@ export default class TalentData {
                 return level * (TalentData.isOccupationTalent(occupation, talentId) ? 50 : 25) / 40;
                 break;
             case Talent.DEFENSE:
-                return level * (TalentData.isOccupationTalent(occupation, talentId) ? 45 : 25) / 40;
+                return level * (TalentData.isOccupationTalent(occupation, talentId) ? 35 : 20) / 40;
                 break;
             case Talent.CHARGING:
                 return level * (TalentData.isOccupationTalent(occupation, talentId) ? 35 : 15) / 40;

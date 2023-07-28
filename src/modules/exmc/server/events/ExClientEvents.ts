@@ -181,23 +181,37 @@ export default class ExClientEvents implements ExEventManager {
                 const func = (p: Entity, e: { "itemStack": ItemStack }) => {
                     let liss = ExClientEvents.eventHandlers.monitorMap[k].get(p);
                     if (!liss || liss.length === 0) return;
-                    
+
                     let arr: Entity[] = [];
                     const viewDic = ExEntity.getInstance(p).viewDirection;
                     const viewLen = viewDic.len();
                     const tmpV = new Vector3();
                     for (let e of p.dimension.getEntities({
                         "location": p.location,
-                        "maxDistance": 6,
-                        "excludeFamilies": [MinecraftEntityTypes.Player]
+                        "maxDistance": 16,
+                        "families": ["arrow"]
                     })) {
                         tmpV.set(e.getVelocity());
                         const len = tmpV.len();
                         if (len === 0) continue;
-                        console.warn(Math.acos(tmpV.mul(viewDic) / viewLen / tmpV.len()))
                         if (tmpV.len() > 0.15
                             && Math.acos(tmpV.mul(viewDic) / viewLen / tmpV.len()) < 0.25) {
                             arr.push(e);
+                        }
+                    }
+                    if (arr.length === 0) {
+                        for (let e of p.dimension.getEntities({
+                            "location": p.location,
+                            "maxDistance": 6,
+                            "excludeFamilies": [MinecraftEntityTypes.Player]
+                        })) {
+                            tmpV.set(e.getVelocity());
+                            const len = tmpV.len();
+                            if (len === 0) continue;
+                            if (tmpV.len() > 0.15
+                                && Math.acos(tmpV.mul(viewDic) / viewLen / tmpV.len()) < 0.25) {
+                                arr.push(e);
+                            }
                         }
                     }
                     if (arr.length > 0) {
@@ -214,7 +228,7 @@ export default class ExClientEvents implements ExEventManager {
                 ExClientEvents.eventHandlers.server.getEvents().events.afterItemReleaseUse.subscribe((e) => {
                     func(e.source, e);
                 });
-                ExClientEvents.eventHandlers.server.getEvents().events.afterItemStopUse.subscribe((e) => {
+                ExClientEvents.eventHandlers.server.getEvents().events.afterItemUse.subscribe((e) => {
                     func(e.source, e);
                 });
             }

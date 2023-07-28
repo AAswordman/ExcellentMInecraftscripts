@@ -47,6 +47,7 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         if (this._damage === undefined) {
             this._damage = damage;
             timeout.setTimeout(() => {
+                if(!this.entity.isValid()) return;
                 let health = this.getComponent("minecraft:health")!;
                 if (health.currentValue > 0.01) health.setCurrentValue(Math.max(0.5, health.currentValue - (this._damage ?? 0)));
                 this._damage = undefined;

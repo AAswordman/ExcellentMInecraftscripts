@@ -15,6 +15,8 @@ import POMLICENSE from "./POMLICENSE.js";
 import MathUtil from "../../../modules/exmc/math/MathUtil.js";
 import ExActionAlert from "../../../modules/exmc/server/ui/ExActionAlert.js";
 import WarningAlertUI from "../ui/WarningAlertUI.js";
+import { pomDifficultyMap } from "./GameDifficulty.js";
+import { zeroIfNaN } from "../../../modules/exmc/utils/tool.js";
 
 export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
     return {
@@ -227,7 +229,9 @@ BunBun不是笨笨    在矿里的小金呀
                         `   ${lang.menuUIMsgBailan97}: ${scores.getScore("wbwqlq")}`,
                         `   ${lang.menuUIMsgBailan98}: ${scores.getScore("wbkjlqcg")}`,
                         `   ${lang.menuUIMsgBailan99}: ${source.hasTag("wbmsyh") ? lang.menuUIMsgBailan15 : lang.menuUIMsgBailan16}`,
-                        `   ${lang.menuUIMsgBailan100}: ${source.hasTag("wbdjeff") ? lang.menuUIMsgBailan15 : lang.menuUIMsgBailan16}`];
+                        `   ${lang.menuUIMsgBailan100}: ${source.hasTag("wbdjeff") ? lang.menuUIMsgBailan15 : lang.menuUIMsgBailan16}`,
+                        `   ${`游戏难度`}: ${client.getDifficulty().name}`
+                        ];
                         let arr: MenuUIAlertView<PomClient>[] = MenuUIAlert.getLabelViews(msg);
                         arr.unshift({
                             "type": "text_title",
@@ -835,6 +839,36 @@ ${getCharByNum((gj - (150 * (g - 1) ** 2 + 1050 * (g - 1) + 900)) / (300 * g + 9
 
                                         client.runMethodOnEveryClient(c => c.itemUseFunc.initialMagicPickaxe());
                                         return true;
+                                    }
+                                },
+                                {
+                                    "type": "button",
+                                    "msg": "冬诗难度选择",
+                                    "function": (client, ui): boolean => {
+                                        let map = pomDifficultyMap;
+                                        new ModalFormData()
+                                            .title("Choose a mode")
+                                            .dropdown("Difficulty List",
+                                                [
+                                                    map.get("0")!.name,
+                                                    map.get("1")!.name,
+                                                    map.get("2")!.name,
+                                                    map.get("3")!.name
+                                                ], 2)
+                                            .show(client.player).then((e) => {
+                                                if (!e.canceled) {
+                                                    let v = (e.formValues?.[0]);
+                                                    client.globalSettings.gameDifficulty = parseFloat(v + "");
+                                                    client.getServer().sayTo("Difficulty Choose " + client.getDifficulty().name);
+                                                    for (let c of client.getServer().getClients()) {
+                                                        (c as PomClient).talentSystem.updateTalentRes();
+                                                    }
+                                                }
+                                            })
+                                            .catch((e) => {
+                                                ExErrorQueue.throwError(e);
+                                            });
+                                        return false;
                                     }
                                 },
                                 {
