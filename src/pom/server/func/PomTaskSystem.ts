@@ -125,7 +125,7 @@ export default class PomTaskSystem extends GameController {
         });
     }
 
-    onLoaded(): void {
+    onLoad(): void {
 
     }
 

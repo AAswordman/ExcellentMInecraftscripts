@@ -1,6 +1,6 @@
 import ExGameClient from "./ExGameClient.js";
 import ExDimension from "./ExDimension.js";
-import { world, MinecraftDimensionTypes, PlayerJoinAfterEvent, Player, PlayerLeaveAfterEvent, system, RawMessage, EntitySpawnAfterEvent, Entity, Dimension } from "@minecraft/server";
+import { world, MinecraftDimensionTypes, PlayerJoinAfterEvent, Player, PlayerLeaveAfterEvent, system, RawMessage, EntitySpawnAfterEvent, Entity, Dimension, PlayerSpawnAfterEvent } from "@minecraft/server";
 import ExGameConfig from "./ExGameConfig.js";
 import initConsole from "../utils/Console.js";
 import ExServerEvents from "./events/ExServerEvents.js";
@@ -19,6 +19,7 @@ import notUtillTask from "../utils/notUtillTask.js";
 import ExSound from "./env/ExSound.js";
 import { ExEventNames, TickEvent } from "./events/events.js";
 import { falseIfError } from "../utils/tool.js";
+import ExSystem from "../utils/ExSystem.js";
 
 
 export default class ExGameServer implements SetTimeOutSupport {
@@ -26,7 +27,7 @@ export default class ExGameServer implements SetTimeOutSupport {
     clients_nameMap;
     _events;
     entityControllers: Map<string, typeof ExEntityController> = new Map();
-    static dimensionMap = new Map<string,Dimension>();
+    static dimensionMap = new Map<string, Dimension>();
     static isInitialized: boolean;
 
     constructor(config: ExConfig) {
@@ -38,9 +39,9 @@ export default class ExGameServer implements SetTimeOutSupport {
             ExGameServer.isInitialized = true;
             ExGameConfig.config = config;
 
-            ExGameServer.dimensionMap.set(MinecraftDimensionTypes.nether,world.getDimension(MinecraftDimensionTypes.nether));
-            ExGameServer.dimensionMap.set(MinecraftDimensionTypes.overworld,world.getDimension(MinecraftDimensionTypes.overworld));
-            ExGameServer.dimensionMap.set(MinecraftDimensionTypes.theEnd,world.getDimension(MinecraftDimensionTypes.theEnd));
+            ExGameServer.dimensionMap.set(MinecraftDimensionTypes.nether, world.getDimension(MinecraftDimensionTypes.nether));
+            ExGameServer.dimensionMap.set(MinecraftDimensionTypes.overworld, world.getDimension(MinecraftDimensionTypes.overworld));
+            ExGameServer.dimensionMap.set(MinecraftDimensionTypes.theEnd, world.getDimension(MinecraftDimensionTypes.theEnd));
 
             if (!config.watchDog) {
                 system.beforeEvents.watchdogTerminate.subscribe((e) => {
@@ -62,6 +63,12 @@ export default class ExGameServer implements SetTimeOutSupport {
                 });
             }
         }
+        // for (const c of this.getClients()) {
+        //     if (!c.isLoaded) {
+        //         c.onLoad();
+        //         c.isLoaded = true;
+        //     }
+        // }
         eventDecoratorFactory(this.getEvents(), this);
     }
 
@@ -75,7 +82,7 @@ export default class ExGameServer implements SetTimeOutSupport {
 
     @registerEvent(ExEventNames.afterEntitySpawn)
     onEntitySpawn(e: EntitySpawnAfterEvent) {
-        if(!falseIfError(() => (e.entity.typeId))) return;
+        if (!falseIfError(() => (e.entity.typeId))) return;
         let id;
         try { id = e.entity.typeId } catch (e) { return; }
         const entityConstructor = this.entityControllers.get(e.entity.typeId);
@@ -139,7 +146,7 @@ export default class ExGameServer implements SetTimeOutSupport {
 
     findClientByPlayer(player: Player) {
         for (let k of this.clients) {
-            if (k[1].player == player) {
+            if (ExSystem.getId(k[1].player) === ExSystem.getId(player)) {
                 return k[1];
             }
         }
@@ -165,6 +172,18 @@ export default class ExGameServer implements SetTimeOutSupport {
                 this.clients_nameMap.set(player.name, client);
             });
     }
+
+    // @registerEvent(ExEventNames.afterPlayerSpawn, (obj: ExGameServer, e: PlayerSpawnAfterEvent) => e.initialSpawn)
+    // onClientLoad(e: PlayerSpawnAfterEvent) {
+    //     let c = this.findClientByPlayer(e.player);
+    //     if (c && !c.isLoaded) {
+    //         c.onLoad();
+    //         c.isLoaded = true;
+    //     } else {
+    //         ExGameConfig.console.error("can't load client: " + e.player.nameTag);
+    //     }
+    // }
+
 
     @registerEvent(ExEventNames.afterPlayerLeave)
     onClientLeave(event: PlayerLeaveAfterEvent) {

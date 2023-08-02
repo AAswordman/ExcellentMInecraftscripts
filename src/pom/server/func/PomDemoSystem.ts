@@ -6,7 +6,7 @@ export default class PomDemoSystem extends GameController{
 
     }
 
-    onLoaded(): void {
+    onLoad(): void {
 
     }
 

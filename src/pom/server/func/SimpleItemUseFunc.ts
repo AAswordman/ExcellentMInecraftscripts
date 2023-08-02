@@ -10,6 +10,7 @@ import GameController from "./GameController.js";
 import { MinecraftEffectTypes } from '../../../modules/vanilla-data/lib/index.js';
 import { MinecraftItemTypes } from '../../../modules/vanilla-data/lib/mojang-item.js';
 import PomOccupationSkillTrack from '../entities/PomOccupationSkillTrack.js';
+import ExSystem from '../../../modules/exmc/utils/ExSystem.js';
 
 export default class SimpleItemUseFunc extends GameController {
     onJoin(): void {
@@ -22,7 +23,7 @@ export default class SimpleItemUseFunc extends GameController {
                     this.chainDigging(new Vector3(e.block), e.brokenBlockPermutation.type.id, 16);
                 }
             } else if (itemId === "wb:pickaxex_equipment_a") {
-                if (this.globalSettings.chainMining && this.exPlayer.getScoresManager().getScore("wbfl")>=30) {
+                if (this.globalSettings.chainMining && this.exPlayer.getScoresManager().getScore("wbfl") >= 30) {
                     this.chainDigging(new Vector3(e.block), e.brokenBlockPermutation.type.id, 5);
                     this.exPlayer.getScoresManager().deleteScore("wbfl");
                 }
@@ -64,17 +65,6 @@ export default class SimpleItemUseFunc extends GameController {
                 }, 0);
             } else if (item.typeId === "wb:start_key") {
 
-            } else if (item.typeId === "wb:technology_world_explorer") {
-                // this.exPlayer.command.run("locate biome ice_plains").then((e) => {
-                //     // console.warn(JSON.stringify(e));
-                //     // console.warn((e.toLocaleString()));
-                //     // console.warn((e.toString()));
-                //     // console.warn(ExSystem.parseObj(e));
-                // })
-                //     .catch((err) => {
-                //         console.warn(err);
-                //     })
-
             } else if (item.typeId === "wb:pickaxex_equipment_a") {
                 if (this.globalSettings.chainMining) {
                 } else {
@@ -89,6 +79,17 @@ export default class SimpleItemUseFunc extends GameController {
                     ]);
                 }
             }
+        });
+        this.getEvents().exEvents.afterItemUse.subscribe(e => {
+            const item = e.itemStack;
+            // if (item.typeId === "wb:technology_world_explorer") {
+            //     const e = this.player.runCommand("locate biome ice_plains");
+            //     console.warn(e);
+            //     console.warn(JSON.stringify(e));
+            //     console.warn(ExSystem.parseObj(e));
+
+
+            // }
         });
 
         // let target: undefined | Entity;
@@ -145,7 +146,7 @@ export default class SimpleItemUseFunc extends GameController {
 
         }
     }
-    onLoaded(): void {
+    onLoad(): void {
         this.initialMagicPickaxe();
     }
     onLeave(): void {
