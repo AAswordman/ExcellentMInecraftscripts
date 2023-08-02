@@ -58,7 +58,7 @@ export default class PomInteractSystem extends GameController {
         });
     }
 
-    onLoaded(): void {
+    onLoad(): void {
 
     }
 

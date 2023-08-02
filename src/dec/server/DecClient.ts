@@ -48,7 +48,7 @@ export default class DecClient extends ExGameClient {
     }
     override onJoin(): void {
         super.onJoin();
-        this.player.runCommandAsync('fog @a remove \"night_event\"')
+        this.exPlayer.command.run('fog @s remove \"night_event\"')
         this.getEvents().exEvents.onLongTick.subscribe((e) => {
             if (e.currentTick % 40 === 0) {
                 this.totemEffect('dec:gingerbread_totem', ['function item/gingerbread_totem']);
@@ -431,8 +431,8 @@ export default class DecClient extends ExGameClient {
         ExGame.postMessageBetweenClient(this, PomServer, "chooseArmor", [a]);
     }
 
-    override onLoaded(): void {
-        super.onLoaded();
+    override onLoad(): void {
+        super.onLoad();
     }
 
     override onLeave(): void {

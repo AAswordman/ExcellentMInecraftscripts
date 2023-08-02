@@ -16,7 +16,7 @@ export default class CustomClient extends ExGameClient {
 
     }
 
-    override onLoaded(): void {
+    override onLoad(): void {
 
     }
 

@@ -183,7 +183,7 @@ export default class PomTalentSystem extends GameController {
 
     //更新玩家属性（不改变手持）
     updatePlayerAttribute() {
-        //攻击还没写
+        //攻击
         this.attack_addition = this.armor_attack_addition + (this.itemOnHandComp?.getComponentWithGroup("attack_addition") ?? 0);
         //保护
         //速度
@@ -210,7 +210,7 @@ export default class PomTalentSystem extends GameController {
 
         //玩家攻击生物增伤
         this.getEvents().exEvents.afterPlayerHitEntity.subscribe((e) => {
-            if(e.damage > 10000000) return;
+            if (e.damage > 10000000) return;
             let item = this.exPlayer.getBag().itemOnMainHand;
             let damageFac = 0;
             let extraDamage = 0;
@@ -235,7 +235,7 @@ export default class PomTalentSystem extends GameController {
                 damageFac += SUDDEN_STRIKE / 100;
             }
             damageFac += (this.client.getDifficulty().damageAddFactor - 1)
-
+            extraDamage += this.attack_addition;
 
 
             let damage = e.damage * damageFac + extraDamage;
@@ -257,7 +257,7 @@ export default class PomTalentSystem extends GameController {
 
         //玩家减伤
         this.getEvents().exEvents.afterPlayerHurt.subscribe((e) => {
-            if(e.damage > 10000000) return;
+            if (e.damage > 10000000) return;
             let damage = (this.exPlayer.getPreRemoveHealth() ?? 0) + e.damage;
             let add = 0;
             let actualDamageFactor = (1 - ((this.talentRes.get(Talent.DEFENSE) ?? 0) / 100));
@@ -273,23 +273,40 @@ export default class PomTalentSystem extends GameController {
             // console.warn(actualDamageFactor);
             // console.warn(add);
 
-            if (this.client.magicSystem.gameHealth - damage + add <= 0) {
-                if (e.damageSource.cause === EntityDamageCause.projectile) {
-                    if (e.damageSource.damagingEntity) {
-                        this.player.applyDamage(99999999, {
-                            "damagingEntity": e.damageSource.damagingEntity,
-                            "damagingProjectile": e.damageSource.damagingProjectile?.isValid() ?
-                                e.damageSource.damagingProjectile : (e.damageSource.damagingEntity)
-                        });
-                    } else {
-                        this.player.applyDamage(99999999);
-                    }
+            let anotherAdd = 0;
+            if (PomTalentSystem.physicalDamageType.has(e.damageSource.cause)) {
+                let absorb = Math.max(0, this.client.magicSystem.damageAbsorbed - (damage - add));
+                if (absorb >= 0) {
+                    this.client.magicSystem.damageAbsorbed = absorb;
+                    anotherAdd += absorb;
                 } else {
-                    this.player.applyDamage(99999999, {
-                        "damagingEntity": e.damageSource.damagingEntity?.isValid() ? e.damageSource.damagingEntity : undefined,
-                        "cause": e.damageSource.cause
-                    });
+                    anotherAdd += this.client.magicSystem.damageAbsorbed;
+                    this.client.magicSystem.damageAbsorbed;
                 }
+            }
+
+            add += anotherAdd;
+
+            if (this.client.magicSystem.gameHealth - damage + add <= 0) {
+                const clnE = {...e.damageSource};
+                ExGame.run(() => {
+                    if (clnE.cause === EntityDamageCause.projectile) {
+                        if (clnE.damagingEntity) {
+                            this.player.applyDamage(99999999, {
+                                "damagingEntity": clnE.damagingEntity,
+                                "damagingProjectile": clnE.damagingProjectile?.isValid() ?
+                                    clnE.damagingProjectile : (clnE.damagingEntity)
+                            });
+                        } else {
+                            this.player.applyDamage(99999999);
+                        }
+                    } else {
+                        this.player.applyDamage(99999999, {
+                            "damagingEntity": clnE.damagingEntity?.isValid() ? clnE.damagingEntity : undefined,
+                            "cause": clnE.cause
+                        });
+                    }
+                });
                 return;
             }
 
@@ -478,7 +495,7 @@ export default class PomTalentSystem extends GameController {
     hasBeenDamaged = new MonitorManager<[number, Entity | undefined]>();
     hasCauseDamage = new MonitorManager<[number, Entity]>();
 
-    onLoaded(): void {
+    onLoad(): void {
         this.updateTalentRes();
         (function (c: any) {
             let a, b, d, e, f, g, h, i, j;

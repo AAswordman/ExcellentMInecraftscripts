@@ -3,10 +3,10 @@ import Vector3 from "../../../modules/exmc/math/Vector3.js";
 import TalentData from "./TalentData.js";
 
 export default class PomData {
-    licenseRead?:boolean;
+    licenseRead?: boolean;
 
     talent: TalentData = new TalentData();
-    occupationChooseDate?: number;
+    occupationChooseNum?: number;
 
     pointRecord?: {
         deathPoint: [string, Vector3][];
@@ -14,18 +14,18 @@ export default class PomData {
     };
 
     tasks?: {
-        daily:{
-            complete:number[][],
-            all:number[][],
-            date:string,
-            cache:{
-                [x:string]:number;
+        daily: {
+            complete: number[][],
+            all: number[][],
+            date: string,
+            cache: {
+                [x: string]: number;
             }
         },
-        progress:{
-            complete:string[],
-            data:{
-                [x:string]:number;
+        progress: {
+            complete: string[],
+            data: {
+                [x: string]: number;
             }
         }
     }
@@ -35,6 +35,8 @@ export default class PomData {
 
     lang?: "en" | "zh";
 
-    initialMagicPickaxe?:true;
+    initialMagicPickaxe?: true;
 
+    gameExperience!: number;
+    gameGrade!: number;
 }

@@ -41,8 +41,8 @@ export default class PomDimRuinsSystem extends GameController {
                 }
             });
             this.deathTimesListener = (e: EntityHurtAfterEvent) => {
-                // console.warn("add");
-                // console.warn(this.exPlayer.getHealth());
+                console.warn("add"+e.damage);
+                console.warn(this.exPlayer.health);
                 if (this.exPlayer.health <= 0) {
                     this.barrier?.notifyDeathAdd();
                 }
@@ -499,7 +499,7 @@ export default class PomDimRuinsSystem extends GameController {
     }
 
 
-    onLoaded(): void {
+    onLoad(): void {
 
     }
 

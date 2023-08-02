@@ -32,6 +32,7 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
     playerName: string;
     private _pool?: T;
     private _poolCache!: ExInterworkingPool;
+    public isLoaded = false;
 
     debug_removeAllTag() {
         for (let i of this.exPlayer.getTags()) {
@@ -65,11 +66,9 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
                 return false;
             }
         },
-            () => this.onLoaded()
+            () => { this.onLoad(); this.isLoaded = true; }
         );
-
         this.onJoin();
-
         eventDecoratorFactory(this.getEvents(), this);
     }
 
@@ -132,7 +131,7 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
     onJoin() {
 
     }
-    onLoaded() {
+    onLoad() {
     }
 
     onLeave() {
@@ -152,8 +151,8 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
         this.player.removeTag("debugger");
     }
 
-    runMethodOnEveryClient(fun:((e:this) => void)){
-        for(let c of this.getServer().getClients()){
+    runMethodOnEveryClient(fun: ((e: this) => void)) {
+        for (let c of this.getServer().getClients()) {
             fun(c as any);
         }
     }

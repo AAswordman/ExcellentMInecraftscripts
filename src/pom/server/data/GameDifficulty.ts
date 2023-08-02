@@ -11,9 +11,9 @@ export interface GameDifficulty {
 }
 
 export class PomGameFoolDifficulty implements GameDifficulty {
-    name = "Fool";
+    name = "BIG Fool";
     id = "0";
-    healthAddionion = 20;
+    healthAddionion = 30;
     physicalDefenseAddFactor = 0.4;
     magicDefenseAddFactor = 0.3;
     damageAddFactor = 1.7;
@@ -41,23 +41,35 @@ export class PomGameNormalDifficulty implements GameDifficulty {
     damageAddFactor = 1;
     wbflAddFactor = 1;
     coolingFactor = 1;
-    LevelFactor = 1;
+    LevelFactor = 2;
 }
 export class PomGameHardDifficulty implements GameDifficulty {
     name = "Difficult";
     id = "3";
-    healthAddionion = -20;
+    healthAddionion = -10;
     physicalDefenseAddFactor = 0;
     magicDefenseAddFactor = 0;
     damageAddFactor = 0.8;
     wbflAddFactor = 0.8;
     coolingFactor = 0.8;
-    LevelFactor = 0.9;
+    LevelFactor = 1.5;
+}
+export class PomGameHellDifficulty implements GameDifficulty {
+    name = "Human play???";
+    id = "4"
+    healthAddionion = -20;
+    physicalDefenseAddFactor = -0.2;
+    magicDefenseAddFactor = -0.2;
+    damageAddFactor = 0.5;
+    wbflAddFactor = 0.6;
+    coolingFactor = 0.6;
+    LevelFactor = 1;
 }
 const _pomDifficultyMap = new Map<string, GameDifficulty>();
 _pomDifficultyMap.set("0", new PomGameFoolDifficulty());
 _pomDifficultyMap.set("1", new PomGameEasyDifficulty());
 _pomDifficultyMap.set("2", new PomGameNormalDifficulty());
 _pomDifficultyMap.set("3", new PomGameHardDifficulty());
+_pomDifficultyMap.set("4", new PomGameHellDifficulty());
 
 export const pomDifficultyMap = _pomDifficultyMap;

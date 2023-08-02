@@ -31,7 +31,7 @@ export default function taskDaily_c(lang: langType):PomTaskJSON {
                 "rewards": [
                     {
                         "name": "模组经验",
-                        "count": 350,
+                        "count": 700,
                         "unit": "点",
                         "type": "integral"
                     }
@@ -80,7 +80,7 @@ export default function taskDaily_c(lang: langType):PomTaskJSON {
                 "rewards": [
                     {
                         "name": "模组经验",
-                        "count": 450,
+                        "count": 900,
                         "unit": "点",
                         "type": "integral"
                     }
@@ -123,7 +123,7 @@ export default function taskDaily_c(lang: langType):PomTaskJSON {
                 "rewards": [
                     {
                         "name": "模组经验",
-                        "count": 450,
+                        "count": 900,
                         "unit": "点",
                         "type": "integral"
                     }
@@ -166,7 +166,7 @@ export default function taskDaily_c(lang: langType):PomTaskJSON {
                 "rewards": [
                     {
                         "name": "模组经验",
-                        "count": 450,
+                        "count": 900,
                         "unit": "点",
                         "type": "integral"
                     }
@@ -185,7 +185,7 @@ export default function taskDaily_c(lang: langType):PomTaskJSON {
                 "rewards": [
                     {
                         "name": "模组经验",
-                        "count": 450,
+                        "count": 900,
                         "unit": "点",
                         "type": "integral"
                     }
@@ -204,7 +204,7 @@ export default function taskDaily_c(lang: langType):PomTaskJSON {
                 "rewards": [
                     {
                         "name": "模组经验",
-                        "count": 600,
+                        "count": 1200,
                         "unit": "点",
                         "type": "integral"
                     }
@@ -235,7 +235,7 @@ export default function taskDaily_c(lang: langType):PomTaskJSON {
                 "rewards": [
                     {
                         "name": "模组经验",
-                        "count": 400,
+                        "count": 800,
                         "unit": "点",
                         "type": "integral"
                     }
@@ -266,7 +266,7 @@ export default function taskDaily_c(lang: langType):PomTaskJSON {
                 "rewards": [
                     {
                         "name": "模组经验",
-                        "count": 500,
+                        "count": 1000,
                         "unit": "点",
                         "type": "integral"
                     }
@@ -303,7 +303,7 @@ export default function taskDaily_c(lang: langType):PomTaskJSON {
                 "rewards": [
                     {
                         "name": "模组经验",
-                        "count": 450,
+                        "count": 900,
                         "unit": "点",
                         "type": "integral"
                     }
@@ -322,7 +322,7 @@ export default function taskDaily_c(lang: langType):PomTaskJSON {
                 "rewards": [
                     {
                         "name": "模组经验",
-                        "count": 700,
+                        "count": 1400,
                         "unit": "点",
                         "type": "integral"
                     }
@@ -341,7 +341,7 @@ export default function taskDaily_c(lang: langType):PomTaskJSON {
                 "rewards": [
                     {
                         "name": "模组经验",
-                        "count": 600,
+                        "count": 1200,
                         "unit": "点",
                         "type": "integral"
                     }
@@ -390,7 +390,7 @@ export default function taskDaily_c(lang: langType):PomTaskJSON {
                 "rewards": [
                     {
                         "name": "模组经验",
-                        "count": 600,
+                        "count": 1200,
                         "unit": "点",
                         "type": "integral"
                     }

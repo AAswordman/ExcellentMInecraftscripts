@@ -41,7 +41,7 @@ export default abstract class GameController implements ExCommandNativeRunner,Se
         return this._client.getPlayers();
     }
 	abstract onJoin():void;
-	abstract onLoaded():void
+	abstract onLoad():void
 	abstract onLeave():void;
 	getEvents(){
         return this._client.getEvents();

@@ -45,6 +45,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
     ruinsSystem = new PomDimRuinsSystem(this);
     taskSystem = new PomTaskSystem(this);
     interactSystem = new PomInteractSystem(this);
+    licenseLooper?: TickDelayTask;
     // net;
 
     constructor(server: ExGameServer, id: string, player: Player) {
@@ -94,7 +95,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
         return lang[this.data.lang ?? "en"];
     }
 
-    override onLoaded(): void {
+    override onLoad(): void {
         let scores = ExPlayer.getInstance(this.player).getScoresManager();
         this.gameId = scores.getScore("wbldid");
         if (this.gameId === 0) {
@@ -102,7 +103,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
             scores.setScore("wbldid", this.gameId);
         }
 
-        this.gameControllers.forEach(controller => controller.onLoaded());
+        this.gameControllers.forEach(controller => controller.onLoad());
 
         if (!this.data.lang) {
             this.exPlayer.runCommandAsync("mojang nmsl").catch((e) => {
@@ -114,14 +115,14 @@ export default class PomClient extends ExGameClient<PomTransmission> {
             });
         }
         if (!this.data.licenseRead) {
-            const looper = ExSystem.tickTask(() => {
+            this.licenseLooper = ExSystem.tickTask(() => {
                 new WarningAlertUI(this, POMLICENSE, [["同意并继续", (c, ui) => {
                     this.data.licenseRead = true;
-                    looper.stop();
+                    this.licenseLooper?.stop();
                 }]]).showPage();
-                if (!this.data.licenseRead) looper.startOnce();
-            }).delay(1 * 20);
-            looper.startOnce();
+                if (this.data.licenseRead) this.licenseLooper?.stop();
+            }).delay(2 * 20);
+            this.licenseLooper.start();
         }
 
         if (this.player.hasTag("wbmsyh")) {
@@ -133,8 +134,6 @@ export default class PomClient extends ExGameClient<PomTransmission> {
         this.exPlayer.command.run([
             "execute as @s[tag=!wbyzc] at @s run scoreboard players set @s wbef 0",
             "execute as @s[tag=!wbyzc] at @s run scoreboard players set @s wbdj 0",
-            "execute as @s[tag=!wbyzc] at @s run scoreboard players set @s wbdjcg 0",
-            "execute as @s[tag=!wbyzc] at @s run scoreboard players set @s wbdjjf 0",
             "execute as @s[tag=!wbyzc] at @s run give @s wb:power 1 0 {\"minecraft:keep_on_death\":{}}",
             "execute as @s[tag=!wbyzc] at @s run scoreboard players set @s wbcsjs -1",
             "execute as @s[tag=!wbyzc] at @s run scoreboard players set @s wbnldx 0",
@@ -154,6 +153,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
     override onLeave(): void {
         this.gameControllers.forEach(controller => controller.onLeave());
         this.looper.stop();
+        this.licenseLooper?.stop();
         super.onLeave();
     }
 
