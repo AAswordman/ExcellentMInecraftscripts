@@ -875,7 +875,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                             .show(client.player).then((e) => {
                                                 if (!e.canceled) {
                                                     let v = (e.formValues?.[0]);
-                                                    client.globalSettings.gameDifficulty = parseFloat(v + "");
+                                                    client.globalSettings.gameDifficulty = 1 + parseFloat(v + "");
                                                     client.getServer().sayTo("Difficulty Choose " + client.getDifficulty().name);
                                                     for (let c of client.getServer().getClients()) {
                                                         (c as PomClient).talentSystem.updateTalentRes();
