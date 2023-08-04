@@ -3,13 +3,13 @@ import Random from "../../../modules/exmc/utils/Random.js";
 
 export default class GlobalSettings extends GlobalScoreBoardCache {
     public get uiUpdateDelay() {
-        return this.getNumber("uiUpdateDelay") ?? 8;
+        return this.getNumber("uiUpdateDelay") || 10;
     }
     public set uiUpdateDelay(value: number) {
         this.setNumber("uiUpdateDelay", value);
     }
     public get gameDifficulty() {
-        return this.getNumber("gameDifficulty") ?? 2;
+        return this.getNumber("gameDifficulty") || 3;
     }
     public set gameDifficulty(value: number) {
         this.setNumber("gameDifficulty", value);

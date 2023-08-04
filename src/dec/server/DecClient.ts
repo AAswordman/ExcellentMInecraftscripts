@@ -1,4 +1,4 @@
-import { EffectType, EntityDamageCause, EntityHealthComponent, EquipmentSlot, ItemStack, MinecraftDimensionTypes, Player, world } from "@minecraft/server";
+import { EffectType, EntityDamageCause, EntityHealthComponent, EquipmentSlot, GameMode, ItemStack, MinecraftDimensionTypes, Player, world } from "@minecraft/server";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import ExGameServer from "../../modules/exmc/server/ExGameServer.js";
 import { ArmorData, ArmorPlayerDec, ArmorPlayerPom } from "./items/ArmorData.js";
@@ -105,6 +105,12 @@ export default class DecClient extends ExGameClient {
         this.getEvents().exEvents.afterItemUse.subscribe((e) => {
             if (e.itemStack.hasComponent('minecraft:cooldown')) {
                 //这里写有饰品时触发的东西
+            }
+        });
+        this.getEvents().exEvents.beforeItemUseOn.subscribe(e => {
+            const id = e.block.typeId;
+            if (id.startsWith("dec") && id.includes("summoner") && id !== "dec:summoner" && this.exPlayer.getGameMode() !== GameMode.creative) {
+                e.cancel;
             }
         });
 
@@ -411,12 +417,12 @@ export default class DecClient extends ExGameClient {
                     hunter_reset()
                     e.source.runCommandAsync('tellraw @a { "rawtext" : [ { "translate" : "text.dec:hunter_book_new.name" } ] }')
                     e.source.runCommandAsync('tellraw @s { "rawtext" : [ { "translate" : "text.dec:hunter_book_coordinate_1.name" },{ "score":{ "name": "hunter_x","objective": "global" } },{ "translate" : "text.dec:hunter_book_coordinate_2.name" },{ "score":{ "name": "hunter_z","objective": "global" } } ] }')
-                } else if ((<number>cur_hunter_x) - 3 <= e.source.location.x && (<number>cur_hunter_x) + 3 >= e.source.location.x && (<number>cur_hunter_z) - 3 <= e.source.location.z && (<number>cur_hunter_z) + 3 >= e.source.location.z){
+                } else if ((<number>cur_hunter_x) - 3 <= e.source.location.x && (<number>cur_hunter_x) + 3 >= e.source.location.x && (<number>cur_hunter_z) - 3 <= e.source.location.z && (<number>cur_hunter_z) + 3 >= e.source.location.z) {
                     hunter_reset()
                     e.source.runCommandAsync('tellraw @a { "rawtext" : [ { "translate" : "text.dec:hunter_book_success.name" } ] }')
                     e.source.runCommandAsync('tellraw @a { "rawtext" : [ { "translate" : "text.dec:hunter_book_new.name" } ] }')
                     e.source.runCommandAsync('tellraw @s { "rawtext" : [ { "translate" : "text.dec:hunter_book_coordinate_1.name" },{ "score":{ "name": "hunter_x","objective": "global" } },{ "translate" : "text.dec:hunter_book_coordinate_2.name" },{ "score":{ "name": "hunter_z","objective": "global" } } ] }')
-                    e.source.runCommandAsync('xp '+ (5000 + Math.random() * 4000) +' @s')
+                    e.source.runCommandAsync('xp ' + (5000 + Math.random() * 4000) + ' @s')
                     e.source.runCommandAsync('loot give @s loot "items/hunter_book"')
                 } else {
                     e.source.runCommandAsync('tellraw @s { "rawtext" : [ { "translate" : "text.dec:hunter_book_not_complete.name" } ] }')
