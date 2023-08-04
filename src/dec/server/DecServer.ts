@@ -232,7 +232,7 @@ export default class DecServer extends ExGameServer {
                 'minecraft:cherry_door', 'minecraft:cherry_trapdoor', 'minecraft:crimson_door', 'minecraft:crimson_trapdoor', 'minecraft:dark_oak_door', 'minecraft:dark_oak_trapdoor',
                 'minecraft:jungle_door', 'minecraft:jungle_trapdoor', 'minecraft:mangrove_door', 'minecraft:mangrove_trapdoor', 'minecraft:spruce_door', 'minecraft:spruce_trapdoor',
                 'minecraft:warped_door', 'minecraft:warped_trapdoor', 'minecraft:trapdoor', 'minecraft:wooden_door', 'minecraft:smoker', 'minecraft:blast_furnace', 'minecraft:furnace']
-            let item_except = ['dec:iron_key', 'dec:frozen_power', 'dec:ash_key', 'dec:challenge_of_ash']
+            let item_except = ['dec:iron_key', 'dec:frozen_power', 'dec:ash_key', 'dec:challenge_of_ash','dec:ice_ingot']
             if (entity.getScoresManager().getScore(this.i_soft) > 0) {
                 if (e.source.isSneaking) { e.cancel = true }
                 else {
