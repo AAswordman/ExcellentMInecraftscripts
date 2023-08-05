@@ -472,10 +472,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                                 return false;
                                             }
                                             if (client.globalSettings.tpNeedItem) {
-                                                let pos = (bag.searchItem("wb:conveyor_issue"));
-                                                let item = <ItemStack>bag.getItem(pos);
-                                                item.amount--;
-                                                bag.setItem(pos, item);
+                                                bag.clearItem("wb:conveyor_issue", 1);
                                             }
                                             client.exPlayer.setPosition(v, client.getDimension(i[0]));
                                             client.sayTo(lang.menuUIMsgBailan37);
@@ -657,10 +654,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                     }
 
                                     if (client.globalSettings.tpNeedItem) {
-                                        let pos = (bag.searchItem("wb:conveyor_issue"));
-                                        let item = <ItemStack>bag.getItem(pos);
-                                        item.amount--;
-                                        bag.setItem(pos, item);
+                                        bag.clearItem("wb:conveyor_issue", 1);
                                     }
                                     client.sayTo(lang.menuUIMsgBailan57);
                                     client.setTimeout(() => {
@@ -705,10 +699,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                     }
 
                                     if (client.globalSettings.tpNeedItem) {
-                                        let pos = (bag.searchItem("wb:conveyor_issue"));
-                                        let item = <ItemStack>bag.getItem(pos);
-                                        item.amount--;
-                                        bag.setItem(pos, item);
+                                        bag.clearItem("wb:conveyor_issue", 1);
                                     }
                                     client.sayTo(lang.menuUIMsgBailan67);
                                     client.setTimeout(() => {
@@ -934,16 +925,18 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                             },
                             {
                                 "type": "button",
-                                "msg": "ui刷新间隔(tick)",
+                                "msg": "ui刷新间隔",
                                 "function": (client, ui): boolean => {
                                     let map = pomDifficultyMap;
                                     new ModalFormData()
-                                        .title("Choose a tick")
-                                        .slider("tick", 4, 20, 1, 8)
+                                        .title("ui刷新间隔")
+                                        .slider("界面刷新间隔(tick)", 4, 20, 1, 4)
+                                        .slider("数据刷新间隔(每刷新n次界面刷新1次数据)", 1, 5, 1, 2)
                                         .show(client.player).then((e) => {
                                             if (!e.canceled) {
                                                 let v = (e.formValues?.[0]);
                                                 client.globalSettings.uiUpdateDelay = Number(v ?? 30);
+                                                client.globalSettings.uiDataUpdateDelay = Number(v ?? 30);
                                                 client.magicSystem.actionbarShow.stop();
                                                 client.magicSystem.actionbarShow.delay(client.globalSettings.uiUpdateDelay);
                                                 client.magicSystem.actionbarShow.start();

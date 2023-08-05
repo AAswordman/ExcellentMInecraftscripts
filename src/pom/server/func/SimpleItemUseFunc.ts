@@ -23,9 +23,21 @@ export default class SimpleItemUseFunc extends GameController {
                     this.chainDigging(new Vector3(e.block), e.brokenBlockPermutation.type.id, 16);
                 }
             } else if (itemId === "wb:pickaxex_equipment_a") {
-                if (this.globalSettings.chainMining && this.exPlayer.getScoresManager().getScore("wbfl") >= 30) {
-                    this.chainDigging(new Vector3(e.block), e.brokenBlockPermutation.type.id, 5);
-                    this.exPlayer.getScoresManager().deleteScore("wbfl");
+                if (this.globalSettings.chainMining) {
+                    if (this.exPlayer.getScoresManager().getScore("wbfl") >= 30) {
+                        this.chainDigging(new Vector3(e.block), e.brokenBlockPermutation.type.id, 5);
+                        this.exPlayer.getScoresManager().removeScore("wbfl", 30);
+                    }
+                } else {
+                    this.exPlayer.command.run([
+                        "execute as @s[scores={wbfl=..39}] at @s run tellraw @s {\"rawtext\":[{\"translate\":\"tell.play.29.name\"}]}",
+                        "execute as @s[tag=!wbplot,scores={wbfl=40..},m=!adventure] at @s run fill ~+4 ~+4 ~+4 ~-4 ~ ~-4 air [] replace stone []",
+                        "execute as @s[tag=!wbplot,scores={wbfl=40..},m=!adventure] at @s run fill ~+4 ~+4 ~+4 ~-4 ~ ~-4 air [] replace end_stone []",
+                        "execute as @s[tag=!wbplot,scores={wbfl=40..},m=!adventure] at @s run fill ~+4 ~+4 ~+4 ~-4 ~ ~-4 air [] replace cobblestone []",
+                        "execute as @s[tag=!wbplot,scores={wbfl=40..},m=!adventure] at @s run fill ~+4 ~+4 ~+4 ~-4 ~ ~-4 air [] replace netherrack []",
+                        "execute as @s[tag=!wbplot,scores={wbfl=40..},m=!adventure] at @s run fill ~+4 ~+4 ~+4 ~-4 ~ ~-4 air [] replace red_sandstone []",
+                        "execute as @s[scores={wbfl=40..}] at @s run scoreboard players remove @s wbfl 40"
+                    ]);
                 }
             }
         });
@@ -63,21 +75,6 @@ export default class SimpleItemUseFunc extends GameController {
 
                     this.exPlayer.dimension.spawnEntity("wb:ball_jet_pack", this.exPlayer.position.sub(this.exPlayer.viewDirection.scl(2)));
                 }, 0);
-            } else if (item.typeId === "wb:start_key") {
-
-            } else if (item.typeId === "wb:pickaxex_equipment_a") {
-                if (this.globalSettings.chainMining) {
-                } else {
-                    this.exPlayer.command.run([
-                        "execute as @s[scores={wbfl=..39}] at @s run tellraw @s {\"rawtext\":[{\"translate\":\"tell.play.29.name\"}]}",
-                        "execute as @s[tag=!wbplot,scores={wbfl=40..},m=!adventure] at @s run fill ~+4 ~+4 ~+4 ~-4 ~ ~-4 air [] replace stone []",
-                        "execute as @s[tag=!wbplot,scores={wbfl=40..},m=!adventure] at @s run fill ~+4 ~+4 ~+4 ~-4 ~ ~-4 air [] replace end_stone []",
-                        "execute as @s[tag=!wbplot,scores={wbfl=40..},m=!adventure] at @s run fill ~+4 ~+4 ~+4 ~-4 ~ ~-4 air [] replace cobblestone []",
-                        "execute as @s[tag=!wbplot,scores={wbfl=40..},m=!adventure] at @s run fill ~+4 ~+4 ~+4 ~-4 ~ ~-4 air [] replace netherrack []",
-                        "execute as @s[tag=!wbplot,scores={wbfl=40..},m=!adventure] at @s run fill ~+4 ~+4 ~+4 ~-4 ~ ~-4 air [] replace red_sandstone []",
-                        "execute as @s[scores={wbfl=40..}] at @s run scoreboard players remove @s wbfl 40"
-                    ]);
-                }
             }
         });
         this.getEvents().exEvents.afterItemUse.subscribe(e => {
