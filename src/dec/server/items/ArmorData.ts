@@ -1,6 +1,7 @@
 import ExPlayer from "../../../modules/exmc/server/entity/ExPlayer.js";
 import jsonMerge from "../../../modules/exmc/utils/jsonMerge.js";
 
+
 export class ArmorData {
     head: string;
     chest: string;
