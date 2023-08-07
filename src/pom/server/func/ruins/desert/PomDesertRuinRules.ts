@@ -10,7 +10,7 @@ import ExGameVector3 from '../../../../../modules/exmc/server/math/ExGameVector3
 import ExEntity from "../../../../../modules/exmc/server/entity/ExEntity.js";
 import Vector3 from '../../../../../modules/exmc/math/Vector3.js';
 import ExSystem from "../../../../../modules/exmc/utils/ExSystem.js";
-import { MinecraftEffectTypes } from "../../../../../modules/vanilla-data/lib/index.js";
+import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 export default class PomDesertRuinRules {
     clear() {
         this.collections.splice(0, this.collections.length);

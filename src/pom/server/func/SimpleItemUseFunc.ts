@@ -7,8 +7,8 @@ import ExGameVector3 from '../../../modules/exmc/server/math/ExGameVector3.js';
 import menuFunctionUI from "../data/menuFunctionUI.js";
 import MenuUIAlert from "../ui/MenuUIAlert.js";
 import GameController from "./GameController.js";
-import { MinecraftEffectTypes } from '../../../modules/vanilla-data/lib/index.js';
-import { MinecraftItemTypes } from '../../../modules/vanilla-data/lib/mojang-item.js';
+import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
+import { MinecraftItemTypes } from "@minecraft/vanilla-data";
 import PomOccupationSkillTrack from '../entities/PomOccupationSkillTrack.js';
 import ExSystem from '../../../modules/exmc/utils/ExSystem.js';
 

@@ -13,7 +13,7 @@ import PomClient from "../../PomClient.js";
 import PomBossController from "../../entities/PomBossController.js";
 import { ignorn } from "../../../../modules/exmc/server/ExErrorQueue.js";
 import VarOnChangeListener from '../../../../modules/exmc/utils/VarOnChangeListener.js';
-import { MinecraftEffectTypes } from "../../../../modules/vanilla-data/lib/index.js";
+import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 
 export default class PomBossBarrier implements DisposeAble {
     center: Vector3;

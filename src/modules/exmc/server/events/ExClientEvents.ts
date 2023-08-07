@@ -9,7 +9,7 @@ import ExGameConfig from "../ExGameConfig.js";
 import TickDelayTask from "../../utils/TickDelayTask.js";
 import EventHandle, { EventListenerSetting, EventListenerSettings, EventListeners } from './EventHandle.js';
 import ExSystem from "../../utils/ExSystem.js";
-import { MinecraftEntityTypes } from "../../../vanilla-data/lib/mojang-entity.js";
+import { MinecraftEntityTypes } from "@minecraft/vanilla-data";
 import ExEntity from "../entity/ExEntity.js";
 import Vector3 from "../../math/Vector3.js";
 

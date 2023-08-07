@@ -1,25 +1,17 @@
-import { EffectType, EntityDamageCause, EntityHealthComponent, EquipmentSlot, GameMode, ItemStack, MinecraftDimensionTypes, Player, world } from "@minecraft/server";
-import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
-import ExGameServer from "../../modules/exmc/server/ExGameServer.js";
-import { ArmorData, ArmorPlayerDec, ArmorPlayerPom } from "./items/ArmorData.js";
+import { EntityDamageCause, EquipmentSlot, GameMode, ItemStack, MinecraftDimensionTypes, Player } from "@minecraft/server";
+import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 import MathUtil from "../../modules/exmc/math/MathUtil.js";
 import Vector3 from "../../modules/exmc/math/Vector3.js";
-import ExGameVector3 from "../../modules/exmc/server/math/ExGameVector3.js";
+import ExGame from "../../modules/exmc/server/ExGame.js";
+import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
+import ExGameServer from "../../modules/exmc/server/ExGameServer.js";
+import { Objective } from "../../modules/exmc/server/entity/ExScoresManager.js";
+import GlobalScoreBoardCache from "../../modules/exmc/server/storage/cache/GlobalScoreBoardCache.js";
+import Random from "../../modules/exmc/utils/Random.js";
+import PomServer from "../../pom/server/PomServer.js";
 import DecGlobal from "./DecGlobal.js";
 import { DecTasks, PomTasks, numTranToTask, taskUi } from "./data/Task.js";
-import ExGameConfig from "../../modules/exmc/server/ExGameConfig.js";
-import ExGame from "../../modules/exmc/server/ExGame.js";
-import PomServer from "../../pom/server/PomServer.js";
-import ExEntity from "../../modules/exmc/server/entity/ExEntity.js";
-import ExNullEntity from "../../modules/exmc/server/entity/ExNullEntity.js";
-import GlobalScoreBoardCache from "../../modules/exmc/server/storage/cache/GlobalScoreBoardCache.js";
-import { Objective } from "../../modules/exmc/server/entity/ExScoresManager.js";
-import Random from "../../modules/exmc/utils/Random.js";
-import { MinecraftEffectTypes } from "../../modules/vanilla-data/lib/index.js";
-import PomClient from "../../pom/server/PomClient.js";
-import ExPlayerBag from '../../modules/exmc/server/entity/ExPlayerBag';
-import ExPlayer from '../../modules/exmc/server/entity/ExPlayer';
-import ExSystem from "../../modules/exmc/utils/ExSystem.js";
+import { ArmorData, ArmorPlayerDec, ArmorPlayerPom } from "./items/ArmorData.js";
 
 
 export default class DecClient extends ExGameClient {

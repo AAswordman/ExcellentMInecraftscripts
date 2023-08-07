@@ -33,7 +33,7 @@ import PomBossBarrier from './func/barrier/PomBossBarrier.js';
 import ExEnvironment from '../../modules/exmc/server/env/ExEnvironment.js';
 import ExSystem from '../../modules/exmc/utils/ExSystem.js';
 import { ExEventNames, ExOtherEventNames } from '../../modules/exmc/server/events/events.js';
-import { MinecraftEffectTypes } from '../../modules/vanilla-data/lib/index.js';
+import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 import { falseIfError } from '../../modules/exmc/utils/tool.js';
 // import * as b from "brain.js";
 

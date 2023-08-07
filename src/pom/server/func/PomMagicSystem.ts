@@ -6,7 +6,7 @@ import { Talent } from "../cache/TalentData.js";
 import GameController from "./GameController.js";
 import ExGame from "../../../modules/exmc/server/ExGame.js";
 import TickDelayTask from "../../../modules/exmc/utils/TickDelayTask.js";
-import { MinecraftEffectTypes } from "../../../modules/vanilla-data/lib/mojang-effect.js";
+import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 
 world.afterEvents.worldInitialize.subscribe((e) => {
     let def = new DynamicPropertiesDefinition()
