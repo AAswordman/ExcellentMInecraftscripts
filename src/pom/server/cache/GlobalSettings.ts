@@ -44,6 +44,12 @@ export default class GlobalSettings extends GlobalScoreBoardCache {
     public set entityCleaner(value: boolean) {
         this.setBoolean("entityCleaner", value);
     }
+    public get entityShowMsg() {
+        return this.getBoolean("entityShowMsg");
+    }
+    public set entityShowMsg(value: boolean) {
+        this.setBoolean("entityShowMsg", value);
+    }
     public get deathRecord() {
         return this.getBoolean("deathRecord");
     }

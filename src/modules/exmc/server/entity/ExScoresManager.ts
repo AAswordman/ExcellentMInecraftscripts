@@ -28,6 +28,16 @@ export default class ExScoresManager {
             return 0;
         };
     }
+    hasScore(objective: Objective | string) {
+        let name = typeof objective === "string" ? objective : objective.name;
+        let id = this.getIdentity(name);
+        if (!id) return false;
+        try {
+            return world.scoreboard.getObjective(name).hasParticipant(id);
+        } catch (e) {
+            return false;
+        };
+    }
     setScore(objective: Objective | string, num: number): boolean {
         let name = typeof objective === "string" ? objective : objective.name;
         let id = this.getIdentity(name);

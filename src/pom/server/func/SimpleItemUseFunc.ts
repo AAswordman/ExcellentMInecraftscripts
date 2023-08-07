@@ -11,6 +11,7 @@ import { MinecraftEffectTypes } from '../../../modules/vanilla-data/lib/index.js
 import { MinecraftItemTypes } from '../../../modules/vanilla-data/lib/mojang-item.js';
 import PomOccupationSkillTrack from '../entities/PomOccupationSkillTrack.js';
 import ExSystem from '../../../modules/exmc/utils/ExSystem.js';
+import RuinsLoaction from './ruins/RuinsLoaction.js';
 
 export default class SimpleItemUseFunc extends GameController {
     onJoin(): void {
@@ -107,6 +108,7 @@ export default class SimpleItemUseFunc extends GameController {
 
     }
     chainDigging(v: Vector3, idType: string, times: number, posData?: Set<string>) {
+        if (RuinsLoaction.isInProtectArea(v)) return;
         let o = posData === undefined;
         if (!posData) {
             posData = new Set<string>();

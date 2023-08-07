@@ -45,4 +45,8 @@ export default class GlobalScoreBoardCache {
         this.useMap.delete(name);
         return this.scores.deleteScore(this.objective);
     }
+    public has(name:string){
+        this.entity.nameTag = name;
+        return this.scores.hasScore(this.objective);
+    }
 }

@@ -1,4 +1,4 @@
-import { ItemDurabilityComponent, ItemEnchantsComponent, ItemStack } from "@minecraft/server";
+import { ItemCooldownComponent, ItemDurabilityComponent, ItemEnchantsComponent, ItemStack } from "@minecraft/server";
 import ExLoreManager from "../../interface/ExLoreManager.js";
 import ExTagManager from "../../interface/ExTagManager.js";
 import { AlsoInstanceType } from "../../utils/tool.js";
@@ -6,7 +6,8 @@ if (ItemStack.prototype === undefined) ItemStack.prototype = {} as any;
 
 const compId = {
     [ItemDurabilityComponent.componentId]: ItemDurabilityComponent,
-    [ItemEnchantsComponent.componentId]: ItemEnchantsComponent
+    [ItemEnchantsComponent.componentId]: ItemEnchantsComponent,
+    [ItemCooldownComponent.componentId]: ItemCooldownComponent
 };
 type CompId = typeof compId;
 

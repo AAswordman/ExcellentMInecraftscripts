@@ -881,6 +881,19 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 },
                                 {
                                     "type": "button",
+                                    "msg": "重置遗迹",
+                                    "function": (client, ui) => {
+                                        new ExMessageAlert().title("确认").body(`是否重置遗迹？`)
+                                            .button1("是", () => {
+                                                client.globalSettings.ruinsExsitsData = 0;
+                                            })
+                                            .button2("否", () => {})
+                                            .show(client.player);
+                                            return false;
+                                    }
+                                },
+                                {
+                                    "type": "button",
                                     "msg": "报错日志",
                                     "function": (client, ui) => {
                                         new WarningAlertUI(client, ExErrorQueue.getError(), [["我知道了", (client, ui) => {
@@ -910,9 +923,11 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                         .slider(lang.menuUIMsgBailan91, 40, 1000, 20, client.globalSettings.entityCleanerLeastNum)
                                         .slider(lang.menuUIMsgBailan92, 2, 10, 1, client.globalSettings.entityCleanerStrength)
                                         .slider(lang.menuUIMsgBailan93, 1, 60, 1, client.globalSettings.entityCleanerDelay)
+                                        .toggle("清理信息显示", client.globalSettings.entityShowMsg)
                                         .show(client.player).then((e) => {
                                             if (e.canceled) return;
                                             client.globalSettings.entityCleaner = Boolean(e.formValues?.[0] ?? false);
+                                            client.globalSettings.entityShowMsg = Boolean(e.formValues?.[4] ?? false);
                                             client.globalSettings.entityCleanerLeastNum = Number(e.formValues?.[1] ?? 200);
                                             client.globalSettings.entityCleanerStrength = Number(e.formValues?.[2] ?? 5);
                                             client.globalSettings.entityCleanerDelay = Number(e.formValues?.[3] ?? 30);
