@@ -85,6 +85,11 @@ export default class PomBossBarrier implements DisposeAble {
             }
         }
     }
+    *getPlayers() {
+        for (let e of this.players) {
+            if(e[0].isValid()) yield e[0];
+        }
+    }
 
     notifyDeathAdd() {
         this.deathTimes += 1;

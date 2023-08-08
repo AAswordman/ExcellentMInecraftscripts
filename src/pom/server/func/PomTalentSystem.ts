@@ -1,26 +1,23 @@
-import { EntityQueryOptions, Entity, EntityAttributeComponent, EntityDamageCause, EntityApplyDamageByProjectileOptions, EntityApplyDamageOptions } from '@minecraft/server';
+import { Entity, EntityDamageCause } from '@minecraft/server';
+import { ArmorData } from '../../../dec/server/items/ArmorData.js';
 import MathUtil from "../../../modules/exmc/math/MathUtil.js";
+import ExDimension from '../../../modules/exmc/server/ExDimension.js';
+import ExGame from '../../../modules/exmc/server/ExGame.js';
 import ExEntity from "../../../modules/exmc/server/entity/ExEntity.js";
 import ExPlayer from "../../../modules/exmc/server/entity/ExPlayer.js";
+import { PlayerShootProjectileEvent, TickEvent } from '../../../modules/exmc/server/events/events.js';
 import ExColorLoreUtil from "../../../modules/exmc/server/item/ExColorLoreUtil.js";
 import "../../../modules/exmc/server/item/ExItem.js";
-import { decodeUnicode } from "../../../modules/exmc/utils/Unicode.js";
-import TalentData, { Occupation, Talent } from "../cache/TalentData.js";
-import isEquipment from "../items/isEquipment.js";
-import GameController from "./GameController.js";
-import ExGameVector3 from '../../../modules/exmc/server/math/ExGameVector3.js';
-import damageShow from "../helper/damageShow.js";
-import MonitorManager from "../../../modules/exmc/utils/MonitorManager.js";
 import ExSystem from '../../../modules/exmc/utils/ExSystem.js';
+import MonitorManager from "../../../modules/exmc/utils/MonitorManager.js";
 import TickDelayTask from '../../../modules/exmc/utils/TickDelayTask.js';
-import ItemTagComponent from '../data/ItemTagComponent.js';
-import { ArmorData } from '../../../dec/server/items/ArmorData.js';
+import { decodeUnicode } from "../../../modules/exmc/utils/Unicode.js";
 import VarOnChangeListener from '../../../modules/exmc/utils/VarOnChangeListener.js';
-import ExGame from '../../../modules/exmc/server/ExGame.js';
-import TimeLoopTask from '../../../modules/exmc/utils/TimeLoopTask.js';
-import { PlayerShootProjectileEvent, TickEvent } from '../../../modules/exmc/server/events/events.js';
+import TalentData, { Occupation, Talent } from "../cache/TalentData.js";
+import ItemTagComponent from '../data/ItemTagComponent.js';
 import PomOccupationSkillTrack from '../entities/PomOccupationSkillTrack.js';
-import ExDimension from '../../../modules/exmc/server/ExDimension.js';
+import damageShow from "../helper/damageShow.js";
+import GameController from "./GameController.js";
 
 export default class PomTalentSystem extends GameController {
     strikeSkill = true;
@@ -96,11 +93,11 @@ export default class PomTalentSystem extends GameController {
 
     movementChanger = new VarOnChangeListener((n, l) => {
         if (n) {
-            this.exPlayer.triggerEvent("movement_" + MathUtil.round(MathUtil.clamp(this.movement[1] + this.movement_addition[1], 0, 0.2), 3));
+            this.exPlayer.triggerEvent("movement_" + MathUtil.round(MathUtil.clamp(Math.floor((this.movement[1] + this.movement_addition[1]) / 0.005) * 0.005, 0, 0.2), 3));
         } else {
-            this.exPlayer.triggerEvent("movement_" + MathUtil.round(MathUtil.clamp(this.movement[0] + this.movement_addition[0], 0, 0.2), 3));
+            this.exPlayer.triggerEvent("movement_" + MathUtil.round(MathUtil.clamp(Math.floor((this.movement[0] + this.movement_addition[0]) / 0.005) * 0.005, 0, 0.2), 3));
         }
-        this.exPlayer.triggerEvent("underwater_" + MathUtil.round(MathUtil.clamp(this.movement[2] + this.movement_addition[2], 0, 0.2), 3));
+        this.exPlayer.triggerEvent("underwater_" + MathUtil.round(MathUtil.clamp(Math.floor((this.movement[2] + this.movement_addition[2]) / 0.005) * 0.005, 0, 0.2), 3));
         // if (n) {
         //     this.exPlayer.movement = (MathUtil.round(MathUtil.clamp(this.movement[1] + this.movement_addition[1], 0, 0.2), 3));
         // } else {
@@ -220,13 +217,14 @@ export default class PomTalentSystem extends GameController {
 
             damageFac += Math.min(64, dis) / 64 * CLOAD_PIERCING / 100;
             let ARMOR_BREAKING = this.talentRes.get(Talent.ARMOR_BREAKING) ?? 0;
-            extraDamage += this.exPlayer.getMaxHealth() * ARMOR_BREAKING / 100;
+            extraDamage += ((1 - this.client.magicSystem.gameHealth / this.client.magicSystem.gameMaxHealth) * (20 + (this.talentRes.get(Talent.VIENTIANE) ?? 0)))
+                * ARMOR_BREAKING / 100;
 
             let SANCTION = this.talentRes.get(Talent.SANCTION) ?? 0;
             damageFac += (16 - Math.min(16, dis)) / 16 * SANCTION / 100;
             let SUDDEN_STRIKE = this.talentRes.get(Talent.SUDDEN_STRIKE) ?? 0;
             if (item) {
-                if (item.typeId.startsWith("dec:")) damageFac += 0.4;
+                if (item.typeId.startsWith("dec:")) damageFac += 0.2;
                 let lore = new ExColorLoreUtil(item);
             }
             if (this.strikeSkill) {
@@ -234,12 +232,12 @@ export default class PomTalentSystem extends GameController {
                 this.strikeSkill = false;
                 damageFac += SUDDEN_STRIKE / 100;
             }
-            damageFac += (this.client.getDifficulty().damageAddFactor - 1)
+
+            damageFac += (this.client.getDifficulty().damageAddFactor - 1);
+
             extraDamage += this.attack_addition;
 
-
             let damage = e.damage * damageFac + extraDamage;
-            // console.warn(damage);
             if (this.globalSettings.damageShow) {
                 damageShow(this.getExDimension(), e.damage + damage, target.entity.location);
             }
@@ -275,8 +273,12 @@ export default class PomTalentSystem extends GameController {
 
             let anotherAdd = 0;
             if (PomTalentSystem.physicalDamageType.has(e.damageSource.cause)) {
-                let remain = this.client.magicSystem.tryReducedamageAbsorbed(damage - add);
-                anotherAdd = (damage - add) - (remain)
+                let remain = this.client.magicSystem.tryReduceDamageAbsorbed(damage - add);
+                anotherAdd += (damage - add) - (remain)
+            }
+            if (PomTalentSystem.magicDamageType.has(e.damageSource.cause)) {
+                let remain = this.client.magicSystem.tryReduceMagicAbsorbed(damage - add);
+                anotherAdd += (damage - add) - (remain)
             }
 
             add += anotherAdd;
@@ -342,7 +344,7 @@ export default class PomTalentSystem extends GameController {
                 } else if (comp.hasComponent("sneak_movement_addition")) base.push("§r§7•潜行移速" + (smove < 0 ? "§c" + smove : "§6+" + smove));
                 if (comp.hasComponent("equipment_type")) {
                     if (e.afterItem.typeId.startsWith("dec:")) {
-                        base.push("§r§7•在主手时: +40％§7攻击伤害");
+                        base.push("§r§7•在主手时: +20％§7攻击伤害");
                     }
                     // let typeMsg = comp.getComponentWithGroup("equipment_type");
                     // lore.setValueUseDefault("武器类型", typeMsg.tagName + ": " + typeMsg.data);

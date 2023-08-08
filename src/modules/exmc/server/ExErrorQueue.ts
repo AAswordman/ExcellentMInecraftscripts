@@ -15,7 +15,7 @@ export default class ExErrorQueue {
             this.errorFlow = (this.errorFlow + "\n\n" + error);
         }
         //console.warn(typeof error === "object" ? error instanceof Object ? (error as Object).constructor.name : JSON.stringify(error) : "abc: " +error);
-        this.errorFlow = this.errorFlow.substring(Math.max(0, this.errorFlow.length - 3000));
+        this.errorFlow = this.errorFlow.substring(Math.max(0, this.errorFlow.length - 5000));
     }
     public static getError() {
         return this.errorFlow;

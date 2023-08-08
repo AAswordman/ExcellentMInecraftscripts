@@ -113,7 +113,7 @@ export default class PomTaskSystem extends GameController {
             if (!this.data.tasks) return;
 
             if (this.recordDailyArray.has(e.hurtEntity.typeId)) {
-                if (ExEntity.getInstance(e.hurtEntity).getMaxHealth() < 0) {
+                if (ExEntity.getInstance(e.hurtEntity).health < 0) {
                     this.data.tasks.daily.cache[e.hurtEntity.typeId] = 1 + (this.data.tasks.daily.cache[e.hurtEntity.typeId] ?? 0);
                 }
             }

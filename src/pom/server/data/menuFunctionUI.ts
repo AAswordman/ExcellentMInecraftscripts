@@ -891,17 +891,8 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                             .button1("是", () => {
                                                 client.globalSettings.ruinsExsitsData = 0;
                                             })
-                                            .button2("否", () => {})
+                                            .button2("否", () => { })
                                             .show(client.player);
-                                            return false;
-                                    }
-                                },
-                                {
-                                    "type": "button",
-                                    "msg": "报错日志",
-                                    "function": (client, ui) => {
-                                        new WarningAlertUI(client, ExErrorQueue.getError(), [["我知道了", (client, ui) => {
-                                        }]]).showPage();
                                         return false;
                                     }
                                 }
@@ -975,6 +966,20 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                             }];
                         }
                     }
+                },
+                "general": {
+                    "text": "通用",
+                    "page": [
+                        {
+                            "type": "button",
+                            "msg": "报错日志",
+                            "function": (client, ui) => {
+                                new WarningAlertUI(client, ExErrorQueue.getError(), [["我知道了", (client, ui) => {
+                                }]]).showPage();
+                                return false;
+                            }
+                        }
+                    ]
                 }
             }
         }

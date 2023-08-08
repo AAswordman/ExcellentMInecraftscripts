@@ -10,7 +10,7 @@ export default class TalentData {
         switch (id) {
             case Talent.VIENTIANE: return format(lang.talentWanxiangDesc, `§o§e${s}§r`);
             case Talent.CLOAD_PIERCING: return format(lang.talentChuanyunDesc, `§o§b${s}％§r`);
-            case Talent.ARMOR_BREAKING: return format(lang.talentChuanjiaDesc, `§o§b${s}％§r`);
+            case Talent.ARMOR_BREAKING: return format(lang.talentChuanjiaDesc, `§o§b${s}％§r`, `§o§e20§r`);
             case Talent.SANCTION: return format(lang.talentZhicaiDesc, `§o§b${s}％§r`);
             case Talent.DEFENSE: return format(lang.talentFangyuDesc, `§o§b${s}％§r`);
             case Talent.CHARGING: return format(lang.talentChongnengDesc, `§o§b${s}％§r`);

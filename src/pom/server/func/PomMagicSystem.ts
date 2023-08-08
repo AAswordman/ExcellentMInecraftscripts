@@ -11,7 +11,8 @@ import { MinecraftEffectTypes } from "../../../modules/vanilla-data/lib/mojang-e
 world.afterEvents.worldInitialize.subscribe((e) => {
     let def = new DynamicPropertiesDefinition()
         .defineNumber("health", 40)
-        .defineNumber("damageAbsorbed", 0);
+        .defineNumber("damageAbsorbed", 0)
+        .defineNumber("magicReduce", 0);
     e.propertyRegistry.registerEntityTypeDynamicProperties(def, MinecraftEntityTypes.player);
 });
 
@@ -44,6 +45,7 @@ export default class PomMagicSystem extends GameController {
     healthSaver = ExSystem.tickTask(() => {
         this.player.setDynamicProperty('health', this.gameHealth);
         this.player.setDynamicProperty('damageAbsorbed', this.damageAbsorbed);
+        this.player.setDynamicProperty('magicReduce', this.magicReduce);
     }).delay(20 * 5);
     registActionbarPass(name: string) {
         this._mapShow.set(name, []);
@@ -118,10 +120,11 @@ export default class PomMagicSystem extends GameController {
             this.dataCache.wbfl,
             [this.dataCache.wbwqlq / 20],
             [this.dataCache.wbkjlqcg / 20],
-            [this.damageAbsorbed / this.gameMaxHealth],
+            [this.damageAbsorbed / this.gameMaxHealth + this.magicReduce / this.gameMaxHealth],
             this.data.gameGrade,
             [this.data.gameExperience / (this.getGradeNeedExperience(1 + this.data.gameGrade) - this.getGradeNeedExperience(this.data.gameGrade))],
-            [(grade), grade.length * 3]
+            [(grade), grade.length * 3],
+            [this.magicReduce / this.gameMaxHealth]
         ];
         this.lastFromData = fromData;
 
@@ -144,6 +147,8 @@ export default class PomMagicSystem extends GameController {
                         "0".repeat(Math.max(0, (3 - old.toString().length))) + old;
                 } else if (e.length === 2) {
                     v = "_" + e[1] + e[0];
+                    v += "x".repeat(8 - e[1]);
+                    return v;
                 } else {
                     v = "";
                 }
@@ -165,6 +170,7 @@ export default class PomMagicSystem extends GameController {
     }).delay(8);
 
     damageAbsorbed = 0;
+    magicReduce = 0;
 
     getNumberFont(num: number) {
         let s = "";
@@ -177,10 +183,14 @@ export default class PomMagicSystem extends GameController {
     onJoin(): void {
         const health = this.exPlayer.getComponent("minecraft:health")!;
         let healthListener = new VarOnChangeListener((n, l) => {
-            let change = n - (l ?? 0);
-            this.gameHealth = MathUtil.clamp(this.gameHealth + change, -1, this.gameMaxHealth);
-            // health.setCurrentValue(50000 + this.gameHealth);
-            // healthListener.value = 50000 + this.gameHealth;
+            if (this.gameHealth === this.gameMaxHealth && this.gameHealth + (n - (l ?? 0)) > this.gameMaxHealth) return;
+            if (50000 + this.gameHealth !== health.currentValue) {
+                // console.warn(n,l);
+                let change = n - (l ?? 0);
+                this.gameHealth = MathUtil.clamp(this.gameHealth + change, -1, this.gameMaxHealth);
+                health.setCurrentValue(50000 + this.gameHealth);
+                healthListener.value = 50000 + this.gameHealth;
+            }
         }, health!.currentValue);
         // this.getEvents().exEvents.tick.subscribe(e => {
         //     healthListener.upDate(health!.currentValue);
@@ -193,11 +203,14 @@ export default class PomMagicSystem extends GameController {
         });
         this.healthSaver.start();
         this.gameHealth = this.player.getDynamicProperty("health") as number ?? this.gameMaxHealth;
+        this.magicReduce = this.player.getDynamicProperty("magicReduce") as number ?? 0;
+        this.damageAbsorbed = this.player.getDynamicProperty("damageAbsorbed") as number ?? 0;
+
         this.actionbarShow.delay(this.globalSettings.uiUpdateDelay);
 
         this.getEvents().exEvents.afterEffectAdd.subscribe(e => {
             if (e.effect.typeId === MinecraftEffectTypes.Absorption) {
-                this.setdamageAbsorbed(e.effect.amplifier * 4);
+                this.setDamageAbsorbed(e.effect.amplifier * 4);
                 this.player.removeEffect(MinecraftEffectTypes.Absorption);
             }
         });
@@ -205,25 +218,44 @@ export default class PomMagicSystem extends GameController {
             if (e.currentTick % 4 !== 0) return;
             let eff: Effect | undefined;
             if ((eff = this.player.getEffect(MinecraftEffectTypes.Absorption)) !== undefined) {
-                this.setdamageAbsorbed((eff.amplifier + 1) * 4);
+                this.setDamageAbsorbed((eff.amplifier + 1) * 4);
                 this.player.removeEffect(MinecraftEffectTypes.Absorption);
+            }
+            if ((eff = this.player.getEffect(MinecraftEffectTypes.HealthBoost)) !== undefined) {
+                this.setMagicAbsorbed((eff.amplifier + 1) * 4);
+                this.player.removeEffect(MinecraftEffectTypes.HealthBoost);
             }
 
         });
     }
 
-    setdamageAbsorbed(num: number) {
+    setDamageAbsorbed(num: number) {
         if (num > this.damageAbsorbed) {
             this.damageAbsorbed = num;
         }
     }
-    tryReducedamageAbsorbed(num: number) {
+    tryReduceDamageAbsorbed(num: number) {
         if (num > this.damageAbsorbed) {
             let res = num - this.damageAbsorbed;
             this.damageAbsorbed = 0;
             return res;
         } else {
             this.damageAbsorbed -= num;
+            return 0;
+        }
+    }
+    setMagicAbsorbed(num: number) {
+        if (num > this.magicReduce) {
+            this.magicReduce = num;
+        }
+    }
+    tryReduceMagicAbsorbed(num: number) {
+        if (num > this.magicReduce) {
+            let res = num - this.magicReduce;
+            this.magicReduce = 0;
+            return res;
+        } else {
+            this.magicReduce -= num;
             return 0;
         }
     }
