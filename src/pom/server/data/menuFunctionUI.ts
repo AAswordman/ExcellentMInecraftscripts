@@ -509,8 +509,13 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 "msg": lang.menuUIMsgBailan41 + client.exPlayer.position.floor().toString(),
                                 "type": "button",
                                 "function": (client, ui) => {
-                                    client.data.pointRecord?.point.push([client.exPlayer.dimension.id, "", client.exPlayer.position.floor()]);
-                                    return true;
+                                    if ((client.data.pointRecord?.point.length ?? 0) <= 10) {
+                                        client.data.pointRecord?.point.push([client.exPlayer.dimension.id, "", client.exPlayer.position.floor()]);
+                                        return true;
+                                    } else {
+                                        client.sayTo("§b传送点不得超过10个");
+                                        return false;
+                                    }
                                 }
                             });
 
