@@ -244,7 +244,8 @@ export default class PomTalentSystem extends GameController {
             this.hasCauseDamage.trigger(e.damage + damage, e.hurtEntity);
             usetarget = e.hurtEntity;
 
-            if (damage >= target.health) {
+            let g = target.health;
+            if (damage >= g && g > 0) {
                 target.entity.applyDamage(99999999, {
                     "cause": EntityDamageCause.entityAttack,
                     "damagingEntity": this.player

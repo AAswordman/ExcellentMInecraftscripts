@@ -184,7 +184,10 @@ export default class PomMagicSystem extends GameController {
         const health = this.exPlayer.getComponent("minecraft:health")!;
         let healthListener = new VarOnChangeListener((n, l) => {
             if (this.gameHealth === this.gameMaxHealth && this.gameHealth + (n - (l ?? 0)) > this.gameMaxHealth) return;
-            if (50000 + this.gameHealth !== health.currentValue) {
+            // if (n < 40000) {
+            //     health.setCurrentValue(50000 + this.gameHealth);
+            // }
+            if (50000 + this.gameHealth !== n) {
                 // console.warn(n,l);
                 let change = n - (l ?? 0);
                 this.gameHealth = MathUtil.clamp(this.gameHealth + change, -1, this.gameMaxHealth);
@@ -202,7 +205,9 @@ export default class PomMagicSystem extends GameController {
             this.gameHealth = this.gameMaxHealth;
         });
         this.healthSaver.start();
-        this.gameHealth = this.player.getDynamicProperty("health") as number ?? this.gameMaxHealth;
+        let n: number
+        this.gameHealth = ((n = this.player.getDynamicProperty("health") as number) === -1) ? this.gameMaxHealth : n;
+
         this.magicReduce = this.player.getDynamicProperty("magicReduce") as number ?? 0;
         this.damageAbsorbed = this.player.getDynamicProperty("damageAbsorbed") as number ?? 0;
 
