@@ -100,7 +100,7 @@ export default class DecClient extends ExGameClient {
             }
         });
         this.getEvents().exEvents.beforeItemUseOn.subscribe(e => {
-            const id = e.block.typeId;
+            const id = e.itemStack.typeId;
             if (id.startsWith("dec") && id.includes("summoner") && id !== "dec:summoner" && this.exPlayer.getGameMode() !== GameMode.creative) {
                 e.cancel = true;
             }

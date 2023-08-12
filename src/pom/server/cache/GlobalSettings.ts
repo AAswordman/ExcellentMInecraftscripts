@@ -9,7 +9,7 @@ export default class GlobalSettings extends GlobalScoreBoardCache {
         this.setNumber("uiDataUpdateDelay", value);
     }
     public get uiUpdateDelay() {
-        return this.getNumber("uiUpdateDelay") || 4;
+        return this.getNumber("uiUpdateDelay") || 8;
     }
     public set uiUpdateDelay(value: number) {
         this.setNumber("uiUpdateDelay", value);

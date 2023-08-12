@@ -950,8 +950,8 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                         .show(client.player).then((e) => {
                                             if (!e.canceled) {
                                                 let v = (e.formValues?.[0]);
-                                                client.globalSettings.uiUpdateDelay = Number(v ?? 30);
-                                                client.globalSettings.uiDataUpdateDelay = Number(v ?? 30);
+                                                client.globalSettings.uiUpdateDelay = Number(v ?? 8);
+                                                client.globalSettings.uiDataUpdateDelay = Number(v ?? 2);
                                                 client.magicSystem.actionbarShow.stop();
                                                 client.magicSystem.actionbarShow.delay(client.globalSettings.uiUpdateDelay);
                                                 client.magicSystem.actionbarShow.start();

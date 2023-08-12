@@ -182,18 +182,25 @@ export default class PomMagicSystem extends GameController {
 
     onJoin(): void {
         const health = this.exPlayer.getComponent("minecraft:health")!;
+        // let healthListener = new VarOnChangeListener((n, l) => {
+        //     if (this.gameHealth === this.gameMaxHealth && this.gameHealth + (n - (l ?? 0)) > this.gameMaxHealth) return;
+        //     // if (n < 40000) {
+        //     //     health.setCurrentValue(50000 + this.gameHealth);
+        //     // }
+        //     if (50000 + this.gameHealth !== n) {
+        //         // console.warn(n,l);
+        //         let change = n - (l ?? 0);
+        //         this.gameHealth = MathUtil.clamp(this.gameHealth + change, -1, this.gameMaxHealth);
+        //         console.warn(healthListener.value,health.currentValue);
+        //         healthListener.value = 50000 + this.gameHealth;
+        //         health.setCurrentValue(50000 + this.gameHealth);
+        //     }
+        // }, health!.currentValue);
         let healthListener = new VarOnChangeListener((n, l) => {
-            if (this.gameHealth === this.gameMaxHealth && this.gameHealth + (n - (l ?? 0)) > this.gameMaxHealth) return;
-            // if (n < 40000) {
-            //     health.setCurrentValue(50000 + this.gameHealth);
-            // }
-            if (50000 + this.gameHealth !== n) {
-                // console.warn(n,l);
-                let change = n - (l ?? 0);
-                this.gameHealth = MathUtil.clamp(this.gameHealth + change, -1, this.gameMaxHealth);
-                health.setCurrentValue(50000 + this.gameHealth);
-                healthListener.value = 50000 + this.gameHealth;
-            }
+            let change = n - (l ?? 0);
+            this.gameHealth = Math.min(this.gameHealth + change, this.gameMaxHealth);
+            healthListener.value = 50000;
+            health.setCurrentValue(50000);
         }, health!.currentValue);
         // this.getEvents().exEvents.tick.subscribe(e => {
         //     healthListener.upDate(health!.currentValue);

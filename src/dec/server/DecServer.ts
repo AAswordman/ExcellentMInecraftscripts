@@ -71,6 +71,10 @@ export default class DecServer extends ExGameServer {
             }
         }, false);
 
+        // this.getEvents().events.beforePistonActivate.subscribe(e => {
+        //     e.piston
+        // });
+
         this.getEvents().events.beforeChatSend.subscribe(e => {
             let cmdRunner = this.getExDimension(MinecraftDimensionTypes.overworld);
             let sender = ExPlayer.getInstance(e.sender);
