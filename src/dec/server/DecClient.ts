@@ -283,10 +283,28 @@ export default class DecClient extends ExGameClient {
             }
         });
 
+        let magic_gap = 60
+        function magicreckon_filter(n: number) {
+            if (n <= 0) {
+                return 0
+            } else if (n >= 140) {
+                return 140
+            } else {
+                return n
+            }
+        }
         this.getEvents().exEvents.tick.subscribe(e => {
             const p = this.player;
             const ep = this.exPlayer;
             const scores = this.exPlayer.getScoresManager();
+            const decMagicK = 29 / 70
+
+            //生存，冒险玩家添加gaming标签
+            if (!p.getTags().includes('gaming') && (ep.getGameMode() == GameMode.adventure || ep.getGameMode() == GameMode.survival)) {
+                p.addTag('gaming')
+            } else if (p.getTags().includes('gaming')) {
+                p.removeTag('gaming')
+            }
 
             //潜行获得tag is_sneaking
             if (p.isSneaking) {
@@ -378,6 +396,29 @@ export default class DecClient extends ExGameClient {
 
             if (scores.getScore('i_heavy') > 0) {//防末影珍珠的放function/global里的
                 this.exPlayer.command.run('tag @e[r=10,type=ender_pearl] add no_ender_pearl')
+            }
+
+            //Dec的魔法系统
+            if (DecGlobal.isDec()) {
+                let maxmagic = scores.getScore('maxmagic')
+                let magicgain = scores.getScore('magicgain')
+                let magicreckon = scores.getScore('magicreckon')
+                let magicpoint = scores.getScore('magicpoint')
+                let l =  Math.pow(0.667,magicgain) - 1
+                //p.runCommandAsync('title @s actionbar magic_gap:' + String(magic_gap))
+                if (magicpoint < maxmagic) {
+                    if (magic_gap <= 0) {
+                        //这里写魔法恢复
+                        scores.addScore('magicpoint', 1)
+                        magic_gap = 60 - decMagicK * magicreckon_filter((magicreckon - 60)/(1+l))
+                    } else {
+                        magic_gap -= 1
+                    }
+                    if (magicreckon < 200) { scores.setScore('magicreckon', 1 + magicreckon) }
+                } else if (magicreckon != 0) {
+                    scores.setScore('magicreckon', 0)
+                    magic_gap = 60
+                }
             }
         });
 
