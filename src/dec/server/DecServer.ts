@@ -239,11 +239,14 @@ export default class DecServer extends ExGameServer {
             const entity = ExEntity.getInstance(e.source);
             //防放方块
             if (entity.getScoresManager().getScore(this.i_soft) > 0) {
-                if (e.source.isSneaking) { e.cancel = true }
-                else {
-                    if ((block_except.has(e.block.typeId) || item_except.has(e.itemStack.typeId)) == false) { e.cancel = true }
+                if (e.source.isSneaking) {
+                    e.cancel = true
+                } else {
+                    // console.warn(block_except.has(e.block.typeId) || item_except.has(e.itemStack.typeId));
+                    if ((block_except.has(e.block.typeId) || item_except.has(e.itemStack.typeId)) == false) {
+                        e.cancel = true
+                    }
                 }
-
             }
         });
 
