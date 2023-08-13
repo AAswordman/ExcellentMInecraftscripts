@@ -18,7 +18,7 @@ export default class PomTaskSystem extends GameController {
 
     show(page?: string, subpage?: string) {
         let ui = new MenuUIAlert(this.client, menuTaskUI(this));
-        if(!page || !subpage){
+        if (!page || !subpage) {
             page = "dailyTask";
             subpage = ui.getJSON()[page].default;
         }
@@ -41,19 +41,20 @@ export default class PomTaskSystem extends GameController {
             }
         }
 
-        
+
 
         let date = new Date();
         let nDate = `${date.getFullYear()}-${date.getMonth()}-${date.getDay()}`;
+        console.warn(nDate);
 
         let getInt = (arr: any[]) => {
-            return Math.floor(arr.length*Math.random());
+            return Math.floor(arr.length * Math.random());
         }
         let ta = taskDaily_a(this.getLang()).tasks;
         let tb = taskDaily_b(this.getLang()).tasks;
         let tc = taskDaily_c(this.getLang()).tasks;
         let tx = taskDaily_x(this.getLang()).tasks;
-        
+
         if (this.data.tasks.daily.date !== nDate) {
             this.data.tasks.daily.all = [[
                 getInt(ta), getInt(ta), getInt(ta)
@@ -72,34 +73,17 @@ export default class PomTaskSystem extends GameController {
             this.data.tasks.daily.date = nDate;
         }
 
-        for (let t of ta) {
-            for (let v of t.conditions) {
-                if (v.type === "break" || v.type === "kill") {
-                    this.recordDailyArray.add(v.typeId);
+        const list = [ta, tb, tc, tx];
+        this.data.tasks.daily.all.forEach((arr, index) => {
+            for (let ti of arr) {
+                const t = list[index][ti];
+                for (let v of t.conditions) {
+                    if (v.type === "break" || v.type === "kill") {
+                        this.recordDailyArray.add(v.typeId);
+                    }
                 }
             }
-        }
-        for (let t of tb) {
-            for (let v of t.conditions) {
-                if (v.type === "break" || v.type === "kill") {
-                    this.recordDailyArray.add(v.typeId);
-                }
-            }
-        }
-        for (let t of tc) {
-            for (let v of t.conditions) {
-                if (v.type === "break" || v.type === "kill") {
-                    this.recordDailyArray.add(v.typeId);
-                }
-            }
-        }
-        for (let t of tx) {
-            for (let v of t.conditions) {
-                if (v.type === "break" || v.type === "kill") {
-                    this.recordDailyArray.add(v.typeId);
-                }
-            }
-        }
+        })
 
         this.getEvents().exEvents.afterBlockBreak.subscribe(e => {
             // ExGameConfig.console.log(e.brokenBlockPermutation.type.id);
@@ -107,13 +91,11 @@ export default class PomTaskSystem extends GameController {
             if (this.recordDailyArray.has(e.brokenBlockPermutation.type.id)) {
                 this.data.tasks.daily.cache[e.brokenBlockPermutation.type.id] = 1 + (this.data.tasks.daily.cache[e.brokenBlockPermutation.type.id] ?? 0);
             }
-            // s
         });
         this.getEvents().exEvents.afterPlayerHitEntity.subscribe(e => {
             if (!this.data.tasks) return;
-
             if (this.recordDailyArray.has(e.hurtEntity.typeId)) {
-                if (ExEntity.getInstance(e.hurtEntity).getMaxHealth() < 0) {
+                if (ExEntity.getInstance(e.hurtEntity).health <= 0) {
                     this.data.tasks.daily.cache[e.hurtEntity.typeId] = 1 + (this.data.tasks.daily.cache[e.hurtEntity.typeId] ?? 0);
                 }
             }

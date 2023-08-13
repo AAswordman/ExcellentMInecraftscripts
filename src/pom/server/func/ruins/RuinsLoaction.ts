@@ -1,4 +1,4 @@
-import Vector3 from "../../../../modules/exmc/math/Vector3.js";
+import Vector3, { IVector3 } from "../../../../modules/exmc/math/Vector3.js";
 import { ExBlockArea } from '../../../../modules/exmc/server/block/ExBlockArea.js';
 
 export default class RuinsLoaction {
@@ -31,7 +31,7 @@ export default class RuinsLoaction {
     public static readonly CAVE_RUIN_PROTECT_AREA = new ExBlockArea(
         this.CAVE_RUIN_LOCATION_START.clone().sub(this.CAVE_RUIN_LOCATION_SIZE),
         this.CAVE_RUIN_LOCATION_END.clone().add(this.CAVE_RUIN_LOCATION_SIZE));
-    
+
     public static readonly ANCIENT_RUIN_NUM = 3;
     public static readonly ANCIENT_RUIN_LOCATION_START = new Vector3(15360, 64, 16384);
     public static readonly ANCIENT_RUIN_LOCATION_SIZE = new Vector3(128, 128, 128);
@@ -41,7 +41,7 @@ export default class RuinsLoaction {
     public static readonly ANCIENT_RUIN_PROTECT_AREA = new ExBlockArea(
         this.ANCIENT_RUIN_LOCATION_START.clone().sub(this.ANCIENT_RUIN_LOCATION_SIZE),
         this.ANCIENT_RUIN_LOCATION_END.clone().add(this.ANCIENT_RUIN_LOCATION_SIZE));
-    
+
     public static readonly MIND_RUIN_NUM = 4;
     public static readonly MIND_RUIN_LOCATION_START = new Vector3(15360, 64, 17408);
     public static readonly MIND_RUIN_LOCATION_SIZE = new Vector3(128, 128, 128);
@@ -51,5 +51,11 @@ export default class RuinsLoaction {
     public static readonly MIND_RUIN_PROTECT_AREA = new ExBlockArea(
         this.MIND_RUIN_LOCATION_START.clone().sub(this.MIND_RUIN_LOCATION_SIZE),
         this.MIND_RUIN_LOCATION_END.clone().add(this.MIND_RUIN_LOCATION_SIZE));
-
+    public static isInProtectArea(v: IVector3) {
+        return RuinsLoaction.DESERT_RUIN_PROTECT_AREA.contains(v)
+            || RuinsLoaction.STONE_RUIN_PROTECT_AREA.contains(v)
+            || RuinsLoaction.CAVE_RUIN_PROTECT_AREA.contains(v)
+            || RuinsLoaction.ANCIENT_RUIN_PROTECT_AREA.contains(v)
+            || RuinsLoaction.MIND_RUIN_PROTECT_AREA.contains(v);
+    }
 }

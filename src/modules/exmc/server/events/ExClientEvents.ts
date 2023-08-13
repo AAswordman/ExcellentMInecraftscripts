@@ -136,7 +136,8 @@ export default class ExClientEvents implements ExEventManager {
             pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
             filter: {
                 "name": "damagingEntity"
-            }
+            },
+            name: ExEventNames.afterEntityHitBlock
         },
         [ExOtherEventNames.afterPlayerHitEntity]: {
             pattern: ExClientEvents.eventHandlers.registerToServerByEntity,

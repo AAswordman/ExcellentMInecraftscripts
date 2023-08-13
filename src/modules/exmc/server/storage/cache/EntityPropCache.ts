@@ -4,7 +4,7 @@ import Random from '../../../utils/Random.js';
 import GZIPUtil from '../../../utils/GZIPUtil.js';
 import ExGameConfig from '../../ExGameConfig.js';
 
-const cutLength = 980;
+const cutLength = 3000;
 world.afterEvents.worldInitialize.subscribe((e) => {
     let def = new DynamicPropertiesDefinition().defineString("__cache0:", cutLength);
     e.propertyRegistry.registerEntityTypeDynamicProperties(def, MinecraftEntityTypes.player);
