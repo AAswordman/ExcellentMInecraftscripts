@@ -107,7 +107,7 @@ export let DecTasks = [
         "execute if entity @s[tag=task_complete] run clear @s yellow_flower 0 14"
     ]),
     new DecTask("016", 471, [
-        "execute if entity @s[hasitem={item=log,data=0,quantity=64..}] run tag @s add task_complete",
+        "execute if entity @s[hasitem={item=log,data=1,quantity=64..}] run tag @s add task_complete",
         "execute if entity @s[tag=task_complete] run clear @s log 0 64"
     ]),
     new DecTask("017", 512, [
