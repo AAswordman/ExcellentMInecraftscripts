@@ -276,24 +276,31 @@ export default class DecClient extends ExGameClient {
         });
 
         let magic_gap = 60
-        function magicreckon_filter(n: number) {
-            if (n <= 0) {
-                return 0
-            } else if (n >= 140) {
-                return 140
+        let dec_magic_store = 0
+        const k2 = 0.001
+        const k1 = 1 - k2 + 0.01
+        const g_min = (1 - k1)/k2
+        const magicgain_map_k = 1.05 //此项可修改，与magicgain<1时魔法恢复速度随magicgain变化负相关，即magicgain减小同样的数，此项越大，魔法恢复速度越慢
+        const magicgain_map_k2 = (-g_min + 1) / magicgain_map_k
+        function magicgain_map(magicgain:number){
+            if (magicgain<1){
+                return (magicgain_map_k2 * Math.pow(magicgain_map_k,magicgain) + g_min)
             } else {
-                return n
+                return magicgain
             }
         }
         this.getEvents().exEvents.tick.subscribe(e => {
             const p = this.player;
             const ep = this.exPlayer;
             const scores = this.exPlayer.getScoresManager();
-            const decMagicK = 29 / 70
 
             //生存，冒险玩家添加gaming标签
-            if (!p.getTags().includes('gaming') && (ep.getGameMode() == GameMode.adventure || ep.getGameMode() == GameMode.survival)) {
+            if (p.getTags().includes('gaming') == false && (ep.getGameMode() == GameMode.adventure || ep.getGameMode() == GameMode.survival)) {
                 p.addTag('gaming')
+                this.globalscores.setNumber("AlreadyGmCheat", 1);
+                if(this.globalscores.getNumber('DieMode')){
+                    p.addTag('diemode_gmcheat')
+                }
             } else if (p.getTags().includes('gaming')) {
                 p.removeTag('gaming')
             }
@@ -321,7 +328,6 @@ export default class DecClient extends ExGameClient {
                 p.removeTag("dOverworld")
                 if (e.currentTick % 80 === 0) ep.command.run("fog @s remove \"night_event\"");
             }
-
 
             if (e.currentTick % 20 === 0) {
                 //深渊之翼
@@ -396,21 +402,34 @@ export default class DecClient extends ExGameClient {
                 let magicgain = scores.getScore('magicgain')
                 let magicreckon = scores.getScore('magicreckon')
                 let magicpoint = scores.getScore('magicpoint')
-                let l =  Math.pow(0.667,magicgain) - 1
+
+                //wait_tick实际运用可为变量，第一次魔法恢复时用时，并且越大，魔法恢复越慢
+                const wait_tick = 60
+
+                //let l =  Math.pow(0.667,magicgain) - 1
                 //p.runCommandAsync('title @s actionbar magic_gap:' + String(magic_gap))
                 if (magicpoint < maxmagic) {
                     if (magic_gap <= 0) {
                         //这里写魔法恢复
                         scores.addScore('magicpoint', 1)
-                        magic_gap = 60 - decMagicK * magicreckon_filter((magicreckon - 60)/(1+l))
+                        this.getExDimension().spawnParticle("dec:magic_increase_particle", p.location);
+                        //magic_gap = 60 - decMagicK * magicreckon_filter((magicreckon - 60)/(1+l))
+                        magic_gap = wait_tick * Math.pow(1/(k1 + k2 * magicgain_map(magicgain)),magicreckon)
                     } else {
                         magic_gap -= 1
                     }
-                    if (magicreckon < 200) { scores.setScore('magicreckon', 1 + magicreckon) }
+                    scores.setScore('magicreckon', 1 + magicreckon)
                 } else if (magicreckon != 0) {
                     scores.setScore('magicreckon', 0)
-                    magic_gap = 60
+                    magic_gap = wait_tick
                 }
+                if (dec_magic_store > magicpoint){
+                    scores.setScore('magicreckon', 0)
+                    if(magicreckon >= wait_tick){
+                        this.getExDimension().spawnParticle("dec:magic_decrease_particle", p.location);
+                    }
+                }
+                dec_magic_store = magicpoint
             }
         });
 
