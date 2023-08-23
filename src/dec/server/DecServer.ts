@@ -1,4 +1,4 @@
-import { Player, MinecraftDimensionTypes, Entity, ItemStack, MinecraftItemTypes, Effect, world } from '@minecraft/server';
+import { Player, MinecraftDimensionTypes, Entity, ItemStack, MinecraftItemTypes, Effect, world, BlockPermutation, Block } from '@minecraft/server';
 import ExConfig from "../../modules/exmc/ExConfig.js";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import DecClient from "./DecClient.js";
@@ -211,6 +211,17 @@ export default class DecServer extends ExGameServer {
                 ep.addEffect(MinecraftEffectTypes.Nausea, 200, 0, true);
                 entity.command.run("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }")
             }
+            //种植架
+            const block = e.block
+            function print(s:string){
+                world.getDimension('overworld').runCommandAsync('say '+s)
+            }
+            if(e.brokenBlockPermutation.type.id == 'dec:trellis'){
+                const bottom_block = (<Block>block.dimension.getBlock(new Vector3(block.location.x,block.location.y-1,block.location.z)))
+                if (bottom_block.typeId == 'dec:trellis') {
+                    bottom_block.setPermutation(bottom_block.permutation.withState('dec:is_top',true))
+                }
+            }
         });
 
         this.getEvents().events.beforeExplosion.subscribe(e => {
@@ -249,6 +260,20 @@ export default class DecServer extends ExGameServer {
                 }
             }
         });
+        this.getEvents().events.afterBlockPlace.subscribe(e => {
+            const block = e.block
+            //种植架
+            if(e.block.typeId == 'dec:trellis'){
+                block.setPermutation(block.permutation.withState('dec:is_top',true))
+                const bottom_block = (<Block>block.dimension.getBlock(new Vector3(block.location.x,block.location.y-1,block.location.z)))
+                if(bottom_block.typeId == 'minecraft:farmland'){
+                    block.setPermutation(block.permutation.withState('dec:is_bottom',true))
+                } else if (bottom_block.typeId == 'dec:trellis') {
+                    block.setPermutation(block.permutation.withState('dec:is_bottom',false))
+                    bottom_block.setPermutation(bottom_block.permutation.withState('dec:is_top',false))
+                }
+            }
+        })
 
         this.getEvents().exEvents.tick.subscribe(e => {
             //诅咒时间减少
