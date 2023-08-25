@@ -1,4 +1,4 @@
-import { Player, MinecraftDimensionTypes, Entity, ItemStack, MinecraftItemTypes, Effect, world, BlockPermutation, Block } from '@minecraft/server';
+import { Player, MinecraftDimensionTypes, Entity, ItemStack, MinecraftItemTypes, Effect, world, BlockPermutation, Block, system } from '@minecraft/server';
 import ExConfig from "../../modules/exmc/ExConfig.js";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import DecClient from "./DecClient.js";
@@ -74,6 +74,29 @@ export default class DecServer extends ExGameServer {
         // this.getEvents().events.beforePistonActivate.subscribe(e => {
         //     e.piston
         // });
+
+
+        function state_set_keep(block: Block, key_arr: Array<string>, val_arr: Array<string | boolean | number>) {
+            let states = block.permutation.getAllStates()
+            let k_no = 0
+            for (let k of key_arr) {
+                states[k] = val_arr[k_no]
+                k_no += 1
+            }
+            let states_string = '['
+            Object.keys(states).forEach(k => {
+                let new_st = '"' + k + '":'
+                if (typeof (states[k]) == 'boolean' || typeof (states[k]) == 'number') {
+                    new_st += String(states[k]) + ','
+                } else if (typeof (states[k]) == 'string') {
+                    new_st += '"' + String(states[k]) + '",'
+                }
+                states_string += new_st
+            })
+            states_string = states_string.slice(0, states_string.length - 1)
+            states_string += ']'
+            block.dimension.runCommandAsync('setblock ' + String(block.location.x) + ' ' + String(block.location.y) + ' ' + String(block.location.z) + ' ' + block.typeId + ' ' + states_string)
+        }
 
         this.getEvents().events.beforeChatSend.subscribe(e => {
             let cmdRunner = this.getExDimension(MinecraftDimensionTypes.overworld);
@@ -213,13 +236,13 @@ export default class DecServer extends ExGameServer {
             }
             //种植架
             const block = e.block
-            function print(s:string){
-                world.getDimension('overworld').runCommandAsync('say '+s)
+            function print(s: string) {
+                world.getDimension('overworld').runCommandAsync('say ' + s)
             }
-            if(e.brokenBlockPermutation.type.id == 'dec:trellis'){
-                const bottom_block = (<Block>block.dimension.getBlock(new Vector3(block.location.x,block.location.y-1,block.location.z)))
+            if (e.brokenBlockPermutation.type.id == 'dec:trellis') {
+                const bottom_block = (<Block>block.dimension.getBlock(new Vector3(block.location.x, block.location.y - 1, block.location.z)))
                 if (bottom_block.typeId == 'dec:trellis') {
-                    bottom_block.setPermutation(bottom_block.permutation.withState('dec:is_top',true))
+                    state_set_keep(bottom_block, ['dec:is_top'], [true])
                 }
             }
         });
@@ -263,14 +286,14 @@ export default class DecServer extends ExGameServer {
         this.getEvents().events.afterBlockPlace.subscribe(e => {
             const block = e.block
             //种植架
-            if(e.block.typeId == 'dec:trellis'){
-                block.setPermutation(block.permutation.withState('dec:is_top',true))
-                const bottom_block = (<Block>block.dimension.getBlock(new Vector3(block.location.x,block.location.y-1,block.location.z)))
-                if(bottom_block.typeId == 'minecraft:farmland'){
-                    block.setPermutation(block.permutation.withState('dec:is_bottom',true))
+            if (e.block.typeId == 'dec:trellis') {
+                state_set_keep(block, ['dec:is_top'], [true])
+                const bottom_block = (<Block>block.dimension.getBlock(new Vector3(block.location.x, block.location.y - 1, block.location.z)))
+                if (bottom_block.typeId == 'minecraft:farmland') {
+                    state_set_keep(block, ['dec:is_bottom'], [true])
                 } else if (bottom_block.typeId == 'dec:trellis') {
-                    block.setPermutation(block.permutation.withState('dec:is_bottom',false))
-                    bottom_block.setPermutation(bottom_block.permutation.withState('dec:is_top',false))
+                    state_set_keep(block, ['dec:is_bottom'], [false])
+                    state_set_keep(bottom_block, ['dec:is_top'], [false])
                 }
             }
         })
@@ -353,6 +376,68 @@ export default class DecServer extends ExGameServer {
 
 
         this.addEntityController("dec:nuke", DecNukeController);
+
+        function block_around_judge(arr: Array<Block>, block: Block, tar_id: string, states_k = new Array<string>, states_v = new Array<string | boolean | number>) {
+            if (block.typeId == tar_id) {
+                let jud = 0
+                if (states_k.length > 0) {
+                    let k_no = 0
+                    let states = block.permutation.getAllStates()
+                    for (let k of states_k) {
+                        if (states_v[k_no] == states[k]) {
+                            jud += 1
+                        }
+                        k_no += 1
+                    }
+                } else {
+                    jud = states_v.length
+                }
+                if (jud == states_v.length) {
+                    arr.push(block)
+                }
+            }
+            return arr
+        }
+        function trellis_cover_wither_spread(block:Block){
+            if(block.typeId == 'dec:trellis_cover' && block.permutation.getAllStates()['dec:crop_type'] != 'empty'){
+                state_set_keep(block,['dec:may_wither'],[true])
+            }
+        }
+        system.afterEvents.scriptEventReceive.subscribe(e => {
+            if (e.id == 'dec:trellis') {
+                //种植架
+                const block = e.sourceBlock
+                const block_above = <Block>e.sourceBlock.dimension.getBlock(new Vector3(block.location.x, block.location.y + 1, block.location.z))
+                const block_xp = <Block>e.sourceBlock.dimension.getBlock(new Vector3(block.location.x + 1, block.location.y, block.location.z))
+                const block_xn = <Block>e.sourceBlock.dimension.getBlock(new Vector3(block.location.x - 1, block.location.y, block.location.z))
+                const block_zp = <Block>e.sourceBlock.dimension.getBlock(new Vector3(block.location.x, block.location.y, block.location.z + 1))
+                const block_zn = <Block>e.sourceBlock.dimension.getBlock(new Vector3(block.location.x, block.location.y, block.location.z - 1))
+                if (block_above?.typeId == 'dec:trellis' && e.message == 'wither') {
+                    let block_above_n = block_above
+                    while (block_above_n.typeId == 'dec:trellis') {
+                        state_set_keep(block_above_n, ['dec:may_wither'], [true])
+                        block_above_n = <Block>block.dimension.getBlock(new Vector3(block_above_n.location.x, block_above_n.location.y + 1, block_above_n.location.z))
+                    }
+                }
+                if (e.message == 'grow_spread') {
+                    let may_grow_block = new Array<Block>
+                    may_grow_block = block_around_judge(may_grow_block, block_xp, 'dec:trellis_cover', ['dec:crop_type'], ['empty'])
+                    may_grow_block = block_around_judge(may_grow_block, block_xn, 'dec:trellis_cover', ['dec:crop_type'], ['empty'])
+                    may_grow_block = block_around_judge(may_grow_block, block_zp, 'dec:trellis_cover', ['dec:crop_type'], ['empty'])
+                    may_grow_block = block_around_judge(may_grow_block, block_zn, 'dec:trellis_cover', ['dec:crop_type'], ['empty'])
+                    may_grow_block = block_around_judge(may_grow_block, block_above, 'dec:trellis', ['dec:crop_type'], ['empty'])
+                    if (may_grow_block.length > 0) {
+                        state_set_keep(may_grow_block[MathUtil.randomInteger(0, may_grow_block.length - 1)], ['dec:may_wither', 'dec:growth_stage', 'dec:crop_type'], [false, 0, <string>block.permutation.getState('dec:crop_type')])
+                    }
+                }
+                if (e.message == 'wither_spread') {
+                    trellis_cover_wither_spread(block_xp)
+                    trellis_cover_wither_spread(block_xn)
+                    trellis_cover_wither_spread(block_zp)
+                    trellis_cover_wither_spread(block_zn)
+                }
+            }
+        })
 
     }
 
