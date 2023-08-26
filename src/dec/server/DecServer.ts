@@ -85,7 +85,7 @@ export default class DecServer extends ExGameServer {
             }
             let states_string = '['
             Object.keys(states).forEach(k => {
-                let new_st = '"' + k + '":'
+                let new_st = '"' + k + '"='
                 if (typeof (states[k]) == 'boolean' || typeof (states[k]) == 'number') {
                     new_st += String(states[k]) + ','
                 } else if (typeof (states[k]) == 'string') {
