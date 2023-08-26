@@ -279,12 +279,12 @@ export default class DecClient extends ExGameClient {
         let dec_magic_store = 0
         const k2 = 0.001
         const k1 = 1 - k2 + 0.01
-        const g_min = (1 - k1)/k2
+        const g_min = (1 - k1) / k2
         const magicgain_map_k = 1.05 //此项可修改，与magicgain<1时魔法恢复速度随magicgain变化负相关，即magicgain减小同样的数，此项越大，魔法恢复速度越慢
         const magicgain_map_k2 = (-g_min + 1) / magicgain_map_k
-        function magicgain_map(magicgain:number){
-            if (magicgain<1){
-                return (magicgain_map_k2 * Math.pow(magicgain_map_k,magicgain) + g_min)
+        function magicgain_map(magicgain: number) {
+            if (magicgain < 1) {
+                return (magicgain_map_k2 * Math.pow(magicgain_map_k, magicgain) + g_min)
             } else {
                 return magicgain
             }
@@ -298,7 +298,7 @@ export default class DecClient extends ExGameClient {
             if (p.getTags().includes('gaming') == false && (ep.getGameMode() == GameMode.adventure || ep.getGameMode() == GameMode.survival)) {
                 p.addTag('gaming')
                 this.globalscores.setNumber("AlreadyGmCheat", 1);
-                if(this.globalscores.getNumber('DieMode')){
+                if (this.globalscores.getNumber('DieMode')) {
                     p.addTag('diemode_gmcheat')
                 }
             } else if (p.getTags().includes('gaming')) {
@@ -414,7 +414,7 @@ export default class DecClient extends ExGameClient {
                         scores.addScore('magicpoint', 1)
                         this.getExDimension().spawnParticle("dec:magic_increase_particle", p.location);
                         //magic_gap = 60 - decMagicK * magicreckon_filter((magicreckon - 60)/(1+l))
-                        magic_gap = wait_tick * Math.pow(1/(k1 + k2 * magicgain_map(magicgain)),magicreckon)
+                        magic_gap = wait_tick * Math.pow(1 / (k1 + k2 * magicgain_map(magicgain)), magicreckon)
                     } else {
                         magic_gap -= 1
                     }
@@ -423,9 +423,9 @@ export default class DecClient extends ExGameClient {
                     scores.setScore('magicreckon', 0)
                     magic_gap = wait_tick
                 }
-                if (dec_magic_store > magicpoint){
+                if (dec_magic_store > magicpoint) {
                     scores.setScore('magicreckon', 0)
-                    if(magicreckon >= wait_tick){
+                    if (magicreckon >= wait_tick) {
                         this.getExDimension().spawnParticle("dec:magic_decrease_particle", p.location);
                     }
                 }
@@ -433,25 +433,25 @@ export default class DecClient extends ExGameClient {
             }
         });
 
-        this.getEvents().exEvents.afterItemUse.subscribe(e => {
-            let hunter_reset = () => {
-                let hunter_x_offset = (Math.random() - 0.5) * 2000
-                let hunter_z_offset = (Math.random() - 0.5) * 2000
-                let hunter_x = 0
-                let hunter_z = 0
-                if (Math.random() > 0) {
-                    hunter_x = 5000
-                } else {
-                    hunter_x = -5000
-                }
-                if (Math.random() > 0) {
-                    hunter_z = 5000
-                } else {
-                    hunter_z = -5000
-                }
-                this.globalscores.setNumber('hunter_x', Math.floor(e.source.location.x + hunter_x + hunter_x_offset))
-                this.globalscores.setNumber('hunter_z', Math.floor(e.source.location.z + hunter_z + hunter_z_offset))
+        let hunter_reset = () => {
+            let hunter_x_offset = (Math.random() - 0.5) * 2000
+            let hunter_z_offset = (Math.random() - 0.5) * 2000
+            let hunter_x = 0
+            let hunter_z = 0
+            if (Math.random() > 0) {
+                hunter_x = 5000
+            } else {
+                hunter_x = -5000
             }
+            if (Math.random() > 0) {
+                hunter_z = 5000
+            } else {
+                hunter_z = -5000
+            }
+            this.globalscores.setNumber('hunter_x', Math.floor(this.player.location.x + hunter_x + hunter_x_offset))
+            this.globalscores.setNumber('hunter_z', Math.floor(this.player.location.z + hunter_z + hunter_z_offset))
+        }
+        this.getEvents().exEvents.afterItemUse.subscribe(e => {
             //魔法卷轴
             if (e.itemStack.typeId == "dec:magic_scroll_blue") {
                 const i = e.itemStack;
@@ -467,18 +467,18 @@ export default class DecClient extends ExGameClient {
                 let cur_hunter_z = this.globalscores.getNumber('hunter_z')
                 if (this.globalscores.getNumber('hunter_x') == undefined || this.globalscores.getNumber('hunter_z') == undefined || this.globalscores.getNumber('hunter_x') == 0 || this.globalscores.getNumber('hunter_z') == 0) {
                     hunter_reset()
-                    e.source.runCommandAsync('tellraw @a { "rawtext" : [ { "translate" : "text.dec:hunter_book_new.name" } ] }')
-                    e.source.runCommandAsync('tellraw @s { "rawtext" : [ { "translate" : "text.dec:hunter_book_coordinate_1.name" },{ "score":{ "name": "hunter_x","objective": "global" } },{ "translate" : "text.dec:hunter_book_coordinate_2.name" },{ "score":{ "name": "hunter_z","objective": "global" } } ] }')
+                    this.exPlayer.command.run(['tellraw @a { "rawtext" : [ { "translate" : "text.dec:hunter_book_new.name" } ] }',
+                        'tellraw @s { "rawtext" : [ { "translate" : "text.dec:hunter_book_coordinate_1.name" },{ "score":{ "name": "hunter_x","objective": "global" } },{ "translate" : "text.dec:hunter_book_coordinate_2.name" },{ "score":{ "name": "hunter_z","objective": "global" } } ] }']);
                 } else if ((<number>cur_hunter_x) - 3 <= e.source.location.x && (<number>cur_hunter_x) + 3 >= e.source.location.x && (<number>cur_hunter_z) - 3 <= e.source.location.z && (<number>cur_hunter_z) + 3 >= e.source.location.z) {
                     hunter_reset()
-                    e.source.runCommandAsync('tellraw @a { "rawtext" : [ { "translate" : "text.dec:hunter_book_success.name" } ] }')
-                    e.source.runCommandAsync('tellraw @a { "rawtext" : [ { "translate" : "text.dec:hunter_book_new.name" } ] }')
-                    e.source.runCommandAsync('tellraw @s { "rawtext" : [ { "translate" : "text.dec:hunter_book_coordinate_1.name" },{ "score":{ "name": "hunter_x","objective": "global" } },{ "translate" : "text.dec:hunter_book_coordinate_2.name" },{ "score":{ "name": "hunter_z","objective": "global" } } ] }')
-                    e.source.runCommandAsync('xp ' + (5000 + Math.random() * 4000) + ' @s')
-                    e.source.runCommandAsync('loot give @s loot "items/hunter_book"')
+                    this.exPlayer.command.run(['tellraw @a { "rawtext" : [ { "translate" : "text.dec:hunter_book_success.name" } ] }',
+                        'tellraw @a { "rawtext" : [ { "translate" : "text.dec:hunter_book_new.name" } ] }',
+                        'tellraw @s { "rawtext" : [ { "translate" : "text.dec:hunter_book_coordinate_1.name" },{ "score":{ "name": "hunter_x","objective": "global" } },{ "translate" : "text.dec:hunter_book_coordinate_2.name" },{ "score":{ "name": "hunter_z","objective": "global" } } ] }',
+                        'xp ' + (5000 + Math.random() * 4000) + ' @s',
+                        'loot give @s loot "items/hunter_book"']);
                 } else {
-                    e.source.runCommandAsync('tellraw @s { "rawtext" : [ { "translate" : "text.dec:hunter_book_not_complete.name" } ] }')
-                    e.source.runCommandAsync('tellraw @s { "rawtext" : [ { "translate" : "text.dec:hunter_book_coordinate_1.name" },{ "score":{ "name": "hunter_x","objective": "global" } },{ "translate" : "text.dec:hunter_book_coordinate_2.name" },{ "score":{ "name": "hunter_z","objective": "global" } } ] }')
+                    this.exPlayer.command.run(['tellraw @s { "rawtext" : [ { "translate" : "text.dec:hunter_book_not_complete.name" } ] }',
+                    'tellraw @s { "rawtext" : [ { "translate" : "text.dec:hunter_book_coordinate_1.name" },{ "score":{ "name": "hunter_x","objective": "global" } },{ "translate" : "text.dec:hunter_book_coordinate_2.name" },{ "score":{ "name": "hunter_z","objective": "global" } } ] }']);
                 }
             }
         });
