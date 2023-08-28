@@ -61,7 +61,7 @@ export default class TalentData {
                 return level * (TalentData.isOccupationTalent(occupation, talentId) ? 30 : 15) / 40;
                 break;
             case Talent.CLOAD_PIERCING:
-                return level * (TalentData.isOccupationTalent(occupation, talentId) ? 80 : 40) / 40;
+                return level * (TalentData.isOccupationTalent(occupation, talentId) ? 100 : 50) / 40;
                 break;
             case Talent.ARMOR_BREAKING:
                 return level * (TalentData.isOccupationTalent(occupation, talentId) ? 25 : 10) / 40;

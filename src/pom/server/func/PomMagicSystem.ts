@@ -198,7 +198,12 @@ export default class PomMagicSystem extends GameController {
         // }, health!.currentValue);
         let healthListener = new VarOnChangeListener((n, l) => {
             let change = n - (l ?? 0);
-            this.gameHealth = Math.min(this.gameHealth + change, this.gameMaxHealth);
+            if (n === 1) {
+                //不死图腾
+                this.gameHealth = 1;
+            } else {
+                this.gameHealth = Math.min(this.gameHealth + change, this.gameMaxHealth);
+            }
             healthListener.value = 50000;
             health.setCurrentValue(50000);
         }, health!.currentValue);
@@ -213,7 +218,22 @@ export default class PomMagicSystem extends GameController {
         });
         this.healthSaver.start();
         let n: number
-        this.gameHealth = ((n = this.player.getDynamicProperty("health") as number) === -1) ? this.gameMaxHealth : n;
+
+        this.getEvents().exEvents.afterPlayerSpawn.subscribe(e => {
+            this.exPlayer.triggerEvent("hp:100000");
+            //设置默认游戏血量
+
+            //绕开常规逻辑设置血量
+            healthListener.value = 50000;
+            health.setCurrentValue(50000);
+            if (e.initialSpawn) {
+                this.gameHealth = Math.min(this.gameMaxHealth, ((n = this.player.getDynamicProperty("health") as number) <= 0) ? this.gameMaxHealth : n);
+            } else {
+                this.gameHealth = this.gameMaxHealth;
+            }
+        });
+
+
 
         this.magicReduce = this.player.getDynamicProperty("magicReduce") as number ?? 0;
         this.damageAbsorbed = this.player.getDynamicProperty("damageAbsorbed") as number ?? 0;

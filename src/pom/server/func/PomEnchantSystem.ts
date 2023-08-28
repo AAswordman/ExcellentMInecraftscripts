@@ -9,7 +9,7 @@ import GameController from "./GameController.js";
 export default class PomEnChantSystem extends GameController {
     static blockTranslateData: Map<string, ItemStack> = new Map<string, ItemStack>();
     onJoin(): void {
-        /*
+
         this.getEvents().exEvents.afterItemOnHandChange.subscribe((e) => {
             const bag = this.exPlayer.getBag();
             if (e.afterItem) {
@@ -33,7 +33,7 @@ export default class PomEnChantSystem extends GameController {
                 }
             }
         });
-        */
+
         //附魔
         this.getEvents().exEvents.beforeItemUseOn.subscribe((e) => {
             const pos = new Vector3(e.block);

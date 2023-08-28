@@ -98,8 +98,8 @@ export default class ExGameServer implements SetTimeOutSupport {
     getDimension(dimensionId: string) {
         return ExGameServer.dimensionMap.get(dimensionId)!;
     }
-    getExDimension(dimensionId: string) {
-        return ExDimension.getInstance(this.getDimension(dimensionId));
+    getExDimension(dimensionId: string | Dimension) {
+        return ExDimension.getInstance(dimensionId instanceof Dimension ? dimensionId : this.getDimension(dimensionId));
     }
 
     getEvents() {
@@ -166,6 +166,7 @@ export default class ExGameServer implements SetTimeOutSupport {
             () => {
                 let player = world.getAllPlayers().find(e => e.name === playerName);
                 if (!player) throw new Error(`Player ${playerName} not found`);
+                if (this.findClientByPlayer(player)) return;
                 let id = UUID.randomUUID();
                 let client = this.newClient(id, player);
                 this.clients.set(id, client);

@@ -215,10 +215,9 @@ export default class PomTalentSystem extends GameController {
             let dis = target.position.distance(this.exPlayer.position);
             let CLOAD_PIERCING = this.talentRes.get(Talent.CLOAD_PIERCING) ?? 0;
 
-            damageFac += Math.min(64, dis) / 64 * CLOAD_PIERCING / 100;
+            damageFac += MathUtil.clamp(dis, 28, 64) / 64 * CLOAD_PIERCING / 100;
             let ARMOR_BREAKING = this.talentRes.get(Talent.ARMOR_BREAKING) ?? 0;
-            extraDamage += ((1 - this.client.magicSystem.gameHealth / this.client.magicSystem.gameMaxHealth) * (20 + (this.talentRes.get(Talent.VIENTIANE) ?? 0)))
-                * ARMOR_BREAKING / 100;
+            extraDamage += ((20 + (this.talentRes.get(Talent.VIENTIANE) ?? 0))) * ARMOR_BREAKING / 100;
 
             let SANCTION = this.talentRes.get(Talent.SANCTION) ?? 0;
             damageFac += (16 - Math.min(16, dis)) / 16 * SANCTION / 100;
@@ -256,7 +255,9 @@ export default class PomTalentSystem extends GameController {
 
         //玩家减伤
         this.getEvents().exEvents.afterPlayerHurt.subscribe((e) => {
-            if (e.damage > 10000000) return;
+            if (e.damage > 10000000 || e.damage < 0) return;
+            console.warn(e.damageSource.cause)
+            // console.warn("hurt"+e.damage,"now"+this.exPlayer.health);
             let damage = (this.exPlayer.getPreRemoveHealth() ?? 0) + e.damage;
             let add = 0;
             let actualDamageFactor = (1 - ((this.talentRes.get(Talent.DEFENSE) ?? 0) / 100));
@@ -313,10 +314,7 @@ export default class PomTalentSystem extends GameController {
         });
 
         let lastListener = (d: number) => { };
-        this.getEvents().exEvents.afterPlayerSpawn.subscribe(e => {
-            this.exPlayer.triggerEvent("hp:100000");
-            this.exPlayer.health = 50000;
-        });
+
         this.getEvents().exEvents.afterItemOnHandChange.subscribe((e) => {
             let bag = this.exPlayer.getBag();
             if (e.afterItem) {

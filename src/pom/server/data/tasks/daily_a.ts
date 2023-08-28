@@ -180,7 +180,7 @@ export default function taskDaily_a(lang: langType):PomTaskJSON {
                 "conditions": [
                     {
                         "name": "木头",
-                        "typeId": MinecraftItemTypes.log.id,
+                        "typeId": "log",
                         "count": 64,
                         "type": "break"
                     }

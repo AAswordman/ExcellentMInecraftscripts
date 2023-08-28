@@ -4,7 +4,7 @@ import ExGameClient from "./ExGameClient.js";
 
 import "../../reflect-metadata/Reflect.js"
 import ExSystem from "../utils/ExSystem.js";
-import { system } from "@minecraft/server";
+import { ScriptEventCommandMessageAfterEvent, system } from "@minecraft/server";
 import ExServerEvents from "./events/ExServerEvents.js";
 import MonitorManager from "../utils/MonitorManager.js";
 import { TickEvent } from "./events/events.js";
@@ -14,6 +14,7 @@ export default class ExGame {
     static beforeTickMonitor = new MonitorManager<[TickEvent]>();
     static tickMonitor = new MonitorManager<[TickEvent]>();
     static longTickMonitor = new MonitorManager<[TickEvent]>();
+    static scriptEventReceive = new MonitorManager<[ScriptEventCommandMessageAfterEvent]>();
     static {
         let tickNum = 0,
             tickTime = 0;
@@ -45,6 +46,13 @@ export default class ExGame {
         }
         ExGame.runInterval(fun, 5);
     }
+
+    static {
+        system.afterEvents.scriptEventReceive.subscribe(e => {
+            ExGame.scriptEventReceive.trigger(e);
+        });
+    }
+
     static serverMap = new Map<typeof ExGameServer, ExGameServer>;
     static createServer(serverCons: typeof ExGameServer, config: ExConfig) {
         let server = new serverCons(config);
