@@ -295,13 +295,14 @@ export default class DecClient extends ExGameClient {
             const scores = this.exPlayer.getScoresManager();
 
             //生存，冒险玩家添加gaming标签
-            if (p.getTags().includes('gaming') == false && (ep.getGameMode() == GameMode.adventure || ep.getGameMode() == GameMode.survival)) {
+            const gamemode = ep.getGameMode();
+            if (!p.hasTag('gaming') && (gamemode == GameMode.adventure || gamemode == GameMode.survival)) {
                 p.addTag('gaming')
                 this.globalscores.setNumber("AlreadyGmCheat", 1);
                 if (this.globalscores.getNumber('DieMode')) {
                     p.addTag('diemode_gmcheat')
                 }
-            } else if (p.getTags().includes('gaming')) {
+            } else if (p.hasTag('gaming')) {
                 p.removeTag('gaming')
             }
 
@@ -404,52 +405,52 @@ export default class DecClient extends ExGameClient {
                 let magicpoint = scores.getScore('magicpoint')
 
                 //wait_tick实际运用可为变量，第一次魔法恢复时用时，并且越大，魔法恢复越慢
-                const wait_tick = 60
+                const wait_tick = 60;
 
                 //let l =  Math.pow(0.667,magicgain) - 1
                 //p.runCommandAsync('title @s actionbar magic_gap:' + String(magic_gap))
                 if (magicpoint < maxmagic) {
                     if (magic_gap <= 0) {
                         //这里写魔法恢复
-                        scores.addScore('magicpoint', 1)
+                        scores.addScore('magicpoint', 1);
                         this.getExDimension().spawnParticle("dec:magic_increase_particle", p.location);
                         //magic_gap = 60 - decMagicK * magicreckon_filter((magicreckon - 60)/(1+l))
-                        magic_gap = wait_tick * Math.pow(1 / (k1 + k2 * magicgain_map(magicgain)), magicreckon)
+                        magic_gap = wait_tick * Math.pow(1 / (k1 + k2 * magicgain_map(magicgain)), magicreckon);
                     } else {
-                        magic_gap -= 1
+                        magic_gap -= 1;
                     }
-                    scores.setScore('magicreckon', 1 + magicreckon)
+                    scores.addScore('magicreckon', 1);
                 } else if (magicreckon != 0) {
-                    scores.setScore('magicreckon', 0)
-                    magic_gap = wait_tick
+                    scores.setScore('magicreckon', 0);
+                    magic_gap = wait_tick;
                 }
                 if (dec_magic_store > magicpoint) {
-                    scores.setScore('magicreckon', 0)
+                    scores.setScore('magicreckon', 0);
                     if (magicreckon >= wait_tick) {
                         this.getExDimension().spawnParticle("dec:magic_decrease_particle", p.location);
                     }
                 }
-                dec_magic_store = magicpoint
+                dec_magic_store = magicpoint;
             }
         });
 
         let hunter_reset = () => {
-            let hunter_x_offset = (Math.random() - 0.5) * 2000
-            let hunter_z_offset = (Math.random() - 0.5) * 2000
-            let hunter_x = 0
-            let hunter_z = 0
+            let hunter_x_offset = (Math.random() - 0.5) * 2000;
+            let hunter_z_offset = (Math.random() - 0.5) * 2000;
+            let hunter_x = 0;
+            let hunter_z = 0;
             if (Math.random() > 0) {
-                hunter_x = 5000
+                hunter_x = 5000;
             } else {
-                hunter_x = -5000
+                hunter_x = -5000;
             }
             if (Math.random() > 0) {
-                hunter_z = 5000
+                hunter_z = 5000;
             } else {
-                hunter_z = -5000
+                hunter_z = -5000;
             }
-            this.globalscores.setNumber('hunter_x', Math.floor(this.player.location.x + hunter_x + hunter_x_offset))
-            this.globalscores.setNumber('hunter_z', Math.floor(this.player.location.z + hunter_z + hunter_z_offset))
+            this.globalscores.setNumber('hunter_x', Math.floor(this.player.location.x + hunter_x + hunter_x_offset));
+            this.globalscores.setNumber('hunter_z', Math.floor(this.player.location.z + hunter_z + hunter_z_offset));
         }
         this.getEvents().exEvents.afterItemUse.subscribe(e => {
             //魔法卷轴

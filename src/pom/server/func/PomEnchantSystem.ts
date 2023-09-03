@@ -3,29 +3,26 @@ import Vector3 from "../../../modules/exmc/math/Vector3.js";
 import "../../../modules/exmc/server/block/ExBlock.js";
 import ExColorLoreUtil from "../../../modules/exmc/server/item/ExColorLoreUtil.js";
 import "../../../modules/exmc/server/item/ExItem.js";
-import ExGameVector3 from "../../../modules/exmc/server/math/ExGameVector3.js";
 import GameController from "./GameController.js";
+import ExGameConfig from "../../../modules/exmc/server/ExGameConfig.js";
 
 export default class PomEnChantSystem extends GameController {
     static blockTranslateData: Map<string, ItemStack> = new Map<string, ItemStack>();
     onJoin(): void {
-
         this.getEvents().exEvents.afterItemOnHandChange.subscribe((e) => {
             const bag = this.exPlayer.getBag();
             if (e.afterItem) {
                 let lore = new ExColorLoreUtil(e.afterItem);
-                if (lore.search("enchants") !== null) {
+                if (lore.search("enchants") !== undefined) {
                     for (let i of lore.entries("enchants")) {
-                        try {
-                            this.player.runCommandAsync("enchant @s " + i[0].replace(/[A-Z]/g, (s) => {
-                                return "_" + s.toLowerCase();
-                            }) + " " + i[1]);
-                        } catch (e) {
-                        }
+                        this.exPlayer.command.run("enchant @s " + i[0].replace(/[A-Z]/g, (s) => {
+                            return "_" + s.toLowerCase();
+                        }) + " " + i[1]).catch(e => {
+                        });
                     }
 
                     let item = bag.itemOnMainHand;
-                    if (item != null) {
+                    if (item !== undefined) {
                         lore = new ExColorLoreUtil(item);
                         lore.delete("enchants");
                         this.exPlayer.getBag().setItem(this.player.selectedSlot, item);
@@ -88,11 +85,17 @@ export default class PomEnChantSystem extends GameController {
                             }
                             lore = new ExColorLoreUtil(exHandItem);
                             lore.setLore([...exSaveItem.getLore()]);
-                            if (exSaveItem.hasComponentById("minecraft:enchantments") && exNewItem.hasComponentById("minecraft:enchantments")) {
+                            // if (exSaveItem.hasComponentById("minecraft:enchantments") && exNewItem.hasComponentById("minecraft:enchantments")) {
+                            //     for (let i of exSaveItem.getComponentById("minecraft:enchantments")!.enchantments) {
+                            //         if (exNewItem.getComponentById("minecraft:enchantments")!.enchantments.canAddEnchantment(i)) {
+                            //             exNewItem.getComponentById("minecraft:enchantments")!.enchantments.addEnchantment(i);
+                            //         }
+                            //     }
+                            //     exSaveItem.getComponentById("minecraft:enchantments")!.removeAllEnchantments();
+                            // }
+                            if (exSaveItem.getComponentById("minecraft:enchantments")) {
                                 for (let i of exSaveItem.getComponentById("minecraft:enchantments")!.enchantments) {
-                                    if (exNewItem.getComponentById("minecraft:enchantments")!.enchantments.canAddEnchantment(i)) {
-                                        exNewItem.getComponentById("minecraft:enchantments")!.enchantments.addEnchantment(i);
-                                    }
+                                    lore.setValueUseMap("enchants", i.type.id, i.level + "");
                                 }
                                 exSaveItem.getComponentById("minecraft:enchantments")!.removeAllEnchantments();
                             }
