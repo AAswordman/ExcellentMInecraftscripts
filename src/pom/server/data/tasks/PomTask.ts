@@ -9,6 +9,7 @@ export interface PomTaskSingle {
         typeId: string;
         count: number;
         type: "item" | "kill" | "break";
+        judgeMethod?: "tag";
         aux?: number;
     }[],
     rewards: {

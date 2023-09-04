@@ -26,6 +26,7 @@ import DecNukeController from './entities/DecNukeController.js';
 import ExNullEntity from '../../modules/exmc/server/entity/ExNullEntity.js';
 import GlobalScoreBoardCache from '../../modules/exmc/server/storage/cache/GlobalScoreBoardCache.js';
 import MathUtil from '../../modules/exmc/math/MathUtil.js';
+import ExGame from '../../modules/exmc/server/ExGame.js';
 
 
 export default class DecServer extends ExGameServer {
@@ -76,27 +77,6 @@ export default class DecServer extends ExGameServer {
         // });
 
 
-        function state_set_keep(block: Block, key_arr: Array<string>, val_arr: Array<string | boolean | number>) {
-            let states = block.permutation.getAllStates()
-            let k_no = 0
-            for (let k of key_arr) {
-                states[k] = val_arr[k_no]
-                k_no += 1
-            }
-            let states_string = '['
-            Object.keys(states).forEach(k => {
-                let new_st = '"' + k + '"='
-                if (typeof (states[k]) == 'boolean' || typeof (states[k]) == 'number') {
-                    new_st += String(states[k]) + ','
-                } else if (typeof (states[k]) == 'string') {
-                    new_st += '"' + String(states[k]) + '",'
-                }
-                states_string += new_st
-            })
-            states_string = states_string.slice(0, states_string.length - 1)
-            states_string += ']'
-            block.dimension.runCommandAsync('setblock ' + String(block.location.x) + ' ' + String(block.location.y) + ' ' + String(block.location.z) + ' ' + block.typeId + ' ' + states_string)
-        }
 
         this.getEvents().events.beforeChatSend.subscribe(e => {
             let cmdRunner = this.getExDimension(MinecraftDimensionTypes.overworld);
@@ -242,7 +222,7 @@ export default class DecServer extends ExGameServer {
             if (e.brokenBlockPermutation.type.id == 'dec:trellis') {
                 const bottom_block = (<Block>block.dimension.getBlock(new Vector3(block.location.x, block.location.y - 1, block.location.z)))
                 if (bottom_block.typeId == 'dec:trellis') {
-                    state_set_keep(bottom_block, ['dec:is_top'], [true])
+                    state_set_keep(bottom_block, { 'dec:is_top': true })
                 }
             }
         });
@@ -316,13 +296,13 @@ export default class DecServer extends ExGameServer {
             const block = e.block
             //种植架
             if (e.block.typeId == 'dec:trellis') {
-                state_set_keep(block, ['dec:is_top'], [true])
+                state_set_keep(block, { 'dec:is_top': true })
                 const bottom_block = (<Block>block.dimension.getBlock(new Vector3(block.location.x, block.location.y - 1, block.location.z)))
                 if (bottom_block.typeId == 'minecraft:farmland') {
-                    state_set_keep(block, ['dec:is_bottom'], [true])
+                    state_set_keep(block, { 'dec:is_bottom': true })
                 } else if (bottom_block.typeId == 'dec:trellis') {
-                    state_set_keep(block, ['dec:is_bottom'], [false])
-                    state_set_keep(bottom_block, ['dec:is_top'], [false])
+                    state_set_keep(block, { 'dec:is_bottom': false })
+                    state_set_keep(bottom_block, { 'dec:is_top': false })
                 }
             }
         })
@@ -406,57 +386,71 @@ export default class DecServer extends ExGameServer {
 
         this.addEntityController("dec:nuke", DecNukeController);
 
-        function block_around_judge(arr: Array<Block>, block: Block, tar_id: string, states_k = new Array<string>, states_v = new Array<string | boolean | number>) {
-            if (block.typeId == tar_id) {
-                let jud = 0
-                if (states_k.length > 0) {
-                    let k_no = 0
-                    let states = block.permutation.getAllStates()
-                    for (let k of states_k) {
-                        if (states_v[k_no] == states[k]) {
-                            jud += 1
-                        }
-                        k_no += 1
+
+        //植物
+        const block_around_judge = (arr: Block[], block: Block, targetId: string, stateMatchMap: { [x: string]: (string | number | boolean) }) => {
+            if (block.typeId == targetId) {
+                if (stateMatchMap) {
+                    let states = block.permutation.getAllStates();
+                    for (let k in stateMatchMap) {
+                        if (states[k] !== stateMatchMap[k]) return;
                     }
-                } else {
-                    jud = states_v.length
                 }
-                if (jud == states_v.length) {
-                    arr.push(block)
-                }
+                arr.push(block)
             }
-            return arr
         }
-        function trellis_cover_wither_spread(block: Block) {
+        const state_set_keep = (block: Block, stateMatchMap: { [x: string]: (string | number | boolean) }) => {
+            let states = block.permutation.getAllStates();
+            for (let k in stateMatchMap) {
+                states[k] = stateMatchMap[k];
+            }
+            let states_string = '['
+            Object.keys(states).forEach(k => {
+                let new_st = '"' + k + '"='
+                if (typeof (states[k]) == 'boolean' || typeof (states[k]) == 'number') {
+                    new_st += (states[k]) + ','
+                } else if (typeof (states[k]) == 'string') {
+                    new_st += '"' + (states[k]) + '",'
+                }
+                states_string += new_st;
+            })
+            states_string = states_string.slice(0, states_string.length - 1)
+            states_string += ']'
+
+            this.getExDimension(block.dimension).command.run('setblock ' + (block.location.x) + ' ' + (block.location.y) + ' ' + (block.location.z) + ' ' + block.typeId + ' ' + states_string);
+        }
+
+        const trellis_cover_wither_spread = (block: Block) => {
             if (block.typeId == 'dec:trellis_cover' && block.permutation.getAllStates()['dec:crop_type'] != 'empty') {
-                state_set_keep(block, ['dec:may_wither'], [true])
+                state_set_keep(block, { 'dec:may_wither': true })
             }
         }
-        system.afterEvents.scriptEventReceive.subscribe(e => {
+        ExGame.scriptEventReceive.addMonitor(e => {
             if (e.id == 'dec:trellis') {
                 //种植架
-                const block = e.sourceBlock
-                const block_above = <Block>e.sourceBlock.dimension.getBlock(new Vector3(block.location.x, block.location.y + 1, block.location.z))
-                const block_xp = <Block>e.sourceBlock.dimension.getBlock(new Vector3(block.location.x + 1, block.location.y, block.location.z))
-                const block_xn = <Block>e.sourceBlock.dimension.getBlock(new Vector3(block.location.x - 1, block.location.y, block.location.z))
-                const block_zp = <Block>e.sourceBlock.dimension.getBlock(new Vector3(block.location.x, block.location.y, block.location.z + 1))
-                const block_zn = <Block>e.sourceBlock.dimension.getBlock(new Vector3(block.location.x, block.location.y, block.location.z - 1))
+                const block = e.sourceBlock;
+                const tmpV = new Vector3();
+                const block_above = e.sourceBlock.dimension.getBlock(tmpV.set(block.location.x, block.location.y + 1, block.location.z))!;
+                const block_xp = e.sourceBlock.dimension.getBlock(tmpV.set(block.location.x + 1, block.location.y, block.location.z))!;
+                const block_xn = e.sourceBlock.dimension.getBlock(tmpV.set(block.location.x - 1, block.location.y, block.location.z))!;
+                const block_zp = e.sourceBlock.dimension.getBlock(tmpV.set(block.location.x, block.location.y, block.location.z + 1))!;
+                const block_zn = e.sourceBlock.dimension.getBlock(tmpV.set(block.location.x, block.location.y, block.location.z - 1))!;
                 if (block_above?.typeId == 'dec:trellis' && e.message == 'wither') {
-                    let block_above_n = block_above
+                    let block_above_n = block_above;
                     while (block_above_n.typeId == 'dec:trellis') {
-                        state_set_keep(block_above_n, ['dec:may_wither'], [true])
-                        block_above_n = <Block>block.dimension.getBlock(new Vector3(block_above_n.location.x, block_above_n.location.y + 1, block_above_n.location.z))
+                        state_set_keep(block_above_n, { 'dec:may_wither': true });
+                        block_above_n = <Block>block.dimension.getBlock(tmpV.set(block_above_n.location.x, block_above_n.location.y + 1, block_above_n.location.z))
                     }
                 }
                 if (e.message == 'grow_spread') {
-                    let may_grow_block = new Array<Block>
-                    may_grow_block = block_around_judge(may_grow_block, block_xp, 'dec:trellis_cover', ['dec:crop_type'], ['empty'])
-                    may_grow_block = block_around_judge(may_grow_block, block_xn, 'dec:trellis_cover', ['dec:crop_type'], ['empty'])
-                    may_grow_block = block_around_judge(may_grow_block, block_zp, 'dec:trellis_cover', ['dec:crop_type'], ['empty'])
-                    may_grow_block = block_around_judge(may_grow_block, block_zn, 'dec:trellis_cover', ['dec:crop_type'], ['empty'])
-                    may_grow_block = block_around_judge(may_grow_block, block_above, 'dec:trellis', ['dec:crop_type'], ['empty'])
+                    let may_grow_block: Block[] = [];
+                    block_around_judge(may_grow_block, block_xp, 'dec:trellis_cover', { 'dec:crop_type': 'empty' });
+                    block_around_judge(may_grow_block, block_xn, 'dec:trellis_cover', { 'dec:crop_type': 'empty' })
+                    block_around_judge(may_grow_block, block_zp, 'dec:trellis_cover', { 'dec:crop_type': 'empty' })
+                    block_around_judge(may_grow_block, block_zn, 'dec:trellis_cover', { 'dec:crop_type': 'empty' })
+                    block_around_judge(may_grow_block, block_above, 'dec:trellis', { 'dec:crop_type': 'empty' });
                     if (may_grow_block.length > 0) {
-                        state_set_keep(may_grow_block[MathUtil.randomInteger(0, may_grow_block.length - 1)], ['dec:may_wither', 'dec:growth_stage', 'dec:crop_type'], [false, 0, <string>block.permutation.getState('dec:crop_type')])
+                        state_set_keep(may_grow_block[MathUtil.randomInteger(0, may_grow_block.length - 1)], { 'dec:may_wither': false, 'dec:growth_stage': 0, 'dec:crop_type': <string>block.permutation.getState('dec:crop_type') })
                     }
                 }
                 if (e.message == 'wither_spread') {

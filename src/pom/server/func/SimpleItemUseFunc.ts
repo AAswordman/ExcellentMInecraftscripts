@@ -20,16 +20,20 @@ export default class SimpleItemUseFunc extends GameController {
         this.getEvents().exEvents.afterBlockBreak.subscribe(e => {
             const itemId = this.exPlayer.getBag().itemOnMainHand?.typeId;
             if (itemId === "wb:axex_equipment_a") {
+                if (RuinsLoaction.isInProtectArea(e.block) && this.exPlayer.getScoresManager().getScore("i_inviolable") > 1) return;
                 if (e.brokenBlockPermutation.hasTag("log")) {
                     this.chainDigging(new Vector3(e.block), e.brokenBlockPermutation.type.id, 16);
+
                 }
             } else if (itemId === "wb:pickaxex_equipment_a") {
+                if (RuinsLoaction.isInProtectArea(e.block) && this.exPlayer.getScoresManager().getScore("i_inviolable") > 1) return;
                 if (this.globalSettings.chainMining) {
                     if (this.exPlayer.getScoresManager().getScore("wbfl") >= 30) {
                         this.chainDigging(new Vector3(e.block), e.brokenBlockPermutation.type.id, 5);
                         this.exPlayer.getScoresManager().removeScore("wbfl", 30);
                     }
                 } else {
+                    if (RuinsLoaction.isInProtectArea(e.block) && this.exPlayer.getScoresManager().getScore("i_inviolable") > 1) return;
                     this.exPlayer.command.run([
                         "execute as @s[scores={wbfl=..39}] at @s run tellraw @s {\"rawtext\":[{\"translate\":\"tell.play.29.name\"}]}",
                         "execute as @s[tag=!wbplot,scores={wbfl=40..},m=!adventure] at @s run fill ~+4 ~+4 ~+4 ~-4 ~ ~-4 air [] replace stone []",
@@ -109,7 +113,6 @@ export default class SimpleItemUseFunc extends GameController {
 
     }
     chainDigging(v: Vector3, idType: string, times: number, posData?: Set<string>) {
-        if (RuinsLoaction.isInProtectArea(v)) return;
         let o = posData === undefined;
         if (!posData) {
             posData = new Set<string>();

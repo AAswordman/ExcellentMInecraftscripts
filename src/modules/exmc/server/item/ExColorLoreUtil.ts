@@ -20,7 +20,7 @@ export default class ExColorLoreUtil{
         return this.lore.getValueUseDefault("§r§l" + key);
     }
     *entries(key?: string) {
-        for (let i of this.lore.entries(key)) {
+        for (let i of this.lore.entries("§r§l"+key)) {
             yield [this.lore.removeColorCode(i[0]), this.lore.removeColorCode(i[1])];
         }
     }

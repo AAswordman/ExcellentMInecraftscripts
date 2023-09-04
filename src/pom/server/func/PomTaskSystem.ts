@@ -90,6 +90,10 @@ export default class PomTaskSystem extends GameController {
             if (!this.data.tasks) return;
             if (this.recordDailyArray.has(e.brokenBlockPermutation.type.id)) {
                 this.data.tasks.daily.cache[e.brokenBlockPermutation.type.id] = 1 + (this.data.tasks.daily.cache[e.brokenBlockPermutation.type.id] ?? 0);
+            } else {
+                if(this.recordDailyArray.has("log") && e.brokenBlockPermutation.hasTag("log")){
+                    this.data.tasks.daily.cache["log"] = 1 + (this.data.tasks.daily.cache["log"] ?? 0);
+                }
             }
         });
         this.getEvents().exEvents.afterPlayerHitEntity.subscribe(e => {
