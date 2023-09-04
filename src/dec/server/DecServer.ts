@@ -1,4 +1,4 @@
-import { Player, MinecraftDimensionTypes, Entity, ItemStack, MinecraftItemTypes, Effect, world, BlockPermutation, Block, system } from '@minecraft/server';
+import { Player, MinecraftDimensionTypes, Entity, ItemStack, MinecraftItemTypes, Effect, world, BlockPermutation, Block, system, Direction, GameMode } from '@minecraft/server';
 import ExConfig from "../../modules/exmc/ExConfig.js";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import DecClient from "./DecClient.js";
@@ -281,6 +281,35 @@ export default class DecServer extends ExGameServer {
                         e.cancel = true
                     }
                 }
+            } else {
+                //三格的方块
+                let b = e.block
+                if (e.blockFace == Direction.East) {
+                    b = <Block>e.block.dimension.getBlock(new Vector3(b.location.x + 1, b.location.y, b.location.z))
+                } else if (e.blockFace == Direction.West) {
+                    b = <Block>e.block.dimension.getBlock(new Vector3(b.location.x - 1, b.location.y, b.location.z))
+                } else if (e.blockFace == Direction.North) {
+                    b = <Block>e.block.dimension.getBlock(new Vector3(b.location.x, b.location.y, b.location.z + 1))
+                } else if (e.blockFace == Direction.South) {
+                    b = <Block>e.block.dimension.getBlock(new Vector3(b.location.x, b.location.y, b.location.z - 1))
+                } else if (e.blockFace == Direction.Up) {
+                    b = <Block>e.block.dimension.getBlock(new Vector3(b.location.x, b.location.y + 1, b.location.z))
+                }
+                if (e.blockFace != Direction.Down) {
+                    let b_p1 = e.block.dimension.getBlock(new Vector3(b.location.x, b.location.y + 1, b.location.z))
+                    let b_p2 = e.block.dimension.getBlock(new Vector3(b.location.x, b.location.y + 2, b.location.z))
+                    if (e.itemStack.typeId == 'dec:patterned_vase_red') {
+                        if (b.isAir() && b_p1?.isAir() && b_p2?.isAir()) {
+                            let p = ExPlayer.getInstance(<Player>e.source)
+                            if (p.getGameMode() == GameMode.survival && p.getGameMode() == GameMode.adventure) {
+                                p.getBag().clearItem('dec:patterned_vase_red', 1)
+                            }
+                            b.dimension.runCommandAsync('setblock ' + String(b.location.x) + ' ' + String(b.location.y) + ' ' + String(b.location.z) + ' dec:patterned_vase_red_block ["dec:location"="bottom"]')
+                            b.dimension.runCommandAsync('setblock ' + String(b.location.x) + ' ' + String(b.location.y + 1) + ' ' + String(b.location.z) + ' dec:patterned_vase_red_block ["dec:location"="middle"]')
+                            b.dimension.runCommandAsync('setblock ' + String(b.location.x) + ' ' + String(b.location.y + 2) + ' ' + String(b.location.z) + ' dec:patterned_vase_red_block ["dec:location"="top"]')
+                        }
+                    }
+                }
             }
         });
         this.getEvents().events.afterBlockPlace.subscribe(e => {
@@ -398,9 +427,9 @@ export default class DecServer extends ExGameServer {
             }
             return arr
         }
-        function trellis_cover_wither_spread(block:Block){
-            if(block.typeId == 'dec:trellis_cover' && block.permutation.getAllStates()['dec:crop_type'] != 'empty'){
-                state_set_keep(block,['dec:may_wither'],[true])
+        function trellis_cover_wither_spread(block: Block) {
+            if (block.typeId == 'dec:trellis_cover' && block.permutation.getAllStates()['dec:crop_type'] != 'empty') {
+                state_set_keep(block, ['dec:may_wither'], [true])
             }
         }
         system.afterEvents.scriptEventReceive.subscribe(e => {
