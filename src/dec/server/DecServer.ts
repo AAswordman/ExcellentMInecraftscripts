@@ -1,4 +1,4 @@
-import { Player, MinecraftDimensionTypes, Entity, ItemStack, MinecraftItemTypes, Effect, world, BlockPermutation, Block, system, Direction, GameMode } from '@minecraft/server';
+import { Player, MinecraftDimensionTypes, Entity, ItemStack, MinecraftItemTypes, Effect, world, BlockPermutation, Block, system, Direction, GameMode, BlockType } from '@minecraft/server';
 import ExConfig from "../../modules/exmc/ExConfig.js";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import DecClient from "./DecClient.js";
@@ -27,6 +27,7 @@ import ExNullEntity from '../../modules/exmc/server/entity/ExNullEntity.js';
 import GlobalScoreBoardCache from '../../modules/exmc/server/storage/cache/GlobalScoreBoardCache.js';
 import MathUtil from '../../modules/exmc/math/MathUtil.js';
 import ExGame from '../../modules/exmc/server/ExGame.js';
+import { MinecraftBlockTypes } from '../../modules/vanilla-data/lib/mojang-block.js';
 
 
 export default class DecServer extends ExGameServer {
@@ -53,6 +54,7 @@ export default class DecServer extends ExGameServer {
         this.i_heavy = new Objective("i_heavy").create("i_heavy");
         this.bullet_type = new Objective("bullet_type").create("bullet_type");
         this.skill_count = new Objective("skill_count").create("skill_count");
+        let place_block_wait_tick = 0
         //new Objective("harmless").create("harmless");
         this.nightEventListener = new VarOnChangeListener(e => {
             if (e) {
@@ -199,8 +201,20 @@ export default class DecServer extends ExGameServer {
             }
         });
 
+        let multiple_blocks_items: { [key: string]: string }
+        multiple_blocks_items = {
+            'dec:patterned_vase_red': 'dec:patterned_vase_red_block'
+        }
+        let multiple_blocks: { [key: string]: { 'height': number, 'sound': string } }
+        multiple_blocks = {
+            'dec:patterned_vase_red_block': {
+                'height': 3,
+                'sound': 'stone'
+            }
+        }
         this.getEvents().events.afterBlockBreak.subscribe(e => {
             const entity = ExPlayer.getInstance(e.player);
+            const block_before_id = e.brokenBlockPermutation.type.id
             //防破坏方块 i_inviolable计分板控制
             if (entity.getScoresManager().getScore(this.i_inviolable) > 1) {
                 e.dimension.getBlock(e.block.location)?.setType(e.brokenBlockPermutation.type);
@@ -216,13 +230,27 @@ export default class DecServer extends ExGameServer {
             }
             //种植架
             const block = e.block
-            function print(s: string) {
+            function print(s: any) {
+                s = String(s)
                 world.getDimension('overworld').runCommandAsync('say ' + s)
             }
-            if (e.brokenBlockPermutation.type.id == 'dec:trellis') {
+            if (block_before_id == 'dec:trellis') {
                 const bottom_block = (<Block>block.dimension.getBlock(new Vector3(block.location.x, block.location.y - 1, block.location.z)))
                 if (bottom_block.typeId == 'dec:trellis') {
                     state_set_keep(bottom_block, { 'dec:is_top': true })
+                }
+            } else if (block_before_id in multiple_blocks) {
+                let block_test_below = e.block.location.y - <number>e.brokenBlockPermutation.getAllStates()['dec:location']
+                let loc = 0
+                let block_test = <Block>e.block.dimension.getBlock(new Vector3(e.block.location.x, block_test_below, e.block.location.z))
+                let repeat_times = multiple_blocks[block_before_id]['height'] + 1
+                while (repeat_times > 0) {
+                    if (block_test.typeId == block_before_id && <number>block_test.permutation.getAllStates()['dec:location'] == loc) {
+                        block_test.transTo('minecraft:air')
+                    }
+                    block_test = <Block>e.block.dimension.getBlock(new Vector3(e.block.location.x, block_test.location.y + 1, e.block.location.z))
+                    loc += 1
+                    repeat_times -= 1
                 }
             }
         });
@@ -261,32 +289,49 @@ export default class DecServer extends ExGameServer {
                         e.cancel = true
                     }
                 }
-            } else {
+            } else if (e.itemStack.typeId in multiple_blocks_items && place_block_wait_tick <= 0) {
                 //三格的方块
                 let b = e.block
+                place_block_wait_tick = 2
+                //e.source.playAnimation('')
+                b.dimension.runCommandAsync('playsound use.stone @a ' + String(e.block.location.x) + ' ' + String(e.block.location.y) + ' ' + String(e.block.location.z))
                 if (e.blockFace == Direction.East) {
                     b = <Block>e.block.dimension.getBlock(new Vector3(b.location.x + 1, b.location.y, b.location.z))
                 } else if (e.blockFace == Direction.West) {
                     b = <Block>e.block.dimension.getBlock(new Vector3(b.location.x - 1, b.location.y, b.location.z))
                 } else if (e.blockFace == Direction.North) {
-                    b = <Block>e.block.dimension.getBlock(new Vector3(b.location.x, b.location.y, b.location.z + 1))
-                } else if (e.blockFace == Direction.South) {
                     b = <Block>e.block.dimension.getBlock(new Vector3(b.location.x, b.location.y, b.location.z - 1))
+                } else if (e.blockFace == Direction.South) {
+                    b = <Block>e.block.dimension.getBlock(new Vector3(b.location.x, b.location.y, b.location.z + 1))
                 } else if (e.blockFace == Direction.Up) {
                     b = <Block>e.block.dimension.getBlock(new Vector3(b.location.x, b.location.y + 1, b.location.z))
                 }
                 if (e.blockFace != Direction.Down) {
-                    let b_p1 = e.block.dimension.getBlock(new Vector3(b.location.x, b.location.y + 1, b.location.z))
-                    let b_p2 = e.block.dimension.getBlock(new Vector3(b.location.x, b.location.y + 2, b.location.z))
-                    if (e.itemStack.typeId == 'dec:patterned_vase_red') {
-                        if (b.isAir() && b_p1?.isAir() && b_p2?.isAir()) {
-                            let p = ExPlayer.getInstance(<Player>e.source)
-                            if (p.getGameMode() == GameMode.survival && p.getGameMode() == GameMode.adventure) {
-                                p.getBag().clearItem('dec:patterned_vase_red', 1)
-                            }
-                            b.dimension.runCommandAsync('setblock ' + String(b.location.x) + ' ' + String(b.location.y) + ' ' + String(b.location.z) + ' dec:patterned_vase_red_block ["dec:location"="bottom"]')
-                            b.dimension.runCommandAsync('setblock ' + String(b.location.x) + ' ' + String(b.location.y + 1) + ' ' + String(b.location.z) + ' dec:patterned_vase_red_block ["dec:location"="middle"]')
-                            b.dimension.runCommandAsync('setblock ' + String(b.location.x) + ' ' + String(b.location.y + 2) + ' ' + String(b.location.z) + ' dec:patterned_vase_red_block ["dec:location"="top"]')
+                    let repeat_times = multiple_blocks[multiple_blocks_items[e.itemStack.typeId]]['height'] + 1
+                    let repeat_times_jud = repeat_times
+                    let place_admit = true
+                    let test_block = b
+                    while (repeat_times_jud > 0){
+                        if(!test_block.isAir()){
+                            place_admit = false
+                            break
+                        } else {
+                            test_block = <Block>test_block.dimension.getBlock(new Vector3(test_block.location.x, test_block.location.y+1, test_block.location.z))
+                            repeat_times_jud -= 1
+                        }
+                    }
+                    test_block = b
+                    let loc = 0
+                    if (place_admit){
+                        while (repeat_times > 0){
+                            test_block.dimension.runCommandAsync('setblock ' + String(test_block.location.x) + ' ' + String(test_block.location.y) + ' ' + String(test_block.location.z) + ' '+multiple_blocks_items[e.itemStack.typeId]+' ["dec:location"='+String(loc)+']')
+                            test_block = <Block>test_block.dimension.getBlock(new Vector3(test_block.location.x, test_block.location.y+1, test_block.location.z))
+                            loc +=1
+                            repeat_times -= 1
+                        }
+                        let p = ExPlayer.getInstance(<Player>e.source)
+                        if (p.getGameMode() == GameMode.survival && p.getGameMode() == GameMode.adventure) {
+                            p.getBag().clearItem('dec:patterned_vase_red', 1)
                         }
                     }
                 }
@@ -320,6 +365,9 @@ export default class DecServer extends ExGameServer {
 
         });
         this.getEvents().exEvents.onLongTick.subscribe(e => {
+            if (place_block_wait_tick > 0) {
+                place_block_wait_tick -= 1
+            }
             let night_event = this.globalscores.getNumber("NightRandom");
             const nightEvent = (fog: string, eventEntity: string, maxSpawn: number) => {
                 this.getExDimension(MinecraftDimensionTypes.overworld).command.run(['fog @a[tag=dOverworld] push ' + fog + ' "night_event"']);
