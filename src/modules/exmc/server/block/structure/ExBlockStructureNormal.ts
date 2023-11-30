@@ -1,4 +1,5 @@
-import { Dimension, MinecraftBlockTypes } from "@minecraft/server";
+import { Dimension } from "@minecraft/server";
+import { MinecraftBlockTypes } from "@minecraft/vanilla-data";
 import Vector3 from "../../../math/Vector3.js";
 import ExDimension from "../../ExDimension.js";
 import { ExBlockArea } from "../ExBlockArea.js";
@@ -200,7 +201,7 @@ export default class ExBlockStructureNormal implements ExBlockStructure {
                         if (c == ' ') continue;
                         res.calculateRelPos(vec, tmpV).add(res.start);
                         // console.warn("get block at " +tmpV+" :P "+dimension?.getBlock(tmpV)?.typeId);
-                        if (dimension?.getBlock(tmpV)?.typeId !== (this.analysisMap?.get(c) ?? MinecraftBlockTypes.air.id)) {
+                        if (dimension?.getBlock(tmpV)?.typeId !== (this.analysisMap?.get(c) ?? MinecraftBlockTypes.Air)) {
                             return;
                         }
                     }
@@ -251,7 +252,7 @@ export default class ExBlockStructureNormal implements ExBlockStructure {
                             if (c == ' ') continue;
                             area.calculateRelPos(vec, tmpV).add(area.start);
                             let id = this.analysisMap!.get(c);
-                            this.dimension!.setBlock(tmpV, id ?? MinecraftBlockTypes.air.id);
+                            this.dimension!.setBlock(tmpV, id ?? MinecraftBlockTypes.Air);
                         }
                     }
                 }

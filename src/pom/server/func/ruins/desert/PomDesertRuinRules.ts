@@ -5,7 +5,6 @@ import Random from "../../../../../modules/exmc/utils/Random.js";
 import GameController from "../../GameController.js";
 
 import * as desertCommand from "../../ruins/desert/PomDesertRuinCommmand.js";
-import { MinecraftEntityTypes, Player } from '@minecraft/server';
 import ExGameVector3 from '../../../../../modules/exmc/server/math/ExGameVector3.js';
 import ExEntity from "../../../../../modules/exmc/server/entity/ExEntity.js";
 import Vector3 from '../../../../../modules/exmc/math/Vector3.js';

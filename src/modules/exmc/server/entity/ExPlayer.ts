@@ -1,4 +1,4 @@
-import { Dimension, EffectType, GameMode, MinecraftEntityTypes } from '@minecraft/server';
+import { Dimension, EffectType, GameMode } from '@minecraft/server';
 import { Player, Entity } from '@minecraft/server';
 import ExCommand from '../env/ExCommand.js';
 import { to } from "../ExErrorQueue.js";

@@ -1,4 +1,4 @@
-import { Player, MinecraftDimensionTypes, Entity, ItemStack, MinecraftItemTypes, Effect, world, BlockPermutation, Block, system, Direction, GameMode, BlockType } from '@minecraft/server';
+import { Player, MinecraftDimensionTypes, Entity, ItemStack, Effect, world, BlockPermutation, Block, system, Direction, GameMode, BlockType } from '@minecraft/server';
 import ExConfig from "../../modules/exmc/ExConfig.js";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import DecClient from "./DecClient.js";
@@ -212,7 +212,7 @@ export default class DecServer extends ExGameServer {
                 'sound': 'stone'
             }
         }
-        this.getEvents().events.afterBlockBreak.subscribe(e => {
+        this.getEvents().events.afterPlayerBreakBlock.subscribe(e => {
             const entity = ExPlayer.getInstance(e.player);
             const block_before_id = e.brokenBlockPermutation.type.id
             //防破坏方块 i_inviolable计分板控制
@@ -312,7 +312,7 @@ export default class DecServer extends ExGameServer {
                     let place_admit = true
                     let test_block = b
                     while (repeat_times_jud > 0){
-                        if(!test_block.isAir()){
+                        if(!test_block.isAir){
                             place_admit = false
                             break
                         } else {
@@ -337,7 +337,7 @@ export default class DecServer extends ExGameServer {
                 }
             }
         });
-        this.getEvents().events.afterBlockPlace.subscribe(e => {
+        this.getEvents().events.afterPlayerPlaceBlock.subscribe(e => {
             const block = e.block
             //种植架
             if (e.block.typeId == 'dec:trellis') {
@@ -476,13 +476,13 @@ export default class DecServer extends ExGameServer {
         ExGame.scriptEventReceive.addMonitor(e => {
             if (e.id == 'dec:trellis') {
                 //种植架
-                const block = e.sourceBlock;
+                const block = <Block>e.sourceBlock;
                 const tmpV = new Vector3();
-                const block_above = e.sourceBlock.dimension.getBlock(tmpV.set(block.location.x, block.location.y + 1, block.location.z))!;
-                const block_xp = e.sourceBlock.dimension.getBlock(tmpV.set(block.location.x + 1, block.location.y, block.location.z))!;
-                const block_xn = e.sourceBlock.dimension.getBlock(tmpV.set(block.location.x - 1, block.location.y, block.location.z))!;
-                const block_zp = e.sourceBlock.dimension.getBlock(tmpV.set(block.location.x, block.location.y, block.location.z + 1))!;
-                const block_zn = e.sourceBlock.dimension.getBlock(tmpV.set(block.location.x, block.location.y, block.location.z - 1))!;
+                const block_above = block.dimension.getBlock(tmpV.set(block.location.x, block.location.y + 1, block.location.z))!;
+                const block_xp = block.dimension.getBlock(tmpV.set(block.location.x + 1, block.location.y, block.location.z))!;
+                const block_xn = block.dimension.getBlock(tmpV.set(block.location.x - 1, block.location.y, block.location.z))!;
+                const block_zp = block.dimension.getBlock(tmpV.set(block.location.x, block.location.y, block.location.z + 1))!;
+                const block_zn = block.dimension.getBlock(tmpV.set(block.location.x, block.location.y, block.location.z - 1))!;
                 if (block_above?.typeId == 'dec:trellis' && e.message == 'wither') {
                     let block_above_n = block_above;
                     while (block_above_n.typeId == 'dec:trellis') {

@@ -332,7 +332,7 @@ export default class DecClient extends ExGameClient {
 
             if (e.currentTick % 20 === 0) {
                 //深渊之翼
-                if (this.exPlayer.getBag().getSlot(EquipmentSlot.chest).typeId == 'dec:wings_from_deep') {
+                if (this.exPlayer.getBag().getSlot(EquipmentSlot.Chest).typeId == 'dec:wings_from_deep') {
                     ep.addEffect(MinecraftEffectTypes.JumpBoost, 6 * 20, 1, true)
                     ep.addEffect(MinecraftEffectTypes.SlowFalling, 6 * 20, 0, true)
                 }

@@ -1,4 +1,4 @@
-import { Block, world, BlockType, MinecraftBlockTypes } from '@minecraft/server';
+import { Block, world, BlockType, BlockTypes } from '@minecraft/server';
 import ExDimension from '../ExDimension.js';
 import Vector3 from "../../math/Vector3.js";
 import { AlsoInstanceType } from '../../utils/tool.js';
@@ -34,6 +34,6 @@ Object.assign(Block.prototype, {
     },
     transTo(blockId: string | BlockType) {
         (this as unknown as Block).dimension.getBlock(this as unknown as Block)
-            ?.setType(typeof blockId === "string" ? MinecraftBlockTypes.get(blockId) : blockId);
+            ?.setType(typeof blockId === "string" ? <BlockType>BlockTypes.get(blockId) : blockId);
     }
 });

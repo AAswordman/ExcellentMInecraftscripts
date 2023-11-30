@@ -1,9 +1,10 @@
 import Vector3 from "../../../../modules/exmc/math/Vector3.js";
-import { Dimension, MinecraftBlockTypes, Block } from '@minecraft/server';
+import { Dimension, Block } from '@minecraft/server';
 import ExDimension from "../../../../modules/exmc/server/ExDimension.js";
 import ExTaskRunner from "../../../../modules/exmc/server/ExTaskRunner.js";
 import Random from "../../../../modules/exmc/utils/Random.js";
 import DisposeAble from "../../../../modules/exmc/interface/DisposeAble.js";
+import { MinecraftBlockTypes } from "@minecraft/vanilla-data";
 
 export default class IStructureSettle implements DisposeAble{
     dispose(): void {
@@ -51,7 +52,7 @@ export default class IStructureSettle implements DisposeAble{
                 s.set(...c.start);
                 e.set(...(c.end ? c.end : c.start))
                 if (c.end) e.sub(1);
-                dim.fillBlocks(tmpV.set(pos).add(s), tmpP.set(pos).add(e), t.block.get(c.blockId) ?? MinecraftBlockTypes.air)
+                dim.fillBlocks(tmpV.set(pos).add(s), tmpP.set(pos).add(e), t.block.get(c.blockId) ?? MinecraftBlockTypes.Air)
                 yield true;
             }
             return false;

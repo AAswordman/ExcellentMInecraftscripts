@@ -1,4 +1,4 @@
-import { Entity, EntityHealthComponent, Vector, EntityInventoryComponent, Player, Dimension, EntityQueryOptions, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent, EntityDamageSource, EntityDamageCause, EquipmentSlot, TeleportOptions, EffectType, EntityEquipmentInventoryComponent, EntityAttributeComponent } from '@minecraft/server';
+import { Entity, EntityHealthComponent, EntityInventoryComponent, Dimension, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent, EntityDamageSource, EntityDamageCause, EquipmentSlot, TeleportOptions, EffectType, EntityAttributeComponent, EntityEquippableComponent } from '@minecraft/server';
 import { ExCommandNativeRunner } from '../../interface/ExCommandRunner.js';
 import ExTagManager from '../../interface/ExTagManager.js';
 import ExScoresManager from './ExScoresManager.js';
@@ -18,7 +18,7 @@ const compId = {
     [EntityMarkVariantComponent.componentId]: EntityMarkVariantComponent,
     [EntityVariantComponent.componentId]: EntityVariantComponent,
     [EntityInventoryComponent.componentId]: EntityInventoryComponent,
-    [EntityEquipmentInventoryComponent.componentId]: EntityEquipmentInventoryComponent,
+    [EntityEquippableComponent.componentId]: EntityEquippableComponent,
     [EntityIsChargedComponent.componentId]: EntityIsChargedComponent,
     [EntityMovementComponent.componentId]: EntityMovementComponent,
     [EntityHealthComponent.componentId]: EntityHealthComponent
@@ -201,11 +201,11 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         });
     }
     hasComponent<T extends keyof CompId>(key: T) {
-        return this._entity.hasComponent(key);
+        return this._entity.hasComponent(<string>key);
     }
 
     getComponent<T extends keyof CompId>(key: T): AlsoInstanceType<CompId[T]> | undefined {
-        return this._entity.getComponent(key);
+        return this._entity.getComponent(<string>key);
     }
     get health() {
         return this.getComponent("minecraft:health")!.currentValue;

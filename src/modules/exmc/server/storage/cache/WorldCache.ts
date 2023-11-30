@@ -18,6 +18,6 @@ export default class WorldCache {
         catch (e) { return 0; }
     }
     public deleteNumber(name: string) {
-        world.removeDynamicProperty(name);
+        world.setDynamicProperty(name,undefined)
     }
 }

@@ -1,4 +1,4 @@
-import { ChatSendBeforeEvent, Entity, EntityDamageCause, EntityHurtAfterEvent, GameMode, MinecraftBlockTypes, MinecraftDimensionTypes, MinecraftEntityTypes, Player } from '@minecraft/server';
+import { ChatSendBeforeEvent, Entity, EntityDamageCause, EntityHurtAfterEvent, GameMode, MinecraftDimensionTypes, Player } from '@minecraft/server';
 import ExConfig from "../../modules/exmc/ExConfig.js";
 import Vector3, { IVector3 } from '../../modules/exmc/math/Vector3.js';
 import ExDimension from "../../modules/exmc/server/ExDimension.js";
@@ -34,6 +34,7 @@ import PomMindBossRuin from './func/ruins/mind/PomMindBossRuin.js';
 import PomStoneBossRuin from './func/ruins/stone/PomStoneBossRuin.js';
 import damageShow from './helper/damageShow.js';
 import itemCanChangeBlock from './items/itemCanChangeBlock.js';
+import { MinecraftBlockTypes, MinecraftEntityTypes } from "@minecraft/vanilla-data";
 // import * as b from "brain.js";
 
 export default class PomServer extends ExGameServer {
@@ -176,12 +177,12 @@ export default class PomServer extends ExGameServer {
                     "CAAAC"
                 ]])
             .analysis({
-                X: MinecraftBlockTypes.sandstone.id,
-                W: MinecraftBlockTypes.water.id,
+                X: MinecraftBlockTypes.Sandstone,
+                W: MinecraftBlockTypes.Water,
                 Y: "wb:block_magic_equipment",
-                A: MinecraftBlockTypes.air.id,
-                S: MinecraftBlockTypes.stoneBlockSlab2.id,
-                C: MinecraftBlockTypes.cobblestoneWall.id
+                A: MinecraftBlockTypes.Air,
+                S: MinecraftBlockTypes.StoneBlockSlab2,
+                C: MinecraftBlockTypes.CobblestoneWall
             });
 
         //石头遗迹
@@ -204,12 +205,12 @@ export default class PomServer extends ExGameServer {
                 ]
             ])
             .analysis({
-                X: MinecraftBlockTypes.sandstone.id,
-                W: MinecraftBlockTypes.water.id,
+                X: MinecraftBlockTypes.Sandstone,
+                W: MinecraftBlockTypes.Water,
                 Y: "wb:block_energy_seal",
-                S: MinecraftBlockTypes.cobblestoneWall.id,
-                A: MinecraftBlockTypes.air.id,
-                B: MinecraftBlockTypes.stonebrick.id
+                S: MinecraftBlockTypes.CobblestoneWall,
+                A: MinecraftBlockTypes.Air,
+                B: MinecraftBlockTypes.Stonebrick
             });
 
         //洞穴遗迹
@@ -232,11 +233,11 @@ export default class PomServer extends ExGameServer {
                 ]
             ])
             .analysis({
-                X: MinecraftBlockTypes.deepslateTiles.id,
-                W: MinecraftBlockTypes.water.id,
+                X: MinecraftBlockTypes.DeepslateTiles,
+                W: MinecraftBlockTypes.Water,
                 Y: "wb:block_energy_boundary",
-                S: MinecraftBlockTypes.lantern.id,
-                A: MinecraftBlockTypes.air.id
+                S: MinecraftBlockTypes.Lantern,
+                A: MinecraftBlockTypes.Air
             });
 
         //洞穴远古
@@ -259,12 +260,12 @@ export default class PomServer extends ExGameServer {
                 ]
             ])
             .analysis({
-                X: MinecraftBlockTypes.chiseledDeepslate.id,
-                W: MinecraftBlockTypes.water.id,
+                X: MinecraftBlockTypes.ChiseledDeepslate,
+                W: MinecraftBlockTypes.Water,
                 Y: "wb:block_magic_ink",
-                S: MinecraftBlockTypes.verdantFroglight.id,
-                A: MinecraftBlockTypes.air.id,
-                B: MinecraftBlockTypes.mossyCobblestone.id
+                S: MinecraftBlockTypes.VerdantFroglight,
+                A: MinecraftBlockTypes.Air,
+                B: MinecraftBlockTypes.MossyCobblestone
             });
 
         //遗迹内心
@@ -288,10 +289,10 @@ export default class PomServer extends ExGameServer {
             ])
             .analysis({
                 X: "wb:block_magic_equipment",
-                W: MinecraftBlockTypes.water.id,
+                W: MinecraftBlockTypes.Water,
                 Y: "wb:block_senior_equipment",
                 S: "wb:block_magic_barrier",
-                A: MinecraftBlockTypes.air.id
+                A: MinecraftBlockTypes.Air
             });
 
         let r = new Random(this.setting.worldSeed);
@@ -358,7 +359,7 @@ export default class PomServer extends ExGameServer {
 
 
         //遗迹保护
-        this.getEvents().events.afterBlockBreak.subscribe(e => {
+        this.getEvents().events.afterPlayerBreakBlock.subscribe(e => {
             if (e.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && (RuinsLoaction.isInProtectArea(e.block))) {
 
                 let ex = ExPlayer.getInstance(e.player);
@@ -501,7 +502,7 @@ export default class PomServer extends ExGameServer {
         //末影人清理
         this.getEvents().events.afterEntitySpawn.subscribe(e => {
             if (!falseIfError(() => (e.entity.typeId))) return;
-            if (e.entity.typeId === MinecraftEntityTypes.enderman.id) {
+            if (e.entity.typeId === MinecraftEntityTypes.Enderman) {
                 if (e.entity.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) &&
                     (
                         RuinsLoaction.isInProtectArea(e.entity.location)
@@ -536,15 +537,15 @@ export default class PomServer extends ExGameServer {
             .concat(Array.from(ExDimension.getInstance(this.getDimension(MinecraftDimensionTypes.nether)).getEntities()));
 
         //ExGameConfig.console.log("当前实体数：" + entities.length);
-        let map = new Map<string, number>();
+        let map = new Map<MinecraftEntityTypes, number>();
         entities.forEach(e => {
             if (e?.typeId == undefined) return;
-            map.set(e.typeId, (map.get(e.typeId) ?? 0) + 1);
+            map.set(e.typeId as MinecraftEntityTypes, (map.get(e.typeId as MinecraftEntityTypes) ?? 0) + 1);
         });
 
         let max: [number, string] = [0, ""];
         map.forEach((v, k) => {
-            if (v > max[0] && [MinecraftEntityTypes.player.id, MinecraftEntityTypes.villager.id, MinecraftEntityTypes.villagerV2.id].indexOf(k) === -1) {
+            if (v > max[0] && [MinecraftEntityTypes.Player, MinecraftEntityTypes.Villager, MinecraftEntityTypes.VillagerV2].indexOf(k) === -1) {
                 max[0] = v;
                 max[1] = k;
             }

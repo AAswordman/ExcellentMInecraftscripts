@@ -1,7 +1,8 @@
 import Vector3 from "../../../../modules/exmc/math/Vector3.js";
 import IStructureSettle from "./IStructureSettle.js";
 import ExDimension from '../../../../modules/exmc/server/ExDimension.js';
-import { MinecraftBlockTypes, Vector } from "@minecraft/server";
+import { Vector } from "@minecraft/server";
+import { MinecraftBlockTypes } from "@minecraft/vanilla-data";
 
 export default class IStructureDriver {
     *save(dim: ExDimension, start: Vector3, end: Vector3) {
@@ -45,13 +46,13 @@ export default class IStructureDriver {
                     id = dim.getBlock(tmpV)!.type.id;
                     if (id !== last) {
                         if (last !== "") {
-                            if (last !== MinecraftBlockTypes.air.id) a1.fill([x + offset.x, y + offset.y, zlast + offset.z], [x + 1 + offset.x, y + 1 + offset.y, z + offset.z], last);
+                            if (last !== MinecraftBlockTypes.Air) a1.fill([x + offset.x, y + offset.y, zlast + offset.z], [x + 1 + offset.x, y + 1 + offset.y, z + offset.z], last);
                         }
                         last = id;
                         zlast = z;
                     }
                 }
-                if (id !== MinecraftBlockTypes.air.id) a1.fill([x + offset.x, y + offset.y, zlast + offset.z], [x + 1 + offset.x, y + 1 + offset.y, box.z + offset.z], last);
+                if (id !== MinecraftBlockTypes.Air) a1.fill([x + offset.x, y + offset.y, zlast + offset.z], [x + 1 + offset.x, y + 1 + offset.y, box.z + offset.z], last);
             }
         }
 

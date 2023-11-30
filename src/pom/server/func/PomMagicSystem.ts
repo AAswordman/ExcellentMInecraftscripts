@@ -1,4 +1,4 @@
-import { world, DynamicPropertiesDefinition, MinecraftEntityTypes, Effect } from "@minecraft/server";
+import { world, DynamicPropertiesDefinition, Effect, PropertyRegistry } from '@minecraft/server';
 import MathUtil from "../../../modules/exmc/math/MathUtil.js";
 import ExSystem from "../../../modules/exmc/utils/ExSystem.js";
 import VarOnChangeListener from "../../../modules/exmc/utils/VarOnChangeListener.js";
@@ -7,13 +7,14 @@ import GameController from "./GameController.js";
 import ExGame from "../../../modules/exmc/server/ExGame.js";
 import TickDelayTask from "../../../modules/exmc/utils/TickDelayTask.js";
 import { MinecraftEffectTypes } from "../../../modules/vanilla-data/lib/mojang-effect.js";
+import { MinecraftEntityTypes } from "@minecraft/vanilla-data/lib/mojang-entity.js";
 
 world.afterEvents.worldInitialize.subscribe((e) => {
     let def = new DynamicPropertiesDefinition()
         .defineNumber("health", 40)
         .defineNumber("damageAbsorbed", 0)
         .defineNumber("magicReduce", 0);
-    e.propertyRegistry.registerEntityTypeDynamicProperties(def, MinecraftEntityTypes.player);
+    e.propertyRegistry.registerEntityTypeDynamicProperties(def, MinecraftEntityTypes.Player);
 });
 
 export default class PomMagicSystem extends GameController {

@@ -1,10 +1,11 @@
-import { ItemDurabilityComponent, ItemStack, ItemTypes, MinecraftBlockTypes, MinecraftItemTypes } from "@minecraft/server";
+import { ItemDurabilityComponent, ItemStack, ItemType, ItemTypes } from "@minecraft/server";
 import Vector3 from "../../../modules/exmc/math/Vector3.js";
 import "../../../modules/exmc/server/block/ExBlock.js";
 import ExColorLoreUtil from "../../../modules/exmc/server/item/ExColorLoreUtil.js";
 import "../../../modules/exmc/server/item/ExItem.js";
 import GameController from "./GameController.js";
 import ExGameConfig from "../../../modules/exmc/server/ExGameConfig.js";
+import { MinecraftBlockTypes, MinecraftItemTypes } from '@minecraft/vanilla-data';
 
 export default class PomEnChantSystem extends GameController {
     static blockTranslateData: Map<string, ItemStack> = new Map<string, ItemStack>();
@@ -35,7 +36,7 @@ export default class PomEnChantSystem extends GameController {
         this.getEvents().exEvents.beforeItemUseOn.subscribe((e) => {
             const pos = new Vector3(e.block);
             const block = this.getExDimension().getBlock(pos);
-            if (!block || block.typeId === MinecraftBlockTypes.air.id) return;
+            if (!block || block.typeId === MinecraftBlockTypes.Air) return;
             //ExGameConfig.console.log(block.typeId,e.item.typeId);
             if (block.typeId === "wb:block_translate") {
                 e.cancel = true;
@@ -68,7 +69,7 @@ export default class PomEnChantSystem extends GameController {
                             let exHandItem = item;
                             let exSaveItem = saveItem;
                             let d = exSaveItem.getComponentById("minecraft:durability")!.damage;
-                            let exNewItem = new ItemStack(d >= 4 ? MinecraftItemTypes.enchantedBook : ItemTypes.get("wb:book_cache"));
+                            let exNewItem = new ItemStack(d >= 4 ? MinecraftItemTypes.EnchantedBook : <ItemType>ItemTypes.get("wb:book_cache"));
                             if (exNewItem.hasComponentById("minecraft:durability")) {
                                 (exNewItem.getComponentById("minecraft:durability"))!.damage = d + 1;
                             }

@@ -13,7 +13,7 @@ export default class ExScoresManager {
     getIdentity(objective: string) {
         if (this.entity instanceof ExNullEntity) {
             const e = this.entity;
-            return world.scoreboard.getObjective(objective).getScores().find(i => i.participant.displayName === e.nameTag)?.participant;
+            return world.scoreboard.getObjective(objective)?.getScores().find(i => i.participant.displayName === e.nameTag)?.participant;
         } else {
             return this.entity.scoreboardIdentity;
         }
@@ -23,7 +23,7 @@ export default class ExScoresManager {
         let id = this.getIdentity(name);
         if (!id) return 0;
         try {
-            return world.scoreboard.getObjective(name).getScore(id) ?? 0
+            return world.scoreboard.getObjective(name)?.getScore(id) ?? 0
         } catch (e) {
             return 0;
         };
@@ -33,7 +33,7 @@ export default class ExScoresManager {
         let id = this.getIdentity(name);
         if (!id) return false;
         try {
-            return world.scoreboard.getObjective(name).hasParticipant(id);
+            return world.scoreboard.getObjective(name)?.hasParticipant(id);
         } catch (e) {
             return false;
         };
@@ -45,7 +45,7 @@ export default class ExScoresManager {
             this.entity.runCommandAsync(`scoreboard players set ${'"' + this.entity.nameTag + '"'} ${name} ${num}`);
         }
         if (!id) return false;
-        world.scoreboard.getObjective(name).setScore(id, num);
+        world.scoreboard.getObjective(name)?.setScore(id, num);
         return true;
     }
     addScore(objective: Objective | string, num: number) {
@@ -58,7 +58,7 @@ export default class ExScoresManager {
         const name = typeof objective === "string" ? objective : objective.name;
         const identity = this.getIdentity(name);
         if (!identity) return false;
-        world.scoreboard.getObjective(name).removeParticipant(identity);
+        world.scoreboard.getObjective(name)?.removeParticipant(identity);
         return true;
     }
 

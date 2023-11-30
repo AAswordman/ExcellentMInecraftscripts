@@ -1,4 +1,4 @@
-import { Player, MinecraftItemTypes, MinecraftBlockTypes } from "@minecraft/server";
+import { Player } from "@minecraft/server";
 import Vector2 from "../modules/exmc/math/Vector2.js";
 import Vector3 from "../modules/exmc/math/Vector3.js";
 import ExStructureJigsaw from "../modules/exmc/server/block/structure/ExStructureJigsaw.js";

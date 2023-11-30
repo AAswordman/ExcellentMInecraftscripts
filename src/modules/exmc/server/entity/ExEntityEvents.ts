@@ -1,4 +1,4 @@
-import { BlockBreakAfterEvent, Entity, EntityHurtAfterEvent, ItemStack, Player } from "@minecraft/server";
+import { PlayerBreakBlockAfterEvent, Entity, EntityHurtAfterEvent, ItemStack, Player } from "@minecraft/server";
 import ExEventManager from "../../interface/ExEventManager.js";
 import TickDelayTask from "../../utils/TickDelayTask.js";
 import ExGameServer from '../ExGameServer.js';
@@ -86,7 +86,7 @@ export default class ExEntityEvents implements ExEventManager {
         [ExOtherEventNames.onLongTick]: {
             pattern: ExEntityEvents.eventHandlers.registerToServerByServerEvent
         },
-        [ExEventNames.afterBlockBreak]: {
+        [ExEventNames.afterPlayerBreakBlock]: {
             pattern: ExEntityEvents.eventHandlers.registerToServerByEntity,
             filter: {
                 "name": "player"
@@ -104,7 +104,7 @@ export default class ExEntityEvents implements ExEventManager {
         [ExOtherEventNames.afterItemOnHandChange]: new Listener<ItemOnHandChangeEvent>(this,ExOtherEventNames.afterItemOnHandChange),
         [ExOtherEventNames.onLongTick]: new Listener<TickEvent>(this, ExOtherEventNames.onLongTick),
         [ExOtherEventNames.beforeTick]: new Listener<TickEvent>(this, ExOtherEventNames.beforeTick),
-        [ExEventNames.afterBlockBreak]: new Listener<BlockBreakAfterEvent>(this, ExEventNames.afterBlockBreak)
+        [ExEventNames.afterPlayerBreakBlock]: new Listener<PlayerBreakBlockAfterEvent>(this, ExEventNames.afterPlayerBreakBlock)
     };
     
     public static init(s: ExGameServer) {

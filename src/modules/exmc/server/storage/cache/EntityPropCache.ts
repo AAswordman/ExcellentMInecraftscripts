@@ -1,13 +1,14 @@
-import { DynamicPropertiesDefinition, Entity, MinecraftEntityTypes, PropertyRegistry, system, world } from '@minecraft/server';
+import { DynamicPropertiesDefinition, Entity, system, world } from '@minecraft/server';
 import { Serialize } from '../../../utils/Serialize.js';
 import Random from '../../../utils/Random.js';
 import GZIPUtil from '../../../utils/GZIPUtil.js';
 import ExGameConfig from '../../ExGameConfig.js';
+import { MinecraftEntityTypes } from '@minecraft/vanilla-data';
 
 const cutLength = 3000;
 world.afterEvents.worldInitialize.subscribe((e) => {
     let def = new DynamicPropertiesDefinition().defineString("__cache0:", cutLength);
-    e.propertyRegistry.registerEntityTypeDynamicProperties(def, MinecraftEntityTypes.player);
+    e.propertyRegistry.registerEntityTypeDynamicProperties(def, MinecraftEntityTypes.Player);
 });
 
 export default class EntityPropCache<T>{

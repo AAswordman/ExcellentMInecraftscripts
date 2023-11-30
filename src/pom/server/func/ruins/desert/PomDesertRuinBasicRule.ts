@@ -1,4 +1,3 @@
-import { MinecraftDimensionTypes, MinecraftEntityTypes } from "@minecraft/server";
 import GameController from "../../GameController.js";
 import GameControllerRuinRule from "../GameControllerRuinRule.js";
 import RuinsLoaction from "../RuinsLoaction.js";
@@ -9,6 +8,7 @@ import ExErrorQueue from "../../../../../modules/exmc/server/ExErrorQueue.js";
 import ExGameVector3 from "../../../../../modules/exmc/server/math/ExGameVector3.js";
 import ExMessageAlert from "../../../../../modules/exmc/server/ui/ExMessageAlert.js";
 import VarOnChangeListener from "../../../../../modules/exmc/utils/VarOnChangeListener.js";
+import { MinecraftEntityTypes } from "@minecraft/vanilla-data";
 
 export default class PomDesertRuinBasicRule extends GameControllerRuinRule {
     tmpA = new Vector3();
@@ -114,7 +114,7 @@ export default class PomDesertRuinBasicRule extends GameControllerRuinRule {
                 const tmpV = new Vector3();
                 const unclearList: string[] = [];
                 for (let e of game.getDimension().getEntities({
-                    excludeTypes: ["minecraft:item", MinecraftEntityTypes.player.id],
+                    excludeTypes: ["minecraft:item", MinecraftEntityTypes.Player],
                     maxDistance: 16,
                     location: lastVec
                 })) {

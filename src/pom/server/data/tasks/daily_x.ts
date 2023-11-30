@@ -1,4 +1,4 @@
-import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/server";
+import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { langType } from "../langType.js";
 import { PomTaskJSON } from "./PomTask.js";
 
@@ -11,19 +11,19 @@ export default function taskDaily_x(lang: langType):PomTaskJSON {
                 "conditions": [
                     {
                         "name": "小麦",
-                        "typeId": MinecraftItemTypes.wheat.id,
+                        "typeId": MinecraftItemTypes.Wheat,
                         "count": 512,
                         "type": "item"
                     },
                     {
                         "name": "马铃薯",
-                        "typeId": MinecraftItemTypes.potato.id,
+                        "typeId": MinecraftItemTypes.Potato,
                         "count": 512,
                         "type": "item"
                     },
                     {
                         "name": "胡萝卜",
-                        "typeId": MinecraftItemTypes.carrot.id,
+                        "typeId": MinecraftItemTypes.Carrot,
                         "count": 512,
                         "type": "item"
                     }
@@ -42,25 +42,25 @@ export default function taskDaily_x(lang: langType):PomTaskJSON {
                 "conditions": [
                     {
                         "name": "熟鸡肉",
-                        "typeId": MinecraftItemTypes.cookedChicken.id,
+                        "typeId": MinecraftItemTypes.CookedChicken,
                         "count": 256,
                         "type": "item"
                     },
                     {
                         "name": "熟羊肉",
-                        "typeId": MinecraftItemTypes.cookedMutton.id,
+                        "typeId": MinecraftItemTypes.CookedMutton,
                         "count": 256,
                         "type": "item"
                     },
                     {
                         "name": "熟牛肉",
-                        "typeId": MinecraftItemTypes.cookedBeef.id,
+                        "typeId": MinecraftItemTypes.CookedBeef,
                         "count": 256,
                         "type": "item"
                     },
                     {
                         "name": "熟兔肉",
-                        "typeId": MinecraftItemTypes.cookedRabbit.id,
+                        "typeId": MinecraftItemTypes.CookedRabbit,
                         "count": 64,
                         "type": "item"
                     }
@@ -141,25 +141,25 @@ export default function taskDaily_x(lang: langType):PomTaskJSON {
                 "conditions": [
                     {
                         "name": "钻石矿石",
-                        "typeId": MinecraftItemTypes.diamondOre.id,
+                        "typeId": MinecraftItemTypes.DiamondOre,
                         "count": 16,
                         "type": "break"
                     },
                     {
                         "name": "煤矿矿石",
-                        "typeId": MinecraftItemTypes.coalOre.id,
+                        "typeId": MinecraftItemTypes.CoalOre,
                         "count": 64,
                         "type": "break"
                     },
                     {
                         "name": "金矿矿石",
-                        "typeId": MinecraftItemTypes.goldOre.id,
+                        "typeId": MinecraftItemTypes.GoldOre,
                         "count": 64,
                         "type": "break"
                     },
                     {
                         "name": "铁矿矿石",
-                        "typeId": MinecraftItemTypes.ironOre.id,
+                        "typeId": MinecraftItemTypes.IronOre,
                         "count": 64,
                         "type": "break"
                     }
@@ -227,7 +227,7 @@ export default function taskDaily_x(lang: langType):PomTaskJSON {
                 "conditions": [
                     {
                         "name": "觉醒末影龙",
-                        "typeId": MinecraftEntityTypes.enderDragon.id,
+                        "typeId": MinecraftEntityTypes.EnderDragon,
                         "count": 1,
                         "type": "kill"
                     }

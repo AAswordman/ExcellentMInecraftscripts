@@ -1,5 +1,5 @@
 import ExGameClient from "../ExGameClient.js";
-import { BlockBreakAfterEvent, ChatSendAfterEvent, ChatSendBeforeEvent, EffectAddAfterEvent, EntityHealthChangedAfterEvent, EntityHitBlockAfterEvent, EntityHitEntityAfterEvent, EntityHurtAfterEvent, EntityIsTamedComponent, IItemDefinitionAfterEventSignal, ItemDefinitionTriggeredAfterEvent, ItemDefinitionTriggeredBeforeEvent, ItemReleaseUseAfterEvent, ItemStopUseAfterEvent, ItemUseAfterEvent, ItemUseBeforeEvent, ItemUseOnAfterEvent, ItemUseOnBeforeEvent, PlayerSpawnAfterEvent, ProjectileHitAfterEvent } from '@minecraft/server';
+import { PlayerBreakBlockAfterEvent, ChatSendAfterEvent, ChatSendBeforeEvent, EffectAddAfterEvent, EntityHealthChangedAfterEvent, EntityHitBlockAfterEvent, EntityHitEntityAfterEvent, EntityHurtAfterEvent, EntityIsTamedComponent, ItemDefinitionTriggeredAfterEvent, ItemDefinitionTriggeredBeforeEvent, ItemReleaseUseAfterEvent, ItemStopUseAfterEvent, ItemUseAfterEvent, ItemUseBeforeEvent, ItemUseOnAfterEvent, ItemUseOnBeforeEvent, PlayerSpawnAfterEvent } from '@minecraft/server';
 import ExEventManager from "../../interface/ExEventManager.js";
 import ExGameServer from '../ExGameServer.js';
 import { Player, ItemStack, Entity } from '@minecraft/server';
@@ -224,7 +224,7 @@ export default class ExClientEvents implements ExEventManager {
                 };
 
                 ExClientEvents.eventHandlers.server.getEvents().events.afterItemDefinitionEvent.subscribe((e) => {
-                    func(e.source, e);
+                    func(<Player>e.source, e);
                 });
                 ExClientEvents.eventHandlers.server.getEvents().events.afterItemReleaseUse.subscribe((e) => {
                     func(e.source, e);
@@ -235,7 +235,7 @@ export default class ExClientEvents implements ExEventManager {
             }
         },
 
-        [ExEventNames.afterBlockBreak]: {
+        [ExEventNames.afterPlayerBreakBlock]: {
             pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
             filter: {
                 "name": "player"
@@ -280,7 +280,7 @@ export default class ExClientEvents implements ExEventManager {
         [ExOtherEventNames.afterPlayerHurt]: new Listener<EntityHurtAfterEvent>(this, ExOtherEventNames.afterPlayerHurt),
         [ExOtherEventNames.afterItemOnHandChange]: new Listener<ItemOnHandChangeEvent>(this, ExOtherEventNames.afterItemOnHandChange),
         [ExOtherEventNames.afterPlayerShootProj]: new Listener<PlayerShootProjectileEvent>(this, ExOtherEventNames.afterPlayerShootProj),
-        [ExEventNames.afterBlockBreak]: new Listener<BlockBreakAfterEvent>(this, ExEventNames.afterBlockBreak),
+        [ExEventNames.afterPlayerBreakBlock]: new Listener<PlayerBreakBlockAfterEvent>(this, ExEventNames.afterPlayerBreakBlock),
         [ExEventNames.afterPlayerSpawn]: new Listener<PlayerSpawnAfterEvent>(this, ExEventNames.afterPlayerSpawn),
         [ExEventNames.afterEntityHealthChanged]: new Listener<EntityHealthChangedAfterEvent>(this, ExEventNames.afterEntityHealthChanged),
         [ExEventNames.afterEffectAdd]: new Listener<EffectAddAfterEvent>(this, ExEventNames.afterEffectAdd)

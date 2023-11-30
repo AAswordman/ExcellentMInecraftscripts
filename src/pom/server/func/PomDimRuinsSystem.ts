@@ -1,4 +1,4 @@
-import { MinecraftBlockTypes, MinecraftDimensionTypes, Block, EntityHurtAfterEvent, Entity } from '@minecraft/server';
+import { MinecraftDimensionTypes, Block, EntityHurtAfterEvent, Entity } from '@minecraft/server';
 import GameController from "./GameController.js";
 import RuinsLoaction from "./ruins/RuinsLoaction.js";
 import { ExBlockArea } from '../../../modules/exmc/server/block/ExBlockArea.js';
@@ -11,6 +11,7 @@ import PomBossBarrier from './barrier/PomBossBarrier.js';
 import { Objective } from '../../../modules/exmc/server/entity/ExScoresManager.js';
 import { MinecraftEffectTypes } from '../../../modules/vanilla-data/lib/index.js';
 import ExGameConfig from '../../../modules/exmc/server/ExGameConfig.js';
+import { MinecraftBlockTypes } from "@minecraft/vanilla-data";
 
 export default class PomDimRuinsSystem extends GameController {
     i_inviolable = new Objective("i_inviolable");
@@ -403,12 +404,12 @@ export default class PomDimRuinsSystem extends GameController {
                         .find();
                     if (m) {
                         p.clone().analysis({
-                            X: MinecraftBlockTypes.sandstone.id,
+                            X: MinecraftBlockTypes.Sandstone,
                             W: "wb:portal_desertboss",
                             Y: "wb:portal_desertboss",
-                            A: MinecraftBlockTypes.air.id,
-                            S: MinecraftBlockTypes.stoneBlockSlab2.id,
-                            C: MinecraftBlockTypes.cobblestoneWall.id
+                            A: MinecraftBlockTypes.Air,
+                            S: MinecraftBlockTypes.StoneBlockSlab2,
+                            C: MinecraftBlockTypes.CobblestoneWall
                         })
                             .putStructure(m);
                         const parLoc = new Vector3(e.block).add(0.5, 0.5, 0.5);
@@ -426,12 +427,12 @@ export default class PomDimRuinsSystem extends GameController {
                             .find();
                         if (m) {
                             p.clone().analysis({
-                                X: MinecraftBlockTypes.sandstone.id,
+                                X: MinecraftBlockTypes.Sandstone,
                                 W: "wb:portal_stoneboss",
                                 Y: "wb:portal_stoneboss",
-                                S: MinecraftBlockTypes.cobblestoneWall.id,
-                                A: MinecraftBlockTypes.air.id,
-                                B: MinecraftBlockTypes.stonebrick.id
+                                S: MinecraftBlockTypes.CobblestoneWall,
+                                A: MinecraftBlockTypes.Air,
+                                B: MinecraftBlockTypes.Stonebrick
                             })
                                 .putStructure(m);
                         }
@@ -445,11 +446,11 @@ export default class PomDimRuinsSystem extends GameController {
                                 .find();
                             if (m) {
                                 p.clone().analysis({
-                                    X: MinecraftBlockTypes.deepslateTiles.id,
+                                    X: MinecraftBlockTypes.DeepslateTiles,
                                     W: "wb:portal_caveboss",
                                     Y: "wb:portal_caveboss",
-                                    S: MinecraftBlockTypes.lantern.id,
-                                    A: MinecraftBlockTypes.air.id
+                                    S: MinecraftBlockTypes.Lantern,
+                                    A: MinecraftBlockTypes.Air
                                 })
                                     .putStructure(m);
                             }
@@ -463,12 +464,12 @@ export default class PomDimRuinsSystem extends GameController {
                                     .find();
                                 if (m) {
                                     p.clone().analysis({
-                                        X: MinecraftBlockTypes.chiseledDeepslate.id,
+                                        X: MinecraftBlockTypes.ChiseledDeepslate,
                                         W: "wb:portal_ancientboss",
                                         Y: "wb:portal_ancientboss",
-                                        S: MinecraftBlockTypes.verdantFroglight.id,
-                                        A: MinecraftBlockTypes.air.id,
-                                        B: MinecraftBlockTypes.mossyCobblestone.id
+                                        S: MinecraftBlockTypes.VerdantFroglight,
+                                        A: MinecraftBlockTypes.Air,
+                                        B: MinecraftBlockTypes.MossyCobblestone
                                     })
                                         .putStructure(m);
                                 }
@@ -488,7 +489,7 @@ export default class PomDimRuinsSystem extends GameController {
                                             W: "wb:portal_mindboss",
                                             Y: "wb:portal_mindboss",
                                             S: "wb:block_magic_barrier",
-                                            A: MinecraftBlockTypes.air.id
+                                            A: MinecraftBlockTypes.Air
                                         })
                                             .putStructure(m);
                                     }
