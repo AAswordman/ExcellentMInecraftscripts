@@ -17,7 +17,7 @@ import Random from "../../modules/exmc/utils/Random.js";
 import TickDelayTask from '../../modules/exmc/utils/TickDelayTask.js';
 import TimeLoopTask from "../../modules/exmc/utils/TimeLoopTask.js";
 import { falseIfError } from '../../modules/exmc/utils/tool.js';
-import { MinecraftEffectTypes } from '../../modules/vanilla-data/lib/index.js';
+import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 import PomClient from "./PomClient.js";
 import GlobalSettings from "./cache/GlobalSettings.js";
 import PomAncientStoneBoss from './entities/PomAncientStoneBoss.js';

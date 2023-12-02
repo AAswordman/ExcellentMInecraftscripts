@@ -11,7 +11,7 @@ import PomServer from "../../pom/server/PomServer.js";
 import GlobalScoreBoardCache from "../../modules/exmc/server/storage/cache/GlobalScoreBoardCache.js";
 import { Objective } from "../../modules/exmc/server/entity/ExScoresManager.js";
 import Random from "../../modules/exmc/utils/Random.js";
-import { MinecraftEffectTypes } from "../../modules/vanilla-data/lib/index.js";
+import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 
 
 export default class DecClient extends ExGameClient {

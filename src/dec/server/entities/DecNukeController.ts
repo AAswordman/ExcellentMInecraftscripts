@@ -2,8 +2,7 @@ import { Entity } from "@minecraft/server";
 import DecServer from "../DecServer.js";
 import ExEntityController from "../../../modules/exmc/server/entity/ExEntityController.js";
 import Vector3 from "../../../modules/exmc/math/Vector3.js";
-import { MinecraftBlockTypes } from "../../../modules/vanilla-data/lib/mojang-block.js";
-import ExTickQueue from "../../../modules/exmc/server/ExTickQueue.js";
+import { MinecraftBlockTypes } from "@minecraft/vanilla-data";
 import ExTaskRunner from "../../../modules/exmc/server/ExTaskRunner.js";
 
 export default class DecNukeController extends ExEntityController {

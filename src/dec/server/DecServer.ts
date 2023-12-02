@@ -1,4 +1,4 @@
-import { Player, MinecraftDimensionTypes, Entity, ItemStack, Effect, world, BlockPermutation, Block, system, Direction, GameMode, BlockType } from '@minecraft/server';
+import { Player, MinecraftDimensionTypes, world, Block, Direction, GameMode } from '@minecraft/server';
 import ExConfig from "../../modules/exmc/ExConfig.js";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import DecClient from "./DecClient.js";
@@ -6,12 +6,9 @@ import ExPlayer from '../../modules/exmc/server/entity/ExPlayer.js';
 import { Objective } from '../../modules/exmc/server/entity/ExScoresManager.js';
 import ExEntity from '../../modules/exmc/server/entity/ExEntity.js';
 import commandAnalysis from '../../modules/exmc/utils/commandAnalysis.js';
-import format from '../../modules/exmc/utils/format.js';
 import ExGameServer from '../../modules/exmc/server/ExGameServer.js';
 import DecGlobal from './DecGlobal.js';
-import { ArmorData, ArmorPlayerDec, ArmorPlayerPom } from './items/ArmorData.js';
 import Vector3 from '../../modules/exmc/math/Vector3.js';
-import { to } from '../../modules/exmc/server/ExErrorQueue.js';
 import { DecEverlastingWinterGhastBoss1, DecEverlastingWinterGhastBoss2 } from './entities/DecEverlastingWinterGhastBoss.js';
 import { DecCommonBossLastStage } from './entities/DecCommonBossLastStage.js';
 import VarOnChangeListener from '../../modules/exmc/utils/VarOnChangeListener.js';
@@ -21,13 +18,11 @@ import GZIPUtil from '../../modules/exmc/utils/GZIPUtil.js';
 import IStructureSettle from './data/structure/IStructureSettle.js';
 import IStructureDriver from './data/structure/IStructureDriver.js';
 import ExTaskRunner from '../../modules/exmc/server/ExTaskRunner.js';
-import { MinecraftEffectTypes } from '../../modules/vanilla-data/lib/index.js';
+import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 import DecNukeController from './entities/DecNukeController.js';
-import ExNullEntity from '../../modules/exmc/server/entity/ExNullEntity.js';
 import GlobalScoreBoardCache from '../../modules/exmc/server/storage/cache/GlobalScoreBoardCache.js';
 import MathUtil from '../../modules/exmc/math/MathUtil.js';
 import ExGame from '../../modules/exmc/server/ExGame.js';
-import { MinecraftBlockTypes } from '../../modules/vanilla-data/lib/mojang-block.js';
 
 
 export default class DecServer extends ExGameServer {
