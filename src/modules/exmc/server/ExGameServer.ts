@@ -82,7 +82,7 @@ export default class ExGameServer implements SetTimeOutSupport {
 
     @registerEvent(ExEventNames.afterEntitySpawn)
     onEntitySpawn(e: EntitySpawnAfterEvent) {
-        if (!falseIfError(() => (e.entity.typeId))) return;
+        if (!e.entity.isValid()) return;
         let id;
         try { id = e.entity.typeId } catch (e) { return; }
         const entityConstructor = this.entityControllers.get(e.entity.typeId);
@@ -90,6 +90,7 @@ export default class ExGameServer implements SetTimeOutSupport {
             new (entityConstructor)(e.entity, this);
         }
     }
+    
 
     createEntityController<T extends ExEntityController>(e: Entity, ec: new (e: Entity, server: ExGameServer) => (T)) {
         return new ec(e, this);

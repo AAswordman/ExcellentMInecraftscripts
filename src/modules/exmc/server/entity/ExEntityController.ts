@@ -1,18 +1,17 @@
 import ExGameServer from "../ExGameServer.js";
 import ExEntity from "./ExEntity.js";
-import { Entity, System, world, system, EntityHurtAfterEvent } from '@minecraft/server';
+import { Entity, EntityHurtAfterEvent, EntityRemoveAfterEvent } from '@minecraft/server';
 import ExEntityEvents from "./ExEntityEvents.js";
-import ExGameConfig from "../ExGameConfig.js";
 import DisposeAble from "../../interface/DisposeAble.js";
 import SetTimeOutSupport from "../../interface/SetTimeOutSupport.js";
 import { eventDecoratorFactory, registerEvent } from "../events/eventDecoratorFactory.js";
-import { ExOtherEventNames, TickEvent } from "../events/events.js";
-import { falseIfError } from "../../utils/tool.js";
+import { ExEventNames, ExOtherEventNames, TickEvent } from "../events/events.js";
 
 export default class ExEntityController implements DisposeAble, SetTimeOutSupport {
     server!: ExGameServer;
     private _entity: Entity;
     private _isKilled: boolean = false;
+    private _id: string;
     public get entity(): Entity {
         return this._entity;
     }
@@ -31,10 +30,14 @@ export default class ExEntityController implements DisposeAble, SetTimeOutSuppor
         this._entity = e;
         this.server = server;
         this._events = new ExEntityEvents(this);
+        this._id = e.id;
         this.init(server);
         this.onSpawn();
         eventDecoratorFactory(this.getEvents(), this);
         // console.warn("track " + e.typeId);
+    }
+    getId(){
+        return this._id;
     }
     setTimeout(fun: () => void, timeout: number) {
         let time = 0;
@@ -54,8 +57,8 @@ export default class ExEntityController implements DisposeAble, SetTimeOutSuppor
     onSpawn() {
     }
 
-    @registerEvent<ExEntityController>(ExOtherEventNames.beforeTick, (ctrl, e: TickEvent) => {
-        return !falseIfError(() => ctrl.entity.dimension);
+    @registerEvent<ExEntityController>(ExEventNames.afterEntityRemove, (ctrl, e: EntityRemoveAfterEvent) => {
+        return e.removedEntityId === ctrl.getId();
     })
     public destroyTrigger() {
         if (!this.isDestroyed) {

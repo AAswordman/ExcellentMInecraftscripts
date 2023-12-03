@@ -5,7 +5,6 @@ import ExGameClient from "./ExGameClient.js";
 import "../../reflect-metadata/Reflect.js"
 import ExSystem from "../utils/ExSystem.js";
 import { ScriptEventCommandMessageAfterEvent, system } from "@minecraft/server";
-import ExServerEvents from "./events/ExServerEvents.js";
 import MonitorManager from "../utils/MonitorManager.js";
 import { TickEvent } from "./events/events.js";
 import ExErrorQueue from "./ExErrorQueue.js";

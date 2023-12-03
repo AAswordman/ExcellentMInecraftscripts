@@ -91,6 +91,9 @@ export default class ExEntityEvents implements ExEventManager {
             filter: {
                 "name": "player"
             }
+        },
+        [ExEventNames.afterEntityRemove]: {
+            pattern: ExEntityEvents.eventHandlers.registerToServerByServerEvent
         }
     }
 
@@ -104,7 +107,8 @@ export default class ExEntityEvents implements ExEventManager {
         [ExOtherEventNames.afterItemOnHandChange]: new Listener<ItemOnHandChangeEvent>(this,ExOtherEventNames.afterItemOnHandChange),
         [ExOtherEventNames.onLongTick]: new Listener<TickEvent>(this, ExOtherEventNames.onLongTick),
         [ExOtherEventNames.beforeTick]: new Listener<TickEvent>(this, ExOtherEventNames.beforeTick),
-        [ExEventNames.afterPlayerBreakBlock]: new Listener<PlayerBreakBlockAfterEvent>(this, ExEventNames.afterPlayerBreakBlock)
+        [ExEventNames.afterPlayerBreakBlock]: new Listener<PlayerBreakBlockAfterEvent>(this, ExEventNames.afterPlayerBreakBlock),
+        [ExEventNames.afterEntityRemove]: new Listener<PlayerBreakBlockAfterEvent>(this, ExEventNames.afterEntityRemove)
     };
     
     public static init(s: ExGameServer) {
