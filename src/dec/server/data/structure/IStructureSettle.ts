@@ -4,7 +4,7 @@ import ExDimension from "../../../../modules/exmc/server/ExDimension.js";
 import ExTaskRunner from "../../../../modules/exmc/server/ExTaskRunner.js";
 import Random from "../../../../modules/exmc/utils/Random.js";
 import DisposeAble from "../../../../modules/exmc/interface/DisposeAble.js";
-import { MinecraftBlockTypes } from "@minecraft/vanilla-data";
+import { MinecraftBlockTypes } from "../../../../modules/vanilla-data/lib/index.js";
 
 export default class IStructureSettle implements DisposeAble{
     dispose(): void {

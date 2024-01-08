@@ -1,4 +1,5 @@
-import { MinecraftItemTypes, MinecraftEntityTypes } from '@minecraft/vanilla-data';
+
+import { MinecraftEntityTypes, MinecraftItemTypes } from "../../../../modules/vanilla-data/lib/index.js";
 import { langType } from "../langType.js";
 import { PomTaskJSON } from './PomTask.js';
 

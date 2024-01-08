@@ -8,7 +8,7 @@ import ExErrorQueue from "../../../../../modules/exmc/server/ExErrorQueue.js";
 import ExGameVector3 from "../../../../../modules/exmc/server/math/ExGameVector3.js";
 import ExMessageAlert from "../../../../../modules/exmc/server/ui/ExMessageAlert.js";
 import VarOnChangeListener from "../../../../../modules/exmc/utils/VarOnChangeListener.js";
-import { MinecraftEntityTypes } from "@minecraft/vanilla-data";
+import { MinecraftEntityTypes } from "../../../../../modules/vanilla-data/lib/index.js";
 
 export default class PomDesertRuinBasicRule extends GameControllerRuinRule {
     tmpA = new Vector3();

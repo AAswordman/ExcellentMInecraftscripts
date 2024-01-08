@@ -1,11 +1,11 @@
 import { Dimension } from "@minecraft/server";
-import { MinecraftBlockTypes } from "@minecraft/vanilla-data";
 import Vector3 from "../../../math/Vector3.js";
 import ExDimension from "../../ExDimension.js";
 import { ExBlockArea } from "../ExBlockArea.js";
 import ExBlockStructure from "./ExBlockStructure.js";
 import ExSystem from "../../../utils/ExSystem.js";
 import ExGame from "../../ExGame.js";
+import { MinecraftBlockTypes } from "../../../../vanilla-data/lib/index.js";
 
 export default class ExBlockStructureNormal implements ExBlockStructure {
 

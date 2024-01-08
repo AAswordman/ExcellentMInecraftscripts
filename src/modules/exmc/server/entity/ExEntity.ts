@@ -205,7 +205,7 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     }
 
     getComponent<T extends keyof CompId>(key: T): AlsoInstanceType<CompId[T]> | undefined {
-        return this._entity.getComponent(<string>key);
+        return this._entity.getComponent(key);
     }
     get health() {
         return this.getComponent("minecraft:health")!.currentValue;

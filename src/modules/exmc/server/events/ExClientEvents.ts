@@ -7,9 +7,9 @@ import ExPlayer from '../entity/ExPlayer.js';
 import { ExEventNames, ExOtherEventNames, ItemOnHandChangeEvent, PlayerShootProjectileEvent, TickEvent } from "./events.js";
 import TickDelayTask from "../../utils/TickDelayTask.js";
 import EventHandle, { EventListenerSettings } from './EventHandle.js';
-import { MinecraftEntityTypes } from "@minecraft/vanilla-data";
 import ExEntity from "../entity/ExEntity.js";
 import Vector3 from "../../math/Vector3.js";
+import { MinecraftEntityTypes } from "../../../vanilla-data/lib/index.js";
 
 
 

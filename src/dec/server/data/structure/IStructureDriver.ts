@@ -1,8 +1,7 @@
 import Vector3 from "../../../../modules/exmc/math/Vector3.js";
 import IStructureSettle from "./IStructureSettle.js";
 import ExDimension from '../../../../modules/exmc/server/ExDimension.js';
-import { Vector } from "@minecraft/server";
-import { MinecraftBlockTypes } from "@minecraft/vanilla-data";
+import { MinecraftBlockTypes } from "../../../../modules/vanilla-data/lib/index.js";
 
 export default class IStructureDriver {
     *save(dim: ExDimension, start: Vector3, end: Vector3) {

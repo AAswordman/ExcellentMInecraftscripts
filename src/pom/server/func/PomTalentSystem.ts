@@ -97,7 +97,7 @@ export default class PomTalentSystem extends GameController {
         } else {
             this.exPlayer.triggerEvent("movement_" + MathUtil.round(MathUtil.clamp(Math.floor((this.movement[0] + this.movement_addition[0]) / 0.005) * 0.005, 0, 0.2), 3));
         }
-        this.exPlayer.triggerEvent("underwater_" + MathUtil.round(MathUtil.clamp(Math.floor((this.movement[2] + this.movement_addition[2]) / 0.005) * 0.005, 0, 0.2), 3));
+        this.exPlayer.triggerEvent("underwater_movement_" + MathUtil.round(MathUtil.clamp(Math.floor((this.movement[2] + this.movement_addition[2]) / 0.005) * 0.005, 0, 0.2), 3));
         // if (n) {
         //     this.exPlayer.movement = (MathUtil.round(MathUtil.clamp(this.movement[1] + this.movement_addition[1], 0, 0.2), 3));
         // } else {

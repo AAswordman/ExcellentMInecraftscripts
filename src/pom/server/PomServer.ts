@@ -17,7 +17,6 @@ import Random from "../../modules/exmc/utils/Random.js";
 import TickDelayTask from '../../modules/exmc/utils/TickDelayTask.js';
 import TimeLoopTask from "../../modules/exmc/utils/TimeLoopTask.js";
 import { falseIfError } from '../../modules/exmc/utils/tool.js';
-import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 import PomClient from "./PomClient.js";
 import GlobalSettings from "./cache/GlobalSettings.js";
 import PomAncientStoneBoss from './entities/PomAncientStoneBoss.js';
@@ -34,7 +33,7 @@ import PomMindBossRuin from './func/ruins/mind/PomMindBossRuin.js';
 import PomStoneBossRuin from './func/ruins/stone/PomStoneBossRuin.js';
 import damageShow from './helper/damageShow.js';
 import itemCanChangeBlock from './items/itemCanChangeBlock.js';
-import { MinecraftBlockTypes, MinecraftEntityTypes } from "@minecraft/vanilla-data";
+import { MinecraftBlockTypes, MinecraftEffectTypes, MinecraftEntityTypes } from '../../modules/vanilla-data/lib/index.js';
 // import * as b from "brain.js";
 
 export default class PomServer extends ExGameServer {
