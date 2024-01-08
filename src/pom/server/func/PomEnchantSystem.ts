@@ -4,8 +4,8 @@ import "../../../modules/exmc/server/block/ExBlock.js";
 import ExColorLoreUtil from "../../../modules/exmc/server/item/ExColorLoreUtil.js";
 import "../../../modules/exmc/server/item/ExItem.js";
 import GameController from "./GameController.js";
-import ExGameConfig from "../../../modules/exmc/server/ExGameConfig.js";
-import { MinecraftBlockTypes, MinecraftItemTypes } from '@minecraft/vanilla-data';
+import { MinecraftBlockTypes } from "../../../modules/vanilla-data/lib/index.js";
+import { MinecraftItemTypes } from "../../../modules/vanilla-data/lib/index.js";
 
 export default class PomEnChantSystem extends GameController {
     static blockTranslateData: Map<string, ItemStack> = new Map<string, ItemStack>();

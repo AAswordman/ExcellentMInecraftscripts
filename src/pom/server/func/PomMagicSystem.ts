@@ -4,7 +4,7 @@ import ExSystem from "../../../modules/exmc/utils/ExSystem.js";
 import VarOnChangeListener from "../../../modules/exmc/utils/VarOnChangeListener.js";
 import { Talent } from "../cache/TalentData.js";
 import GameController from "./GameController.js";
-import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
+import { MinecraftEffectTypes } from '../../../modules/vanilla-data/lib/index.js';
 
 
 

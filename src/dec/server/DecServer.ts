@@ -18,11 +18,11 @@ import GZIPUtil from '../../modules/exmc/utils/GZIPUtil.js';
 import IStructureSettle from './data/structure/IStructureSettle.js';
 import IStructureDriver from './data/structure/IStructureDriver.js';
 import ExTaskRunner from '../../modules/exmc/server/ExTaskRunner.js';
-import { MinecraftEffectTypes } from "@minecraft/vanilla-data";
 import DecNukeController from './entities/DecNukeController.js';
 import GlobalScoreBoardCache from '../../modules/exmc/server/storage/cache/GlobalScoreBoardCache.js';
 import MathUtil from '../../modules/exmc/math/MathUtil.js';
 import ExGame from '../../modules/exmc/server/ExGame.js';
+import { MinecraftEffectTypes } from '../../modules/vanilla-data/lib/index.js';
 
 
 export default class DecServer extends ExGameServer {
