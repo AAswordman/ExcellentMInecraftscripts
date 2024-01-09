@@ -439,10 +439,6 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                 "deathback": {
                     "text": lang.menuUIMsgBailan32,
                     "page": (client, ui): MenuUIAlertView<PomClient>[] => {
-                        if (client.data.pointRecord == undefined) client.data.pointRecord = {
-                            deathPoint: <[string, Vector3][]>[],
-                            point: <[string, string, Vector3][]>[]
-                        };
                         let arr = <MenuUIAlertView<PomClient>[]>[
                             {
                                 "type": "text_title",
@@ -509,8 +505,8 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 "msg": lang.menuUIMsgBailan41 + client.exPlayer.position.floor().toString(),
                                 "type": "button",
                                 "function": (client, ui) => {
-                                    if ((client.data.pointRecord?.point.length ?? 0) <= 10) {
-                                        client.data.pointRecord?.point.push([client.exPlayer.dimension.id, "", client.exPlayer.position.floor()]);
+                                    if ((client.data.pointRecord.point.length ?? 0) <= 10) {
+                                        client.data.pointRecord.point.push([client.exPlayer.dimension.id, "", client.exPlayer.position.floor()]);
                                         return true;
                                     } else {
                                         client.sayTo("§b传送点不得超过10个");
