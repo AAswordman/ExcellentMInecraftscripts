@@ -1,5 +1,6 @@
 import ExEntity from './ExEntity.js';
 import {
+    Container,
     EntityEquippableComponent,
     EntityInventoryComponent,
     EquipmentSlot,
@@ -22,7 +23,7 @@ export default class ExEntityBag {
     getItem(slot: number): ItemStack | undefined;
     getItem(arg: string | number) {
         if (typeof (arg) === "number") {
-            return this.bagComponent.container.getItem(arg);
+            return (<Container>this.bagComponent.container).getItem(arg);
         }
         if(arg in EquipmentSlot){
             return this.getEquipment(arg as EquipmentSlot);
@@ -31,7 +32,7 @@ export default class ExEntityBag {
         if (search === -1) {
             return undefined;
         }
-        return this.bagComponent.container.getItem(search);
+        return (<Container>this.bagComponent.container).getItem(search);
     }
     searchItem(id: string) {
         let items = this.getAllItems();
@@ -48,7 +49,7 @@ export default class ExEntityBag {
     getAllItems() {
         let items = [];
         for (let i = 0; i < this.size(); i++) {
-            items.push(this.bagComponent.container.getItem(i));
+            items.push((<Container>this.bagComponent.container).getItem(i));
         };
         return items;
     }
@@ -112,7 +113,7 @@ export default class ExEntityBag {
         if(typeof slot === 'string') {
             return this.setEquipment(slot,item);
         }
-        return this.bagComponent.container.setItem(slot, <ItemStack>item);
+        return (<Container>this.bagComponent.container).setItem(slot, <ItemStack>item);
     }
 
     hasItem(itemId: string,containsEq = false) {
@@ -122,13 +123,13 @@ export default class ExEntityBag {
         return this.searchItem(itemId) !== -1;
     }
     addItem(item: ItemStack) {
-        this.bagComponent.container.addItem(item);
+        (<Container>this.bagComponent.container).addItem(item);
     }
     getSlot(pos: number | EquipmentSlot) {
         if(typeof pos === 'string') {
             return this.getEquipmentSlot(pos);
         }
-        return this.bagComponent.container.getSlot(pos);
+        return (<Container>this.bagComponent.container).getSlot(pos);
     }
 
     getEquipment(slot: EquipmentSlot) {
