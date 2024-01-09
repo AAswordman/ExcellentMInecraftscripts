@@ -17,6 +17,7 @@ import ExActionAlert from "../../../modules/exmc/server/ui/ExActionAlert.js";
 import WarningAlertUI from "../ui/WarningAlertUI.js";
 import { pomDifficultyMap } from "./GameDifficulty.js";
 import { zeroIfNaN } from "../../../modules/exmc/utils/tool.js";
+import { getArmorData, hasArmorData } from "../items/getArmorData.js";
 
 export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
     return {
@@ -227,8 +228,25 @@ BunBun不是笨笨    在矿里的小金呀
                     "page": (client, ui) => {
                         let source = client.player;
                         let scores = ExPlayer.getInstance(source).getScoresManager();
+                        const armors = [
+                            client.talentSystem.headComp,
+                            client.talentSystem.chestComp,
+                            client.talentSystem.legComp,
+                            client.talentSystem.feetComp
+                        ];
+                        let armorData = 0;
+                        armors.forEach(v => {
+                            let id = ((v?.manager as ItemStack).type.id);
+                            if (hasArmorData(id)) {
+                                armorData += getArmorData(id);
+                            } else if(v?.hasComponent("armor_protection")){
+                                armorData += v.getComponentWithGroup("armor_protection");
+                            }
+                        });
+
                         let msg = [`   ${lang.menuUIMsgBailan94}: ${client.gameId}`,
                         `   ${lang.menuUIMsgBailan96}: ${scores.getScore("wbfl")}`,
+                        `   ${`盔甲值`}: ${armorData}`,
                         `   ${`物理防御`}: ${MathUtil.round(1 - (1 - client.getDifficulty().physicalDefenseAddFactor) * (1 - client.talentSystem.armor_protection[1] / 100), 3) * 100}％ + ${Math.round(client.talentSystem.armor_protection[3])}`,
                         `   ${`魔法防御`}: ${MathUtil.round(1 - (1 - client.getDifficulty().magicDefenseAddFactor) * (1 - client.talentSystem.armor_protection[0] / 100), 3) * 100}％ + ${Math.round(client.talentSystem.armor_protection[2])}`,
                         `   ${lang.menuUIMsgBailan97}: ${scores.getScore("wbwqlq")}`,

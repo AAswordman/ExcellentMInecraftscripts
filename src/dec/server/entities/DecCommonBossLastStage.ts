@@ -1,5 +1,5 @@
 import { Entity, EntityHurtAfterEvent } from "@minecraft/server";
-import ExSound from "../../../modules/exmc/server/env/ExSound.js";
+import ExMusic from "../../../modules/exmc/server/env/ExMusic.js";
 import DecServer from "../DecServer.js";
 import DecBossController from "./DecBossController.js";
 

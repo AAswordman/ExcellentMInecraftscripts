@@ -101,7 +101,7 @@ export default class DecClient extends ExGameClient {
         });
         this.getEvents().exEvents.beforeItemUseOn.subscribe(e => {
             const id = e.itemStack.typeId;
-            if (id.startsWith("dec") && id.includes("summoner") && id !== "dec:summoner" && this.exPlayer.getGameMode() !== GameMode.creative) {
+            if (id.startsWith("dec") && id.includes("summoner") && id !== "dec:summoner" && this.exPlayer.gamemode !== GameMode.creative) {
                 e.cancel = true;
             }
         });
@@ -295,7 +295,7 @@ export default class DecClient extends ExGameClient {
             const scores = this.exPlayer.getScoresManager();
 
             //生存，冒险玩家添加gaming标签
-            const gamemode = ep.getGameMode();
+            const gamemode = ep.gamemode;
             if (!p.hasTag('gaming') && (gamemode == GameMode.adventure || gamemode == GameMode.survival)) {
                 p.addTag('gaming')
                 this.globalscores.setNumber("AlreadyGmCheat", 1);

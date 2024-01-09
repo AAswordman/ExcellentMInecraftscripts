@@ -5,14 +5,14 @@ import ExGameConfig from '../../../modules/exmc/server/ExGameConfig.js';
 import PomBossController from './PomBossController.js';
 import PomServer from '../PomServer.js';
 import PomClient from '../PomClient.js';
-import ExSound from '../../../modules/exmc/server/env/ExSound.js';
+import ExMusic from '../../../modules/exmc/server/env/ExMusic.js';
 import VarOnChangeListener from '../../../modules/exmc/utils/VarOnChangeListener.js';
 import { TickEvent } from '../../../modules/exmc/server/events/events.js';
 import Vector3 from '../../../modules/exmc/math/Vector3.js';
 
 export default class PomAncientStoneBoss extends PomBossController {
     static typeId = "wb:ancient_stone"
-    music: ExSound;
+    music: ExMusic;
     private viewTime = 0;
     cannonView = new VarOnChangeListener((n, l) => {
         if (n) {
@@ -51,7 +51,7 @@ export default class PomAncientStoneBoss extends PomBossController {
     }, false);
     constructor(e: Entity, server: PomServer) {
         super(e, server);
-        this.music = server.getSound("music.wb.anger_of_ancient", "2:24");
+        this.music = server.getMusic("music.wb.anger_of_ancient", "2:24");
     }
     override initBossEntity(): void {
         for (let c of this.barrier.clientsByPlayer()) {

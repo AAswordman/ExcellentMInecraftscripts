@@ -324,8 +324,8 @@ export default class DecServer extends ExGameServer {
                             loc +=1
                             repeat_times -= 1
                         }
-                        let p = ExPlayer.getInstance(<Player>e.source)
-                        if (p.getGameMode() == GameMode.survival && p.getGameMode() == GameMode.adventure) {
+                        let p = ExPlayer.getInstance(<Player>e.source);
+                        if (p.gamemode == GameMode.survival || p.gamemode == GameMode.adventure) {
                             p.getBag().clearItem('dec:patterned_vase_red', 1)
                         }
                     }
