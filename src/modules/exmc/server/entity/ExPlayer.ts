@@ -25,43 +25,24 @@ export default class ExPlayer extends ExEntity {
         super.entity = e;
     }
 
-    setGameMode(mode: GameMode) {
+    set gamemode(mode: GameMode) {
         switch (mode) {
             case GameMode.survival: this.runCommandAsync(`gamemode 0`); break;
             case GameMode.creative: this.runCommandAsync(`gamemode 1`); break;
             case GameMode.adventure: this.runCommandAsync(`gamemode 2`); break;
             case GameMode.spectator: this.runCommandAsync(`gamemode 3`); break;
         }
-
     }
-    getGameMode(): GameMode {
-        let c = GameMode.creative;
-        c = (Array.from(this.dimension.getPlayers({
-            location: this.entity.location,
-            closest: 1,
-            maxDistance: 1,
-            gameMode: GameMode.adventure
-        }))?.[0] === this.entity ? GameMode.adventure : c);
-        c = (Array.from(this.dimension.getPlayers({
-            location: this.entity.location,
-            closest: 1,
-            maxDistance: 1,
-            gameMode: GameMode.creative
-        }))?.[0] === this.entity ? GameMode.creative : c);
-        c = (Array.from(this.dimension.getPlayers({
-            location: this.entity.location,
-            closest: 1,
-            maxDistance: 1,
-            gameMode: GameMode.spectator
-        }))?.[0] === this.entity ? GameMode.spectator : c);
-        c = (Array.from(this.dimension.getPlayers({
-            location: this.entity.location,
-            closest: 1,
-            maxDistance: 1,
-            gameMode: GameMode.survival
-        }))?.[0] === this.entity ? GameMode.survival : c);
-
-        return c;
+    get gamemode(): GameMode {
+        let c = [GameMode.adventure, GameMode.creative, GameMode.spectator, GameMode.survival];
+        for (let g of c) {
+            if (this.entity.matches({
+                gameMode: g
+            })) {
+                return g;
+            }
+        }
+        return GameMode.creative;
     }
 
 
@@ -93,13 +74,13 @@ export default class ExPlayer extends ExEntity {
             }
         })
     }
-    
+
     override setPosition(position: Vector3, dimension?: Dimension) {
         this.entity.teleport(position, {
             "dimension": dimension
         });
     }
-    override get rotation(){
+    override get rotation() {
         return super.rotation;
     }
     override set rotation(ivec: IVector2) {

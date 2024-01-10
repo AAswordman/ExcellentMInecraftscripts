@@ -5,15 +5,15 @@ import TalentData from "./TalentData.js";
 export default class PomData {
     licenseRead?: boolean;
 
-    talent: TalentData = new TalentData();
+    talent!: TalentData;
     occupationChooseNum?: number;
 
-    pointRecord?: {
+    pointRecord!: {
         deathPoint: [string, Vector3][];
         point: [string, string, Vector3][]
     };
 
-    tasks?: {
+    tasks!: {
         daily: {
             complete: number[][],
             all: number[][],

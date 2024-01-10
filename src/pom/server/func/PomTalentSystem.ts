@@ -18,6 +18,7 @@ import ItemTagComponent from '../data/ItemTagComponent.js';
 import PomOccupationSkillTrack from '../entities/PomOccupationSkillTrack.js';
 import damageShow from "../helper/damageShow.js";
 import GameController from "./GameController.js";
+import Vector3 from '../../../modules/exmc/math/Vector3.js';
 
 export default class PomTalentSystem extends GameController {
     strikeSkill = true;
@@ -192,6 +193,12 @@ export default class PomTalentSystem extends GameController {
 
 
     onJoin(): void {
+        if (this.data.pointRecord == undefined) this.data.pointRecord = {
+            deathPoint: <[string, Vector3][]>[],
+            point: <[string, string, Vector3][]>[]
+        };
+        if (this.data.talent == undefined) this.data.talent = new TalentData();
+
         this.getEvents().exEvents.onLongTick.subscribe(e => {
             if (e.currentTick % 20 === 0) {
                 const bag = this.exPlayer.getBag();

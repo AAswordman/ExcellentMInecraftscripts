@@ -40,15 +40,29 @@ export default class ExSystem {
         }
         return res + '}';
     }
-    public static isServer(){
+    public static isServer() {
         return true;
     }
 
-    public static tickTask(tasks:()=>void):TickDelayTask{
-        if(this.isServer()){
+    public static tickTask(tasks: () => void): TickDelayTask {
+        if (this.isServer()) {
             return new ExServerTickDelayTask(tasks);
-        }else{
+        } else {
             return new ExServerTickDelayTask(tasks);
         }
+    }
+    public static deepEqual(obj1: object | number | string | boolean | Array<unknown>,
+        obj2: object | number | string | boolean | Array<unknown>) {
+        if(typeof obj1 !== typeof obj2){
+            return false;
+        }
+        if (typeof obj1 === 'number' || typeof obj1 === 'string' || typeof obj1 === 'boolean') {
+            return obj1 === obj2;
+        }
+        return JSON.stringify(obj1) === JSON.stringify(obj2);
+
+    }
+    public static deepClone(obj1: object) {
+        return JSON.parse(JSON.stringify(obj1));
     }
 }

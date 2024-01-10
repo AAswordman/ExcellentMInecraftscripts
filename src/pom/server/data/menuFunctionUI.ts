@@ -17,6 +17,7 @@ import ExActionAlert from "../../../modules/exmc/server/ui/ExActionAlert.js";
 import WarningAlertUI from "../ui/WarningAlertUI.js";
 import { pomDifficultyMap } from "./GameDifficulty.js";
 import { zeroIfNaN } from "../../../modules/exmc/utils/tool.js";
+import { getArmorData, hasArmorData } from "../items/getArmorData.js";
 
 export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
     return {
@@ -227,8 +228,25 @@ BunBun不是笨笨    在矿里的小金呀
                     "page": (client, ui) => {
                         let source = client.player;
                         let scores = ExPlayer.getInstance(source).getScoresManager();
+                        const armors = [
+                            client.talentSystem.headComp,
+                            client.talentSystem.chestComp,
+                            client.talentSystem.legComp,
+                            client.talentSystem.feetComp
+                        ];
+                        let armorData = 0;
+                        armors.forEach(v => {
+                            let id = ((v?.manager as ItemStack).type.id);
+                            if (hasArmorData(id)) {
+                                armorData += getArmorData(id);
+                            } else if(v?.hasComponent("armor_protection")){
+                                armorData += v.getComponentWithGroup("armor_protection");
+                            }
+                        });
+
                         let msg = [`   ${lang.menuUIMsgBailan94}: ${client.gameId}`,
                         `   ${lang.menuUIMsgBailan96}: ${scores.getScore("wbfl")}`,
+                        `   ${`盔甲值`}: ${armorData}`,
                         `   ${`物理防御`}: ${MathUtil.round(1 - (1 - client.getDifficulty().physicalDefenseAddFactor) * (1 - client.talentSystem.armor_protection[1] / 100), 3) * 100}％ + ${Math.round(client.talentSystem.armor_protection[3])}`,
                         `   ${`魔法防御`}: ${MathUtil.round(1 - (1 - client.getDifficulty().magicDefenseAddFactor) * (1 - client.talentSystem.armor_protection[0] / 100), 3) * 100}％ + ${Math.round(client.talentSystem.armor_protection[2])}`,
                         `   ${lang.menuUIMsgBailan97}: ${scores.getScore("wbwqlq")}`,
@@ -439,10 +457,6 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                 "deathback": {
                     "text": lang.menuUIMsgBailan32,
                     "page": (client, ui): MenuUIAlertView<PomClient>[] => {
-                        if (client.data.pointRecord == undefined) client.data.pointRecord = {
-                            deathPoint: <[string, Vector3][]>[],
-                            point: <[string, string, Vector3][]>[]
-                        };
                         let arr = <MenuUIAlertView<PomClient>[]>[
                             {
                                 "type": "text_title",
@@ -509,8 +523,8 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 "msg": lang.menuUIMsgBailan41 + client.exPlayer.position.floor().toString(),
                                 "type": "button",
                                 "function": (client, ui) => {
-                                    if ((client.data.pointRecord?.point.length ?? 0) <= 10) {
-                                        client.data.pointRecord?.point.push([client.exPlayer.dimension.id, "", client.exPlayer.position.floor()]);
+                                    if ((client.data.pointRecord.point.length ?? 0) <= 10) {
+                                        client.data.pointRecord.point.push([client.exPlayer.dimension.id, "", client.exPlayer.position.floor()]);
                                         return true;
                                     } else {
                                         client.sayTo("§b传送点不得超过10个");

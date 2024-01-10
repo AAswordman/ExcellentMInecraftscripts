@@ -1,70 +1,101 @@
 import { Entity } from '@minecraft/server';
 import { Serialize } from '../../../utils/Serialize.js';
 import GZIPUtil from '../../../utils/GZIPUtil.js';
+import ExSystem from '../../../utils/ExSystem.js';
 
 
 
-export default class EntityPropCache<T>{
+export default class EntityPropCache<T extends object> {
     cache!: T;
-    tagFrom!: string;
     entity: Entity;
     constructor(entity: Entity) {
         this.entity = entity;
 
     }
-    load() {
-        let tag = this._getStringCache();
-        if (tag !== undefined && tag !== "") {
-            try {
-                tag = GZIPUtil.unzipString(tag);
-            } catch (e) {
-                console.warn("Unable to unzip cache as " + this.entity.typeId);
-                return undefined;
-            }
-            this.tagFrom = tag;
-            return tag;
-        }
-        return undefined;
-    }
-    get(def: T) {
+    get(def: T = {} as T) {
         if (this.cache) {
             return this.cache;
         } else {
-            let res = this.load();
-            if (!res) {
-                this.cache = def;
-                this.save();
-                return def;
-            } else {
-                this.cache = Serialize.from(res, def);
-                return this.cache;
+            let res = this._getCache(def);
+            this.cache = res;
+            return res;
+        }
+    }
+
+    save() {
+        this._setCache(this.cache);
+    }
+
+    public keyInterval = "-|-";
+    public keyCache = "";
+    private compareObject: T = {} as T;
+    _getCache(def: T) {
+        let old = (this.entity.getDynamicProperty("__cache0:") as string | undefined);
+        if (old) {
+            try {
+                //transform save
+                this.entity.setDynamicProperty("__cache0:", undefined);
+                let obj = Serialize.from(GZIPUtil.unzipString(old)) as T;
+                this.compareObject = ExSystem.deepClone(obj);
+                this.keyCache = Object.keys(obj).join(this.keyInterval);
+                this.entity.setDynamicProperty("__cache0:keys", this.keyCache);
+                return obj;
+            } catch (e) {
+                console.warn("Unable to unzip cache as " + this.entity.typeId);
+                //use def
             }
         }
+        let keys = (this.keyCache = (this.entity.getDynamicProperty("__cache0:keys") as string ?? "")).split(this.keyInterval);
 
-    }
-    save() {
-        let nfrom = Serialize.to(this.cache);
-        if (nfrom !== this.tagFrom) {
-            let m = GZIPUtil.zipString(nfrom)
-            this._setStringCache(m);
-            // ExGameConfig.console.info("setDynamicProperty len "+m.length);
-            // ExGameConfig.console.info("setDynamicO len "+nfrom.length);
-            this.tagFrom = nfrom;
+        if (keys.length === 0) {
+            this.compareObject = ExSystem.deepClone(def);
+            this.keyCache = Object.keys(def).join(this.keyInterval);
+            this.entity.setDynamicProperty("__cache0:keys", this.keyCache);
+            return def;
         }
-
+        const obj: { [x: string]: unknown } = {}
+        for (let key of keys) {
+            let tag = (this.entity.getDynamicProperty("__cache0:" + key) as string ?? "");
+            if (tag !== undefined && tag !== "") {
+                if ((typeof tag === "number") || (typeof tag === "boolean")) {
+                    obj[key] = tag;
+                } else {
+                    try {
+                        tag = GZIPUtil.unzipString(tag);
+                    } catch (e) {
+                        console.warn("Unable to unzip cache as " + this.entity.typeId);
+                        continue;
+                    }
+                    let msg = Serialize.from(tag, undefined);
+                    if (msg) {
+                        obj[key] = msg;
+                    }
+                }
+            }
+        }
+        this.compareObject = ExSystem.deepClone(obj);
+        this.keyCache = Object.keys(obj).join(this.keyInterval);
+        return obj as T;
     }
-
-    _getStringCache() {
-        return (this.entity.getDynamicProperty("__cache0:") as string ?? "");
-        //  + (this.entity.getDynamicProperty("__cache1:") as string ?? "")
-        //     + (this.entity.getDynamicProperty("__cache2:") as string ?? "") + (this.entity.getDynamicProperty("__cache3:") as string ?? "");
+    _setCache(obj: any) {
+        for (let key in obj) {
+            if (!(key in this.compareObject) || !ExSystem.deepEqual(obj[key], (this.compareObject as any)[key])) {
+                this._setCacheByKey(key, obj[key]);
+                (this.compareObject as any)[key] = obj[key];
+            }
+        }
+        let keys = Object.keys(obj).join(this.keyInterval);
+        if (this.keyCache !== keys) {
+            this.keyCache = keys;
+            this.entity.setDynamicProperty("__cache0:keys", this.keyCache);
+        }
     }
-    _setStringCache(str: string) {
-        // for (let i = 0; i < 1; i++) {
-        //     let start = i * cutLength, end = (i + 1) * cutLength;
-        //     let is = str.substring(Math.min(start, str.length), Math.min(end, str.length));
-        //     this.entity.setDynamicProperty("__cache" + i + ":", is);
-        // }
-        this.entity.setDynamicProperty("__cache0:", str)
+    _setCacheByKey(key: string, obj: any) {
+        if ((typeof obj === "number") || (typeof obj === "boolean")) {
+            this.entity.setDynamicProperty("__cache0:" + key, obj)
+        }
+        let nfrom = Serialize.to(obj);
+        let m = GZIPUtil.zipString(nfrom);
+        this.entity.setDynamicProperty("__cache0:" + key, m);
     }
 }

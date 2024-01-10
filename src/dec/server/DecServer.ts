@@ -337,7 +337,7 @@ export default class DecServer extends ExGameServer {
                             repeat_times -= 1
                         }
                         let p = ExPlayer.getInstance(<Player>e.source)
-                        if (p.getGameMode() == GameMode.survival || p.getGameMode() == GameMode.adventure) {
+                        if (p.gamemode == GameMode.survival || p.gamemode == GameMode.adventure) {
                             p.getBag().clearItem(e.itemStack.typeId, 1)
                         }
                     }

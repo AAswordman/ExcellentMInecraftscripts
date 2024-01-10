@@ -6,15 +6,15 @@ import ExGameConfig from '../../../modules/exmc/server/ExGameConfig.js';
 import PomBossController from './PomBossController.js';
 import PomServer from '../PomServer.js';
 import PomClient from '../PomClient.js';
-import ExSound from '../../../modules/exmc/server/env/ExSound.js';
+import ExMusic from '../../../modules/exmc/server/env/ExMusic.js';
 import ExGame from '../../../modules/exmc/server/ExGame.js';
 
 export default class PomHeadlessGuardBoss extends PomBossController {
     static typeId = "wb:headless_guard"
-    music: ExSound;
+    music: ExMusic;
     constructor(e: Entity, server: PomServer) {
         super(e, server);
-        this.music = server.getSound("music.wb.unknown_world", "2:16");
+        this.music = server.getMusic("music.wb.unknown_world", "2:16");
     }
     override initBossEntity(): void {
         for (let c of this.barrier.clientsByPlayer()) {
