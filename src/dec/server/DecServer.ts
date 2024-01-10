@@ -1,4 +1,4 @@
-import { Player, MinecraftDimensionTypes, world, Block, Direction, GameMode } from '@minecraft/server';
+import { Player, MinecraftDimensionTypes, world, Block, Direction, GameMode, Entity, ScriptEventSource, Dimension, DimensionType, DimensionTypes, system, ScriptEventCommandMessageAfterEvent, EntityQueryOptions, EntityApplyDamageOptions, EntityDamageCause } from '@minecraft/server';
 import ExConfig from "../../modules/exmc/ExConfig.js";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import DecClient from "./DecClient.js";
@@ -198,13 +198,20 @@ export default class DecServer extends ExGameServer {
 
         let multiple_blocks_items: { [key: string]: string }
         multiple_blocks_items = {
-            'dec:patterned_vase_red': 'dec:patterned_vase_red_block'
+            'dec:patterned_vase_red': 'dec:patterned_vase_red_block',
+            'dec:golden_fence': 'dec:golden_fence_block'
         }
-        let multiple_blocks: { [key: string]: { 'height': number, 'sound': string } }
+        let multiple_blocks: { [key: string]: { 'height': number, 'sound': string, 'facing': boolean } }
         multiple_blocks = {
             'dec:patterned_vase_red_block': {
-                'height': 3,
-                'sound': 'stone'
+                'height': 2,
+                'sound': 'stone',
+                'facing': false
+            },
+            'dec:golden_fence_block': {
+                'height': 2,
+                'sound': 'stone',
+                'facing': true
             }
         }
         this.getEvents().events.afterPlayerBreakBlock.subscribe(e => {
@@ -285,7 +292,6 @@ export default class DecServer extends ExGameServer {
                     }
                 }
             } else if (e.itemStack.typeId in multiple_blocks_items && place_block_wait_tick <= 0) {
-                //三格的方块
                 let b = e.block
                 place_block_wait_tick = 2
                 //e.source.playAnimation('')
@@ -306,32 +312,50 @@ export default class DecServer extends ExGameServer {
                     let repeat_times_jud = repeat_times
                     let place_admit = true
                     let test_block = b
-                    while (repeat_times_jud > 0){
-                        if(!test_block.isAir){
+                    while (repeat_times_jud > 0) {
+                        if (!test_block.isAir) {
                             place_admit = false
                             break
                         } else {
-                            test_block = <Block>test_block.dimension.getBlock(new Vector3(test_block.location.x, test_block.location.y+1, test_block.location.z))
+                            test_block = <Block>test_block.dimension.getBlock(new Vector3(test_block.location.x, test_block.location.y + 1, test_block.location.z))
                             repeat_times_jud -= 1
                         }
                     }
                     test_block = b
                     let loc = 0
-                    if (place_admit){
-                        while (repeat_times > 0){
-                            test_block.dimension.runCommandAsync('setblock ' + String(test_block.location.x) + ' ' + String(test_block.location.y) + ' ' + String(test_block.location.z) + ' '+multiple_blocks_items[e.itemStack.typeId]+' ["dec:location"='+String(loc)+']')
-                            test_block = <Block>test_block.dimension.getBlock(new Vector3(test_block.location.x, test_block.location.y+1, test_block.location.z))
-                            loc +=1
+                    if (place_admit) {
+                        while (repeat_times > 0) {
+                            let states_str = ''
+                            if (multiple_blocks[multiple_blocks_items[e.itemStack.typeId]]['facing']) {
+                                states_str = ' ["dec:location"=' + String(loc) + ',"dec:facing"="' + get_direction_str(e.source) + '"]'
+                            } else {
+                                states_str = ' ["dec:location"=' + String(loc) + ']'
+                            }
+                            test_block.dimension.runCommandAsync('setblock ' + String(test_block.location.x) + ' ' + String(test_block.location.y) + ' ' + String(test_block.location.z) + ' ' + multiple_blocks_items[e.itemStack.typeId] + states_str)
+                            test_block = <Block>test_block.dimension.getBlock(new Vector3(test_block.location.x, test_block.location.y + 1, test_block.location.z))
+                            loc += 1
                             repeat_times -= 1
                         }
                         let p = ExPlayer.getInstance(<Player>e.source)
-                        if (p.getGameMode() == GameMode.survival && p.getGameMode() == GameMode.adventure) {
-                            p.getBag().clearItem('dec:patterned_vase_red', 1)
+                        if (p.getGameMode() == GameMode.survival || p.getGameMode() == GameMode.adventure) {
+                            p.getBag().clearItem(e.itemStack.typeId, 1)
                         }
                     }
                 }
             }
         });
+        const get_direction_str = (p: Player) => {
+            let r = p.getRotation().y
+            if (-45 < r && r <= 45) {
+                return 'south'
+            } else if (45 < r && r <= 135) {
+                return 'west'
+            } else if (-135 < r && r <= -45) {
+                return 'east'
+            } else {
+                return 'north'
+            }
+        }
         this.getEvents().events.afterPlayerPlaceBlock.subscribe(e => {
             const block = e.block
             //种植架
@@ -502,8 +526,80 @@ export default class DecServer extends ExGameServer {
                     trellis_cover_wither_spread(block_zp)
                     trellis_cover_wither_spread(block_zn)
                 }
+            } else if (e.id == 'dec:sprint') {
+                let power = Number(e.message)
+                let p = (<Entity>e.sourceEntity)
+                let r = p.getViewDirection()
+                if (power < 0) {
+                    p.applyKnockback(r.x, r.z, power, 0)
+                } else {
+                    p.applyKnockback(-r.x, -r.z, -power, 0)
+                }
+            } else if (e.id == 'dec:sustain_particle') {
+                //格式：粒子id;重复生成次数;生成间隔刻
+                let para_arr = message_split(e.message)
+                let dim = <Dimension>script_event_location(e)[0]
+                let i = 0
+                while (i < Number(para_arr[1])) {
+                    system.runTimeout(() => {
+                        let loc = <Vector3>script_event_location(e)[1]
+                        dim.spawnParticle(para_arr[0].toString(), loc)
+                    }, i * Number(para_arr[2]))
+                    i++
+                }
+            } else if (e.id == 'dec:sustain_damage') {
+                //格式：伤害类型;伤害大小;重复判断次数;判断间隔刻
+                let para_arr = message_split(e.message)
+                let dim = <Dimension>script_event_location(e)[0]
+                let damege_type_string : string = para_arr[0].toString()
+                let damage_type : EntityDamageCause = EntityDamageCause[damege_type_string as keyof typeof EntityDamageCause]
+                const damage_option: EntityApplyDamageOptions = {
+                    cause: damage_type,
+                    damagingEntity: e.sourceEntity
+                }
+                let i = 0
+                while (i < Number(para_arr[2])) {
+                    system.runTimeout(() => {
+                        let loc = <Vector3>script_event_location(e)[1]
+                        const attackable_entity_option: EntityQueryOptions = {
+                            location: loc,
+                            maxDistance: 2,
+                            excludeTypes: ['minecraft:item', 'minecraft:painting', 'minecraft:armor_stand']
+                        }
+                        dim.getEntities(attackable_entity_option).forEach(ent => {
+                            ent.applyDamage(Number(para_arr[1]), damage_option)
+                        })
+                    }, i * Number(para_arr[3]))
+                    i++
+                }
             }
         })
+        const script_event_location = (source: ScriptEventCommandMessageAfterEvent) => {
+            let loc: Vector3
+            let dim = world.getDimension('overworld')
+            if (source.sourceType == ScriptEventSource.Block) {
+                loc = <Vector3>source.sourceBlock?.location
+                dim = <Dimension>source.sourceBlock?.dimension
+            } else {
+                loc = <Vector3>source.sourceEntity?.location
+                dim = <Dimension>source.sourceEntity?.dimension
+            }
+            return [dim, loc]
+        }
+        const message_split = (message: String) => {
+            let arr = new Array<String>
+            let cache = ''
+            for (let m of message) {
+                if (m == ';') {
+                    arr.push(cache)
+                    cache = ''
+                } else {
+                    cache += m
+                }
+            }
+            arr.push(cache)
+            return arr
+        }
 
     }
 
