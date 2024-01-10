@@ -236,11 +236,13 @@ BunBun不是笨笨    在矿里的小金呀
                         ];
                         let armorData = 0;
                         armors.forEach(v => {
-                            let id = ((v?.manager as ItemStack).type.id);
-                            if (hasArmorData(id)) {
-                                armorData += getArmorData(id);
-                            } else if(v?.hasComponent("armor_protection")){
-                                armorData += v.getComponentWithGroup("armor_protection");
+                            if (v != undefined){
+                                let id = ((v?.manager as ItemStack).type.id);
+                                if (hasArmorData(id)) {
+                                    armorData += getArmorData(id);
+                                } else if(v?.hasComponent("armor_protection")){
+                                    armorData += v.getComponentWithGroup("armor_protection");
+                                }
                             }
                         });
 
