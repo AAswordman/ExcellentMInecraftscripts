@@ -263,7 +263,6 @@ export default class PomTalentSystem extends GameController {
         //玩家减伤
         this.getEvents().exEvents.afterPlayerHurt.subscribe((e) => {
             if (e.damage > 10000000 || e.damage < 0) return;
-            console.warn(e.damageSource.cause)
             // console.warn("hurt"+e.damage,"now"+this.exPlayer.health);
             let damage = (this.exPlayer.getPreRemoveHealth() ?? 0) + e.damage;
             let add = 0;
@@ -400,7 +399,7 @@ export default class PomTalentSystem extends GameController {
                 this.itemOnHandComp = undefined;
             }
             this.updatePlayerAttribute();
-            this.exPlayer.triggerEvent("hp:100000");
+            this.exPlayer.triggerEvent("hp:50000");
         });
 
         //设置职业技能
