@@ -177,15 +177,15 @@ export default class PomMagicSystem extends GameController {
         // let healthListener = new VarOnChangeListener((n, l) => {
         //     if (this.gameHealth === this.gameMaxHealth && this.gameHealth + (n - (l ?? 0)) > this.gameMaxHealth) return;
         //     // if (n < 40000) {
-        //     //     health.setCurrentValue(50000 + this.gameHealth);
+        //     //     health.setCurrentValue(25000 + this.gameHealth);
         //     // }
-        //     if (50000 + this.gameHealth !== n) {
+        //     if (25000 + this.gameHealth !== n) {
         //         // console.warn(n,l);
         //         let change = n - (l ?? 0);
         //         this.gameHealth = MathUtil.clamp(this.gameHealth + change, -1, this.gameMaxHealth);
         //         console.warn(healthListener.value,health.currentValue);
-        //         healthListener.value = 50000 + this.gameHealth;
-        //         health.setCurrentValue(50000 + this.gameHealth);
+        //         healthListener.value = 25000 + this.gameHealth;
+        //         health.setCurrentValue(25000 + this.gameHealth);
         //     }
         // }, health!.currentValue);
         let healthListener = new VarOnChangeListener((n, l) => {
@@ -196,8 +196,8 @@ export default class PomMagicSystem extends GameController {
             } else {
                 this.gameHealth = Math.min(this.gameHealth + change, this.gameMaxHealth);
             }
-            healthListener.value = 50000;
-            health.setCurrentValue(50000);
+            healthListener.value = 25000;
+            health.setCurrentValue(25000);
         }, health!.currentValue);
         // this.getEvents().exEvents.tick.subscribe(e => {
         //     healthListener.upDate(health!.currentValue);
@@ -212,12 +212,12 @@ export default class PomMagicSystem extends GameController {
         let n: number
 
         this.getEvents().exEvents.afterPlayerSpawn.subscribe(e => {
-            this.exPlayer.triggerEvent("hp:100000");
+            this.exPlayer.triggerEvent("hp:50000");
             //设置默认游戏血量
 
             //绕开常规逻辑设置血量
-            healthListener.value = 50000;
-            health.setCurrentValue(50000);
+            healthListener.value = 25000;
+            health.setCurrentValue(25000);
             if (e.initialSpawn) {
                 this.gameHealth = Math.min(this.gameMaxHealth, ((n = this.player.getDynamicProperty("health") as number) <= 0) || n === undefined ? this.gameMaxHealth : n);
             } else {

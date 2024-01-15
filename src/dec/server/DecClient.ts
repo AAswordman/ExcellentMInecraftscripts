@@ -336,10 +336,6 @@ export default class DecClient extends ExGameClient {
                     ep.addEffect(MinecraftEffectTypes.JumpBoost, 6 * 20, 1, true)
                     ep.addEffect(MinecraftEffectTypes.SlowFalling, 6 * 20, 0, true)
                 }
-                //巨型蝙蝠翅
-                if (this.exPlayer.getBag().getSlot(EquipmentSlot.Chest).typeId == 'dec:giant_bat_wings') {
-                    ep.addEffect(MinecraftEffectTypes.SlowFalling, 6 * 20, 0, true)
-                }
                 //紫水晶套装效果
                 if (this.useArmor === ArmorPlayerDec.amethyst) {
                     if (DecGlobal.isDec()) {
@@ -479,7 +475,7 @@ export default class DecClient extends ExGameClient {
                     this.exPlayer.command.run(['tellraw @a { "rawtext" : [ { "translate" : "text.dec:hunter_book_success.name" } ] }',
                         'tellraw @a { "rawtext" : [ { "translate" : "text.dec:hunter_book_new.name" } ] }',
                         'tellraw @s { "rawtext" : [ { "translate" : "text.dec:hunter_book_coordinate_1.name" },{ "score":{ "name": "hunter_x","objective": "global" } },{ "translate" : "text.dec:hunter_book_coordinate_2.name" },{ "score":{ "name": "hunter_z","objective": "global" } } ] }',
-                        'xp ' + Math.floor(5000 + Math.random() * 4000) + ' @s',
+                        'xp ' + (5000 + Math.random() * 4000) + ' @s',
                         'loot give @s loot "items/hunter_book"']);
                 } else {
                     this.exPlayer.command.run(['tellraw @s { "rawtext" : [ { "translate" : "text.dec:hunter_book_not_complete.name" } ] }',
