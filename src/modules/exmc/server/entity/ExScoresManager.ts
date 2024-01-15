@@ -61,6 +61,15 @@ export default class ExScoresManager {
         world.scoreboard.getObjective(name)?.removeParticipant(identity);
         return true;
     }
+    initializeNumber(name: string,value: number) {
+        //这是lly写的，用来初始化计分板上某一项的值。若未初始化返回true，初始化了返回false
+        if (!this.hasScore(name)){
+            this.setScore(name,value)
+            return true
+        } else {
+            return false
+        }
+    }
 
 }
 export class Objective {

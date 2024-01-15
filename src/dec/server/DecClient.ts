@@ -1,4 +1,4 @@
-import { EntityDamageCause, EquipmentSlot, GameMode, ItemStack, MinecraftDimensionTypes, Player } from "@minecraft/server";
+import { EntityDamageCause, EquipmentSlot, GameMode, ItemStack, MinecraftDimensionTypes, Player, system } from "@minecraft/server";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import ExGameServer from "../../modules/exmc/server/ExGameServer.js";
 import { ArmorData, ArmorPlayerDec, ArmorPlayerPom } from "./items/ArmorData.js";
@@ -18,7 +18,6 @@ export default class DecClient extends ExGameClient {
     useArmor: undefined | ArmorData = undefined;
     constructor(server: ExGameServer, id: string, player: Player) {
         super(server, id, player);
-
     }
 
     tmpV = new Vector3(0, 0, 0);
@@ -38,6 +37,7 @@ export default class DecClient extends ExGameClient {
             }
         }
     }
+    
     override onJoin(): void {
         super.onJoin();
         this.exPlayer.command.run('fog @s remove \"night_event\"')
@@ -483,7 +483,7 @@ export default class DecClient extends ExGameClient {
                         'loot give @s loot "items/hunter_book"']);
                 } else {
                     this.exPlayer.command.run(['tellraw @s { "rawtext" : [ { "translate" : "text.dec:hunter_book_not_complete.name" } ] }',
-                    'tellraw @s { "rawtext" : [ { "translate" : "text.dec:hunter_book_coordinate_1.name" },{ "score":{ "name": "hunter_x","objective": "global" } },{ "translate" : "text.dec:hunter_book_coordinate_2.name" },{ "score":{ "name": "hunter_z","objective": "global" } } ] }']);
+                        'tellraw @s { "rawtext" : [ { "translate" : "text.dec:hunter_book_coordinate_1.name" },{ "score":{ "name": "hunter_x","objective": "global" } },{ "translate" : "text.dec:hunter_book_coordinate_2.name" },{ "score":{ "name": "hunter_z","objective": "global" } } ] }']);
                 }
             }
         });
