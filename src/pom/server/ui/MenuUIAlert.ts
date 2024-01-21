@@ -7,7 +7,7 @@ import ExInterworkingPool from '../../../modules/exmc/interface/ExInterworkingPo
 export class MenuUIAlertView<T extends ExGameClient> {
     msg?: string;
     msgs?: string[];
-    type!: "textWithBg" | "toggle" | "text_title" | "padding" | "button" | "text" | "buttonList2" | "buttonList3" | "img_adjustToScreen";
+    type!: "textWithBg" | "toggle" | "text_title" | "padding" | "button" | "text" | "buttonList2" | "buttonList3" | "img_adjustToScreen" | "canvas";
     state?: (client: T, ui: MenuUIAlert<T>, view: this) => boolean;
     function?: (client: T, ui: MenuUIAlert<T>, view: this) => boolean;
     buttons?: ((client: T, ui: MenuUIAlert<T>, view: this) => boolean)[];

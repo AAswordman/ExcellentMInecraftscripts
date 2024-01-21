@@ -239,7 +239,7 @@ BunBun不是笨笨    在矿里的小金呀
                             let id = ((v?.manager as ItemStack).type.id);
                             if (hasArmorData(id)) {
                                 armorData += getArmorData(id);
-                            } else if(v?.hasComponent("armor_protection")){
+                            } else if (v?.hasComponent("armor_protection")) {
                                 armorData += v.getComponentWithGroup("armor_protection");
                             }
                         });
@@ -997,6 +997,67 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 }]]).showPage();
                                 return false;
                             }
+                        }
+                    ]
+                },
+                "canvas": {
+                    "text": "地图",
+                    "page": [
+                        {
+                            "type": "padding"
+                        },
+                        {
+                            "type": "padding"
+                        },
+                        {
+                            "type": "padding"
+                        },
+                        {
+                            "type": "padding"
+                        },
+                        {
+                            "type": "padding"
+                        },
+                        {
+                            "type": "padding"
+                        },
+                        {
+                            "type": "padding"
+                        },
+
+                        {
+                            "type": "canvas",
+                            "msg": (() => {
+                                const width = 512, height = 512;
+                                let msg = "";
+                                const dataColor = `
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+`.split('\n')
+                                let color = "";
+                                for(let i = 0; i < dataColor.length;i++){
+                                    for(let j = 0; j < dataColor[i].length;j++){
+                                        color+=dataColor[j][i];
+                                    }
+                                }
+                                for(let i = 0; i < height; i++){
+                                    msg += color[Math.floor((i/height)*color.length)].repeat(width)
+                                    msg += "\n"
+                                }
+                                return msg;
+                            })()
                         }
                     ]
                 }

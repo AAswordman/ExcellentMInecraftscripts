@@ -26,7 +26,7 @@ export default class PomEnChantSystem extends GameController {
                     if (item !== undefined) {
                         lore = new ExColorLoreUtil(item);
                         lore.delete("enchants");
-                        this.exPlayer.getBag().setItem(this.player.selectedSlot, item);
+                        bag.itemOnMainHand = item;
                     }
                 }
             }
