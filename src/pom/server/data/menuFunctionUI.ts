@@ -236,6 +236,7 @@ BunBun不是笨笨    在矿里的小金呀
                         ];
                         let armorData = 0;
                         armors.forEach(v => {
+                            if (!v) return;
                             let id = ((v?.manager as ItemStack).type.id);
                             if (hasArmorData(id)) {
                                 armorData += getArmorData(id);
@@ -1024,12 +1025,12 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                         {
                             "type": "padding"
                         },
-
                         {
-                            "type": "canvas",
-                            "msg": (() => {
-                                const width = 512, height = 512;
-                                let msg = "";
+                            "type": "button",
+                            "msg": "test",
+                            "function": (client, ui) => {
+                                const width = 128, height = 128;
+                                let msg = "", msg2 = "", msg3 = "", msg4 = "", msg5 = "", msg6 = "";
                                 const dataColor = `
 
 
@@ -1045,19 +1046,107 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
 
 
 
-`.split('\n')
-                                let color = "";
-                                for(let i = 0; i < dataColor.length;i++){
-                                    for(let j = 0; j < dataColor[i].length;j++){
-                                        color+=dataColor[j][i];
+`.split('\n');
+                                const dataColor2 = `
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+`.split('\n');
+                                let color = dataColor.join("");
+                                let color2 = dataColor2.join("");
+                                const saturation = `
+
+
+
+
+
+
+`.replace(/\n/g, '');
+                                const grayscale = `
+
+
+
+
+
+
+`.replace(/\n/g, '');
+                                const saturation2 = `
+
+
+
+
+
+
+`.replace(/\n/g, '');
+                                const grayscale2 = `
+
+
+
+
+
+
+`.replace(/\n/g, '');
+                                const start = ""
+                                const start2 = ""
+                                for (let i = 0; i < height; i++) {
+                                    msg += start2[0]
+                                    for (let j = 0; j < width; j++) {
+                                        msg += color[Math.floor((j / width) * color.length)]
                                     }
-                                }
-                                for(let i = 0; i < height; i++){
-                                    msg += color[Math.floor((i/height)*color.length)].repeat(width)
                                     msg += "\n"
                                 }
-                                return msg;
-                            })()
+                                for (let i = 0; i < height; i++) {
+                                    msg2 += start2[1]
+                                    for (let j = 0; j < width; j++) {
+                                        msg2 += color2[Math.floor((j / width) * color2.length)]
+                                    }
+                                    msg2 += "\n"
+                                }
+                                for (let i = 0; i < height; i++) {
+                                    msg3 += start2[0] + saturation[Math.floor((i / height) * saturation.length)].repeat(width)
+                                    msg3 += "\n"
+                                }
+                                for (let i = 0; i < height; i++) {
+                                    msg4 += start2[1] + saturation2[Math.floor((i / height) * saturation2.length)].repeat(width)
+                                    msg4 += "\n"
+                                }
+                                for (let i = 0; i < height; i++) {
+                                    msg5 += start2[0]
+                                    for (let j = 0; j < width; j++) {
+                                        msg5 += grayscale[Math.floor((j / width) * grayscale.length)]
+                                    }
+                                    msg5 += "\n"
+                                }
+                                for (let i = 0; i < height; i++) {
+                                    msg6 += start2[1]
+                                    for (let j = 0; j < width; j++) {
+                                        msg6 += grayscale2[Math.floor((j / width) * grayscale2.length)]
+                                    }
+                                    msg6 += "\n"
+                                }
+                                let xui = new ExActionAlert()
+                                    .title("__pomAlertCanvas")
+                                    .button("canvasLayer1", () => { }, msg)
+                                    .button("canvasLayer2", () => { }, msg2)
+                                    .button("canvasLayer3", () => { }, msg3)
+                                    .button("canvasLayer4", () => { }, msg4)
+                                    .button("canvasLayer5", () => { }, msg5)
+                                    .button("canvasLayer6", () => { }, msg6)
+                                    .body("_uiBody");
+                                xui.show(client.player);
+                                return false;
+                            }
                         }
                     ]
                 }
