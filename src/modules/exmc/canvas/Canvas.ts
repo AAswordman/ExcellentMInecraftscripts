@@ -1,9 +1,50 @@
+import Matrix3 from "../math/Matrix3.js";
 import Bitmap from "./Bitmap.js";
 import Paint, { Style } from "./Paint.js";
 import PixelFilter, { Pixel } from "./PixelFilter.js";
 
 export default class Canvas {
     private _context: Bitmap;
+    private mat = new Matrix3(
+        1, 0, 0,
+        0, 1, 0,
+        0, 0, 1
+    );
+    getMatrix() {
+        return this.mat;
+    }
+    translate(x: number, y: number) {
+        this.getMatrix().mul(new Matrix3(
+            1, 0, x,
+            0, 1, y,
+            0, 0, 1
+        ));
+    }
+    scale(x: number, y: number) {
+        this.getMatrix().mul(new Matrix3(
+            x, 0, 0,
+            0, y, 0,
+            0, 0, 1
+        ));
+    }
+    scaleX(x: number) {
+        this.scale(x, 1);
+    }
+    scaleY(y: number) {
+        this.scale(1, y);
+    }
+
+    rotate(r: number, x: number, y: number) {
+        this.getMatrix().mul(new Matrix3(
+            Math.cos(r), -Math.sin(r), x,
+            Math.sin(r), Math.cos(r), y,
+            0, 0, 1
+        ));
+    }
+    rotateRad(r: number, x: number, y: number) {
+        this.rotate(r * Math.PI / 180, x, y);
+    }
+
     constructor(bitmap: Bitmap) {
         this._context = bitmap;
     }
@@ -22,36 +63,50 @@ export default class Canvas {
     }
     drawPixelFilter(filter: PixelFilter, paint: Paint) {
         for (let p of filter.pixels) {
-            if (p.x >= 0 && p.x <= this._context.width && p.y >= 0 && p.y <= this._context.height) {
-                this.drawPoint(p.x, p.y, paint);
-            }
+            this.drawPoint(p.x, p.y, paint);
         }
     }
 
     drawCircle(x: number, y: number, r: number, paint: Paint) {
         switch (paint.style) {
             case Style.STROKE:
-                this.drawPixelFilter(new PixelFilter().generate(x - r, y - r, x + r, y + r)
+                this.drawPixelFilter(new PixelFilter().operateMatrix(mat => mat.mul(this.mat)).generateBox(x - r, y - r, x + r, y + r)
                     .betweenDistance(r - paint.strokeWidth / 2, r + paint.strokeWidth / 2, x, y), paint);
                 break;
             case Style.FILL:
-                this.drawPixelFilter(new PixelFilter().generate(x - r, y - r, x + r, y + r)
+                this.drawPixelFilter(new PixelFilter().operateMatrix(mat => mat.mul(this.mat)).generateBox(x - r, y - r, x + r, y + r)
                     .maxDistance(r, x, y), paint);
                 break;
             case Style.FILL_AND_STROKE:
-                this.drawPixelFilter(new PixelFilter().generate(x - r, y - r, x + r, y + r)
+                this.drawPixelFilter(new PixelFilter().operateMatrix(mat => mat.mul(this.mat)).generateBox(x - r, y - r, x + r, y + r)
                     .maxDistance(r + paint.strokeWidth / 2, x, y), paint);
                 break;
         }
     }
     drawPoint(x: number, y: number, paint: Paint) {
-        this._context.setPixel(x, y, paint.color);
+        if (x >= 0 && x < this._context.width && y >= 0 && y < this._context.height) {
+            this._context.setPixel(x, y, paint.color);
+        }
     }
     drawLine() {
 
     }
-    drawRect() {
-
+    drawRect(x: number, y: number, width: number, height: number, paint: Paint) {
+        switch (paint.style) {
+            case Style.STROKE:
+                this.drawPixelFilter(new PixelFilter().operateMatrix(mat => mat.mul(this.mat)).generateBox(x - paint.strokeWidth / 2, y - paint.strokeWidth / 2,
+                    x + width + paint.strokeWidth / 2, y + height + paint.strokeWidth / 2)
+                    .difference(new PixelFilter().operateMatrix(mat => mat.mul(this.mat)).generateBox(x + paint.strokeWidth / 2, y + paint.strokeWidth / 2,
+                        x + width - paint.strokeWidth / 2, y + height - paint.strokeWidth / 2)), paint);
+                break;
+            case Style.FILL:
+                this.drawPixelFilter(new PixelFilter().operateMatrix(mat => mat.mul(this.mat)).generateBox(x, y, x + width, y + height), paint);
+                break;
+            case Style.FILL_AND_STROKE:
+                this.drawPixelFilter(new PixelFilter().operateMatrix(mat => mat.mul(this.mat)).generateBox(x - paint.strokeWidth / 2, y - paint.strokeWidth / 2,
+                    x + width + paint.strokeWidth / 2, y + height + paint.strokeWidth / 2), paint);
+                break;
+        }
     }
     drawRoundRect() {
 

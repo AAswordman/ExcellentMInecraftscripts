@@ -1,6 +1,7 @@
+import Matrix3 from "./Matrix3.js";
 
 export default class Vector2 {
-    
+
     public static readonly back = new Vector2(0, -1);
     public static readonly forward = new Vector2(0, 1);
     public static readonly left = new Vector2(-1, 0);
@@ -39,107 +40,153 @@ export default class Vector2 {
         }
         return this;
     }
-
-    public add(x: number, y: number): Vector2
-    public add(x: IVector2): Vector2
-    public add(x: IVector2 | number, y?: number) {
-        if (typeof x === 'number') {
-            if (typeof y === 'number') {
-                this.x += x;
-                this.y += y;
-            }
-        } else {
-            this.add(x.x, x.y);
-        }
-        return this;
-    }
-    public sub(x: number, y: number): Vector2
-    public sub(x: IVector2): Vector2
-    public sub(x: IVector2 | number, y?: number) {
-        if (typeof x === 'number') {
-            if (typeof y === 'number') {
-                this.x -= x;
-                this.y -= y;
-            }
-        } else {
-            this.sub(x.x, x.y);
-        }
-        return this;
-    }
-
-    public scl(x: number): Vector2;
-    public scl(x: IVector2): Vector2;
-    public scl(x: number, y: number, z: number): Vector2
-    public scl(x: number | IVector2, y?: number, z?: number): Vector2 {
-        if (typeof x === 'number') {
-            if (typeof y === 'number' && typeof z === 'number') {
-                this.x *= x;
-                this.y *= y;
-            } else if (y === undefined && z === undefined) {
-                this.x *= x;
-                this.y *= x;
-            }
-        } else {
-            this.sub(x.x, x.y);
-        }
-        return this;
-    }
-    public div(n: number) {
-        this.x /= n;
-        this.y /= n;
-        return this;
-    }
-    public len() {
-        return Math.sqrt(this.x ** 2 + this.y ** 2);
-    }
-    public len2() {
-        return this.x ** 2 + this.y ** 2;
-    }
-    public equals(other: Vector2) {
-        return this.x === other.x && this.y === other.y;
-    }
-    public distance(vec: Vector2) {
-        return this.clone().sub(vec).len();
-    }
-    public toString() {
-        return `(${this.x}, ${this.y})`;
-    }
-    [Symbol.toStringTag]() {
-        return this.toString();
-    }
-    public floor() {
-        this.x = Math.floor(this.x);
-        this.y = Math.floor(this.y);
-        return this;
-    }
-    public round() {
-        this.x = Math.round(this.x);
-        this.y = Math.round(this.y);
-        return this;
-    }
-    public ceil() {
-        this.x = Math.ceil(this.x);
-        this.y = Math.ceil(this.y);
-        return this;
-    }
-    public abs() {
-        this.x = Math.abs(this.x);
-        this.y = Math.abs(this.y);
-        return this;
-    }
-
-    public mul(n: IVector2): number;
-    public mul(n: IVector2) {
-        return n.x * this.x + n.y * this.y;
-    }
-
-    public normalize() {
-        this.div(this.len());
-        return this;
-    }
-
-    public clone() {
+    public cpy(): Vector2 {
         return new Vector2(this.x, this.y);
+    }
+
+    public add(vector: Vector2): Vector2 {
+        this.x += vector.x;
+        this.y += vector.y;
+        return this;
+    }
+
+    public sub(vector: Vector2): Vector2 {
+        this.x -= vector.x;
+        this.y -= vector.y;
+        return this;
+    }
+
+    public scl(scalar: number): Vector2 {
+        this.x *= scalar;
+        this.y *= scalar;
+        return this;
+    }
+
+    public sclX(scalar: number): Vector2 {
+        this.x *= scalar;
+        return this;
+    }
+
+    public sclY(scalar: number): Vector2 {
+        this.y *= scalar;
+        return this;
+    }
+
+    public len(): number {
+        return Math.sqrt(this.x * this.x + this.y * this.y);
+    }
+
+    public len2(): number {
+        return this.x * this.x + this.y * this.y;
+    }
+
+    public normalize(): Vector2 {
+        let len = this.len();
+        if (len != 0) {
+            this.x /= len;
+            this.y /= len;
+        }
+        return this;
+    }
+
+    public dot(vector: Vector2): number {
+        return this.x * vector.x + this.y * vector.y;
+    }
+
+    public dst(vector: Vector2): number {
+        let x_d = this.x - vector.x;
+        let y_d = this.y - vector.y;
+        return Math.sqrt(x_d * x_d + y_d * y_d);
+    }
+
+    public dst2(vector: Vector2): number {
+        let x_d = this.x - vector.x;
+        let y_d = this.y - vector.y;
+        return x_d * x_d + y_d * y_d;
+    }
+
+    public angle(): number {
+        let angle = Math.atan2(this.y, this.x);
+        if (angle < 0) angle += Math.PI * 2;
+        return angle;
+    }
+
+    public angleRad(): number {
+        return Math.atan2(this.y, this.x);
+    }
+
+    public angleDeg(): number {
+        return Math.atan2(this.y, this.x) * Math.PI / 180;
+    }
+
+    public rotate(angle: number): Vector2 {
+        let cos = Math.cos(angle);
+        let sin = Math.sin(angle);
+
+        let newX = this.x * cos - this.y * sin;
+        let newY = this.x * sin + this.y * cos;
+
+        this.x = newX;
+        this.y = newY;
+
+        return this;
+    }
+
+    public rotateRad(angle: number): Vector2 {
+        return this.rotate(angle * Math.PI / 180);
+    }
+
+    public rotateDeg(angle: number): Vector2 {
+        return this.rotate(angle * 180 / Math.PI);
+    }
+
+    public limit(limit: number): Vector2 {
+        if (this.len2() > limit * limit) {
+            this.normalize();
+            this.scl(limit);
+        }
+        return this;
+    }
+
+    public setLength(length: number): Vector2 {
+        this.normalize();
+        this.scl(length);
+        return this;
+    }
+
+    public lerp(target: Vector2, alpha: number): Vector2 {
+        let x = this.x + (target.x - this.x) * alpha;
+        let y = this.y + (target.y - this.y) * alpha;
+        this.x = x;
+        this.y = y;
+        return this;
+    }
+
+    public unrotate(matrix: Matrix3): Vector2 {
+        let m00 = matrix.val[0];
+        let m01 = matrix.val[1];
+        let m10 = matrix.val[3];
+        let m11 = matrix.val[4];
+
+        let x = this.x * m00 + this.y * m01;
+        let y = this.x * m10 + this.y * m11;
+
+        this.x = x;
+        this.y = y;
+
+        return this;
+    }
+
+    public unrotateRad(matrix: Matrix3): Vector2 {
+        return this.unrotate(matrix);
+    }
+
+    public unrotateDeg(matrix: Matrix3): Vector2 {
+        return this.unrotate(matrix);
+    }
+
+    public toString(): string {
+        return "(" + this.x + ", " + this.y + ")";
     }
 }
 
