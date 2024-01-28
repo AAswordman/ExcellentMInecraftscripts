@@ -18,6 +18,11 @@ import WarningAlertUI from "../ui/WarningAlertUI.js";
 import { pomDifficultyMap } from "./GameDifficulty.js";
 import { zeroIfNaN } from "../../../modules/exmc/utils/tool.js";
 import { getArmorData, hasArmorData } from "../items/getArmorData.js";
+import Canvas from "../../../modules/exmc/canvas/Canvas.js";
+import Bitmap from "../../../modules/exmc/canvas/Bitmap.js";
+import Paint, { Style } from "../../../modules/exmc/canvas/Paint.js";
+import ColorRGBA from "../../../modules/exmc/canvas/ColorRGBA.js";
+import PixelFilter from "../../../modules/exmc/canvas/PixelFilter.js";
 
 export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
     return {
@@ -1029,120 +1034,38 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                             "type": "button",
                             "msg": "test",
                             "function": (client, ui) => {
-                                const width = 128, height = 128;
-                                let msg = "", msg2 = "", msg3 = "", msg4 = "", msg5 = "", msg6 = "";
-                                const dataColor = `
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-`.split('\n');
-                                const dataColor2 = `
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-`.split('\n');
-                                let color = dataColor.join("");
-                                let color2 = dataColor2.join("");
-                                const saturation = `
-
-
-
-
-
-
-`.replace(/\n/g, '');
-                                const grayscale = `
-
-
-
-
-
-
-`.replace(/\n/g, '');
-                                const saturation2 = `
-
-
-
-
-
-
-`.replace(/\n/g, '');
-                                const grayscale2 = `
-
-
-
-
-
-
-`.replace(/\n/g, '');
-                                const start = ""
-                                const start2 = ""
-                                for (let i = 0; i < height; i++) {
-                                    msg += start2[0]
-                                    for (let j = 0; j < width; j++) {
-                                        msg += color[Math.floor((j / width) * color.length)]
-                                    }
-                                    msg += "\n"
-                                }
-                                for (let i = 0; i < height; i++) {
-                                    msg2 += start2[1]
-                                    for (let j = 0; j < width; j++) {
-                                        msg2 += color2[Math.floor((j / width) * color2.length)]
-                                    }
-                                    msg2 += "\n"
-                                }
-                                for (let i = 0; i < height; i++) {
-                                    msg3 += start2[0] + saturation[Math.floor((i / height) * saturation.length)].repeat(width)
-                                    msg3 += "\n"
-                                }
-                                for (let i = 0; i < height; i++) {
-                                    msg4 += start2[1] + saturation2[Math.floor((i / height) * saturation2.length)].repeat(width)
-                                    msg4 += "\n"
-                                }
-                                for (let i = 0; i < height; i++) {
-                                    msg5 += start2[0]
-                                    for (let j = 0; j < width; j++) {
-                                        msg5 += grayscale[Math.floor((j / width) * grayscale.length)]
-                                    }
-                                    msg5 += "\n"
-                                }
-                                for (let i = 0; i < height; i++) {
-                                    msg6 += start2[1]
-                                    for (let j = 0; j < width; j++) {
-                                        msg6 += grayscale2[Math.floor((j / width) * grayscale2.length)]
-                                    }
-                                    msg6 += "\n"
-                                }
+                                const canvas = new Canvas(new Bitmap(200,200));
+                                const paint = new Paint();
+
+                                paint.color = ColorRGBA.BROWN;
+                                paint.strokeWidth = 2;
+                                paint.style = Style.FILL;
+                                canvas.drawCircle(64,64,30,paint);
+
+                                paint.color = ColorRGBA.CORAL;
+                                paint.style = Style.STROKE;
+                                canvas.drawCircle(64,64,30,paint);
+
+
+                                paint.color = ColorRGBA.BLUE;
+                                paint.style = Style.FILL_AND_STROKE;
+                                canvas.drawCircle(40,40,25,paint);
+
+                                paint.color = ColorRGBA.AQUAMARINE;
+                                canvas.drawPixelFilter(new PixelFilter().generate(20,80,150,170)
+                                .lineCutRight(20,40,150,170)
+                                .inEllipse(60,100,150,170,120),paint);
+
+                                const layers = canvas.draw();
+
                                 let xui = new ExActionAlert()
                                     .title("__pomAlertCanvas")
-                                    .button("canvasLayer1", () => { }, msg)
-                                    .button("canvasLayer2", () => { }, msg2)
-                                    .button("canvasLayer3", () => { }, msg3)
-                                    .button("canvasLayer4", () => { }, msg4)
-                                    .button("canvasLayer5", () => { }, msg5)
-                                    .button("canvasLayer6", () => { }, msg6)
+                                    .button("canvasLayer1", () => { }, layers.layer1)
+                                    .button("canvasLayer2", () => { }, layers.layer2)
+                                    .button("canvasLayer3", () => { }, layers.layer3)
+                                    .button("canvasLayer4", () => { }, layers.layer4)
+                                    .button("canvasLayer5", () => { }, layers.layer5)
+                                    .button("canvasLayer6", () => { }, layers.layer6)
                                     .body("_uiBody");
                                 xui.show(client.player);
                                 return false;
