@@ -82,6 +82,11 @@ export default class PixelFilter {
         this.pixels.forEach(([p1,p2],_) => p.push(p2));
         return p;
     }
+    generatePixels(){
+        const p:[Pixel,Pixel][] = []
+        this.pixels.forEach(([p1,p2],_) => p.push([p1,p2]));
+        return p;
+    }
 
     merge(filter: PixelFilter) {
         for(let [k,v] of filter.pixels){

@@ -35,13 +35,13 @@ export default class Canvas {
     }
 
     rotate(r: number, x: number, y: number) {
-        this.translate(x,y);
+        this.translate(x, y);
         this.getMatrix().mul(new Matrix3(
             Math.cos(r), -Math.sin(r), 0,
             Math.sin(r), Math.cos(r), 0,
             0, 0, 1
         ));
-        this.translate(-x,-y);
+        this.translate(-x, -y);
     }
     rotateRad(r: number, x: number, y: number) {
         this.rotate(r * Math.PI / 180, x, y);
@@ -94,8 +94,26 @@ export default class Canvas {
 
     }
 
-    getRoundedRectFilter(x: number, y: number, width: number, height: number, a:number,b:number){
-        
+    getRoundedRectFilter(rectX: number, rectY: number, rectWidth: number, rectHeight: number, radiusX: number, radiusY: number) {
+        return new PixelFilter(this.mat).rangeBox(rectX, rectY, rectWidth, rectHeight)
+            .filter(p => {
+                const x = p.x, y = p.y;
+                if (x < rectX || x > rectX + rectWidth || y < rectY || y > rectY + rectHeight) {
+                    return false; // 点在矩形外部
+                }
+
+                const cornerRadiusX = Math.min(rectWidth / 2, radiusX);
+                const cornerRadiusY = Math.min(rectHeight / 2, radiusY);
+
+                if ((x < rectX + cornerRadiusX && y < rectY + cornerRadiusY) ||
+                    (x > rectX + rectWidth - cornerRadiusX && y < rectY + cornerRadiusY) ||
+                    (x < rectX + cornerRadiusX && y > rectY + rectHeight - cornerRadiusY) ||
+                    (x > rectX + rectWidth - cornerRadiusX && y > rectY + rectHeight - cornerRadiusY)) {
+                    return false; // 点在圆角区域
+                }
+
+                return true; // 点在圆角矩形内部
+            });
     }
 
     drawRect(x: number, y: number, width: number, height: number, paint: Paint) {
@@ -115,8 +133,19 @@ export default class Canvas {
                 break;
         }
     }
-    drawRoundRect() {
-
+    drawRoundedRect(rectX: number, rectY: number, rectWidth: number, rectHeight: number, radiusX: number, radiusY: number, paint: Paint) {
+        switch (paint.style) {
+            case Style.STROKE:
+                this.drawPixelFilter(this.getRoundedRectFilter(rectX - paint.strokeWidth / 2, rectY - paint.strokeWidth / 2, rectWidth + paint.strokeWidth, rectHeight + paint.strokeWidth, radiusX, radiusY)
+                    .difference(this.getRoundedRectFilter(rectX, rectY, rectWidth, rectHeight, radiusX, radiusY)), paint);
+                break;
+            case Style.FILL:
+                this.drawPixelFilter(this.getRoundedRectFilter(rectX, rectY, rectWidth, rectHeight, radiusX, radiusY),paint);
+                break;
+            case Style.FILL_AND_STROKE:
+                this.drawPixelFilter(this.getRoundedRectFilter(rectX - paint.strokeWidth / 2, rectY - paint.strokeWidth / 2, rectWidth + paint.strokeWidth, rectHeight + paint.strokeWidth, radiusX, radiusY), paint);
+                break;
+        }
     }
     drawOval() {
 
@@ -130,7 +159,14 @@ export default class Canvas {
     drawTextOnPath() {
 
     }
-    drawBitmap(bitmap: Bitmap, srcX1: number, srcY1: number, srcX2: number, srcY2: number,
+    drawBitmap(bitmap: Bitmap, x: number, y: number, matrix: Matrix3, paint: Paint) {
+        let paintX = new Paint();
+        for (let [p1, p2] of new PixelFilter(matrix).rangeBox(0, 0, bitmap.width, bitmap.height).generatePixels()) {
+            paintX.color = bitmap.getPixel(Math.floor(p1.x), Math.floor(p2.y));
+            this.drawPoint(x + p2.x, y + p2.y, paintX);
+        }
+    }
+    drawBitmapWithTarget(bitmap: Bitmap, srcX1: number, srcY1: number, srcX2: number, srcY2: number,
         dstX1: number, dstY1: number, dstX2: number, dstY2: number, paint: Paint) {
         //paint未实现
         if (srcX2 < srcX1) [srcX1, srcX2] = [srcX2, srcX1];
