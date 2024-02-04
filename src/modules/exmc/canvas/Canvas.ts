@@ -35,11 +35,13 @@ export default class Canvas {
     }
 
     rotate(r: number, x: number, y: number) {
+        this.translate(x,y);
         this.getMatrix().mul(new Matrix3(
-            Math.cos(r), -Math.sin(r), x,
-            Math.sin(r), Math.cos(r), y,
+            Math.cos(r), -Math.sin(r), 0,
+            Math.sin(r), Math.cos(r), 0,
             0, 0, 1
         ));
+        this.translate(-x,-y);
     }
     rotateRad(r: number, x: number, y: number) {
         this.rotate(r * Math.PI / 180, x, y);
@@ -62,7 +64,7 @@ export default class Canvas {
         this._context.clear();
     }
     drawPixelFilter(filter: PixelFilter, paint: Paint) {
-        for (let p of filter.pixels) {
+        for (let p of filter.generate()) {
             this.drawPoint(p.x, p.y, paint);
         }
     }
@@ -70,15 +72,15 @@ export default class Canvas {
     drawCircle(x: number, y: number, r: number, paint: Paint) {
         switch (paint.style) {
             case Style.STROKE:
-                this.drawPixelFilter(new PixelFilter().operateMatrix(mat => mat.mul(this.mat)).generateBox(x - r, y - r, x + r, y + r)
+                this.drawPixelFilter(new PixelFilter(this.mat).rangeBox(x - r, y - r, x + r, y + r)
                     .betweenDistance(r - paint.strokeWidth / 2, r + paint.strokeWidth / 2, x, y), paint);
                 break;
             case Style.FILL:
-                this.drawPixelFilter(new PixelFilter().operateMatrix(mat => mat.mul(this.mat)).generateBox(x - r, y - r, x + r, y + r)
+                this.drawPixelFilter(new PixelFilter(this.mat).rangeBox(x - r, y - r, x + r, y + r)
                     .maxDistance(r, x, y), paint);
                 break;
             case Style.FILL_AND_STROKE:
-                this.drawPixelFilter(new PixelFilter().operateMatrix(mat => mat.mul(this.mat)).generateBox(x - r, y - r, x + r, y + r)
+                this.drawPixelFilter(new PixelFilter(this.mat).rangeBox(x - r, y - r, x + r, y + r)
                     .maxDistance(r + paint.strokeWidth / 2, x, y), paint);
                 break;
         }
@@ -91,19 +93,24 @@ export default class Canvas {
     drawLine() {
 
     }
+
+    getRoundedRectFilter(x: number, y: number, width: number, height: number, a:number,b:number){
+        
+    }
+
     drawRect(x: number, y: number, width: number, height: number, paint: Paint) {
         switch (paint.style) {
             case Style.STROKE:
-                this.drawPixelFilter(new PixelFilter().operateMatrix(mat => mat.mul(this.mat)).generateBox(x - paint.strokeWidth / 2, y - paint.strokeWidth / 2,
+                this.drawPixelFilter(new PixelFilter(this.mat).rangeBox(x - paint.strokeWidth / 2, y - paint.strokeWidth / 2,
                     x + width + paint.strokeWidth / 2, y + height + paint.strokeWidth / 2)
-                    .difference(new PixelFilter().operateMatrix(mat => mat.mul(this.mat)).generateBox(x + paint.strokeWidth / 2, y + paint.strokeWidth / 2,
+                    .difference(new PixelFilter(this.mat).rangeBox(x + paint.strokeWidth / 2, y + paint.strokeWidth / 2,
                         x + width - paint.strokeWidth / 2, y + height - paint.strokeWidth / 2)), paint);
                 break;
             case Style.FILL:
-                this.drawPixelFilter(new PixelFilter().operateMatrix(mat => mat.mul(this.mat)).generateBox(x, y, x + width, y + height), paint);
+                this.drawPixelFilter(new PixelFilter(this.mat).rangeBox(x, y, x + width, y + height), paint);
                 break;
             case Style.FILL_AND_STROKE:
-                this.drawPixelFilter(new PixelFilter().operateMatrix(mat => mat.mul(this.mat)).generateBox(x - paint.strokeWidth / 2, y - paint.strokeWidth / 2,
+                this.drawPixelFilter(new PixelFilter(this.mat).rangeBox(x - paint.strokeWidth / 2, y - paint.strokeWidth / 2,
                     x + width + paint.strokeWidth / 2, y + height + paint.strokeWidth / 2), paint);
                 break;
         }

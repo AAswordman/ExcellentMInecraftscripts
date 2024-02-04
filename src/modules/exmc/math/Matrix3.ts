@@ -1,4 +1,5 @@
 export default class Matrix3 {
+    
 
     val: Float32Array = new Float32Array(9);
 
@@ -193,6 +194,9 @@ export default class Matrix3 {
 
     public toFloat32Array(): Float32Array {
         return new Float32Array(this.val);
+    }
+    public cpy() {
+        return new Matrix3(this);
     }
 
     public toString(): string {

@@ -2,16 +2,21 @@ import Matrix3 from "../math/Matrix3.js";
 import Vector2 from "../math/Vector2.js";
 
 export default class PixelFilter {
-    pixels: Pixel[];
-    mat: Matrix3 = new Matrix3(
-        1, 0, 0,
-        0, 1, 0,
-        0, 0, 1);
-    constructor(pixels?: Pixel[]) {
-        this.pixels = pixels ?? [];
+    private pixels = new Map<string, [Pixel, Pixel]>();
+    mat: Matrix3;
+    constructor(mat: Matrix3 = new Matrix3(1, 0, 0, 0, 1, 0, 0, 0, 1)) {
+        this.mat = mat;
     }
     filter(func: (pixels: Pixel) => boolean) {
-        this.pixels = this.pixels.filter(func);
+        let deleteMap: string[] = []
+        for (let [k, [p1, p2]] of this.pixels) {
+            if (!func(p1)) {
+                deleteMap.push(k);
+            }
+        }
+        for (let i of deleteMap) {
+            this.pixels.delete(i);
+        }
         return this;
     }
 
@@ -23,7 +28,7 @@ export default class PixelFilter {
     }
     operateIntPoint(x: number, y: number) {
         this.operatePoint(x, y);
-        return [Math.floor(this.tmpV.x),Math.floor(this.tmpV.y)];
+        return [Math.floor(this.tmpV.x), Math.floor(this.tmpV.y)];
     }
     isPointInsidePolygon(x: number, y: number, points: Pixel[]): boolean {
         let inside = false;
@@ -38,9 +43,11 @@ export default class PixelFilter {
         }
         return inside;
     }
-    generate(x1: number, y1: number, x2: number, y2: number,
+    range(x1: number, y1: number, x2: number, y2: number,
         x3: number, y3: number, x4: number, y4: number) {
         const points: Pixel[] = [new Pixel(x1, y1), new Pixel(x2, y2), new Pixel(x3, y3), new Pixel(x4, y4)];
+
+        let inv = this.mat.cpy().inv();
 
         let minX = Math.min(x1, x2, x3, x4);
         let minY = Math.min(y1, y2, y3, y4);
@@ -50,14 +57,16 @@ export default class PixelFilter {
         for (let x = minX; x <= maxX; x++) {
             for (let y = minY; y <= maxY; y++) {
                 if (this.isPointInsidePolygon(x, y, points)) {
-                    this.pixels.push(new Pixel(x, y));
+                    this.tmpV.set(x, y);
+                    this.tmpV.unrotate(inv);
+                    this.pixels.set(x+"|"+y,[new Pixel(this.tmpV.x, this.tmpV.y),new Pixel(x,y)]);
                 }
             }
         }
 
-        return this.unique();
+        return this;
     }
-    generateBox(x1: number, y1: number, x2: number, y2: number) {
+    rangeBox(x1: number, y1: number, x2: number, y2: number) {
         if (x2 < x1) [x1, x2] = [x2, x1];
         if (y2 < y1) [y1, y2] = [y2, y1];
 
@@ -66,23 +75,25 @@ export default class PixelFilter {
             [nx3, ny3] = this.operateIntPoint(x2, y2),
             [nx4, ny4] = this.operateIntPoint(x1, y2);
 
-        return this.generate(nx1, ny1, nx2, ny2, nx3, ny3, nx4, ny4);
+        return this.range(nx1, ny1, nx2, ny2, nx3, ny3, nx4, ny4);
+    }
+    generate(){
+        const p:Pixel[] = []
+        this.pixels.forEach(([p1,p2],_) => p.push(p2));
+        return p;
     }
 
     merge(filter: PixelFilter) {
-        this.pixels = Array.from(new Set(this.pixels.concat(filter.pixels)).values());
-        return this.unique();
-    }
-
-    difference(filter: PixelFilter) {
-        const res = new Set(filter.pixels.map(e => e.x + "|" + e.y));
-        this.pixels = this.pixels.filter(x => !res.has(x.x + "|" + x.y));
+        for(let [k,v] of filter.pixels){
+            this.pixels.set(k, v);
+        }
         return this;
     }
 
-    unique() {
-        const res = new Set();
-        this.pixels = this.pixels.filter((a) => !res.has(a.x + "|" + a.y) && res.add(a.x + "|" + a.y));
+    difference(filter: PixelFilter) {
+        for(let [k,v] of filter.pixels){
+            this.pixels.delete(k);
+        }
         return this;
     }
 
@@ -90,17 +101,12 @@ export default class PixelFilter {
         this.mat = mat;
     }
 
-    operateMatrix(func: (mat: Matrix3) => void) {
-        func(this.mat);
-        return this;
-    }
-
     betweenDistance(minDis: number, maxDis: number, targetX: number, targetY: number) {
         [targetX, targetY] = this.operatePoint(targetX, targetY);
         return this.filter(p => {
             const dis = p.getDistance(targetX, targetY);
             return dis >= minDis && dis <= maxDis;
-        });;
+        });
     }
 
     maxDistance(maxDis: number, targetX: number, targetY: number) {
@@ -111,27 +117,19 @@ export default class PixelFilter {
     }
 
     lineCutRight(x1: number, y1: number, x2: number, y2: number) {
-        [x1, y1] = this.operatePoint(x1, y1);
-        [x2, y2] = this.operatePoint(x2, y2);
         return this.filter(p => (x2 - x1) * (p.y - y1) - (y2 - y1) * (p.x - x1) <= 0)
     }
     lineCutLeft(x1: number, y1: number, x2: number, y2: number) {
-        [x1, y1] = this.operatePoint(x1, y1);
-        [x2, y2] = this.operatePoint(x2, y2);
         return this.filter(p => (x2 - x1) * (p.y - y1) - (y2 - y1) * (p.x - x1) >= 0)
     }
 
     inEllipse(x1: number, y1: number, x2: number, y2: number, longAxis: number) {
-        [x1, y1] = this.operatePoint(x1, y1);
-        [x2, y2] = this.operatePoint(x2, y2);
         return this.filter(p => {
             let judge = p.getDistance(x1, y1) + p.getDistance(x2, y2);
             return judge <= longAxis;
         });
     }
     outEllipse(x1: number, y1: number, x2: number, y2: number, longAxis: number) {
-        [x1, y1] = this.operatePoint(x1, y1);
-        [x2, y2] = this.operatePoint(x2, y2);
         return this.filter(p => {
             let judge = p.getDistance(x1, y1) + p.getDistance(x2, y2);
             return judge >= longAxis;

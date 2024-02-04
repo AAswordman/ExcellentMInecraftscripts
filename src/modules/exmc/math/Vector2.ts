@@ -171,8 +171,8 @@ export default class Vector2 {
         let x = this.x * m00 + this.y * m01;
         let y = this.x * m10 + this.y * m11;
 
-        this.x = x;
-        this.y = y;
+        this.x = x + matrix.val[2];
+        this.y = y + matrix.val[5];
 
         return this;
     }

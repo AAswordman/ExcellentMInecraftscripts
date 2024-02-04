@@ -1051,12 +1051,15 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 paint.style = Style.FILL_AND_STROKE;
                                 canvas.drawCircle(40,40,25,paint);
 
-                                canvas.translate(10,20);
-                                canvas.rotateRad(30,40,60);
 
+                                
                                 paint.color = ColorRGBA.AQUAMARINE;
                                 paint.style = Style.STROKE
-                                canvas.drawRect(20,40,80,100,paint);
+                                canvas.drawRect(20,20,100,100,paint);
+                                canvas.rotateRad(30,60,60);
+                                canvas.drawRect(20,20,100,100,paint);
+                                canvas.translate(20,20);
+                                canvas.drawRect(20,20,100,100,paint);
 
                                 const layers = canvas.draw();
 
