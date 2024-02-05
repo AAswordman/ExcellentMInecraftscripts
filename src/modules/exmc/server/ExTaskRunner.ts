@@ -4,7 +4,7 @@ import TickDelayTask from "../utils/TickDelayTask.js";
 export default class ExTaskRunner {
     tasks!: Generator;
     private tick?: TickDelayTask;
-    step() {
+    private step() {
         this.tasks.next();
     }
     isOver() {
@@ -26,7 +26,7 @@ export default class ExTaskRunner {
         this.tick.start();
         return pro;
     }
-    run(r: () => Generator) {
+    setTasks(r: () => Generator) {
         this.tasks = r();
     }
 

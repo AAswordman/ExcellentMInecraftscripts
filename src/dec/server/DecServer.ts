@@ -132,7 +132,7 @@ export default class DecServer extends ExGameServer {
                         let data: string[] = [];
                         let task = new ExTaskRunner();
                         const mthis = this;
-                        task.run((function* () {
+                        task.setTasks((function* () {
                             for (let i of new IStructureDriver().save(mthis.getExDimension(MinecraftDimensionTypes.overworld), start, end)) {
                                 let res = i.toData();
                                 i.dispose();

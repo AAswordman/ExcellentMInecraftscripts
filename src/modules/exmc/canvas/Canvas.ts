@@ -53,6 +53,9 @@ export default class Canvas {
     getBitmap() {
         return this._context;
     }
+    getPixel(x: number, y: number){
+        return this._context.getPixel(x,y);
+    }
     getWidth() {
         return this._context.width;
     }
@@ -94,25 +97,34 @@ export default class Canvas {
 
     }
 
-    getRoundedRectFilter(rectX: number, rectY: number, rectWidth: number, rectHeight: number, radiusX: number, radiusY: number) {
-        return new PixelFilter(this.mat).rangeBox(rectX, rectY, rectWidth, rectHeight)
+    getRoundedRectFilter(rectX: number, rectY: number, width: number, height: number, a: number, b: number,) {
+        const isPointInsideEllipse = (x: number, y: number, centerX: number, centerY: number, radiusX: number, radiusY: number): boolean => {
+            const normalizedX = x - centerX;
+            const normalizedY = y - centerY;
+            return (normalizedX * normalizedX) / (radiusX * radiusX) + (normalizedY * normalizedY) / (radiusY * radiusY) <= 1;
+        }
+        return new PixelFilter(this.mat).rangeBox(rectX, rectY, width, height)
             .filter(p => {
                 const x = p.x, y = p.y;
-                if (x < rectX || x > rectX + rectWidth || y < rectY || y > rectY + rectHeight) {
-                    return false; // 点在矩形外部
+                if (x >= rectX && x <= rectX + width && y >= rectY && y <= rectY + height) {
+                    return true; // 点在矩形内部，直接返回true
                 }
 
-                const cornerRadiusX = Math.min(rectWidth / 2, radiusX);
-                const cornerRadiusY = Math.min(rectHeight / 2, radiusY);
-
-                if ((x < rectX + cornerRadiusX && y < rectY + cornerRadiusY) ||
-                    (x > rectX + rectWidth - cornerRadiusX && y < rectY + cornerRadiusY) ||
-                    (x < rectX + cornerRadiusX && y > rectY + rectHeight - cornerRadiusY) ||
-                    (x > rectX + rectWidth - cornerRadiusX && y > rectY + rectHeight - cornerRadiusY)) {
-                    return false; // 点在圆角区域
+                // 检查四个角
+                if (isPointInsideEllipse(x, y, rectX, rectY, a, b) ||
+                    isPointInsideEllipse(x, y, rectX + width - a, rectY, a, b) ||
+                    isPointInsideEllipse(x, y, rectX, rectY + height - b, a, b) ||
+                    isPointInsideEllipse(x, y, rectX + width - a, rectY + height - b, a, b)) {
+                    return true;
                 }
 
-                return true; // 点在圆角矩形内部
+                // 检查四条直线
+                if ((x >= rectX + a && x <= rectX + width - a && y >= rectY && y <= rectY + b) ||
+                    (x >= rectX && x <= rectX + width && y >= rectY + b && y <= rectY + height - b)) {
+                    return true;
+                }
+
+                return false; // 如果以上条件都不满足，则返回false
             });
     }
 
@@ -140,7 +152,7 @@ export default class Canvas {
                     .difference(this.getRoundedRectFilter(rectX, rectY, rectWidth, rectHeight, radiusX, radiusY)), paint);
                 break;
             case Style.FILL:
-                this.drawPixelFilter(this.getRoundedRectFilter(rectX, rectY, rectWidth, rectHeight, radiusX, radiusY),paint);
+                this.drawPixelFilter(this.getRoundedRectFilter(rectX, rectY, rectWidth, rectHeight, radiusX, radiusY), paint);
                 break;
             case Style.FILL_AND_STROKE:
                 this.drawPixelFilter(this.getRoundedRectFilter(rectX - paint.strokeWidth / 2, rectY - paint.strokeWidth / 2, rectWidth + paint.strokeWidth, rectHeight + paint.strokeWidth, radiusX, radiusY), paint);
@@ -197,41 +209,43 @@ export default class Canvas {
     private static _canvasStart = ""
 
     draw() {
-        let layer1 = "", layer2 = "", layer3 = "", layer4 = "", layer5 = "", layer6 = "";
+        let layer1: string[] = [], layer2: string[] = [],
+            layer3: string[] = [], layer4: string[] = [],
+            layer5: string[] = [], layer6: string[] = [];
         for (let j = 0; j < this._context.height; j++) {
-            layer1 += Canvas._canvasStart[0];
-            layer3 += Canvas._canvasStart[0];
-            layer5 += Canvas._canvasStart[0];
-            layer2 += Canvas._canvasStart[1];
-            layer4 += Canvas._canvasStart[1];
-            layer6 += Canvas._canvasStart[1];
+            layer1.push(Canvas._canvasStart[0]);
+            layer3.push(Canvas._canvasStart[0]);
+            layer5.push(Canvas._canvasStart[0]);
+            layer2.push(Canvas._canvasStart[1]);
+            layer4.push(Canvas._canvasStart[1]);
+            layer6.push(Canvas._canvasStart[1]);
             for (let i = 0; i < this._context.width; i++) {
                 const color = this._context.getPixel(i, j).toHSV();
                 const h = Math.floor(color.h / 360 * Canvas._dataColor.length) % Canvas._dataColor.length;
                 const s = Math.min(Math.round((100 - color.s) / 100 * Canvas._saturation.length), Canvas._saturation.length - 1);
                 const v = Math.min(Math.round((100 - color.v) / 100 * Canvas._grayscale.length), Canvas._grayscale.length - 1);
 
-                layer1 += Canvas._dataColor[h];
-                layer2 += Canvas._dataColor2[h];
-                layer3 += Canvas._saturation[s];
-                layer4 += Canvas._saturation2[s];
-                layer5 += Canvas._grayscale[v];
-                layer6 += Canvas._grayscale2[v];
+                layer1.push(Canvas._dataColor[h]);
+                layer2.push(Canvas._dataColor2[h]);
+                layer3.push(Canvas._saturation[s]);
+                layer4.push(Canvas._saturation2[s]);
+                layer5.push(Canvas._grayscale[v]);
+                layer6.push(Canvas._grayscale2[v]);
             }
-            layer1 += "\n";
-            layer2 += "\n";
-            layer3 += "\n";
-            layer4 += "\n";
-            layer5 += "\n";
-            layer6 += "\n";
+            layer1.push("\n");
+            layer2.push("\n");
+            layer3.push("\n");
+            layer4.push("\n");
+            layer5.push("\n");
+            layer6.push("\n");
         }
         return {
-            layer1: layer1,
-            layer2: layer2,
-            layer3: layer3,
-            layer4: layer4,
-            layer5: layer5,
-            layer6: layer6
+            layer1: (layer1.join('')),
+            layer2: (layer2.join('')),
+            layer3: (layer3.join('')),
+            layer4: (layer4.join('')),
+            layer5: (layer5.join('')),
+            layer6: (layer6.join(''))
         }
     }
 }

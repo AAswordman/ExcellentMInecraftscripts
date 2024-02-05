@@ -22,7 +22,7 @@ export default class DecNukeController extends ExEntityController {
                 const dim = this.exEntity.exDimension;
                 const pos = this.entity.location;
                 let task = new ExTaskRunner();
-                task.run(function* () {
+                task.setTasks(function* () {
                     for (let x = -i; x <= i; x++) {
                         for (let y = -i; y <= i; y++) {
                             for (let z = -i; z <= i; z++) {

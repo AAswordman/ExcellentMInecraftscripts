@@ -23,6 +23,13 @@ import Bitmap from "../../../modules/exmc/canvas/Bitmap.js";
 import Paint, { Style } from "../../../modules/exmc/canvas/Paint.js";
 import ColorRGBA from "../../../modules/exmc/canvas/ColorRGBA.js";
 import PixelFilter from "../../../modules/exmc/canvas/PixelFilter.js";
+import ExTerrain from "../../../modules/exmc/server/block/ExTerrain.js";
+import getBlockThemeColor from '../../../modules/exmc/server/block/blockThemeColor.js';
+import ExTaskRunner from "../../../modules/exmc/server/ExTaskRunner.js";
+import ExSystem from "../../../modules/exmc/utils/ExSystem.js";
+import ExGame from "../../../modules/exmc/server/ExGame.js";
+import Vector2 from "../../../modules/exmc/math/Vector2.js";
+import ColorHSV from "../../../modules/exmc/canvas/ColorHSV.js";
 
 export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
     return {
@@ -1034,46 +1041,80 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                             "type": "button",
                             "msg": "test",
                             "function": (client, ui) => {
-                                const canvas = new Canvas(new Bitmap(200,200));
+                                const canvas = new Canvas(new Bitmap(200, 200));
                                 const paint = new Paint();
+                                const terrain = new ExTerrain(client.getDimension());
+                                const pos = client.exPlayer.position.floor();
 
-                                paint.color = ColorRGBA.BROWN;
-                                paint.strokeWidth = 2;
+                                paint.strokeWidth = 1;
                                 paint.style = Style.FILL;
-                                canvas.drawCircle(64,64,30,paint);
 
-                                paint.color = ColorRGBA.CORAL;
-                                paint.style = Style.STROKE;
-                                canvas.drawCircle(64,64,30,paint);
+                                const num = 256
+                                const step = 1
+                                let centerX = 100, centerY = 100;
+                                let perSize = centerX / num * 2 ** 0.5;
 
+                                canvas.rotateRad(180 - client.exPlayer.rotation.y, centerX, centerY);
 
-                                paint.color = ColorRGBA.BLUE;
-                                paint.style = Style.FILL_AND_STROKE;
-                                canvas.drawCircle(40,40,25,paint);
+                                const task = new ExTaskRunner()
+                                task.setTasks(function* () {
+                                    const highMap = new Map<string, [number, ColorRGBA]>();
+                                    for (let x = -num; x <= num; x += step) {
+                                        for (let y = -num; y <= num; y += step) {
+                                            try {
+                                                let block = terrain.getSurfaceBlock(pos.x + x, pos.z + y);
+                                                let b = getBlockThemeColor(block?.typeId ?? '');
+                                                highMap.set(x + "|" + y, [block?.y ?? 0, b]);
+                                                yield 0;
+                                            } catch {
 
+                                            }
+                                        }
+                                    }
+                                    for (let x = -num; x <= num; x += step) {
+                                        for (let y = -num; y <= num; y += step) {
+                                            if (!highMap.has(x + "|" + y)) continue;
+                                            let [high, b] = highMap.get(x + "|" + y)!;
+                                            let fhsv = b.toHSV();
+                                            let hsv: ColorHSV;
+                                            if (
+                                                (highMap.get((x - 1) + "|" + y)?.[0] ?? 0) > high ||
+                                                (highMap.get(x + "|" + (y - 1))?.[0] ?? 0) > high
+                                            ) {
+                                                hsv = new ColorHSV(fhsv.h, fhsv.s, Math.max(fhsv.v - 20, 0))
+                                            } else if (
+                                                (highMap.get((x - 1) + "|" + y)?.[0] ?? 0) < high ||
+                                                (highMap.get(x + "|" + (y - 1))?.[0] ?? 0) < high
+                                            ) {
+                                                hsv = new ColorHSV(fhsv.h, Math.max(fhsv.s - 20, 0),  Math.min(fhsv.v + 20, 100))
+                                            } else {
+                                                hsv = fhsv;
+                                            }
+                                            paint.color = hsv.toRGB();
+                                            canvas.drawRect(
+                                                centerX + perSize * x - 1,
+                                                centerY + perSize * y - 1,
+                                                step * perSize + 1,
+                                                step * perSize + 1,
+                                                paint);
+                                            yield 0;
+                                        }
+                                    }
+                                });
+                                task.start(1, 10000).then(() => {
+                                    const layers = canvas.draw();
 
-                                
-                                paint.color = ColorRGBA.AQUAMARINE;
-                                paint.style = Style.STROKE;
-                                paint.strokeWidth = 10
-                                canvas.drawRoundedRect(20,20,100,100,10,20,paint);
-                                canvas.rotateRad(30,60,60);
-                                canvas.drawRect(20,20,100,100,paint);
-                                canvas.translate(20,20);
-                                canvas.drawRect(20,20,100,100,paint);
-
-                                const layers = canvas.draw();
-
-                                let xui = new ExActionAlert()
-                                    .title("__pomAlertCanvas")
-                                    .button("canvasLayer1", () => { }, layers.layer1)
-                                    .button("canvasLayer2", () => { }, layers.layer2)
-                                    .button("canvasLayer3", () => { }, layers.layer3)
-                                    .button("canvasLayer4", () => { }, layers.layer4)
-                                    .button("canvasLayer5", () => { }, layers.layer5)
-                                    .button("canvasLayer6", () => { }, layers.layer6)
-                                    .body("_uiBody");
-                                xui.show(client.player);
+                                    let xui = new ExActionAlert()
+                                        .title("__pomAlertCanvas")
+                                        .button("canvasLayer1", () => { }, layers.layer1)
+                                        .button("canvasLayer2", () => { }, layers.layer2)
+                                        .button("canvasLayer3", () => { }, layers.layer3)
+                                        .button("canvasLayer4", () => { }, layers.layer4)
+                                        .button("canvasLayer5", () => { }, layers.layer5)
+                                        .button("canvasLayer6", () => { }, layers.layer6)
+                                        .body("_uiBody");
+                                    xui.show(client.player);
+                                });
                                 return false;
                             }
                         }

@@ -107,7 +107,6 @@ export default class PixelFilter {
     }
 
     betweenDistance(minDis: number, maxDis: number, targetX: number, targetY: number) {
-        [targetX, targetY] = this.operatePoint(targetX, targetY);
         return this.filter(p => {
             const dis = p.getDistance(targetX, targetY);
             return dis >= minDis && dis <= maxDis;
