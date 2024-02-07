@@ -537,8 +537,6 @@ export default class DecServer extends ExGameServer {
         this.addEntityController("dec:ash_knight", DecCommonBossLastStage);
         this.addEntityController("dec:everlasting_winter_ghast", DecEverlastingWinterGhastBoss1);
         this.addEntityController("dec:everlasting_winter_ghast_1", DecEverlastingWinterGhastBoss2);
-
-
         this.addEntityController("dec:nuke", DecNukeController);
 
 
