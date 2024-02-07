@@ -677,7 +677,7 @@ export default class DecServer extends ExGameServer {
             return [dim, loc]
         }
         const message_split = (message: String) => {
-            let arr = new Array<String>
+            let arr = new Array<String>();
             let cache = ''
             for (let m of message) {
                 if (m == ';') {
