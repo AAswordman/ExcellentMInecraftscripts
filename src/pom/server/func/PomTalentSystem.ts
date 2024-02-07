@@ -260,6 +260,7 @@ export default class PomTalentSystem extends GameController {
             target.removeHealth(this, damage);
         });
 
+        let lastResist = 0;
         //玩家减伤
         this.getEvents().exEvents.afterPlayerHurt.subscribe((e) => {
             if (e.damage > 10000000 || e.damage < 0) return;
@@ -290,6 +291,13 @@ export default class PomTalentSystem extends GameController {
             }
 
             add += anotherAdd;
+            // console.warn(this.client.magicSystem.hurtState,e.damage,add,lastResist)
+            // if (this.client.magicSystem.hurtState) {
+            //     add -= lastResist;
+            //     lastResist = add;
+            // } else {
+            //     lastResist = 0;
+            // }
 
             if (this.client.magicSystem.gameHealth - damage + add <= 0) {
                 const clnE = { ...e.damageSource };

@@ -21,6 +21,10 @@ export class DecEverlastingWinterGhastBoss1 extends DecBossController {
             this.music.stop();
         }
     }
+    override onFail(): void {
+        this.music.stop();
+        super.onFail();
+    }
     override onSpawn(): void {
         super.onSpawn();
     }
