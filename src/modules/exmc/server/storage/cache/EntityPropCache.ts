@@ -81,7 +81,7 @@ export default class EntityPropCache<T extends object> {
         for (let key in obj) {
             if (!(key in this.compareObject) || !ExSystem.deepEqual(obj[key], (this.compareObject as any)[key])) {
                 this._setCacheByKey(key, obj[key]);
-                (this.compareObject as any)[key] = obj[key];
+                (this.compareObject as any)[key] = ExSystem.deepClone(obj[key]);
             }
         }
         let keys = Object.keys(obj).join(this.keyInterval);

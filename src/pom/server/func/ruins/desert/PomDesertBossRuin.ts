@@ -156,7 +156,7 @@ export default class PomDesertBossRuin implements PomRuinCommon {
                         let d = [Vector2.forward, Vector2.back, Vector2.left, Vector2.right];
                         while (pointNum > 0) {
                             let i = r.nextInt(d.length);
-                            next.push([tempV.clone(), d[i]]);
+                            next.push([tempV.cpy(), d[i]]);
                             d.splice(i, 1);
                             pointNum--;
                         }

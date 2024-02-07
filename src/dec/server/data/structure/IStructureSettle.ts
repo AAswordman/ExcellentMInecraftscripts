@@ -47,7 +47,7 @@ export default class IStructureSettle implements DisposeAble{
         const t = this;
         const tmpV = new Vector3();
         const tmpP = new Vector3();
-        runner.run((function* () {
+        runner.setTasks((function* () {
             for (let c of t.cmds) {
                 s.set(...c.start);
                 e.set(...(c.end ? c.end : c.start))

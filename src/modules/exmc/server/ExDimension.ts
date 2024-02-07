@@ -4,6 +4,7 @@ import Vector3, { IVector3 } from "../math/Vector3.js";
 import ExGameConfig from './ExGameConfig.js';
 import ExGameVector3 from './math/ExGameVector3.js';
 import ExCommand from './env/ExCommand.js';
+import { ignorn } from './ExErrorQueue.js';
 
 export default class ExDimension implements ExCommandNativeRunner {
     public command = new ExCommand(this);
@@ -44,7 +45,7 @@ export default class ExDimension implements ExCommandNativeRunner {
         return res;
     }
     getBlock(vec: IVector3) {
-        return this._dimension.getBlock(vec);
+        return ignorn(() => this._dimension.getBlock(vec));
     }
     fillBlocks(start: IVector3, end: IVector3, blockId: string | BlockType, option?: BlockFillOptions) {
         // console.warn("fillBlocks", start, end, blockId);
