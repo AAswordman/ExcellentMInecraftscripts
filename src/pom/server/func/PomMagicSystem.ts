@@ -250,7 +250,6 @@ export default class PomMagicSystem extends GameController {
         });
 
 
-
         this.magicReduce = this.player.getDynamicProperty("magicReduce") as number ?? 0;
         this.damageAbsorbed = this.player.getDynamicProperty("damageAbsorbed") as number ?? 0;
         this.gameHealth = MathUtil.clamp(
