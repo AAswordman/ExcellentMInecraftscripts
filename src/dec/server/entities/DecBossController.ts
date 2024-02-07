@@ -70,6 +70,7 @@ export default class DecBossController extends ExEntityController {
 
     //发信息给pom，判断完成任务
     onWin() {
+        this.stopBarrier();
         if (!DecGlobal.isDec()) {
             for (let p of this.entity.dimension.getPlayers({
                 location: this.entity.location,
