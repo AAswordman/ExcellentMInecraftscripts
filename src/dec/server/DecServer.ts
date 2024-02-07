@@ -1,4 +1,4 @@
-import { Player, MinecraftDimensionTypes, world, Block, Direction, GameMode, Entity, ScriptEventSource, Dimension, DimensionType, DimensionTypes, system, ScriptEventCommandMessageAfterEvent, EntityQueryOptions, EntityApplyDamageOptions, EntityDamageCause } from '@minecraft/server';
+import { Player, MinecraftDimensionTypes, world, Block, Direction, GameMode, Entity, ScriptEventSource, Dimension, DimensionType, DimensionTypes, system, ScriptEventCommandMessageAfterEvent, EntityQueryOptions, EntityApplyDamageOptions, EntityDamageCause, DisplaySlotId, ScoreboardObjectiveDisplayOptions, ScoreboardObjective } from '@minecraft/server';
 import ExConfig from "../../modules/exmc/ExConfig.js";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import DecClient from "./DecClient.js";
@@ -75,7 +75,6 @@ export default class DecServer extends ExGameServer {
         this.globalscores.initializeNumber('AlreadyGmCheat', 0)
         this.globalscores.initializeNumber('DieMode', 0)
         this.globalscores.initializeNumber('MagicDisplay', 0)
-        this.globalscores.initializeNumber('tens', 20)
         //new Objective("harmless").create("harmless");
         this.nightEventListener = new VarOnChangeListener(e => {
             if (e) {
@@ -454,9 +453,25 @@ export default class DecServer extends ExGameServer {
                 "scoreboard players remove @e[scores={harmless=1..}] harmless 1"
             ]);
 
-
         });
         this.getEvents().exEvents.onLongTick.subscribe(e => {
+            //Dec魔法显示
+            if(DecGlobal.isDec() && this.globalscores.getNumber('MagicDisplay') === 1){
+                try {
+                    world.scoreboard.removeObjective('magicdisplay')
+                    let magic_display = world.scoreboard.addObjective('magicdisplay','§bMagicPoint§r')
+                    world.getAllPlayers().forEach(p=>{
+                        magic_display.setScore(p,<number>(<ScoreboardObjective>world.scoreboard.getObjective('magicpoint')).getScore(p))
+                    })
+                    let dec_magic_display : ScoreboardObjectiveDisplayOptions = {
+                        objective: magic_display
+                    }
+                    world.scoreboard.setObjectiveAtDisplaySlot(DisplaySlotId.Sidebar,dec_magic_display)
+                } catch (error) {
+                    
+                }
+            }
+
             if (place_block_wait_tick > 0) {
                 place_block_wait_tick -= 1
             }
