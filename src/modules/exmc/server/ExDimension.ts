@@ -33,7 +33,7 @@ export default class ExDimension implements ExCommandNativeRunner {
     }
 
     getPlayers(entityQueryOptions?: EntityQueryOptions) {
-        return Array.from(this._dimension.getPlayers(entityQueryOptions));
+        return this._dimension.getPlayers(entityQueryOptions);
     }
 
     getEntities(entityQueryOptions?: EntityQueryOptions) {

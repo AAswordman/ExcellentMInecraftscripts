@@ -162,9 +162,13 @@ export default class ExClientEvents implements ExEventManager {
                             let nowItem = ExPlayer.getInstance(i[0]).getBag().itemOnMainHand;
 
                             if (lastItem?.typeId !== nowItem?.typeId || i[0].selectedSlot !== lastItemCache?.[1]) {
+                                let res: ItemStack | void = undefined;
                                 i[1].forEach((f) => {
-                                    f(new ItemOnHandChangeEvent(lastItem, lastItemCache?.[1] ?? 0, nowItem, i[0].selectedSlot, i[0]));
+                                    res = res ?? f(new ItemOnHandChangeEvent(lastItem, lastItemCache?.[1] ?? 0, nowItem, i[0].selectedSlot, i[0]));
                                 });
+                                if (res !== undefined) {
+                                    ExPlayer.getInstance(i[0]).getBag().itemOnMainHand = res;
+                                }
 
                                 this.onHandItemMap.set(i[0], [nowItem, i[0].selectedSlot]);
                             }
@@ -225,7 +229,7 @@ export default class ExClientEvents implements ExEventManager {
                     func(<Player>e.source, e);
                 });
                 ExClientEvents.eventHandlers.server.getEvents().events.afterItemReleaseUse.subscribe((e) => {
-                    func(e.source, e);
+                    if (e.itemStack) func(e.source, { "itemStack": e.itemStack });
                 });
                 ExClientEvents.eventHandlers.server.getEvents().events.afterItemUse.subscribe((e) => {
                     func(e.source, e);
@@ -276,7 +280,7 @@ export default class ExClientEvents implements ExEventManager {
         [ExOtherEventNames.afterPlayerHitBlock]: new Listener<EntityHitBlockAfterEvent>(this, ExOtherEventNames.afterPlayerHitBlock),
         [ExOtherEventNames.afterPlayerHitEntity]: new Listener<EntityHurtAfterEvent>(this, ExOtherEventNames.afterPlayerHitEntity),
         [ExOtherEventNames.afterPlayerHurt]: new Listener<EntityHurtAfterEvent>(this, ExOtherEventNames.afterPlayerHurt),
-        [ExOtherEventNames.afterItemOnHandChange]: new Listener<ItemOnHandChangeEvent>(this, ExOtherEventNames.afterItemOnHandChange),
+        [ExOtherEventNames.afterItemOnHandChange]: new CallBackListener<ItemOnHandChangeEvent, ItemStack | void>(this, ExOtherEventNames.afterItemOnHandChange),
         [ExOtherEventNames.afterPlayerShootProj]: new Listener<PlayerShootProjectileEvent>(this, ExOtherEventNames.afterPlayerShootProj),
         [ExEventNames.afterPlayerBreakBlock]: new Listener<PlayerBreakBlockAfterEvent>(this, ExEventNames.afterPlayerBreakBlock),
         [ExEventNames.afterPlayerSpawn]: new Listener<PlayerSpawnAfterEvent>(this, ExEventNames.afterPlayerSpawn),
@@ -311,7 +315,7 @@ export default class ExClientEvents implements ExEventManager {
     }
 }
 
-class Listener<T>{
+class Listener<T> {
     subscribe: (callback: (arg: T) => void) => void;
     unsubscribe: (callback: (arg: T) => void) => void;
     constructor(e: ExClientEvents, name: string) {
@@ -319,6 +323,19 @@ class Listener<T>{
             e._subscribe(name, callback);
         }
         this.unsubscribe = (callback: (arg: T) => void) => {
+            e._unsubscribe(name, callback);
+        }
+    }
+}
+
+class CallBackListener<T, V> {
+    subscribe: (callback: (arg1: T) => V) => void;
+    unsubscribe: (callback: (arg1: T) => V) => void;
+    constructor(e: ExClientEvents, name: string) {
+        this.subscribe = (callback: (arg1: T) => V) => {
+            e._subscribe(name, callback);
+        }
+        this.unsubscribe = (callback: (arg1: T) => V) => {
             e._unsubscribe(name, callback);
         }
     }

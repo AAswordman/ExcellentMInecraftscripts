@@ -65,6 +65,9 @@ export default class PomBossController extends ExEntityController {
 
     }
     initBossEntity(){
-
+        for (let c of this.barrier.clientsByPlayer()) {
+            c.ruinsSystem.causeDamageShow = true;
+            c.ruinsSystem.causeDamageType.add(this.entity.typeId);
+        }
     }
 }

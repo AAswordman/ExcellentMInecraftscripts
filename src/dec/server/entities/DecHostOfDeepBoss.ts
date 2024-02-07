@@ -13,19 +13,17 @@ export class DecHostOfDeepBoss1 extends DecBossController {
     constructor(e: Entity, server: DecServer) {
         super(e, server);
         this.music = server.getMusic("music.wb.from_the_burning_deep", "4:18");
-        this.setTimeout(() => {
-            this.music.loop(this.exEntity.exDimension, this.entity.location);
-        }, 500);
-    }
-    override onDestroy(): void {
-        this.music.delayStop(800);
-        super.onDestroy();
+        this.music.trackPlayers(Array.from(this.barrier.getPlayers()));
+        this.music.loop();
     }
     override onSpawn(): void {
         super.onSpawn();
     }
     override onKilled(e: EntityHurtAfterEvent): void {
         super.onKilled(e);
+        if (e.damageSource.cause === EntityDamageCause.suicide) {
+            this.music.stop();
+        }
     }
 }
 export class DecHostOfDeepBoss2 extends DecBossController {
@@ -33,19 +31,17 @@ export class DecHostOfDeepBoss2 extends DecBossController {
     constructor(e: Entity, server: DecServer) {
         super(e, server);
         this.music = server.getMusic("music.wb.from_the_burning_deep", "4:18");
-        this.setTimeout(() => {
-            this.music.loop(this.exEntity.exDimension, this.entity.location);
-        }, 500);
-    }
-    override onDestroy(): void {
-        this.music.delayStop(500);
-        super.onDestroy();
+        this.music.trackPlayers(Array.from(this.barrier.getPlayers()));
+
     }
     override onSpawn(): void {
         super.onSpawn();
     }
     override onKilled(e: EntityHurtAfterEvent): void {
         super.onKilled(e);
+        if (e.damageSource.cause === EntityDamageCause.suicide) {
+            this.music.stop();
+        }
     }
 }
 export class DecHostOfDeepBoss3 extends DecCommonBossLastStage {
@@ -53,9 +49,8 @@ export class DecHostOfDeepBoss3 extends DecCommonBossLastStage {
     constructor(e: Entity, server: DecServer) {
         super(e, server);
         this.music = server.getMusic("music.wb.from_the_burning_deep", "4:18");
-        this.setTimeout(() => {
-            this.music.loop(this.exEntity.exDimension, this.entity.location);
-        }, 500);
+        this.music.trackPlayers(Array.from(this.barrier.getPlayers()));
+
     }
     override onDestroy(): void {
         this.music.stop();

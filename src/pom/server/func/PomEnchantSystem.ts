@@ -15,18 +15,20 @@ export default class PomEnChantSystem extends GameController {
             if (e.afterItem) {
                 let lore = new ExColorLoreUtil(e.afterItem);
                 if (lore.search("enchants") !== undefined) {
-                    for (let i of lore.entries("enchants")) {
-                        this.exPlayer.command.run("enchant @s " + i[0].replace(/[A-Z]/g, (s) => {
-                            return "_" + s.toLowerCase();
-                        }) + " " + i[1]).catch(e => {
-                        });
-                    }
-
-                    let item = bag.itemOnMainHand;
+                    let item = e.afterItem;
                     if (item !== undefined) {
                         lore = new ExColorLoreUtil(item);
+
+                        if (item.hasComponentById("minecraft:enchantable")) {
+                            const comp = item.getComponentById("minecraft:enchantable")!;
+                            for (let i of lore.entries("enchants")) {
+                                if (comp.canAddEnchantment({ "level": parseInt(i[1]), "type": i[0] })) {
+                                    comp.addEnchantment({ "level": parseInt(i[1]), "type": i[0] });
+                                }
+                            }
+                        }
                         lore.delete("enchants");
-                        bag.itemOnMainHand = item;
+                        return e.afterItem;
                     }
                 }
             }
@@ -76,29 +78,36 @@ export default class PomEnChantSystem extends GameController {
                             // hand -> new
                             // save -> hand
 
+                            let handlore = new ExColorLoreUtil(exHandItem);
                             let lore = new ExColorLoreUtil(exNewItem);
-                            exNewItem.setLore([...exHandItem.getLore()]);
-                            if (exHandItem.hasComponentById("minecraft:enchantments")) {
-                                for (let i of exHandItem.getComponentById("minecraft:enchantments")!.enchantments) {
-                                    lore.setValueUseMap("enchants", i.type.id, i.level + "");
-                                }
-                                exHandItem.getComponentById("minecraft:enchantments")!.removeAllEnchantments();
+                            let savelore = new ExColorLoreUtil(saveItem);
+                            for(let i of handlore.entries("enchants")){
+                                lore.setValueUseMap("enchants", i[0],i[1]);
                             }
-                            lore = new ExColorLoreUtil(exHandItem);
-                            lore.setLore([...exSaveItem.getLore()]);
-                            // if (exSaveItem.hasComponentById("minecraft:enchantments") && exNewItem.hasComponentById("minecraft:enchantments")) {
-                            //     for (let i of exSaveItem.getComponentById("minecraft:enchantments")!.enchantments) {
-                            //         if (exNewItem.getComponentById("minecraft:enchantments")!.enchantments.canAddEnchantment(i)) {
-                            //             exNewItem.getComponentById("minecraft:enchantments")!.enchantments.addEnchantment(i);
+                            handlore.delete("enchants");
+                            if (exHandItem.hasComponentById("minecraft:enchantable")) {
+                                for (let i of exHandItem.getComponentById("minecraft:enchantable")!.getEnchantments()) {
+                                    lore.setValueUseMap("enchants", typeof (i.type) === "string" ? i.type : i.type.id, i.level + "");
+                                }
+                                exHandItem.getComponentById("minecraft:enchantable")!.removeAllEnchantments();
+                            }
+                            for(let i of savelore.entries("enchants")){
+                                handlore.setValueUseMap("enchants", i[0],i[1]);
+                            }
+                            savelore.delete("enchants");
+                            // if (exSaveItem.hasComponentById("minecraft:enchantable") && exNewItem.hasComponentById("minecraft:enchantable")) {
+                            //     for (let i of exSaveItem.getComponentById("minecraft:enchantable")!.enchantments) {
+                            //         if (exNewItem.getComponentById("minecraft:enchantable")!.enchantments.canAddEnchantment(i)) {
+                            //             exNewItem.getComponentById("minecraft:enchantable")!.enchantments.addEnchantment(i);
                             //         }
                             //     }
-                            //     exSaveItem.getComponentById("minecraft:enchantments")!.removeAllEnchantments();
+                            //     exSaveItem.getComponentById("minecraft:enchantable")!.removeAllEnchantments();
                             // }
-                            if (exSaveItem.getComponentById("minecraft:enchantments")) {
-                                for (let i of exSaveItem.getComponentById("minecraft:enchantments")!.enchantments) {
-                                    lore.setValueUseMap("enchants", i.type.id, i.level + "");
+                            if (exSaveItem.getComponentById("minecraft:enchantable")) {
+                                for (let i of exSaveItem.getComponentById("minecraft:enchantable")!.getEnchantments()) {
+                                    handlore.setValueUseMap("enchants", typeof (i.type) === "string" ? i.type : i.type.id, i.level + "");
                                 }
-                                exSaveItem.getComponentById("minecraft:enchantments")!.removeAllEnchantments();
+                                exSaveItem.getComponentById("minecraft:enchantable")!.removeAllEnchantments();
                             }
 
                             block.transTo("wb:block_translate");

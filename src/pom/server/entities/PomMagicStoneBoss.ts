@@ -12,10 +12,7 @@ export default class PomMagicStoneBoss extends PomBossController {
         super(e, server);
     }
     override initBossEntity(): void {
-        for (let c of this.barrier.clientsByPlayer()) {
-            c.ruinsSystem.causeDamageShow = true;
-            c.ruinsSystem.causeDamageType.add(this.entity.typeId);
-        }
+        super.initBossEntity();
         if (this.isFisrtCall) this.server.say({ rawtext: [{ translate: "text.wb:summon_magic_stoneman.name" }] });
     }
     override onSpawn(): void {

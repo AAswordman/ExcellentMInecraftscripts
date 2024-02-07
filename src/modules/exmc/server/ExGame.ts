@@ -8,6 +8,7 @@ import { ScriptEventCommandMessageAfterEvent, system } from "@minecraft/server";
 import MonitorManager from "../utils/MonitorManager.js";
 import { TickEvent } from "./events/events.js";
 import ExErrorQueue from "./ExErrorQueue.js";
+import { world } from "@minecraft/server";
 
 export default class ExGame {
     static beforeTickMonitor = new MonitorManager<[TickEvent]>();
@@ -16,7 +17,7 @@ export default class ExGame {
     static scriptEventReceive = new MonitorManager<[ScriptEventCommandMessageAfterEvent]>();
     static {
         let tickNum = 0,
-            tickTime = 0;
+        tickTime = 0;
         const fun = () => {
             const n = Date.now();
             let event: TickEvent = {
@@ -53,6 +54,9 @@ export default class ExGame {
     }
 
     static serverMap = new Map<typeof ExGameServer, ExGameServer>;
+    static runJob(r: () => Generator<unknown, any, unknown>) {
+        
+    }
     static createServer(serverCons: typeof ExGameServer, config: ExConfig) {
         let server = new serverCons(config);
         this.serverMap.set(serverCons, server);

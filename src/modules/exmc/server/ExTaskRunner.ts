@@ -1,5 +1,6 @@
 import ExSystem from "../utils/ExSystem.js";
 import TickDelayTask from "../utils/TickDelayTask.js";
+import ExGame from "./ExGame.js";
 
 export default class ExTaskRunner {
     tasks!: Generator;
@@ -27,6 +28,7 @@ export default class ExTaskRunner {
         return pro;
     }
     setTasks(r: () => Generator) {
+        // ExGame.runJob(r)
         this.tasks = r();
     }
 

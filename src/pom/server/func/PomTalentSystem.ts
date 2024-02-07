@@ -361,8 +361,6 @@ export default class PomTalentSystem extends GameController {
                 lore.sort();
                 this.itemOnHandComp = comp;
 
-                bag.itemOnMainHand = e.afterItem;
-
                 //武器特殊项
                 if (comp.hasComponent("equipment_type")) {
 
@@ -394,6 +392,8 @@ export default class PomTalentSystem extends GameController {
                         }
                     }).delay(5 * 20)).start(); //
                 }
+
+                return e.afterItem;
             } else {
                 this.equiTotalTask?.stop();
                 this.itemOnHandComp = undefined;

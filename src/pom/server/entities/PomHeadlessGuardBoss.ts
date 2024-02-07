@@ -11,21 +11,18 @@ import ExGame from '../../../modules/exmc/server/ExGame.js';
 
 export default class PomHeadlessGuardBoss extends PomBossController {
     static typeId = "wb:headless_guard"
-    music: ExMusic;
+    music!: ExMusic;
     constructor(e: Entity, server: PomServer) {
         super(e, server);
-        this.music = server.getMusic("music.wb.unknown_world", "2:16");
+        
     }
     override initBossEntity(): void {
-        for (let c of this.barrier.clientsByPlayer()) {
-            c.ruinsSystem.causeDamageShow = true;
-            c.ruinsSystem.causeDamageType.add(this.entity.typeId);
-        }
+        super.initBossEntity();
+        this.music = this.server.getMusic("music.wb.unknown_world", "2:16");
+        this.music.trackPlayers(Array.from(this.barrier.getPlayers()));
         if(this.isFisrtCall) {
             this.server.say({ rawtext: [{ translate: "text.wb:summon_headless_guard.name" }] });
-            this.setTimeout(() => {
-                this.music.loop(this.exEntity.exDimension, this.entity.location);
-            }, 500);
+            this.music.loop();
         }
     }
     override onSpawn(): void {

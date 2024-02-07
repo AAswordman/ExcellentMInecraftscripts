@@ -90,7 +90,7 @@ export default class ExGameServer implements SetTimeOutSupport {
             new (entityConstructor)(e.entity, this);
         }
     }
-    
+
 
     createEntityController<T extends ExEntityController>(e: Entity, ec: new (e: Entity, server: ExGameServer) => (T)) {
         return new ec(e, this);
@@ -109,13 +109,8 @@ export default class ExGameServer implements SetTimeOutSupport {
 
     private static musicMap = new Map<string, ExMusic>();
     getMusic(id: string, t: string) {
-        if (ExGameServer.musicMap.has(id)) {
-            return ExGameServer.musicMap.get(id)!;
-        } else {
-            let m = new ExMusic(this, id, t);
-            ExGameServer.musicMap.set(id, m);
-            return m;
-        }
+        return new ExMusic(this, id, t);
+
     }
 
 

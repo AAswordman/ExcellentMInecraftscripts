@@ -104,13 +104,13 @@ export default class ExEntityEvents implements ExEventManager {
         [ExEventNames.afterEntityHitBlock]: new Listener<EntityHurtAfterEvent>(this, ExEventNames.afterEntityHitBlock),
         [ExEventNames.afterEntityHitEntity]: new Listener<EntityHurtAfterEvent>(this, ExEventNames.afterEntityHitEntity),
         [ExOtherEventNames.afterOnHurt]: new Listener<EntityHurtAfterEvent>(this, ExOtherEventNames.afterOnHurt),
-        [ExOtherEventNames.afterItemOnHandChange]: new Listener<ItemOnHandChangeEvent>(this,ExOtherEventNames.afterItemOnHandChange),
+        [ExOtherEventNames.afterItemOnHandChange]: new CallBackListener<ItemOnHandChangeEvent,ItemStack>(this, ExOtherEventNames.afterItemOnHandChange),
         [ExOtherEventNames.onLongTick]: new Listener<TickEvent>(this, ExOtherEventNames.onLongTick),
         [ExOtherEventNames.beforeTick]: new Listener<TickEvent>(this, ExOtherEventNames.beforeTick),
         [ExEventNames.afterPlayerBreakBlock]: new Listener<PlayerBreakBlockAfterEvent>(this, ExEventNames.afterPlayerBreakBlock),
         [ExEventNames.afterEntityRemove]: new Listener<PlayerBreakBlockAfterEvent>(this, ExEventNames.afterEntityRemove)
     };
-    
+
     public static init(s: ExGameServer) {
         this.eventHandlers.setEventLiseners(this.exEventSetting);
         this.eventHandlers.init(s);
@@ -138,7 +138,7 @@ export default class ExEntityEvents implements ExEventManager {
     }
 }
 
-class Listener<T>{
+class Listener<T> {
     subscribe: (callback: (arg: T) => void) => void;
     unsubscribe: (callback: (arg: T) => void) => void;
     constructor(e: ExEntityEvents, name: string) {
@@ -146,6 +146,18 @@ class Listener<T>{
             e._subscribe(name, callback);
         }
         this.unsubscribe = (callback: (arg: T) => void) => {
+            e._unsubscribe(name, callback);
+        }
+    }
+}
+class CallBackListener<T, V> {
+    subscribe: (callback: (arg1: T) => V) => void;
+    unsubscribe: (callback: (arg1: T) => V) => void;
+    constructor(e: ExEntityEvents, name: string) {
+        this.subscribe = (callback: (arg1: T) => V) => {
+            e._subscribe(name, callback);
+        }
+        this.unsubscribe = (callback: (arg1: T) => V) => {
             e._unsubscribe(name, callback);
         }
     }

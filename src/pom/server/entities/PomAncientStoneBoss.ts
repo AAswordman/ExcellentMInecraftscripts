@@ -1,4 +1,4 @@
-import { Entity, EntityDamageCause, EntityHurtAfterEvent, world } from '@minecraft/server';
+import { Camera, Entity, EntityDamageCause, EntityHurtAfterEvent, world } from '@minecraft/server';
 import ExGameServer from '../../../modules/exmc/server/ExGameServer.js';
 import ExEntityController from '../../../modules/exmc/server/entity/ExEntityController.js';
 import ExGameConfig from '../../../modules/exmc/server/ExGameConfig.js';
@@ -12,7 +12,7 @@ import Vector3 from '../../../modules/exmc/math/Vector3.js';
 
 export default class PomAncientStoneBoss extends PomBossController {
     static typeId = "wb:ancient_stone"
-    music: ExMusic;
+    music!: ExMusic;
     private viewTime = 0;
     cannonView = new VarOnChangeListener((n, l) => {
         if (n) {
@@ -21,7 +21,7 @@ export default class PomAncientStoneBoss extends PomBossController {
                 if (this.viewTime >= 0.4) {
                     const view = new Vector3();
                     const pos = new Vector3();
-                    for(let e of this.barrier.getPlayers()){
+                    for (let e of this.barrier.getPlayers()) {
                         view.set(e.getViewDirection());
                         view.y = 0;
                         view.normalize();
@@ -39,7 +39,7 @@ export default class PomAncientStoneBoss extends PomBossController {
             this.setTimeout(() => {
                 this.getEvents().exEvents.tick.unsubscribe(f);
             }, 5000);
-            for(let e of this.barrier.getPlayers()){
+            for (let e of this.barrier.getPlayers()) {
                 const c = this.server.findClientByPlayer(e);
                 c?.setTimeout(() => {
                     c.exPlayer.command.run(`camera @s clear`);
@@ -51,19 +51,14 @@ export default class PomAncientStoneBoss extends PomBossController {
     }, false);
     constructor(e: Entity, server: PomServer) {
         super(e, server);
-        this.music = server.getMusic("music.wb.anger_of_ancient", "2:24");
     }
     override initBossEntity(): void {
-        for (let c of this.barrier.clientsByPlayer()) {
-            c.ruinsSystem.causeDamageShow = true;
-            c.ruinsSystem.causeDamageType.add(this.entity.typeId);
-        }
+        super.initBossEntity();
+        this.music = this.server.getMusic("music.wb.unknown_world", "2:16");
+        this.music.trackPlayers(Array.from(this.barrier.getPlayers()));
         if (!this.exEntity.hasComponent("minecraft:is_baby") && this.isFisrtCall) {
             this.server.say({ rawtext: [{ translate: "text.wb:summon_ancient_stone.name" }] });
-            this.setTimeout(() => {
-                this.music.loop(this.exEntity.exDimension, this.entity.location);
-            }, 500);
-
+            this.music.loop();
         }
         this.getEvents().exEvents.onLongTick.subscribe(e => {
             this.cannonView.upDate(this.exEntity.hasTag("cannon"));

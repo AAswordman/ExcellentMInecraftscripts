@@ -8,41 +8,43 @@ export default class ExMusic {
     long: number;
     looper?: TimeLoopTask;
     manager: ExGameServer;
-    trackPlayers?: Player[];
-    constructor(manager: ExGameServer, id: string, time: string, trackPlayers?: Player[]) {
+    players?: Player[];
+    constructor(manager: ExGameServer, id: string, time: string) {
         this.soundId = id;
         let s = time.split(":");
         this.long = (parseInt(s[0]) * 60 + parseInt(s[1])) * 1000;
         this.manager = manager;
-        trackPlayers = trackPlayers;
     }
     isInDelayStop = false;
-    loop(dim: ExDimension, vec: IVector3) {
-        console.warn(`play ${this.soundId} at ${vec.x} ${vec.y} ${vec.z}`);
+    trackPlayers(players: Player[]) {
+        this.players = players.concat([]);
+    }
+    loop() {
         if (this.isInDelayStop) {
             this.isInDelayStop = false;
         } else {
-            if (!this.trackPlayers) {
-                this.trackPlayers = [];
-                for (let p of dim.getPlayers({
-                    maxDistance: 64,
-                    location: vec
-                })) {
-                    this.trackPlayers.push(p);
+            console.warn(`play ${this.soundId}`);
+            if (this.players) {
+                for (let p of this.players) {
+                    console.warn(`play ${this.soundId} for ${p.name}`);
                     p.playMusic(this.soundId, {
-                        "fade": 1,
+                        "fade": 2,
                         "loop": true,
                         "volume": 0.5
                     })
+
                 }
             }
         }
     }
     stop() {
         console.warn(`stop ${this.soundId}`);
-        if (!this.trackPlayers) return;
-        for (let p of this.trackPlayers) {
-            p.stopMusic();
+        if (!this.players) return;
+        for (let p of this.players) {
+            p.playMusic("music.none10", {
+                "fade": 2,
+                "loop": false
+            })
         }
     }
     delayStop(time: number) {
@@ -56,13 +58,13 @@ export default class ExMusic {
     }
     play(dim: ExDimension, vec: IVector3) {
         console.warn(`play ${this.soundId} at ${vec.x} ${vec.y} ${vec.z}`);
-        if (!this.trackPlayers) {
-            this.trackPlayers = [];
+        if (!this.players) {
+            this.players = [];
             for (let p of dim.getPlayers({
                 maxDistance: 64,
                 location: vec
             })) {
-                this.trackPlayers.push(p);
+                this.players.push(p);
                 p.queueMusic(this.soundId, {
                     "fade": 1,
                     "loop": false,

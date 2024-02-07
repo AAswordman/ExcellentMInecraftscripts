@@ -12,10 +12,12 @@ import GlobalScoreBoardCache from "../../modules/exmc/server/storage/cache/Globa
 import { Objective } from "../../modules/exmc/server/entity/ExScoresManager.js";
 import Random from "../../modules/exmc/utils/Random.js";
 import { MinecraftEffectTypes } from "../../modules/vanilla-data/lib/index.js";
+import DecBossBarrier from "./entities/DecBossBarrier.js";
 
 
 export default class DecClient extends ExGameClient {
-    useArmor: undefined | ArmorData = undefined;
+    useArmor?:ArmorData;
+    bossBarrier?: DecBossBarrier;
     constructor(server: ExGameServer, id: string, player: Player) {
         super(server, id, player);
 
@@ -110,6 +112,7 @@ export default class DecClient extends ExGameClient {
 
             //这里写死亡事件
             if (this.exPlayer.health <= 0) {
+                if(this.bossBarrier) this.bossBarrier.notifyDeathAdd();
                 this.exPlayer.command.run('function die/normal');
                 if (this.globalscores.getNumber('DieMode') === 1) {
                     //死亡模式
@@ -270,7 +273,7 @@ export default class DecClient extends ExGameClient {
 
                     }
                     c_n.setLore(lor);
-                    bag.itemOnMainHand = (c_n);
+                    return (c_n);
                 }
             }
         });
@@ -332,7 +335,7 @@ export default class DecClient extends ExGameClient {
 
             if (e.currentTick % 20 === 0) {
                 //深渊之翼
-                if (this.exPlayer.getBag().getSlot(EquipmentSlot.Chest).typeId == 'dec:wings_from_deep') {
+                if (this.exPlayer.getBag().equipmentOnChest?.typeId == 'dec:wings_from_deep') {
                     ep.addEffect(MinecraftEffectTypes.JumpBoost, 6 * 20, 1, true)
                     ep.addEffect(MinecraftEffectTypes.SlowFalling, 6 * 20, 0, true)
                 }
