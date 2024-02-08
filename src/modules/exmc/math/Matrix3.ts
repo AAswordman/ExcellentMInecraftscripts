@@ -1,13 +1,13 @@
 export default class Matrix3 {
-    
+
 
     val: Float32Array = new Float32Array(9);
 
-    constructor(copy: Matrix3)
+    constructor(copy: Matrix3 | Float32Array)
     constructor(m00: number, m01: number, m02: number,
         m10: number, m11: number, m12: number,
         m20: number, m21: number, m22: number)
-    constructor(m00?: number | Matrix3, m01?: number, m02?: number,
+    constructor(m00?: number | Matrix3 | Float32Array, m01?: number, m02?: number,
         m10?: number, m11?: number, m12?: number,
         m20?: number, m21?: number, m22?: number) {
         if (!m00) {
@@ -17,11 +17,11 @@ export default class Matrix3 {
         }
     }
 
-    public set(copy: Matrix3): this;
+    public set(copy: Matrix3 | Float32Array): this;
     public set(m00: number, m01: number, m02: number,
         m10: number, m11: number, m12: number,
         m20: number, m21: number, m22: number): this;
-    public set(m00?: number | Matrix3, m01?: number, m02?: number,
+    public set(m00?: number | Matrix3 | Float32Array, m01?: number, m02?: number,
         m10?: number, m11?: number, m12?: number,
         m20?: number, m21?: number, m22?: number): Matrix3 {
         if (typeof m00 === 'number') {
@@ -37,6 +37,10 @@ export default class Matrix3 {
         } else if (m00 instanceof Matrix3) {
             for (let i = 0; i < 9; i++) {
                 this.val[i] = m00.val[i];
+            }
+        } else if (m00 instanceof Float32Array) {
+            for (let i = 0; i < 9; i++) {
+                this.val[i] = m00[i];
             }
 
         }

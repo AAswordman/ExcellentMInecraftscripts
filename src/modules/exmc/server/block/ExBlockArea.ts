@@ -5,12 +5,12 @@ import Vector3, { IVector3 } from '../../math/Vector3.js';
 
 export class ExBlockArea {
     center(): Vector3 {
-        return this.end.clone().sub(this.start).scl(1/2).add(this.start);
+        return this.end.clone().sub(this.start).scl(1 / 2).add(this.start);
     }
     contains(tmpV: IVector3) {
         return this.start.x <= tmpV.x && this.start.z <= tmpV.z &&
-        tmpV.x <= this.end.x && tmpV.z <= this.end.z &&
-        this.start.y <= tmpV.y && tmpV.y <= this.end.y
+            tmpV.x <= this.end.x && tmpV.z <= this.end.z &&
+            this.start.y <= tmpV.y && tmpV.y <= this.end.y
     }
     start: Vector3;
     end: Vector3;
@@ -37,37 +37,29 @@ export class ExBlockArea {
 
     }
     resetRotation() {
-        this.setMatrix4(new Matrix4([
-            [1, 0, 0, 0],
-            [0, 1, 0, 0],
-            [0, 0, 1, 0],
-            [0, 0, 0, 1]
-        ]));
+        this.setMatrix4(new Matrix4().idt());
     }
 
     turnUp() {
-        this.setMatrix4(this.mat.mul(new Matrix4([
-            [1, 0, 0, 0],
-            [0, 0, -1, 0],
-            [0, 1, 0, 0],
-            [0, 0, 0, 1]
-        ])));
+        this.setMatrix4(this.mat.mul(new Matrix4(1, 0, 0, 0,
+            0, 0, -1, 0,
+            0, 1, 0, 0,
+            0, 0, 0, 1)));
     }
     turnRight() {
-        this.setMatrix4(this.mat = this.mat.mul(new Matrix4([
-            [0, 0, -1, 0],
-            [0, 1, 0, 0],
-            [1, 0, 0, 0],
-            [0, 0, 0, 1]
-        ])));
+        this.setMatrix4(this.mat = this.mat.mul(new Matrix4(0, 0, -1, 0,
+            0, 1, 0, 0,
+            1, 0, 0, 0,
+            0, 0, 0, 1
+        )));
     }
     turnFrontClockwise() {
-        this.setMatrix4(this.mat.mul(new Matrix4([
-            [0, -1, 0, 0],
-            [1, 0, 0, 0],
-            [0, 0, 1, 0],
-            [0, 0, 0, 1]
-        ])));
+        this.setMatrix4(this.mat.mul(new Matrix4(
+            0, -1, 0, 0,
+            1, 0, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        )));
     }
 
     pointAtStart(vec: Vector3) {
@@ -118,7 +110,7 @@ export class ExBlockArea {
     }
     clone() {
         const res = new ExBlockArea(this.start.clone(), this.end.clone().sub(1, 1, 1), true);
-        res.setMatrix4(this.mat.clone());
+        res.setMatrix4(this.mat.cpy());
         return res;
     }
     setMatrix4(mat: Matrix4) {
@@ -128,7 +120,7 @@ export class ExBlockArea {
     private static tempV = new Vector3();
     private static tempP = new Vector3();
     static randomPoint(e: ExBlockArea[], bound = 0) {
-        if(e.length === 0){
+        if (e.length === 0) {
             throw new Error("empty array");
         }
         let area = e[Math.floor(Math.random() * e.length)];

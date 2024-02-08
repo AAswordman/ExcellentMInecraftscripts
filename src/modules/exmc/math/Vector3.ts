@@ -176,12 +176,7 @@ export default class Vector3 {
     public mul(n: Matrix4): Vector3;
     public mul(n: IVector3 | Matrix4) {
         if (n instanceof Matrix4) {
-            const mat = n.val;
-            return this.set(
-                this.x * mat[0][0] + this.y * mat[0][1] + this.z * mat[0][2] + mat[0][3],
-                this.x * mat[1][0] + this.y * mat[1][1] + this.z * mat[1][2] + mat[1][3],
-                this.x * mat[2][0] + this.y * mat[2][1] + this.z * mat[2][2] + mat[2][3]
-            );
+            return n.transformVector(this);
         } else {
             return n.x * this.x + n.y * this.y + n.z * this.z;
         }
