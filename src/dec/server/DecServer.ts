@@ -30,7 +30,6 @@ export default class DecServer extends ExGameServer {
     i_damp: Objective;
     i_soft: Objective;
     i_heavy: Objective;
-    bullet_type: Objective;
     skill_count: Objective;
     gametime: Objective;
     magicpoint: Objective;
@@ -55,7 +54,6 @@ export default class DecServer extends ExGameServer {
         this.i_damp = new Objective("i_damp").create("i_damp");
         this.i_soft = new Objective("i_soft").create("i_soft");
         this.i_heavy = new Objective("i_heavy").create("i_heavy");
-        this.bullet_type = new Objective("bullet_type").create("bullet_type");
         this.skill_count = new Objective("skill_count").create("skill_count");
         this.gametime = new Objective("gametime").create("gametime");
         this.magicpoint = new Objective("magicpoint").create("magicpoint");

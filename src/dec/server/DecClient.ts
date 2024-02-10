@@ -13,7 +13,7 @@ import { Objective } from "../../modules/exmc/server/entity/ExScoresManager.js";
 import Random from "../../modules/exmc/utils/Random.js";
 import { MinecraftEffectTypes } from "../../modules/vanilla-data/lib/index.js";
 import DecBossBarrier from "./entities/DecBossBarrier.js";
-import ExEntity from '../../modules/exmc/server/entity/ExEntity.js';
+import ExEntity, { ExEntityShootOption } from '../../modules/exmc/server/entity/ExEntity.js';
 import ExPlayer from '../../modules/exmc/server/entity/ExPlayer.js';
 
 
@@ -368,9 +368,9 @@ export default class DecClient extends ExGameClient {
                 if (p.isSneaking) {
                     if (this.useArmor === ArmorPlayerDec.turtle) {
                         if (ep.getBag().itemOnMainHand?.typeId === "dec:turtle_sword") {
-                            ep.addEffect(MinecraftEffectTypes.Slowness, 5 * 20, 5);
-                            ep.addEffect(MinecraftEffectTypes.Slowness, 2 * 20, 3);
-                            ep.addEffect(MinecraftEffectTypes.Slowness, 2 * 20, 50);
+                            ep.addEffect(MinecraftEffectTypes.Slowness, 5 * 20, 2);
+                            ep.addEffect(MinecraftEffectTypes.Resistance, 2 * 20, 3);
+                            ep.addEffect(MinecraftEffectTypes.Regeneration, 2 * 20, 0);
                         }
                     }
                 }
@@ -493,11 +493,6 @@ export default class DecClient extends ExGameClient {
             if (e.itemStack.getComponent('minecraft:cooldown') != undefined && e.source.getItemCooldown(<string>e.itemStack.getComponent('minecraft:cooldown')?.cooldownCategory) == 0) {
                 let item_name = e.itemStack.typeId
                 let p = ExPlayer.getInstance(e.source)
-                let lo_offset = new Vector3(0,0,-1)//这里z-1才是实际的head位置，可能是ojang的bug吧
-                let lo = Vector.add(
-                    Vector.add(e.source.getHeadLocation(),lo_offset),
-                Vector.multiply(e.source.getViewDirection(),1.5)
-                )
                 let off_hand = p.getBag().itemOnOffHand?.typeId
                 interface bullet {
                     [key: string]: number
@@ -516,22 +511,15 @@ export default class DecClient extends ExGameClient {
                         return false
                     }
                 }
+                let ex_e = ExEntity.getInstance(e.source)
                 if (item_name == 'dec:bomber' && has_bullet('dec:bomber_bullet')) {
-                    let bullet_1 = e.source.dimension.spawnEntity('dec:fake_fireball', lo)
-                    let pc_1 = <EntityProjectileComponent>bullet_1.getComponent('minecraft:projectile')
-                    let bomber_shoot :ProjectileShootOptions = {
+                    let shoot_opt : ExEntityShootOption={
+                        speed: 3,
                         uncertainty: 5
                     }
-                    pc_1.owner = e.source
-                    pc_1?.shoot(Vector.multiply(e.source.getViewDirection(),3),bomber_shoot)
-                    let bullet_2 = e.source.dimension.spawnEntity('dec:fake_fireball', lo)
-                    let pc_2 = <EntityProjectileComponent>bullet_2.getComponent('minecraft:projectile')
-                    pc_2.owner = e.source
-                    pc_2?.shoot(Vector.multiply(e.source.getViewDirection(),2.9),bomber_shoot)
-                    let bullet_3 = e.source.dimension.spawnEntity('dec:fake_fireball', lo)
-                    let pc_3 = <EntityProjectileComponent>bullet_3.getComponent('minecraft:projectile')
-                    pc_3.owner = e.source
-                    pc_3?.shoot(Vector.multiply(e.source.getViewDirection(),2.9),bomber_shoot)
+                    ex_e.shootProj('dec:fake_fireball',shoot_opt)
+                    ex_e.shootProj('dec:fake_fireball',shoot_opt)
+                    ex_e.shootProj('dec:fake_fireball',shoot_opt)
                     e.source.runCommandAsync('function item/bomber')
                     //e.source.playSound('random.explode')
                     //e.source.playAnimation('animation.humanoid.shoot')
@@ -540,18 +528,115 @@ export default class DecClient extends ExGameClient {
                 } else if (item_name == 'dec:catapult' && (has_bullet('dec:small_stone') ||has_bullet('dec:exploding_pellets'))){
                     e.source.playAnimation('animation.humanoid.catapult')
                     e.source.playSound('mob.snowgolem.shoot')
+                    let shoot_opt : ExEntityShootOption={
+                        speed: 0.9,
+                        uncertainty: 3
+                    }
                     if (p.getBag().itemOnOffHand?.typeId == 'dec:exploding_pellets' || (bullet_cur['dec:exploding_pellets'] != -1 && bullet_cur['dec:small_stone'] > bullet_cur['dec:exploding_pellets'])) {
-                        let bullet_1 = e.source.dimension.spawnEntity('dec:bullet_by_catapult_explode', lo)
-                        bullet_1.applyImpulse(Vector.multiply(e.source.getViewDirection(),0.9))
+                        ex_e.shootProj('dec:bullet_by_catapult_explode',shoot_opt)
                         p.getBag().clearItem('dec:exploding_pellets',1)
                     } else {
-                        let bullet_1 = e.source.dimension.spawnEntity('dec:bullet_by_catapult_normal', lo)
-                        bullet_1.applyImpulse(Vector.multiply(e.source.getViewDirection(),0.9))
+                        ex_e.shootProj('dec:bullet_by_catapult_normal',shoot_opt)
                         p.getBag().clearItem('dec:small_stone',1)
                     }
                     suc = true
+                } else if (item_name == 'dec:everlasting_winter_flintlock' && has_bullet('dec:flintlock_bullet')){
+                    let shoot_opt_1 : ExEntityShootOption={
+                        speed: 6,
+                        uncertainty: 0
+                    }
+                    let shoot_opt_2 : ExEntityShootOption={
+                        speed: 5,
+                        uncertainty: 0.5
+                    }
+                    ex_e.shootProj('dec:bullet_by_everlasting_winter_flintlock',shoot_opt_1)
+                    ex_e.shootProj('dec:bullet_by_everlasting_winter_flintlock',shoot_opt_2)
+                    ex_e.shootProj('dec:bullet_by_everlasting_winter_flintlock',shoot_opt_2)
+                    e.source.runCommandAsync('function item/general_flintlock')
+                    suc = true
+                } else if (item_name == 'dec:flintlock_pro' && has_bullet('dec:flintlock_bullet')){
+                    let shoot_opt_1 : ExEntityShootOption={
+                        speed: 5.4,
+                        uncertainty: 0
+                    }
+                    let shoot_opt_2 : ExEntityShootOption={
+                        speed: 4.8,
+                        uncertainty: 3
+                    }
+                    ex_e.shootProj('dec:bullet_by_flintlock_pro',shoot_opt_1)
+                    ex_e.shootProj('dec:bullet_by_flintlock_pro',shoot_opt_2)
+                    ex_e.shootProj('dec:bullet_by_flintlock_pro',shoot_opt_2)
+                    e.source.runCommandAsync('function item/general_flintlock')
+                    suc = true
+                } else if (item_name == 'dec:flintlock' && has_bullet('dec:flintlock_bullet')){
+                    let shoot_opt_1 : ExEntityShootOption={
+                        speed: 5,
+                        uncertainty: 0.1
+                    }
+                    let shoot_opt_2 : ExEntityShootOption={
+                        speed: 4.3,
+                        uncertainty: 3
+                    }
+                    ex_e.shootProj('dec:bullet_by_flintlock',shoot_opt_1)
+                    ex_e.shootProj('dec:bullet_by_flintlock',shoot_opt_2)
+                    ex_e.shootProj('dec:bullet_by_flintlock',shoot_opt_2)
+                    e.source.runCommandAsync('function item/general_flintlock')
+                    suc = true
+                } else if (item_name == 'dec:ghost_flintlock' && has_bullet('dec:flintlock_bullet')){
+                    let shoot_opt : ExEntityShootOption={
+                        speed: 7.2,
+                        uncertainty: 0
+                    }
+                    ex_e.shootProj('dec:bullet_by_ghost_flintlock',shoot_opt)
+                    e.source.runCommandAsync('function item/general_flintlock')
+                    suc = true
+                } else if (item_name == 'dec:lava_flintlock' && has_bullet('dec:flintlock_bullet')){
+                    let shoot_opt : ExEntityShootOption={
+                        speed: 4.8,
+                        uncertainty: 6
+                    }
+                    ex_e.shootProj('dec:bullet_by_lava_flintlock',shoot_opt)//需要测试强度
+                    ex_e.shootProj('dec:bullet_by_lava_flintlock',shoot_opt)
+                    ex_e.shootProj('dec:bullet_by_lava_flintlock',shoot_opt)
+                    ex_e.shootProj('dec:bullet_by_lava_flintlock',shoot_opt)
+                    e.source.runCommandAsync('function item/general_flintlock')
+                    suc = true
+                } else if (item_name == 'dec:short_flintlock' && has_bullet('dec:flintlock_bullet')){
+                    let shoot_opt : ExEntityShootOption={
+                        speed: 4.8,
+                        uncertainty: 10
+                    }
+                    ex_e.shootProj('dec:bullet_by_flintlock',shoot_opt)//需测试强度
+                    ex_e.shootProj('dec:bullet_by_flintlock',shoot_opt)
+                    e.source.runCommandAsync('function item/general_flintlock')
+                    suc = true
+                } else if (item_name == 'dec:star_flintlock' && has_bullet('dec:flintlock_bullet')){
+                    let shoot_opt : ExEntityShootOption={
+                        speed: 5,
+                        uncertainty: 4
+                    }
+                    ex_e.shootProj('dec:bullet_by_star_flintlock',shoot_opt)//需要测试强度
+                    ex_e.shootProj('dec:bullet_by_star_flintlock',shoot_opt)
+                    ex_e.shootProj('dec:bullet_by_star_flintlock',shoot_opt)
+                    ex_e.shootProj('dec:bullet_by_star_flintlock',shoot_opt)
+                    ex_e.shootProj('dec:bullet_by_star_flintlock',shoot_opt)
+                    e.source.runCommandAsync('function item/general_flintlock')
+                    suc = true
+                } else if (item_name == 'dec:storm_flintlock' && has_bullet('dec:flintlock_bullet')){
+                    let shoot_opt_1 : ExEntityShootOption={
+                        speed: 4.2,
+                        uncertainty: 0
+                    }
+                    let shoot_opt_2 : ExEntityShootOption={
+                        speed: 3,
+                        uncertainty: 3
+                    }
+                    ex_e.shootProj('dec:bullet_by_storm_flintlock',shoot_opt_1)
+                    ex_e.shootProj('dec:bullet_by_storm_flintlock',shoot_opt_2)
+                    ex_e.shootProj('dec:bullet_by_storm_flintlock',shoot_opt_2)
+                    e.source.runCommandAsync('function item/general_flintlock')
+                    suc = true
                 }
-                //这还没写完，记得写散布范围，clear也有问题（副手不会清）
 
                 if(suc) {
                     let new_item = e.itemStack

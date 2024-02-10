@@ -63,11 +63,17 @@ export default class ExEntityBag {
         return items;
     }
     clearItem(msg: string | number, amount: number) {
+        //lly写完后发现，好像不用把副手弄成-1，不然每次都会检测是不是-1，似乎刚开始检测一下就好（但不知道怎么改qwq
         if (typeof msg === 'string') {
             let id = msg;
             let res = 0;
             for (let i = -1; i < this.size(); i++) {
-                let item = this.getItem(i);
+                let item : ItemStack|undefined
+                if (i === -1) {
+                    item = this.itemOnOffHand
+                } else {
+                    item = this.getItem(i);
+                }
                 if (item?.typeId === id) {
                     let suc = this.clearItem(i, amount);
                     res += suc;
@@ -80,18 +86,18 @@ export default class ExEntityBag {
             return res;
         } else {
             let item:ItemStack | undefined;
-            if(msg == -1) {
+            if(msg === -1) {
                 item = this.itemOnOffHand;
             } else {
                 item = this.getItem(msg);
             }
             if (item) {
                 if (amount >= item.amount) {
-                    this.setItem(msg, undefined);
+                    this.setItem(msg === -1 ? EquipmentSlot.Offhand : msg, undefined);
                     return item.amount;
                 } else {
                     item.amount -= amount;
-                    this.setItem(msg, item);
+                    this.setItem(msg === -1 ? EquipmentSlot.Offhand : msg, item);
                     return amount;
                 }
             }

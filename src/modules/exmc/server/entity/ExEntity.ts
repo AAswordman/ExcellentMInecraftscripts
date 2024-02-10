@@ -11,6 +11,7 @@ import ExDimension from '../ExDimension.js';
 import Vector2, { IVector2 } from '../../math/Vector2.js';
 import { AlsoInstanceType } from '../../utils/tool.js';
 import { EntityMovementComponent } from '@minecraft/server';
+import Matrix4 from '../../math/Matrix4.js';
 
 
 const compId = {
@@ -224,9 +225,9 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         this.getComponent("minecraft:movement")?.setCurrentValue(num);
     }
 
-    shootProj(id: string, option: ExEntityShootOption, velocity: Vector3) {
+    shootProj(id: string, option: ExEntityShootOption,loc=this._entity.getHeadLocation(),shoot_dir=this._entity.getViewDirection()) {
         let lo = Vector.add(
-            Vector.add(this._entity.getHeadLocation(), new Vector3(0, 0, -1)),//这里z-1才是实际的head位置，可能是ojang的bug吧
+            Vector.add(loc, new Vector3(0, 0, -1)),//这里z-1才是实际的head位置，可能是ojang的bug吧
             Vector.multiply(this._entity.getViewDirection(), 1.5)
         )//等会写offset
         if (option.absPosOffset !== undefined) {
@@ -235,13 +236,16 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         if (option.viewPosOffset !== undefined) {
             lo = Vector.add(lo,this.getViewVector(option.viewPosOffset))
         }
-        let view = this._entity.getViewDirection()
         let proj = this._entity.dimension.spawnEntity(id, lo)
         let proj_comp = proj.getComponent('minecraft:projectile')
         if (proj_comp === undefined) {
             proj.remove()
             return false
         } else {
+            let view = shoot_dir
+            if (option.rotOffset !== undefined){
+                view = Vector.add(view,this.relateRotate(option.rotOffset.x,option.rotOffset.y,false))
+            }
             let shootOpt: ProjectileShootOptions = {
                 uncertainty: option.uncertainty ?? 0
             }
@@ -262,24 +266,21 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
             proj_comp.shoot(Vector.multiply(view,option.speed),shootOpt)
             return true
         }
-        //马上开写
     }
 
     relateRotate(x:number,y:number,take_effect=true){
         let v_c = this._entity.getViewDirection()
-
-        //竖直转动，xRot，90纯竖直向下，-90纯竖直向上
         let l_0 = Math.pow(Math.pow(v_c.x,2) + Math.pow(v_c.z,2),0.5)
         let phi_cur = - Math.atan( v_c.y / l_0) * 180 / Math.PI
         let phi_ca = phi_cur + x
         let phi = (phi_ca > 180 ? 180 : (phi_ca < -180 ? -180 : phi_ca)) * Math.PI / 180
-        v_c.y = - Math.sin(phi)
-        let l_1 = Math.cos(phi)
-        v_c.x = l_1 * v_c.x / l_0
-        v_c.y = l_1 * v_c.y / l_0
 
-        //横向转动，yRot，~+向右，即xOz平面中逆时针转，~-向左
+        v_c = new Vector3(v_c).mul(new Matrix4().rotateX(phi).rotateY(-y * Math.PI/180))
         
+        if (take_effect){
+            //这里有时间写个设置玩家视角
+        }
+        return v_c
     }
 
     getViewVectorBase() {
