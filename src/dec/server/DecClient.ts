@@ -1,4 +1,4 @@
-import { EntityDamageCause, EquipmentSlot, GameMode, ItemStack, MinecraftDimensionTypes, Player, system } from "@minecraft/server";
+import { EntityDamageCause, EquipmentSlot, GameMode, ItemStack, MinecraftDimensionTypes, Player, system, ItemStopUseAfterEvent, Vector, ItemDurabilityComponent, ProjectileShootOptions, EntityProjectileComponent } from '@minecraft/server';
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import ExGameServer from "../../modules/exmc/server/ExGameServer.js";
 import { ArmorData, ArmorPlayerDec, ArmorPlayerPom } from "./items/ArmorData.js";
@@ -13,10 +13,12 @@ import { Objective } from "../../modules/exmc/server/entity/ExScoresManager.js";
 import Random from "../../modules/exmc/utils/Random.js";
 import { MinecraftEffectTypes } from "../../modules/vanilla-data/lib/index.js";
 import DecBossBarrier from "./entities/DecBossBarrier.js";
+import ExEntity from '../../modules/exmc/server/entity/ExEntity.js';
+import ExPlayer from '../../modules/exmc/server/entity/ExPlayer.js';
 
 
 export default class DecClient extends ExGameClient {
-    useArmor?:ArmorData;
+    useArmor?: ArmorData;
     bossBarrier?: DecBossBarrier;
     constructor(server: ExGameServer, id: string, player: Player) {
         super(server, id, player);
@@ -39,7 +41,7 @@ export default class DecClient extends ExGameClient {
             }
         }
     }
-    
+
     override onJoin(): void {
         super.onJoin();
         this.exPlayer.command.run('fog @s remove \"night_event\"')
@@ -112,7 +114,7 @@ export default class DecClient extends ExGameClient {
 
             //这里写死亡事件
             if (this.exPlayer.health <= 0) {
-                if(this.bossBarrier) this.bossBarrier.notifyDeathAdd();
+                if (this.bossBarrier) this.bossBarrier.notifyDeathAdd();
                 this.exPlayer.command.run('function die/normal');
                 if (this.globalscores.getNumber('DieMode') === 1) {
                     //死亡模式
@@ -486,6 +488,88 @@ export default class DecClient extends ExGameClient {
                 }
             }
         });
+
+        this.getEvents().exEvents.afterItemUse.subscribe(e => {
+            if (e.itemStack.getComponent('minecraft:cooldown') != undefined && e.source.getItemCooldown(<string>e.itemStack.getComponent('minecraft:cooldown')?.cooldownCategory) == 0) {
+                let item_name = e.itemStack.typeId
+                let p = ExPlayer.getInstance(e.source)
+                let lo_offset = new Vector3(0,0,-1)//这里z-1才是实际的head位置，可能是ojang的bug吧
+                let lo = Vector.add(
+                    Vector.add(e.source.getHeadLocation(),lo_offset),
+                Vector.multiply(e.source.getViewDirection(),1.5)
+                )
+                let off_hand = p.getBag().itemOnOffHand?.typeId
+                interface bullet {
+                    [key: string]: number
+                }
+                let bullet_cur:bullet = {
+                    'dec:bomber_bullet': p.getBag().searchItem('dec:bomber_bullet'),
+                    'dec:flintlock_bullet': p.getBag().searchItem('dec:flintlock_bullet'),
+                    'dec:small_stone': p.getBag().searchItem('dec:small_stone'),
+                    'dec:exploding_pellets': p.getBag().searchItem('dec:exploding_pellets')
+                }
+                let suc = false
+                let has_bullet = (bullet_id:string) => {
+                    if (off_hand == bullet_id || bullet_cur[bullet_id]) {
+                        return true
+                    } else {
+                        return false
+                    }
+                }
+                if (item_name == 'dec:bomber' && has_bullet('dec:bomber_bullet')) {
+                    let bullet_1 = e.source.dimension.spawnEntity('dec:fake_fireball', lo)
+                    let pc_1 = <EntityProjectileComponent>bullet_1.getComponent('minecraft:projectile')
+                    let bomber_shoot :ProjectileShootOptions = {
+                        uncertainty: 5
+                    }
+                    pc_1.owner = e.source
+                    pc_1?.shoot(Vector.multiply(e.source.getViewDirection(),3),bomber_shoot)
+                    let bullet_2 = e.source.dimension.spawnEntity('dec:fake_fireball', lo)
+                    let pc_2 = <EntityProjectileComponent>bullet_2.getComponent('minecraft:projectile')
+                    pc_2.owner = e.source
+                    pc_2?.shoot(Vector.multiply(e.source.getViewDirection(),2.9),bomber_shoot)
+                    let bullet_3 = e.source.dimension.spawnEntity('dec:fake_fireball', lo)
+                    let pc_3 = <EntityProjectileComponent>bullet_3.getComponent('minecraft:projectile')
+                    pc_3.owner = e.source
+                    pc_3?.shoot(Vector.multiply(e.source.getViewDirection(),2.9),bomber_shoot)
+                    e.source.runCommandAsync('function item/bomber')
+                    //e.source.playSound('random.explode')
+                    //e.source.playAnimation('animation.humanoid.shoot')
+                    //e.source.spawnParticle('flintlock_smoke_particle',lo)
+                    suc = true
+                } else if (item_name == 'dec:catapult' && (has_bullet('dec:small_stone') ||has_bullet('dec:exploding_pellets'))){
+                    e.source.playAnimation('animation.humanoid.catapult')
+                    e.source.playSound('mob.snowgolem.shoot')
+                    if (p.getBag().itemOnOffHand?.typeId == 'dec:exploding_pellets' || (bullet_cur['dec:exploding_pellets'] != -1 && bullet_cur['dec:small_stone'] > bullet_cur['dec:exploding_pellets'])) {
+                        let bullet_1 = e.source.dimension.spawnEntity('dec:bullet_by_catapult_explode', lo)
+                        bullet_1.applyImpulse(Vector.multiply(e.source.getViewDirection(),0.9))
+                        p.getBag().clearItem('dec:exploding_pellets',1)
+                    } else {
+                        let bullet_1 = e.source.dimension.spawnEntity('dec:bullet_by_catapult_normal', lo)
+                        bullet_1.applyImpulse(Vector.multiply(e.source.getViewDirection(),0.9))
+                        p.getBag().clearItem('dec:small_stone',1)
+                    }
+                    suc = true
+                }
+                //这还没写完，记得写散布范围，clear也有问题（副手不会清）
+
+                if(suc) {
+                    let new_item = e.itemStack
+                    let dur = <ItemDurabilityComponent>new_item.getComponent('minecraft:durability')
+                    e.itemStack.getComponent('minecraft:cooldown')?.startCooldown(e.source)
+                    if (p.gamemode != GameMode.creative) {
+                        if (dur.damage + 1 < dur.maxDurability) {
+                            dur.damage += 1
+                            p.getBag().setItem(e.source.selectedSlot,new_item)
+                        } else {
+                            e.source.playSound('random.break')
+                            p.getBag().clearItem(e.itemStack.typeId,1)
+                        }
+                    }
+                }
+            }
+            
+        })
 
         this.getEvents().exEvents.onLongTick.subscribe(e => {
             if (e.currentTick % 20 === 0) {

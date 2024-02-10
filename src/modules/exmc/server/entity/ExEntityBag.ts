@@ -66,7 +66,7 @@ export default class ExEntityBag {
         if (typeof msg === 'string') {
             let id = msg;
             let res = 0;
-            for (let i = 0; i < this.size(); i++) {
+            for (let i = -1; i < this.size(); i++) {
                 let item = this.getItem(i);
                 if (item?.typeId === id) {
                     let suc = this.clearItem(i, amount);
@@ -79,7 +79,12 @@ export default class ExEntityBag {
             }
             return res;
         } else {
-            let item = this.getItem(msg);
+            let item:ItemStack | undefined;
+            if(msg == -1) {
+                item = this.itemOnOffHand;
+            } else {
+                item = this.getItem(msg);
+            }
             if (item) {
                 if (amount >= item.amount) {
                     this.setItem(msg, undefined);
