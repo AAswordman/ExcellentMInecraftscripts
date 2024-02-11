@@ -23,7 +23,7 @@ export default class PixelFilter {
     tmpV = new Vector2();
     operatePoint(x: number, y: number) {
         this.tmpV.set(x, y);
-        this.tmpV.unrotate(this.mat);
+        this.tmpV.mul(this.mat);
         return [this.tmpV.x, this.tmpV.y];
     }
     operateIntPoint(x: number, y: number) {
@@ -58,7 +58,7 @@ export default class PixelFilter {
             for (let y = minY; y <= maxY; y++) {
                 if (this.isPointInsidePolygon(x, y, points)) {
                     this.tmpV.set(x, y);
-                    this.tmpV.unrotate(inv);
+                    this.tmpV.mul(inv);
                     this.pixels.set(x+"|"+y,[new Pixel(this.tmpV.x, this.tmpV.y),new Pixel(x,y)]);
                 }
             }

@@ -570,6 +570,28 @@ export default class DecServer extends ExGameServer {
 
             this.getExDimension(block.dimension).command.run('setblock ' + (block.location.x) + ' ' + (block.location.y) + ' ' + (block.location.z) + ' ' + block.typeId + ' ' + states_string);
         }
+        // //@AAswordman在这进行了修改
+        // const state_set_keep = (block: Block, stateMatchMap: { [x: string]: (string | number | boolean) }) => {
+        //     let permutation = block.permutation;
+        //     for (let k in stateMatchMap) {
+        //         permutation = permutation.withState(k,stateMatchMap[k]);
+        //     }
+        //     block.trySetPermutation(permutation);
+        //     // let states_string = '['
+        //     // Object.keys(states).forEach(k => {
+        //     //     let new_st = '"' + k + '"='
+        //     //     if (typeof (states[k]) == 'boolean' || typeof (states[k]) == 'number') {
+        //     //         new_st += (states[k]) + ','
+        //     //     } else if (typeof (states[k]) == 'string') {
+        //     //         new_st += '"' + (states[k]) + '",'
+        //     //     }
+        //     //     states_string += new_st;
+        //     // })
+        //     // states_string = states_string.slice(0, states_string.length - 1)
+        //     // states_string += ']'
+
+        //     // this.getExDimension(block.dimension).command.run('setblock ' + (block.location.x) + ' ' + (block.location.y) + ' ' + (block.location.z) + ' ' + block.typeId + ' ' + states_string);
+        // }
 
         const trellis_cover_wither_spread = (block: Block) => {
             if (block.typeId == 'dec:trellis_cover' && block.permutation.getAllStates()['dec:crop_type'] != 'empty') {

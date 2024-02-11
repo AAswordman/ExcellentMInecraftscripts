@@ -5,7 +5,7 @@ import Vector3, { IVector3 } from '../../math/Vector3.js';
 
 export class ExBlockArea {
     center(): Vector3 {
-        return this.end.clone().sub(this.start).scl(1 / 2).add(this.start);
+        return this.end.cpy().sub(this.start).scl(1 / 2).add(this.start);
     }
     contains(tmpV: IVector3) {
         return this.start.x <= tmpV.x && this.start.z <= tmpV.z &&
@@ -20,8 +20,8 @@ export class ExBlockArea {
     constructor(start: Vector3, end: Vector3, usePoint: true)
     constructor(start: Vector3, width: Vector3)
     constructor(a: Vector3, b: Vector3, usePoint?: true) {
-        this.start = a.clone();
-        this.end = b.clone();
+        this.start = a.cpy();
+        this.end = b.cpy();
         if (!usePoint) {
             if (this.end.x < 0 || this.end.y < 0 || this.end.z < 0) throw new Error("Invalid value (x,y,z < 0)");
 
@@ -109,7 +109,7 @@ export class ExBlockArea {
         }
     }
     clone() {
-        const res = new ExBlockArea(this.start.clone(), this.end.clone().sub(1, 1, 1), true);
+        const res = new ExBlockArea(this.start.cpy(), this.end.cpy().sub(1, 1, 1), true);
         res.setMatrix4(this.mat.cpy());
         return res;
     }
@@ -134,6 +134,6 @@ export class ExBlockArea {
             ExBlockArea.tempP.x * Math.random(),
             ExBlockArea.tempP.y * Math.random(),
             ExBlockArea.tempP.z * Math.random());
-        return ExBlockArea.tempV.add(ExBlockArea.tempP).clone();
+        return ExBlockArea.tempV.add(ExBlockArea.tempP).cpy();
     }
 }

@@ -371,7 +371,6 @@ export default class PomTalentSystem extends GameController {
 
                 //武器特殊项
                 if (comp.hasComponent("equipment_type")) {
-
                     let maxSingleDamage = parseFloat(lore.getValueUseMap("total", this.getLang().maxSingleDamage) ?? "0");
                     let maxSecondaryDamage = parseFloat(lore.getValueUseMap("total", this.getLang().maxSecondaryDamage) ?? "0");
                     let damage = 0;
@@ -401,13 +400,15 @@ export default class PomTalentSystem extends GameController {
                     }).delay(5 * 20)).start(); //
                 }
 
-                return e.afterItem;
             } else {
                 this.equiTotalTask?.stop();
                 this.itemOnHandComp = undefined;
             }
             this.updatePlayerAttribute();
             this.exPlayer.triggerEvent("hp:50000");
+            if (e.afterItem) {
+                return e.afterItem;
+            }
         });
 
         //设置职业技能

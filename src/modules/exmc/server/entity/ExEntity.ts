@@ -1,11 +1,10 @@
-import { Entity, EntityHealthComponent, EntityInventoryComponent, Dimension, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent, EntityDamageSource, EntityDamageCause, EquipmentSlot, TeleportOptions, EffectType, EntityAttributeComponent, EntityEquippableComponent, Vector, EntityProjectileComponent, ProjectileShootOptions } from '@minecraft/server';
+import { Entity, EntityHealthComponent, EntityInventoryComponent, Dimension, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent, EntityDamageSource, EntityDamageCause, EquipmentSlot, TeleportOptions, EffectType, EntityAttributeComponent, EntityEquippableComponent, Vector, EntityProjectileComponent, ProjectileShootOptions, EntityComponentTypeMap } from '@minecraft/server';
 import { ExCommandNativeRunner } from '../../interface/ExCommandRunner.js';
 import ExTagManager from '../../interface/ExTagManager.js';
 import ExScoresManager from './ExScoresManager.js';
 import Vector3, { IVector3 } from '../../math/Vector3.js';
 import ExEntityBag from './ExEntityBag.js';
 import SetTimeOutSupport from '../../interface/SetTimeOutSupport.js';
-import ExGameVector3 from '../math/ExGameVector3.js';
 import ExCommand from '../env/ExCommand.js';
 import ExDimension from '../ExDimension.js';
 import Vector2, { IVector2 } from '../../math/Vector2.js';
@@ -13,21 +12,9 @@ import { AlsoInstanceType } from '../../utils/tool.js';
 import { EntityMovementComponent } from '@minecraft/server';
 import Matrix4 from '../../math/Matrix4.js';
 
-
-const compId = {
-    [EntityIsBabyComponent.componentId]: EntityIsBabyComponent,
-    [EntityMarkVariantComponent.componentId]: EntityMarkVariantComponent,
-    [EntityVariantComponent.componentId]: EntityVariantComponent,
-    [EntityInventoryComponent.componentId]: EntityInventoryComponent,
-    [EntityEquippableComponent.componentId]: EntityEquippableComponent,
-    [EntityIsChargedComponent.componentId]: EntityIsChargedComponent,
-    [EntityMovementComponent.componentId]: EntityMovementComponent,
-    [EntityHealthComponent.componentId]: EntityHealthComponent
-};
-type CompId = typeof compId;
-
 export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     public command = new ExCommand(this);
+    
 
     public damage(d: number, source?: EntityDamageSource) {
         this.entity.applyDamage(d, source)
@@ -60,7 +47,6 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     addHealth(timeout: SetTimeOutSupport, n: number) {
         this.removeHealth(timeout, -n);
     }
-    static propertyNameCache = "exCache";
     private _entity: Entity;
 
     public get nameTag(): string {
@@ -79,21 +65,23 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     getVelocity() {
         return new Vector3(this._entity.getVelocity());
     }
+    getHeadLocation() {
+        return new Vector3(this._entity.getHeadLocation());
+    }
 
     protected constructor(entity: Entity) {
         this._entity = entity;
-        if (ExEntity.propertyNameCache in entity) {
-            throw new Error("Already have a instance in entity.please use ExEntity.getInstance to get it.");
-        } else {
-            Reflect.set(entity, ExEntity.propertyNameCache, this);
-        }
     }
+
+    protected static idMap = new WeakMap<Entity, ExEntity>();
     static getInstance(source: Entity): ExEntity {
-        let entity = source;
-        if (this.propertyNameCache in entity) {
-            return Reflect.get(entity, this.propertyNameCache);
+        if (ExEntity.idMap.has(source)) {
+            return ExEntity.idMap.get(source)!;
+        } else {
+            let entity = new ExEntity(source);
+            ExEntity.idMap.set(source, entity);
+            return entity;
         }
-        return (new ExEntity(entity));
     }
     get exDimension() {
         return ExDimension.getInstance(this.dimension);
@@ -201,12 +189,12 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
             "amplifier": aml
         });
     }
-    hasComponent<T extends keyof CompId>(key: T) {
-        return this._entity.hasComponent(<string>key);
+    hasComponent<T extends keyof EntityComponentTypeMap>(componentId: T): boolean {
+        return this._entity.hasComponent(componentId);
     }
 
-    getComponent<T extends keyof CompId>(key: T): AlsoInstanceType<CompId[T]> | undefined {
-        return this._entity.getComponent(key);
+    getComponent<T extends keyof EntityComponentTypeMap>(componentId: T): EntityComponentTypeMap[T] | undefined {
+        return this._entity.getComponent(componentId);
     }
     get health() {
         return this.getComponent("minecraft:health")!.currentValue;
@@ -225,80 +213,75 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         this.getComponent("minecraft:movement")?.setCurrentValue(num);
     }
 
-    shootProj(id: string, option: ExEntityShootOption,loc=this._entity.getHeadLocation(),shoot_dir=this._entity.getViewDirection()) {
-        let lo = Vector.add(
-            Vector.add(loc, new Vector3(0, 0, -1)),//这里z-1才是实际的head位置，可能是ojang的bug吧
-            Vector.multiply(this._entity.getViewDirection(), 1.5)
-        )//等会写offset
-        if (option.absPosOffset !== undefined) {
-            lo = Vector.add(lo,option.absPosOffset)
+    shootProj(id: string, option: ExEntityShootOption, loc = this._entity.getHeadLocation(), shoot_dir = this.viewDirection) {
+        let locx = new Vector3(loc).add(0, 0, -1).add(this.viewDirection.scl(option.spawnDistance ?? 1.5));
+        //这里z-1才是实际的head位置，可能是ojang的bug吧
+        if (option.absPosOffset) locx.add(option.absPosOffset);
+        if (option.viewPosOffset) locx.add(this.getViewVector(option.viewPosOffset));
+
+        let proj = this.exDimension.spawnEntity(id, locx);
+        if (!proj) return false;
+        let proj_comp = proj.getComponent('minecraft:projectile');
+        if (!proj_comp) {
+            proj.remove();
+            return false;
         }
-        if (option.viewPosOffset !== undefined) {
-            lo = Vector.add(lo,this.getViewVector(option.viewPosOffset))
+        let view = new Vector3(shoot_dir);
+        if (option.rotOffset) {
+            view.add(this.relateRotate(option.rotOffset.x, option.rotOffset.y, false));
         }
-        let proj = this._entity.dimension.spawnEntity(id, lo)
-        let proj_comp = proj.getComponent('minecraft:projectile')
-        if (proj_comp === undefined) {
-            proj.remove()
-            return false
-        } else {
-            let view = shoot_dir
-            if (option.rotOffset !== undefined){
-                view = Vector.add(view,this.relateRotate(option.rotOffset.x,option.rotOffset.y,false))
-            }
-            let shootOpt: ProjectileShootOptions = {
-                uncertainty: option.uncertainty ?? 0
-            }
-            proj_comp.airInertia = option.airInertia ?? proj_comp.airInertia
-            proj_comp.catchFireOnHurt = option.catchFireOnHurt ?? proj_comp.catchFireOnHurt
-            proj_comp.critParticlesOnProjectileHurt = option.critParticlesOnProjectileHurt ?? proj_comp.critParticlesOnProjectileHurt
-            proj_comp.destroyOnProjectileHurt = option.destroyOnProjectileHurt ?? proj_comp.destroyOnProjectileHurt
-            proj_comp.gravity = option.gravity ?? proj_comp.gravity
-            proj_comp.hitEntitySound = option.hitEntitySound ?? proj_comp.hitEntitySound
-            proj_comp.hitGroundSound = option.hitGroundSound ?? proj_comp.hitGroundSound
-            proj_comp.hitParticle = option.hitParticle ?? proj_comp.hitParticle
-            proj_comp.lightningStrikeOnHit = option.lightningStrikeOnHit ?? proj_comp.lightningStrikeOnHit
-            proj_comp.liquidInertia = option.liquidInertia ?? proj_comp.liquidInertia
-            proj_comp.onFireTime = option.onFireTime ?? proj_comp.onFireTime
-            proj_comp.owner = option.owner ?? this._entity
-            proj_comp.shouldBounceOnHit = option.shouldBounceOnHit ?? proj_comp.shouldBounceOnHit
-            proj_comp.stopOnHit = option.stopOnHit ?? proj_comp.stopOnHit
-            proj_comp.shoot(Vector.multiply(view,option.speed),shootOpt)
-            return true
+        let shootOpt: ProjectileShootOptions = {
+            uncertainty: option.uncertainty ?? 0
         }
+        proj_comp.airInertia = option.airInertia ?? proj_comp.airInertia
+        proj_comp.catchFireOnHurt = option.catchFireOnHurt ?? proj_comp.catchFireOnHurt
+        proj_comp.critParticlesOnProjectileHurt = option.critParticlesOnProjectileHurt ?? proj_comp.critParticlesOnProjectileHurt
+        proj_comp.destroyOnProjectileHurt = option.destroyOnProjectileHurt ?? proj_comp.destroyOnProjectileHurt
+        proj_comp.gravity = option.gravity ?? proj_comp.gravity
+        proj_comp.hitEntitySound = option.hitEntitySound ?? proj_comp.hitEntitySound
+        proj_comp.hitGroundSound = option.hitGroundSound ?? proj_comp.hitGroundSound
+        proj_comp.hitParticle = option.hitParticle ?? proj_comp.hitParticle
+        proj_comp.lightningStrikeOnHit = option.lightningStrikeOnHit ?? proj_comp.lightningStrikeOnHit
+        proj_comp.liquidInertia = option.liquidInertia ?? proj_comp.liquidInertia
+        proj_comp.onFireTime = option.onFireTime ?? proj_comp.onFireTime
+        proj_comp.owner = option.owner ?? this._entity
+        proj_comp.shouldBounceOnHit = option.shouldBounceOnHit ?? proj_comp.shouldBounceOnHit
+        proj_comp.stopOnHit = option.stopOnHit ?? proj_comp.stopOnHit
+        proj_comp.shoot(view.normalize().scl(option.speed), shootOpt);
+        return true
     }
 
-    relateRotate(x:number,y:number,take_effect=true){
-        let v_c = this._entity.getViewDirection()
-        let l_0 = Math.pow(Math.pow(v_c.x,2) + Math.pow(v_c.z,2),0.5)
-        let phi_cur = - Math.atan( v_c.y / l_0) * 180 / Math.PI
-        let phi_ca = phi_cur + x
-        let phi = (phi_ca > 180 ? 180 : (phi_ca < -180 ? -180 : phi_ca)) * Math.PI / 180
+    relateRotate(x: number, y: number, take_effect = true) {
+        let v_c = this._entity.getViewDirection();
+        let l_0 = Math.pow(Math.pow(v_c.x, 2) + Math.pow(v_c.z, 2), 0.5);
+        let phi_cur = - Math.atan(v_c.y / l_0) * 180 / Math.PI;
+        let phi_ca = phi_cur + x;
+        let phi = (phi_ca > 180 ? 180 : (phi_ca < -180 ? -180 : phi_ca)) * Math.PI / 180;
 
-        v_c = new Vector3(v_c).mul(new Matrix4().rotateX(phi).rotateY(-y * Math.PI/180))
-        
-        if (take_effect){
+        v_c = new Vector3(v_c).mul(new Matrix4().rotateX(phi).rotateY(-y * Math.PI / 180));
+
+        if (take_effect) {
             //这里有时间写个设置玩家视角
         }
         return v_c
     }
 
-    getViewVectorBase() {
+    protected getViewVectorBase() {
         let c = this._entity.getViewDirection()
-        let b = Vector.cross(new Vector3(0,1,0),c)
-        let a = Vector.cross(c,b)
+        let b = Vector.cross(new Vector3(0, 1, 0), c)
+        let a = Vector.cross(c, b)
         let base = [
-            a,b,c
+            a, b, c
         ]
         return base
     }
 
-    getViewVector(v:Vector3){
+    protected getViewVector(v: Vector3) {
         let base = this.getViewVectorBase()
         let x = base[0].x * v.x + base[0].y * v.y + base[0].z * v.z
         let y = base[1].x * v.x + base[1].y * v.y + base[1].z * v.z
         let z = base[2].x * v.x + base[2].y * v.y + base[2].z * v.z
-        let new_v = new Vector3(x,y,z)
+        let new_v = new Vector3(x, y, z);
         return new_v
     }
 
@@ -312,27 +295,88 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         return this.getComponent("minecraft:variant")?.value ?? 0;
     }
 }
-
+/**
+ * 实体射击选项
+ */
 export interface ExEntityShootOption {
-    uncertainty?: number,
-    airInertia?: number,
-    catchFireOnHurt?: boolean
-    critParticlesOnProjectileHurt?: boolean,
-    destroyOnProjectileHurt?: boolean,
-    gravity?: number,
-    hitEntitySound?: string,
-    hitGroundSound?: string,
-    hitParticle?: string,
-    lightningStrikeOnHit?: boolean,
-    liquidInertia?: number,
-    onFireTime?: number,
-    owner?: Entity,//如果是undefined就设置为这个实体
-    shouldBounceOnHit?: boolean,
-    stopOnHit?: boolean,
-    
-    speed: number,
-
-    absPosOffset?: Vector3,
-    viewPosOffset?: Vector3,
-    rotOffset?: Vector2
-} 
+    /**
+     * 不确定性
+     */
+    uncertainty?: number;
+    /**
+     * 空气惯性
+     */
+    airInertia?: number;
+    /**
+     * 受伤时着火
+     */
+    catchFireOnHurt?: boolean;
+    /**
+     * 子弹伤害时产生暴击粒子
+     */
+    critParticlesOnProjectileHurt?: boolean;
+    /**
+     * 子弹伤害时销毁
+     */
+    destroyOnProjectileHurt?: boolean;
+    /**
+     * 重力
+     */
+    gravity?: number;
+    /**
+     * 击中实体声音
+     */
+    hitEntitySound?: string;
+    /**
+     * 击中地面声音
+     */
+    hitGroundSound?: string;
+    /**
+     * 击中粒子
+     */
+    hitParticle?: string;
+    /**
+     * 击中时产生闪电
+     */
+    lightningStrikeOnHit?: boolean;
+    /**
+     * 液体惯性
+     */
+    liquidInertia?: number;
+    /**
+     * 着火时间
+     */
+    onFireTime?: number;
+    /**
+     * 所有者
+     */
+    owner?: Entity;
+    /**
+     * 是否在击中时反弹
+     */
+    shouldBounceOnHit?: boolean;
+    /**
+     * 击中时停止
+     */
+    stopOnHit?: boolean;
+    /**
+     * 速度
+     */
+    speed: number;
+    /**
+     * 绝对位置偏移
+     */
+    absPosOffset?: Vector3;
+    /**
+     * 视图位置偏移
+     */
+    viewPosOffset?: Vector3;
+    /**
+     * 旋转偏移
+     */
+    rotOffset?: Vector2;
+    /**
+     * 生成点相对视角直线位移
+     */
+    spawnDistance?: number;
+}

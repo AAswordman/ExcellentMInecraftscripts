@@ -2,7 +2,6 @@ import { Dimension, EntityQueryOptions, Block, ItemStack, Entity, BlockType, Exp
 import { ExCommandNativeRunner } from '../interface/ExCommandRunner.js';
 import Vector3, { IVector3 } from "../math/Vector3.js";
 import ExGameConfig from './ExGameConfig.js';
-import ExGameVector3 from './math/ExGameVector3.js';
 import ExCommand from './env/ExCommand.js';
 import { ignorn } from './ExErrorQueue.js';
 
