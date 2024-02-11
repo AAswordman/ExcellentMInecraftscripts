@@ -85,7 +85,7 @@ export default class PomTalentSystem extends GameController {
 
     armor_movement_addition: [number, number, number] = [0, 0, 0];
     armor_attack_addition = 0;
-    armor_protection: [number, number, number, number] = [0, 0, 0, 0];
+    armor_protection: [number, number, number, number, number, number, number] = [0, 0, 0, 0, 0, 0, 0];
 
     movement: [number, number, number] = [0.1, 0.1, 0.03];
     movement_addition: [number, number, number] = [0, 0, 0];
@@ -164,7 +164,8 @@ export default class PomTalentSystem extends GameController {
                 + (this.chestComp?.getComponentWithGroup(e) ?? 0)
                 + (this.legComp?.getComponentWithGroup(e) ?? 0)
                 + (this.feetComp?.getComponentWithGroup(e) ?? 0)) as any;
-        this.armor_protection = (["armor_magic_protection", "armor_physical_protection", "armor_magic_reduction", "armor_physical_reduction"] as any[])
+        this.armor_protection = (["armor_magic_protection", "armor_physical_protection", "armor_magic_reduction", "armor_physical_reduction", "armor_magic_reduction", "armor_resilience"
+            , "final_magic_reduction", "final_physical_reduction"] as any[])
             .map(e =>
                 (this.headComp?.getComponentWithGroup(e) ?? 0)
                 + (this.chestComp?.getComponentWithGroup(e) ?? 0)
@@ -176,7 +177,8 @@ export default class PomTalentSystem extends GameController {
                 + (this.chestComp?.getComponentWithGroup(e) ?? 0)
                 + (this.legComp?.getComponentWithGroup(e) ?? 0)
                 + (this.feetComp?.getComponentWithGroup(e) ?? 0)) as any;
-        this.armor_protection[1] = 100 * (1 - (1 - this.armor_protection[1] / 100) * (1 - this.calculateExemptionByData(...dataList)));
+
+        this.armor_protection[4] = this.calculateExemptionByData(...dataList);
     }
 
     //更新玩家属性（不改变手持）
@@ -193,12 +195,6 @@ export default class PomTalentSystem extends GameController {
 
 
     onJoin(): void {
-        if (this.data.pointRecord == undefined) this.data.pointRecord = {
-            deathPoint: <[string, Vector3][]>[],
-            point: <[string, string, Vector3][]>[]
-        };
-        if (this.data.talent == undefined) this.data.talent = new TalentData();
-
         this.getEvents().exEvents.onLongTick.subscribe(e => {
             if (e.currentTick % 20 === 0) {
                 const bag = this.exPlayer.getBag();
@@ -266,17 +262,25 @@ export default class PomTalentSystem extends GameController {
             if (e.damage > 10000000 || e.damage < 0) return;
             // console.warn("hurt"+e.damage,"now"+this.exPlayer.health);
             let damage = (this.exPlayer.getPreRemoveHealth() ?? 0) + e.damage;
-            let add = 0;
-            let actualDamageFactor = (1 - ((this.talentRes.get(Talent.DEFENSE) ?? 0) / 100));
+            let willdamage = damage;
+            willdamage *= 1 - this.armor_protection[4];
             if (PomTalentSystem.magicDamageType.has(e.damageSource.cause)) {
-                actualDamageFactor *= (1 - this.armor_protection[0] / 100) * (1 - this.client.getDifficulty().magicDefenseAddFactor);
-                add += this.armor_protection[2];
+                willdamage -= this.armor_protection[2];
+                willdamage *= (1 - this.armor_protection[0] / 100);
             } else if (PomTalentSystem.physicalDamageType.has(e.damageSource.cause)) {
-                actualDamageFactor *= (1 - this.armor_protection[1] / 100) * (1 - this.client.getDifficulty().physicalDefenseAddFactor);
-                add += this.armor_protection[3];
+                willdamage -= this.armor_protection[3];
+                willdamage *= (1 - this.armor_protection[1] / 100);
             }
-            add += damage * (1 - actualDamageFactor);
-            add = Math.min(add, damage);
+            willdamage *= (1 - ((this.talentRes.get(Talent.DEFENSE) ?? 0) / 100));
+            willdamage *= (1 - this.client.getDifficulty().magicDefenseAddFactor);
+
+            if (PomTalentSystem.magicDamageType.has(e.damageSource.cause)) {
+                willdamage -= this.armor_protection[5];
+            } else if (PomTalentSystem.physicalDamageType.has(e.damageSource.cause)) {
+                willdamage -= this.armor_protection[6];
+            }
+
+            let add = Math.min(damage - willdamage, damage - 1);
             // console.warn(actualDamageFactor);
             // console.warn(add);
 

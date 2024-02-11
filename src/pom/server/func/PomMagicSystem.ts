@@ -117,7 +117,13 @@ export default class PomMagicSystem extends GameController {
             this.data.gameGrade,
             [this.data.gameExperience / (this.getGradeNeedExperience(1 + this.data.gameGrade) - this.getGradeNeedExperience(this.data.gameGrade))],
             [(grade), grade.length * 3],
-            [this.magicReduce / this.gameMaxHealth]
+            [this.magicReduce / this.gameMaxHealth],
+            [this.data.uiCustomSetting.topLeftMessageBarLayer1],
+            [this.data.uiCustomSetting.topLeftMessageBarLayer2],
+            [this.data.uiCustomSetting.topLeftMessageBarLayer3],
+            [this.data.uiCustomSetting.topLeftMessageBarLayer4],
+            [this.data.uiCustomSetting.topLeftMessageBarLayer5],
+            [this.data.uiCustomSetting.topLeftMessageBarStyle]
         ];
         this.lastFromData = fromData;
 
@@ -151,7 +157,7 @@ export default class PomMagicSystem extends GameController {
 
             return v + "x".repeat(Math.max(0, 10 - v.length));
         });
-        // console.warn(arr);
+        // console.warn(arr1);
         let arr2: string[] = [];
         for (let i = 0; i < 50; i++) {
             arr2.push("");

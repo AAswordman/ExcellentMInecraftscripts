@@ -763,7 +763,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
         "setting": {
             "img": "textures/items/artificial_meat_creator_on.png",
             "text": lang.menuUIMsgBailan75,
-            "default": "op",
+            "default": "personal",
             "page": {
                 "personal": {
                     "text": lang.menuUIMsgBailan101,
@@ -778,6 +778,34 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                     .show(client.player).then((e) => {
                                         if (!e.canceled) {
                                             client.data.lang = (e.formValues && e.formValues[0] == 0) ? "en" : "zh";
+                                        }
+                                    })
+                                    .catch((e) => {
+                                        ExErrorQueue.throwError(e);
+                                    });
+                                return false;
+                            }
+                        },
+                        {
+                            "type": "button",
+                            "msg": "玩家界面自定义",
+                            "function": (client, ui): boolean => {
+                                new ModalFormData()
+                                    .title("UI显示设置")
+                                    .dropdown("左上面板样式", ["标准", "简约", "新春"], client.data.uiCustomSetting.topLeftMessageBarStyle)
+                                    .slider("左上面板第一层", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer1)
+                                    .slider("左上面板第二层", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer2)
+                                    .slider("左上面板第三层", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer3)
+                                    .slider("左上面板第四层", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer4)
+                                    .slider("左上面板第五层", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer5)
+                                    .show(client.player).then((e) => {
+                                        if (!e.canceled && e.formValues) {
+                                            client.data.uiCustomSetting.topLeftMessageBarStyle = e.formValues[0] as number;
+                                            client.data.uiCustomSetting.topLeftMessageBarLayer1 = e.formValues[1] as number;
+                                            client.data.uiCustomSetting.topLeftMessageBarLayer2 = e.formValues[2] as number;
+                                            client.data.uiCustomSetting.topLeftMessageBarLayer3 = e.formValues[3] as number;
+                                            client.data.uiCustomSetting.topLeftMessageBarLayer4 = e.formValues[4] as number;
+                                            client.data.uiCustomSetting.topLeftMessageBarLayer5 = e.formValues[5] as number;
                                         }
                                     })
                                     .catch((e) => {
@@ -1086,7 +1114,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                                 (highMap.get((x - 1) + "|" + y)?.[0] ?? 0) < high ||
                                                 (highMap.get(x + "|" + (y - 1))?.[0] ?? 0) < high
                                             ) {
-                                                hsv = new ColorHSV(fhsv.h, Math.max(fhsv.s - 20, 0),  Math.min(fhsv.v + 20, 100))
+                                                hsv = new ColorHSV(fhsv.h, Math.max(fhsv.s - 20, 0), Math.min(fhsv.v + 20, 100))
                                             } else {
                                                 hsv = fhsv;
                                             }
