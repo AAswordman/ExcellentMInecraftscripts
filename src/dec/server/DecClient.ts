@@ -490,13 +490,14 @@ export default class DecClient extends ExGameClient {
         });
 
         this.getEvents().exEvents.afterItemUse.subscribe(e => {
-            if (e.itemStack.getComponent('minecraft:cooldown') != undefined && e.source.getItemCooldown(<string>e.itemStack.getComponent('minecraft:cooldown')?.cooldownCategory) == 0) {
+            if (e.itemStack.hasComponent('minecraft:cooldown') && this.player.getItemCooldown(<string>e.itemStack.getComponent('minecraft:cooldown')?.cooldownCategory) == 0) {
                 let item_name = e.itemStack.typeId
-                let p = ExPlayer.getInstance(e.source)
+                let p = this.exPlayer;
                 let off_hand = p.getBag().itemOnOffHand?.typeId
                 interface bullet {
                     [key: string]: ContainerSlot | undefined;
                 }
+
                 let bullet_cur: bullet = {
                     'dec:bomber_bullet': p.getBag().searchItem('dec:bomber_bullet'),
                     'dec:flintlock_bullet': p.getBag().searchItem('dec:flintlock_bullet'),
