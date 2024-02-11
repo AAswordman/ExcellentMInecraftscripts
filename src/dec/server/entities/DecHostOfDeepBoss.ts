@@ -19,6 +19,10 @@ export class DecHostOfDeepBoss1 extends DecBossController {
     override onSpawn(): void {
         super.onSpawn();
     }
+    override onFail(): void {
+        this.music.stop();
+        super.onFail();
+    }
     override onKilled(e: EntityHurtAfterEvent): void {
         super.onKilled(e);
         if (e.damageSource.cause === EntityDamageCause.suicide) {
@@ -36,6 +40,10 @@ export class DecHostOfDeepBoss2 extends DecBossController {
     }
     override onSpawn(): void {
         super.onSpawn();
+    }
+    override onFail(): void {
+        this.music.stop();
+        super.onFail();
     }
     override onKilled(e: EntityHurtAfterEvent): void {
         super.onKilled(e);
