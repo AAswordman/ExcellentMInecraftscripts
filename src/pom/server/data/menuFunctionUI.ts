@@ -901,7 +901,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
 
                                 {
                                     "type": "toggle",
-                                    "msg": "初始魔能镐(清除石头模式）",
+                                    "msg": "初始魔能镐",
                                     "state": (client, ui) => client.globalSettings.initialMagicPickaxe,
                                     "function": (client, ui) => {
                                         client.globalSettings.initialMagicPickaxe = !client.globalSettings.initialMagicPickaxe;
