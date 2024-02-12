@@ -24,7 +24,7 @@ import PomTaskSystem from "./func/PomTaskSystem.js";
 import SimpleItemUseFunc from "./func/SimpleItemUseFunc.js";
 import WarningAlertUI from "./ui/WarningAlertUI.js";
 import TickDelayTask from "../../modules/exmc/utils/TickDelayTask.js";
-import EntityPropCache from "../../modules/exmc/server/storage/cache/EntityPropCache.js";
+import ExPropCache from "../../modules/exmc/server/storage/cache/ExPropCache.js";
 import { ArmorData } from "../../dec/server/items/ArmorData.js";
 import { GameDifficulty, pomDifficultyMap } from "./data/GameDifficulty.js";
 import Vector3 from "../../modules/exmc/math/Vector3.js";
@@ -36,7 +36,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
     gameControllers: GameController[] = [];
     gameId !: number;
     globalSettings: GlobalSettings;
-    cache: EntityPropCache<PomData>;
+    cache: ExPropCache<PomData>;
     data: PomData;
     looper: TickDelayTask;
 
@@ -53,7 +53,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
     constructor(server: ExGameServer, id: string, player: Player) {
         super(server, id, player);
         this.globalSettings = new GlobalSettings(new Objective("wpsetting"));
-        this.cache = new EntityPropCache(this.exPlayer.entity);
+        this.cache = new ExPropCache(this.exPlayer.entity);
         this.looper = ExSystem.tickTask(() => {
             this.cache.save();
         });
@@ -107,6 +107,11 @@ export default class PomClient extends ExGameClient<PomTransmission> {
                 topLeftMessageBarLayer3: 100,
                 topLeftMessageBarLayer4: 100,
                 topLeftMessageBarLayer5: 100,
+            }
+        }
+        if (!this.data.gamePreferrence) {
+            this.data.gamePreferrence = {
+                chainMining: true
             }
         }
 

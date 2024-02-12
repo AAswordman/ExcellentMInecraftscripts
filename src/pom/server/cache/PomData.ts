@@ -43,7 +43,10 @@ export default class PomData {
     dimBackMode: number | undefined;
 
     lang?: "en" | "zh";
-
+    
+    gamePreferrence!: {
+        chainMining: boolean;
+    };
     initialMagicPickaxe?: true;
 
     gameExperience!: number;

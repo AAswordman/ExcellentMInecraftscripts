@@ -12,7 +12,7 @@ export class DecHostOfDeepBoss1 extends DecBossController {
     music: ExMusic;
     constructor(e: Entity, server: DecServer) {
         super(e, server);
-        this.music = server.getMusic("music.wb.from_the_burning_deep", "4:18");
+        this.music = server.getMusic("music.wb.from_the_burning_deep");
         this.music.trackPlayers(Array.from(this.barrier.getPlayers()));
         this.music.loop();
     }
@@ -34,7 +34,7 @@ export class DecHostOfDeepBoss2 extends DecBossController {
     music: ExMusic;
     constructor(e: Entity, server: DecServer) {
         super(e, server);
-        this.music = server.getMusic("music.wb.from_the_burning_deep", "4:18");
+        this.music = server.getMusic("music.wb.from_the_burning_deep");
         this.music.trackPlayers(Array.from(this.barrier.getPlayers()));
 
     }
@@ -56,7 +56,7 @@ export class DecHostOfDeepBoss3 extends DecCommonBossLastStage {
     music: ExMusic;
     constructor(e: Entity, server: DecServer) {
         super(e, server);
-        this.music = server.getMusic("music.wb.from_the_burning_deep", "4:18");
+        this.music = server.getMusic("music.wb.from_the_burning_deep");
         this.music.trackPlayers(Array.from(this.barrier.getPlayers()));
 
     }

@@ -118,11 +118,11 @@ export default class PomMagicSystem extends GameController {
             [this.data.gameExperience / (this.getGradeNeedExperience(1 + this.data.gameGrade) - this.getGradeNeedExperience(this.data.gameGrade))],
             [(grade), grade.length * 3],
             [this.magicReduce / this.gameMaxHealth],
-            [this.data.uiCustomSetting.topLeftMessageBarLayer1],
-            [this.data.uiCustomSetting.topLeftMessageBarLayer2],
-            [this.data.uiCustomSetting.topLeftMessageBarLayer3],
-            [this.data.uiCustomSetting.topLeftMessageBarLayer4],
-            [this.data.uiCustomSetting.topLeftMessageBarLayer5],
+            [this.data.uiCustomSetting.topLeftMessageBarLayer1/100],
+            [this.data.uiCustomSetting.topLeftMessageBarLayer2/100],
+            [this.data.uiCustomSetting.topLeftMessageBarLayer3/100],
+            [this.data.uiCustomSetting.topLeftMessageBarLayer4/100],
+            [this.data.uiCustomSetting.topLeftMessageBarLayer5/100],
             [this.data.uiCustomSetting.topLeftMessageBarStyle]
         ];
         this.lastFromData = fromData;

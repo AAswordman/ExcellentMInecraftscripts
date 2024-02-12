@@ -39,7 +39,7 @@ export default class ExDimension implements ExCommandNativeRunner {
         let entities = this._dimension.getEntities(entityQueryOptions);
         let res: Entity[] = [];
         for (let entity of entities) {
-            if (entity && entity.dimension === this._dimension) res.push(entity);
+            if (entity && entity.dimension == this._dimension) res.push(entity);
         }
         return res;
     }

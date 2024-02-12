@@ -769,6 +769,15 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                     "text": lang.menuUIMsgBailan101,
                     "page": [
                         {
+                            "type": "toggle",
+                            "msg": "连锁挖矿",
+                            "state": (client, ui) => client.data.gamePreferrence.chainMining,
+                            "function": (client, ui) => {
+                                client.data.gamePreferrence.chainMining = !client.data.gamePreferrence.chainMining;
+                                return true;
+                            }
+                        },
+                        {
                             "type": "button",
                             "msg": lang.menuUIMsgBailan102,
                             "function": (client, ui): boolean => {
@@ -892,15 +901,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                         return true;
                                     }
                                 },
-                                {
-                                    "type": "toggle",
-                                    "msg": "魔能镐连锁挖矿",
-                                    "state": (client, ui) => client.globalSettings.chainMining,
-                                    "function": (client, ui) => {
-                                        client.globalSettings.chainMining = !client.globalSettings.chainMining;
-                                        return true;
-                                    }
-                                },
+                                
                                 {
                                     "type": "toggle",
                                     "msg": "初始魔能镐",
@@ -909,6 +910,16 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                         client.globalSettings.initialMagicPickaxe = !client.globalSettings.initialMagicPickaxe;
 
                                         client.runMethodOnEveryClient(c => c.itemUseFunc.initialMagicPickaxe());
+                                        return true;
+                                    }
+                                },
+                                {
+                                    "type": "toggle",
+                                    "msg": "服务器内耗模式(你猜这是啥)",
+                                    "state": (client, ui) => client.globalSettings.smallMapMode,
+                                    "function": (client, ui) => {
+                                        client.globalSettings.smallMapMode = !client.globalSettings.smallMapMode;
+
                                         return true;
                                     }
                                 },
@@ -1077,8 +1088,8 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 paint.strokeWidth = 1;
                                 paint.style = Style.FILL;
 
-                                const num = 16
-                                const step = 1
+                                const num = client.globalSettings.smallMapMode ? 128 : 32
+                                const step = 2
                                 let centerX = 100, centerY = 100;
                                 let perSize = centerX / num * 2 ** 0.5;
 
@@ -1106,13 +1117,13 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                             let fhsv = b.toHSV();
                                             let hsv: ColorHSV;
                                             if (
-                                                (highMap.get((x - 1) + "|" + y)?.[0] ?? 0) > high ||
-                                                (highMap.get(x + "|" + (y - 1))?.[0] ?? 0) > high
+                                                (highMap.get((x - step) + "|" + y)?.[0] ?? 0) > high ||
+                                                (highMap.get(x + "|" + (y - step))?.[0] ?? 0) > high
                                             ) {
                                                 hsv = new ColorHSV(fhsv.h, fhsv.s, Math.max(fhsv.v - 20, 0))
                                             } else if (
-                                                (highMap.get((x - 1) + "|" + y)?.[0] ?? 0) < high ||
-                                                (highMap.get(x + "|" + (y - 1))?.[0] ?? 0) < high
+                                                (highMap.get((x - step) + "|" + y)?.[0] ?? 0) < high ||
+                                                (highMap.get(x + "|" + (y - step))?.[0] ?? 0) < high
                                             ) {
                                                 hsv = new ColorHSV(fhsv.h, Math.max(fhsv.s - 20, 0), Math.min(fhsv.v + 20, 100))
                                             } else {

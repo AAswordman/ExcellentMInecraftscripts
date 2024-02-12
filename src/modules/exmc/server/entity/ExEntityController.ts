@@ -97,6 +97,7 @@ export default class ExEntityController implements DisposeAble, SetTimeOutSuppor
       this._id = e.id;
       this.init(server);
       this.onSpawn();
+      console.warn("track "+this._entity.typeId)
       eventDecoratorFactory(this.getEvents(), this);
     }
   

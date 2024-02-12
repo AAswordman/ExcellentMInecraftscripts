@@ -5,14 +5,14 @@ import ExDimension from '../ExDimension.js';
 import ExGameServer from '../ExGameServer.js';
 export default class ExMusic {
     soundId: string;
-    long: number;
+    // long: number;
     looper?: TimeLoopTask;
     manager: ExGameServer;
     players?: Player[];
-    constructor(manager: ExGameServer, id: string, time: string) {
+    constructor(manager: ExGameServer, id: string) {
         this.soundId = id;
-        let s = time.split(":");
-        this.long = (parseInt(s[0]) * 60 + parseInt(s[1])) * 1000;
+        // let s = time.split(":");
+        // this.long = (parseInt(s[0]) * 60 + parseInt(s[1])) * 1000;
         this.manager = manager;
     }
     isInDelayStop = false;
