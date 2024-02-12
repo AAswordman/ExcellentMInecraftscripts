@@ -45,6 +45,43 @@ export default class ExEntityBag {
         }
         return undefined;
     }
+    searchItems(items: Array<string>) {
+        let slots = this.getAllSlots();
+        let result: {
+            [key: string]: ContainerSlot | undefined;
+        }
+        result = {}
+        for (let i of items) {
+            result[i] = undefined
+        }
+        for (let i of slots) {
+            if (i.getItem() !== undefined && items.indexOf(<string>i.typeId) !== -1 && result[<string>i.typeId] === undefined) {
+                result[<string>i.typeId] = i
+            }
+        }
+        return result;
+    }
+    searchProjectile(items: Array<string>): undefined | string
+    searchProjectile(items: string): boolean
+    searchProjectile(arg: string | Array<string>) {
+        if (typeof (arg) === 'string') {
+            let slots = this.getAllSlots();
+            for (let i of slots) {
+                if (i.getItem() !== undefined && i.typeId === arg) {
+                    return true
+                }
+            }
+            return false
+        } else {
+            let slots = this.getAllSlots();
+            for (let i of slots) {
+                if (i.getItem() !== undefined && arg.indexOf(<string>i.typeId) !== -1) {
+                    return i.typeId
+                }
+            }
+            return undefined
+        }
+    }
     indexOf(id: string) {
         for (let i = 0; i < this.size(); i++) {
             if ((<Container>this.bagComponent.container).getItem(i)?.typeId === id) {
@@ -53,9 +90,9 @@ export default class ExEntityBag {
         }
         return -1;
     }
-
     getAllItems() {
         let items: (ItemStack | undefined)[] = [];
+        items.push(this.itemOnOffHand);
         if (this.bagComponent.container) {
             for (let i = 0; i < this.size(); i++) {
                 items.push((<Container>this.bagComponent.container).getItem(i));
@@ -65,11 +102,11 @@ export default class ExEntityBag {
         items.push(this.equipmentOnChest);
         items.push(this.equipmentOnLegs);
         items.push(this.equipmentOnFeet);
-        items.push(this.itemOnOffHand);
         return items;
     }
     getAllSlots() {
         let items: ContainerSlot[] = [];
+        items.push(this.getSlot(EquipmentSlot.Offhand));
         if (this.bagComponent.container) {
             for (let i = 0; i < this.size(); i++) {
                 items.push((<Container>this.bagComponent.container).getSlot(i));
@@ -79,7 +116,6 @@ export default class ExEntityBag {
         items.push(this.getSlot(EquipmentSlot.Chest));
         items.push(this.getSlot(EquipmentSlot.Legs));
         items.push(this.getSlot(EquipmentSlot.Feet));
-        items.push(this.getSlot(EquipmentSlot.Offhand));
         return items;
     }
     countAllItems() {
