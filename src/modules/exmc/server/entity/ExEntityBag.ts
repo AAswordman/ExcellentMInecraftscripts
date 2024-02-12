@@ -1,6 +1,7 @@
 import ExEntity from './ExEntity.js';
 import {
     Container,
+    ContainerSlot,
     EntityEquippableComponent,
     EntityInventoryComponent,
     EquipmentSlot,
@@ -25,21 +26,28 @@ export default class ExEntityBag {
         if (typeof (arg) === "number") {
             return (<Container>this.bagComponent.container).getItem(arg);
         }
-        if(arg in EquipmentSlot){
+        if (arg in EquipmentSlot) {
             return this.getEquipment(arg as EquipmentSlot);
         }
         let search = this.searchItem(arg);
-        if (search === -1) {
+        if (!search) {
             return undefined;
         }
-        return (<Container>this.bagComponent.container).getItem(search);
+        return search.getItem();
     }
     searchItem(id: string) {
-        let items = this.getAllItems();
-        for (let i = 0; i < items.length; i++) {
-            let item = items[i];
-            if (item === undefined) { continue; }
-            if (item.typeId === id) {
+        let slots = this.getAllSlots();
+        for (let i of slots) {
+            if (i.getItem() === undefined) { continue; }
+            if (i.typeId === id) {
+                return i;
+            }
+        }
+        return undefined;
+    }
+    indexOf(id: string) {
+        for (let i = 0; i < this.size(); i++) {
+            if ((<Container>this.bagComponent.container).getItem(i)?.typeId === id) {
                 return i;
             }
         }
@@ -47,18 +55,39 @@ export default class ExEntityBag {
     }
 
     getAllItems() {
-        let items = [];
-        for (let i = 0; i < this.size(); i++) {
-            items.push((<Container>this.bagComponent.container).getItem(i));
-        };
+        let items: (ItemStack | undefined)[] = [];
+        if (this.bagComponent.container) {
+            for (let i = 0; i < this.size(); i++) {
+                items.push((<Container>this.bagComponent.container).getItem(i));
+            };
+        }
+        items.push(this.equipmentOnHead);
+        items.push(this.equipmentOnChest);
+        items.push(this.equipmentOnLegs);
+        items.push(this.equipmentOnFeet);
+        items.push(this.itemOnOffHand);
+        return items;
+    }
+    getAllSlots() {
+        let items: ContainerSlot[] = [];
+        if (this.bagComponent.container) {
+            for (let i = 0; i < this.size(); i++) {
+                items.push((<Container>this.bagComponent.container).getSlot(i));
+            };
+        }
+        items.push(this.getSlot(EquipmentSlot.Head));
+        items.push(this.getSlot(EquipmentSlot.Chest));
+        items.push(this.getSlot(EquipmentSlot.Legs));
+        items.push(this.getSlot(EquipmentSlot.Feet));
+        items.push(this.getSlot(EquipmentSlot.Offhand));
         return items;
     }
     countAllItems() {
         let items = new Map<string, number>();
-        for (let i = 0; i < this.size(); i++) {
-            let item = this.getItem(i);
-            if (item)
-                items.set(item.typeId, item.amount + (items.get(item.typeId) ?? 0));
+        for (let i of this.getAllItems()) {
+            if (i) {
+                items.set(i.typeId, i.amount + (items.get(i.typeId) ?? 0));
+            }
         };
         return items;
     }
@@ -68,7 +97,7 @@ export default class ExEntityBag {
             let id = msg;
             let res = 0;
             for (let i = -1; i < this.size(); i++) {
-                let item : ItemStack|undefined
+                let item: ItemStack | undefined
                 if (i === -1) {
                     item = this.itemOnOffHand
                 } else {
@@ -85,8 +114,8 @@ export default class ExEntityBag {
             }
             return res;
         } else {
-            let item:ItemStack | undefined;
-            if(msg === -1) {
+            let item: ItemStack | undefined;
+            if (msg === -1) {
                 item = this.itemOnOffHand;
             } else {
                 item = this.getItem(msg);
@@ -121,23 +150,20 @@ export default class ExEntityBag {
     }
 
     setItem(slot: number | EquipmentSlot, item: ItemStack | undefined) {
-        if(typeof slot === 'string') {
-            return this.setEquipment(slot,item);
+        if (typeof slot === 'string') {
+            return this.setEquipment(slot, item);
         }
         return (<Container>this.bagComponent.container).setItem(slot, <ItemStack>item);
     }
 
-    hasItem(itemId: string,containsEq = false) {
-        if(containsEq){
-            //TTOD 懒得写了
-        }
-        return this.searchItem(itemId) !== -1;
+    hasItem(itemId: string) {
+        return this.searchItem(itemId) !== undefined;
     }
     addItem(item: ItemStack) {
         (<Container>this.bagComponent.container).addItem(item);
     }
     getSlot(pos: number | EquipmentSlot) {
-        if(typeof pos === 'string') {
+        if (typeof pos === 'string') {
             return this.getEquipmentSlot(pos);
         }
         return (<Container>this.bagComponent.container).getSlot(pos);
@@ -153,7 +179,7 @@ export default class ExEntityBag {
         return this.equipmentComponent.getEquipmentSlot(slot);
     }
 
-    
+
     get itemOnMainHand() {
         return this.getItem(EquipmentSlot.Mainhand);
     }

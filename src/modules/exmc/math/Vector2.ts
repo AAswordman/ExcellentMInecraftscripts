@@ -162,7 +162,7 @@ export default class Vector2 {
         return this;
     }
 
-    public unrotate(matrix: Matrix3): Vector2 {
+    public mul(matrix: Matrix3): Vector2 {
         let m00 = matrix.val[0];
         let m01 = matrix.val[1];
         let m10 = matrix.val[3];
@@ -178,11 +178,11 @@ export default class Vector2 {
     }
 
     public unrotateRad(matrix: Matrix3): Vector2 {
-        return this.unrotate(matrix);
+        return this.mul(matrix);
     }
 
     public unrotateDeg(matrix: Matrix3): Vector2 {
-        return this.unrotate(matrix);
+        return this.mul(matrix);
     }
 
     public toString(): string {

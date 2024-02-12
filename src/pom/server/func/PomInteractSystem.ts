@@ -1,4 +1,3 @@
-import ExGameVector3 from "../../../modules/exmc/server/math/ExGameVector3.js";
 import GameController from "./GameController.js";
 import "../../../modules/exmc/utils/native/Array.js"
 import ExEntity from "../../../modules/exmc/server/entity/ExEntity.js";

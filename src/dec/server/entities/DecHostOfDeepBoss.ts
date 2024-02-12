@@ -12,12 +12,16 @@ export class DecHostOfDeepBoss1 extends DecBossController {
     music: ExMusic;
     constructor(e: Entity, server: DecServer) {
         super(e, server);
-        this.music = server.getMusic("music.wb.from_the_burning_deep", "4:18");
+        this.music = server.getMusic("music.wb.from_the_burning_deep");
         this.music.trackPlayers(Array.from(this.barrier.getPlayers()));
         this.music.loop();
     }
     override onSpawn(): void {
         super.onSpawn();
+    }
+    override onFail(): void {
+        this.music.stop();
+        super.onFail();
     }
     override onKilled(e: EntityHurtAfterEvent): void {
         super.onKilled(e);
@@ -30,12 +34,16 @@ export class DecHostOfDeepBoss2 extends DecBossController {
     music: ExMusic;
     constructor(e: Entity, server: DecServer) {
         super(e, server);
-        this.music = server.getMusic("music.wb.from_the_burning_deep", "4:18");
+        this.music = server.getMusic("music.wb.from_the_burning_deep");
         this.music.trackPlayers(Array.from(this.barrier.getPlayers()));
 
     }
     override onSpawn(): void {
         super.onSpawn();
+    }
+    override onFail(): void {
+        this.music.stop();
+        super.onFail();
     }
     override onKilled(e: EntityHurtAfterEvent): void {
         super.onKilled(e);
@@ -48,7 +56,7 @@ export class DecHostOfDeepBoss3 extends DecCommonBossLastStage {
     music: ExMusic;
     constructor(e: Entity, server: DecServer) {
         super(e, server);
-        this.music = server.getMusic("music.wb.from_the_burning_deep", "4:18");
+        this.music = server.getMusic("music.wb.from_the_burning_deep");
         this.music.trackPlayers(Array.from(this.barrier.getPlayers()));
 
     }

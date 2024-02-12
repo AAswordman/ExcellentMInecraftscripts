@@ -1,7 +1,6 @@
 import { Entity, EntityDamageCause, EntityHurtAfterEvent } from "@minecraft/server";
 import DecServer from "../DecServer.js";
 import ExEntityController from "../../../modules/exmc/server/entity/ExEntityController.js";
-import ExGameVector3 from "../../../modules/exmc/server/math/ExGameVector3.js";
 import DecClient from "../DecClient.js";
 import ExGame from "../../../modules/exmc/server/ExGame.js";
 import PomServer from "../../../pom/server/PomServer.js";
@@ -22,7 +21,7 @@ export default class DecBossController extends ExEntityController {
         if (!barrier) {
             this.isFisrtCall = true;
             barrier = new DecBossBarrier(server, this.exEntity.exDimension,
-                new ExBlockArea(this.startPos.clone().sub(32, 32, 32), this.startPos.clone().add(32, 32, 32), true),
+                new ExBlockArea(this.startPos.cpy().sub(32, 32, 32), this.startPos.cpy().add(32, 32, 32), true),
                 this);
         } else {
             barrier.setBoss(this);

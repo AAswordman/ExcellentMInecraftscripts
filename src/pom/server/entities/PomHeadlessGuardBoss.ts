@@ -18,7 +18,7 @@ export default class PomHeadlessGuardBoss extends PomBossController {
     }
     override initBossEntity(): void {
         super.initBossEntity();
-        this.music = this.server.getMusic("music.wb.unknown_world", "2:16");
+        this.music = this.server.getMusic("music.wb.unknown_world");
         this.music.trackPlayers(Array.from(this.barrier.getPlayers()));
         if(this.isFisrtCall) {
             this.server.say({ rawtext: [{ translate: "text.wb:summon_headless_guard.name" }] });

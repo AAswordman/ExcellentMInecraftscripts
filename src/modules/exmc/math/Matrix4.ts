@@ -1,8 +1,30 @@
 import Vector3 from "./Vector3.js";
-
+/**
+ * Represents a 4x4 matrix.
+ */
 export default class Matrix4 {
     val!: Float32Array;
 
+    /**
+       * Creates a new Matrix4 instance.
+       * @param {Float32Array|Matrix4|number} val - The initial value of the matrix. If not provided, an identity matrix will be created.
+       * @param {number} m00 - The value at row 0, column 0.
+       * @param {number} m01 - The value at row 0, column 1.
+       * @param {number} m02 - The value at row 0, column 2.
+       * @param {number} m03 - The value at row 0, column 3.
+       * @param {number} m10 - The value at row 1, column 0.
+       * @param {number} m11 - The value at row 1, column 1.
+       * @param {number} m12 - The value at row 1, column 2.
+       * @param {number} m13 - The value at row 1, column 3.
+       * @param {number} m20 - The value at row 2, column 0.
+       * @param {number} m21 - The value at row 2, column 1.
+       * @param {number} m22 - The value at row 2, column 2.
+       * @param {number} m23 - The value at row 2, column 3.
+       * @param {number} m30 - The value at row 3, column 0.
+       * @param {number} m31 - The value at row 3, column 1.
+       * @param {number} m32 - The value at row 3, column 2.
+       * @param {number} m33 - The value at row 3, column 3.
+       */
     constructor(val?: Float32Array | Matrix4)
     constructor(m00: number, m01: number, m02: number, m03: number,
         m10: number, m11: number, m12: number, m13: number,
@@ -15,6 +37,10 @@ export default class Matrix4 {
         this.set(...arguments);
 
     }
+    /**
+       * Sets the value of the matrix.
+       * @returns {Matrix4} The modified matrix.
+       */
     set(val?: Float32Array | Matrix4): this;
     set(m00: number, m01: number, m02: number, m03: number,
         m10: number, m11: number, m12: number, m13: number,
@@ -51,7 +77,10 @@ export default class Matrix4 {
         }
         return this;
     }
-
+    /**
+       * Sets the matrix to the identity matrix.
+       * @returns {Matrix4} The modified matrix.
+       */
     public idt(): Matrix4 {
         this.val.set([
             1, 0, 0, 0,
@@ -61,7 +90,13 @@ export default class Matrix4 {
         ]);
         return this;
     }
-
+    /**
+       * Sets the translation component of the matrix.
+       * @param {number} x - The translation along the x-axis.
+       * @param {number} y - The translation along the y-axis.
+       * @param {number} z - The translation along the z-axis.
+       * @returns {Matrix4} The modified matrix.
+       */
     public setTranslation(x: number, y: number, z: number): Matrix4 {
         this.idt();
         this.val[12] = x;
@@ -69,7 +104,11 @@ export default class Matrix4 {
         this.val[14] = z;
         return this;
     }
-
+    /**
+       * Sets the rotation around the x-axis.
+       * @param {number} angle - The rotation angle in radians.
+       * @returns {Matrix4} The modified matrix.
+       */
     public setRotationX(angle: number): Matrix4 {
         const c = Math.cos(angle);
         const s = Math.sin(angle);
@@ -80,7 +119,11 @@ export default class Matrix4 {
         this.val[10] = c;
         return this;
     }
-
+    /**
+       * Sets the rotation around the y-axis.
+       * @param {number} angle - The rotation angle in radians.
+       * @returns {Matrix4} The modified matrix.
+       */
     public setRotationY(angle: number): Matrix4 {
         const c = Math.cos(angle);
         const s = Math.sin(angle);
@@ -91,7 +134,11 @@ export default class Matrix4 {
         this.val[10] = c;
         return this;
     }
-
+    /**
+       * Sets the rotation around the z-axis.
+       * @param {number} angle - The rotation angle in radians.
+       * @returns {Matrix4} The modified matrix.
+       */
     public setRotationZ(angle: number): Matrix4 {
         const c = Math.cos(angle);
         const s = Math.sin(angle);
@@ -102,7 +149,13 @@ export default class Matrix4 {
         this.val[5] = c;
         return this;
     }
-
+    /**
+       * Sets the scale component of the matrix.
+       * @param {number} x - The scale along the x-axis.
+       * @param {number} y - The scale along the y-axis.
+       * @param {number} z - The scale along the z-axis.
+       * @returns {Matrix4} The modified matrix.
+       */
     public setScale(x: number, y: number, z: number): Matrix4 {
         this.idt();
         this.val[0] = x;
@@ -110,32 +163,62 @@ export default class Matrix4 {
         this.val[10] = z;
         return this;
     }
-
+    /**
+       * Translates the matrix.
+       * @param {number} x - The translation along the x-axis.
+       * @param {number} y - The translation along the y-axis.
+       * @param {number} z - The translation along the z-axis.
+       * @returns {Matrix4} The modified matrix.
+       */
     public translate(x: number, y: number, z: number): Matrix4 {
         const translationMatrix = new Matrix4().setTranslation(x, y, z);
         return this.mul(translationMatrix);
     }
-
+    /**
+      * Rotates the matrix around the x-axis.
+      * @param {number} angle - The rotation angle in radians.
+      * @returns {Matrix4} The modified matrix.
+      */
     public rotateX(angle: number): Matrix4 {
         const rotationMatrix = new Matrix4().setRotationX(angle);
         return this.mul(rotationMatrix);
     }
-
+    /**
+       * Rotates the matrix around the y-axis.
+       * @param {number} angle - The rotation angle in radians.
+       * @returns {Matrix4} The modified matrix.
+       */
     public rotateY(angle: number): Matrix4 {
         const rotationMatrix = new Matrix4().setRotationY(angle);
         return this.mul(rotationMatrix);
     }
 
+    /**
+       * Rotates the matrix around the z-axis.
+       * @param {number} angle - The rotation angle in radians.
+       * @returns {Matrix4} The modified matrix.
+       */
     public rotateZ(angle: number): Matrix4 {
         const rotationMatrix = new Matrix4().setRotationZ(angle);
         return this.mul(rotationMatrix);
     }
 
+    /**
+       * Scales the matrix.
+       * @param {number} x - The scale along the x-axis.
+       * @param {number} y - The scale along the y-axis.
+       * @param {number} z - The scale along the z-axis.
+       * @returns {Matrix4} The modified matrix.
+       */
     public scl(x: number, y: number, z: number): Matrix4 {
         const scaleMatrix = new Matrix4().setScale(x, y, z);
         return this.mul(scaleMatrix);
     }
-
+    /**
+       * Multiplies this matrix with another matrix.
+       * @param {Matrix4} matrix - The matrix to multiply with.
+       * @returns {Matrix4} The modified matrix.
+       */
     public mul(matrix: Matrix4): Matrix4 {
         const result = new Matrix4();
         const a = this.val;
@@ -175,7 +258,11 @@ export default class Matrix4 {
         this.val = out;
         return this;
     }
-
+    /**
+      * Transforms a vector by this matrix.
+      * @param {Vector3} vector - The vector to transform.
+      * @returns {Vector3} The transformed vector.
+      */
     public transformVector(vector: Vector3): Vector3 {
         const x = vector.x;
         const y = vector.y;
@@ -189,6 +276,10 @@ export default class Matrix4 {
 
         return vector.set(newX, newY, newZ);
     }
+    /**
+       * Calculates the determinant of the matrix.
+       * @returns {number} The determinant.
+       */
     public determinant(): number {
         const a = this.val;
 
@@ -213,7 +304,10 @@ export default class Matrix4 {
 
         return detA;
     }
-
+    /**
+       * Diagonalizes the matrix.
+       * @returns {Object} An object containing the eigenvalues and eigenvectors.
+       */
     public diagonalize(): { eigenvalues: Vector3, eigenvectors: Matrix4 } {
         const a = this.val;
 
@@ -308,6 +402,12 @@ export default class Matrix4 {
 
         return { eigenvalues, eigenvectors };
     }
+
+    /**
+       * Inverts the matrix.
+       * @returns {Matrix4} The inverted matrix.
+       * @throws {Error} If the matrix is not invertible.
+       */
     public invert(): Matrix4 {
         const a = this.val;
         const out = new Matrix4();
@@ -358,9 +458,18 @@ export default class Matrix4 {
         this.val = inv;
         return this;
     }
+    /**
+       * Creates a copy of this matrix.
+       * @returns {Matrix4} The copied matrix.
+       */
     public cpy(): Matrix4 {
         return new Matrix4(this);
     }
+
+    /**
+       * Returns the value of the matrix.
+       * @returns {Float32Array} The value of the matrix.
+       */
     public getValue(): Float32Array {
         return this.val;
     }

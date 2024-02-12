@@ -2,7 +2,6 @@ import { world, MinecraftDimensionTypes, Dimension } from '@minecraft/server';
 import TimeLoopTask from '../../utils/TimeLoopTask.js';
 import ExEventManager from '../../interface/ExEventManager.js';
 import Vector3, { IVector3 } from '../../math/Vector3.js';
-import ExGameVector3 from '../math/ExGameVector3.js';
 import { to } from '../ExErrorQueue.js';
 import ExDimension from '../ExDimension.js';
 import ExSystem from '../../utils/ExSystem.js';

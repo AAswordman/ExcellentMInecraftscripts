@@ -24,9 +24,11 @@ import PomTaskSystem from "./func/PomTaskSystem.js";
 import SimpleItemUseFunc from "./func/SimpleItemUseFunc.js";
 import WarningAlertUI from "./ui/WarningAlertUI.js";
 import TickDelayTask from "../../modules/exmc/utils/TickDelayTask.js";
-import EntityPropCache from "../../modules/exmc/server/storage/cache/EntityPropCache.js";
+import ExPropCache from "../../modules/exmc/server/storage/cache/ExPropCache.js";
 import { ArmorData } from "../../dec/server/items/ArmorData.js";
 import { GameDifficulty, pomDifficultyMap } from "./data/GameDifficulty.js";
+import Vector3 from "../../modules/exmc/math/Vector3.js";
+import TalentData from "./cache/TalentData.js";
 
 
 
@@ -34,7 +36,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
     gameControllers: GameController[] = [];
     gameId !: number;
     globalSettings: GlobalSettings;
-    cache: EntityPropCache<PomData>;
+    cache: ExPropCache<PomData>;
     data: PomData;
     looper: TickDelayTask;
 
@@ -51,7 +53,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
     constructor(server: ExGameServer, id: string, player: Player) {
         super(server, id, player);
         this.globalSettings = new GlobalSettings(new Objective("wpsetting"));
-        this.cache = new EntityPropCache(this.exPlayer.entity);
+        this.cache = new ExPropCache(this.exPlayer.entity);
         this.looper = ExSystem.tickTask(() => {
             this.cache.save();
         });
@@ -76,6 +78,43 @@ export default class PomClient extends ExGameClient<PomTransmission> {
             controller.onJoin();
         });
 
+        if (!this.data.pointRecord) {
+            this.data.pointRecord = {
+                deathPoint: <[string, Vector3][]>[],
+                point: <[string, string, Vector3][]>[]
+            };
+        }
+        if (!this.data.talent) this.data.talent = new TalentData();
+        if (!this.data.tasks) {
+            this.data.tasks = {
+                daily: {
+                    complete: [[], [], [], []],
+                    all: [[], [], [], []],
+                    date: "1970-2-31",
+                    cache: {}
+                },
+                progress: {
+                    complete: [],
+                    data: {}
+                }
+            }
+        }
+        if (!this.data.uiCustomSetting) {
+            this.data.uiCustomSetting = {
+                topLeftMessageBarStyle: 0,
+                topLeftMessageBarLayer1: 100,
+                topLeftMessageBarLayer2: 100,
+                topLeftMessageBarLayer3: 100,
+                topLeftMessageBarLayer4: 100,
+                topLeftMessageBarLayer5: 100,
+            }
+        }
+        if (!this.data.gamePreferrence) {
+            this.data.gamePreferrence = {
+                chainMining: true
+            }
+        }
+
         // this.net = new NeuralNetwork<{a:number,b:number},{c:number}>();
     }
 
@@ -85,7 +124,6 @@ export default class PomClient extends ExGameClient<PomTransmission> {
                 // process in client
             }
         });
-
     }
 
     addCtrller(system: GameController) {
@@ -173,8 +211,8 @@ export default class PomClient extends ExGameClient<PomTransmission> {
         return <PomServer>super.getServer();
     }
 
-    getDifficulty():GameDifficulty{
-        return (pomDifficultyMap).get(this.globalSettings.gameDifficulty+"")!;
+    getDifficulty(): GameDifficulty {
+        return (pomDifficultyMap).get(this.globalSettings.gameDifficulty + "")!;
     }
 
 
@@ -187,7 +225,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
         this.taskSystem.progressTaskFinish(name, damage);
     }
     @receiveMessage("chooseArmor")
-    chooseArmor(a:ArmorData){
+    chooseArmor(a: ArmorData) {
         this.talentSystem.chooseArmor(a);
     }
 }

@@ -5,7 +5,6 @@ import Random from "../../../../../modules/exmc/utils/Random.js";
 import GameController from "../../GameController.js";
 
 import * as desertCommand from "../../ruins/desert/PomDesertRuinCommmand.js";
-import ExGameVector3 from '../../../../../modules/exmc/server/math/ExGameVector3.js';
 import ExEntity from "../../../../../modules/exmc/server/entity/ExEntity.js";
 import Vector3 from '../../../../../modules/exmc/math/Vector3.js';
 import ExSystem from "../../../../../modules/exmc/utils/ExSystem.js";
@@ -253,7 +252,7 @@ export default class PomDesertRuinRules {
                             this.game.getExDimension().getEntities({
                                 maxDistance: 15,
                                 location: tmpV
-                            }).forEach(e => (ExEntity.getInstance(e).setPosition(tmpV.clone().sub(this.game.exPlayer.position).scl(num / 2).add(tmpV))));
+                            }).forEach(e => (ExEntity.getInstance(e).setPosition(tmpV.cpy().sub(this.game.exPlayer.position).scl(num / 2).add(tmpV))));
                             break;
                         }
                         case desertCommand.MAIN.EFFECT: {

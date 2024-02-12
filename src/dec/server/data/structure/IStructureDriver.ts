@@ -10,16 +10,16 @@ export default class IStructureDriver {
         if (start.z > end.z) [start.z, end.z] = [end.z, start.z];
         //measure
 
-        let box = end.clone().sub(start);
+        let box = end.cpy().sub(start);
 
         const tmpV = new Vector3();
-        this.save(dim, start.clone(),
-            start.clone().add(Math.floor(box.x / 2), Math.floor(box.y / 2), Math.floor(box.z / 2)));
+        this.save(dim, start.cpy(),
+            start.cpy().add(Math.floor(box.x / 2), Math.floor(box.y / 2), Math.floor(box.z / 2)));
         let size = 32;
         for (let x = 0; x < box.x; x += size) {
             for (let y = 0; y < box.y; y += size) {
                 for (let z = 0; z < box.z; z += size) {
-                    yield this._save(dim, start.clone().add(x, y, z), start.clone().add(x, y, z).add(size).min(box.clone().sub(1)), new Vector3(x, y, z));
+                    yield this._save(dim, start.cpy().add(x, y, z), start.cpy().add(x, y, z).add(size).min(box.cpy().sub(1)), new Vector3(x, y, z));
                 }
             }
         }
@@ -31,7 +31,7 @@ export default class IStructureDriver {
         //measure
         let a1 = new IStructureSettle();
 
-        let box = end.clone().sub(start);
+        let box = end.cpy().sub(start);
 
         const tmpV = new Vector3();
 

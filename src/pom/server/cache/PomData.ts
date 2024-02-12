@@ -30,11 +30,23 @@ export default class PomData {
         }
     }
 
+    uiCustomSetting!: {
+        topLeftMessageBarLayer1:number;
+        topLeftMessageBarLayer2:number;
+        topLeftMessageBarLayer3:number;
+        topLeftMessageBarLayer4:number;
+        topLeftMessageBarLayer5:number;
+        topLeftMessageBarStyle:number;
+    }
+
     dimBackPoint: Vector3 | undefined;
     dimBackMode: number | undefined;
 
     lang?: "en" | "zh";
-
+    
+    gamePreferrence!: {
+        chainMining: boolean;
+    };
     initialMagicPickaxe?: true;
 
     gameExperience!: number;

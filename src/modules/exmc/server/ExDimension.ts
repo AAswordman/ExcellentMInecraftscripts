@@ -2,7 +2,6 @@ import { Dimension, EntityQueryOptions, Block, ItemStack, Entity, BlockType, Exp
 import { ExCommandNativeRunner } from '../interface/ExCommandRunner.js';
 import Vector3, { IVector3 } from "../math/Vector3.js";
 import ExGameConfig from './ExGameConfig.js';
-import ExGameVector3 from './math/ExGameVector3.js';
 import ExCommand from './env/ExCommand.js';
 import { ignorn } from './ExErrorQueue.js';
 
@@ -40,7 +39,7 @@ export default class ExDimension implements ExCommandNativeRunner {
         let entities = this._dimension.getEntities(entityQueryOptions);
         let res: Entity[] = [];
         for (let entity of entities) {
-            if (entity && entity.dimension === this._dimension) res.push(entity);
+            if (entity && entity.dimension == this._dimension) res.push(entity);
         }
         return res;
     }

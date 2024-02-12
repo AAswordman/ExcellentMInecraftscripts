@@ -11,7 +11,7 @@ export class DecEverlastingWinterGhastBoss1 extends DecBossController {
     music: ExMusic;
     constructor(e: Entity, server: DecServer) {
         super(e, server);
-        this.music = server.getMusic("music.wb.ghost_tears", "2:16");
+        this.music = server.getMusic("music.wb.ghost_tears");
         this.music.trackPlayers(Array.from(this.barrier.getPlayers()));
         this.music.loop();
     }
@@ -33,7 +33,7 @@ export class DecEverlastingWinterGhastBoss2 extends DecCommonBossLastStage {
     music: ExMusic;
     constructor(e: Entity, server: DecServer) {
         super(e, server);
-        this.music = server.getMusic("music.wb.the_peotry_of_ghost", "3:12");
+        this.music = server.getMusic("music.wb.the_peotry_of_ghost");
         this.music.trackPlayers(Array.from(this.barrier.getPlayers()));
         this.music.loop();
     }

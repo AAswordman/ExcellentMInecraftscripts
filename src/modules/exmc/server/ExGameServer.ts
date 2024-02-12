@@ -81,6 +81,11 @@ export default class ExGameServer implements SetTimeOutSupport {
     }
 
     @registerEvent(ExEventNames.afterEntitySpawn)
+    _onEntitySpawn(e: EntitySpawnAfterEvent){
+        this.onEntitySpawn(e);
+    }
+
+    @registerEvent(ExEventNames.afterEntityLoad)
     onEntitySpawn(e: EntitySpawnAfterEvent) {
         if (!e.entity.isValid()) return;
         let id;
@@ -108,8 +113,8 @@ export default class ExGameServer implements SetTimeOutSupport {
     }
 
     private static musicMap = new Map<string, ExMusic>();
-    getMusic(id: string, t: string) {
-        return new ExMusic(this, id, t);
+    getMusic(id: string) {
+        return new ExMusic(this, id);
 
     }
 

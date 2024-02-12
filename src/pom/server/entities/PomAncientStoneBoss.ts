@@ -54,7 +54,7 @@ export default class PomAncientStoneBoss extends PomBossController {
     }
     override initBossEntity(): void {
         super.initBossEntity();
-        this.music = this.server.getMusic("music.wb.unknown_world", "2:16");
+        this.music = this.server.getMusic("music.wb.anger_of_ancient");
         this.music.trackPlayers(Array.from(this.barrier.getPlayers()));
         if (!this.exEntity.hasComponent("minecraft:is_baby") && this.isFisrtCall) {
             this.server.say({ rawtext: [{ translate: "text.wb:summon_ancient_stone.name" }] });

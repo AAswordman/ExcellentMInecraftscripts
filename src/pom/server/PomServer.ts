@@ -1,4 +1,4 @@
-import { ChatSendBeforeEvent, Entity, EntityDamageCause, EntityHurtAfterEvent, GameMode, MinecraftDimensionTypes, Player } from '@minecraft/server';
+import { ChatSendBeforeEvent, DimensionType, DimensionTypes, Entity, EntityDamageCause, EntityHurtAfterEvent, GameMode, MinecraftDimensionTypes, Player, world } from '@minecraft/server';
 import ExConfig from "../../modules/exmc/ExConfig.js";
 import Vector3, { IVector3 } from '../../modules/exmc/math/Vector3.js';
 import ExDimension from "../../modules/exmc/server/ExDimension.js";
@@ -86,12 +86,12 @@ export default class PomServer extends ExGameServer {
     constructor(config: ExConfig) {
         super(config);
         this.setting = new GlobalSettings(new Objective("wpsetting"));
-        if(!this.setting.has("entityShowMsg")) this.setting.entityShowMsg = true;
-        if(!this.setting.has("damageShow")) this.setting.damageShow = true;
-        if(!this.setting.has("playerTpListShowPos")) this.setting.playerTpListShowPos = true;
-        if(!this.setting.has("playerCanTp")) this.setting.playerCanTp = true;
-        if(!this.setting.has("tpPointRecord")) this.setting.tpPointRecord = true;
-        if(!this.setting.has("chainMining")) this.setting.chainMining = true;
+        if (!this.setting.has("entityShowMsg")) this.setting.entityShowMsg = true;
+        if (!this.setting.has("damageShow")) this.setting.damageShow = true;
+        if (!this.setting.has("playerTpListShowPos")) this.setting.playerTpListShowPos = true;
+        if (!this.setting.has("playerCanTp")) this.setting.playerCanTp = true;
+        if (!this.setting.has("tpPointRecord")) this.setting.tpPointRecord = true;
+        // if(!this.setting.has("chainMining")) this.setting.chainMining = true;
 
         //实体清理
         (this.clearEntityNumUpdate = new TimeLoopTask(this.getEvents(), () => {
@@ -506,7 +506,7 @@ export default class PomServer extends ExGameServer {
                     (
                         RuinsLoaction.isInProtectArea(e.entity.location)
                     )) {
-                    e.entity.triggerEvent("minecraft:despawn");
+                    e.entity.remove();
 
                 }
             }
@@ -520,6 +520,22 @@ export default class PomServer extends ExGameServer {
         this.addEntityController(PomIntentionsBoss1.typeId, PomIntentionsBoss1);
         this.addEntityController(PomIntentionsBoss2.typeId, PomIntentionsBoss2);
         this.addEntityController(PomIntentionsBoss3.typeId, PomIntentionsBoss3);
+
+        // //清理留下的boss
+        // let bossIds = [
+        //     PomMagicStoneBoss.typeId,
+        //     PomHeadlessGuardBoss.typeId,
+        //     PomAncientStoneBoss.typeId,
+        //     PomIntentionsBoss1.typeId,
+        //     PomIntentionsBoss2.typeId,
+        //     PomIntentionsBoss3.typeId
+        // ];
+        // for (let id of bossIds) {
+        //     this.getExDimension(MinecraftDimensionTypes.overworld).getEntities({
+        //         type: id
+        //     }).forEach(e => { if (e.isValid()) e.remove() });
+        // }
+
 
         // gt.register("Pom", "fakeplayer", (test) => {
         //     this.fakeplayers.push(new PomFakePlayer(
@@ -591,7 +607,7 @@ export default class PomServer extends ExGameServer {
     @registerEvent<PomServer>(ExEventNames.afterEntityHurt, (server, e: EntityHurtAfterEvent) => server.setting.damageShow && e.damageSource.cause !== EntityDamageCause.suicide)
     damageShow(e: EntityHurtAfterEvent) {
         if (!e.hurtEntity.isValid()) return;
-        if(!(e.damageSource.damagingEntity instanceof Player)) damageShow(this.getExDimension(e.hurtEntity.dimension.id), e.damage, e.hurtEntity.location);
+        if (!(e.damageSource.damagingEntity instanceof Player)) damageShow(this.getExDimension(e.hurtEntity.dimension.id), e.damage, e.hurtEntity.location);
     }
 
 
