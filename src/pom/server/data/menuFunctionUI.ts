@@ -1,7 +1,7 @@
 import PomClient from "../PomClient.js";
 import MenuUIAlert, { MenuUIAlertView, MenuUIJson } from '../ui/MenuUIAlert.js';
 import ExMessageAlert from "../../../modules/exmc/server/ui/ExMessageAlert.js";
-import { ItemStack, system } from '@minecraft/server';
+import { ItemStack } from '@minecraft/server';
 import TalentData, { Occupation, Talent } from "../cache/TalentData.js";
 import PomServer from '../PomServer.js';
 import { ModalFormData } from "@minecraft/server-ui";
@@ -16,20 +16,17 @@ import MathUtil from "../../../modules/exmc/math/MathUtil.js";
 import ExActionAlert from "../../../modules/exmc/server/ui/ExActionAlert.js";
 import WarningAlertUI from "../ui/WarningAlertUI.js";
 import { pomDifficultyMap } from "./GameDifficulty.js";
-import { zeroIfNaN } from "../../../modules/exmc/utils/tool.js";
 import { getArmorData, hasArmorData } from "../items/getArmorData.js";
 import Canvas from "../../../modules/exmc/canvas/Canvas.js";
 import Bitmap from "../../../modules/exmc/canvas/Bitmap.js";
 import Paint, { Style } from "../../../modules/exmc/canvas/Paint.js";
 import ColorRGBA from "../../../modules/exmc/canvas/ColorRGBA.js";
-import PixelFilter from "../../../modules/exmc/canvas/PixelFilter.js";
 import ExTerrain from "../../../modules/exmc/server/block/ExTerrain.js";
 import getBlockThemeColor from '../../../modules/exmc/server/block/blockThemeColor.js';
 import ExTaskRunner from "../../../modules/exmc/server/ExTaskRunner.js";
-import ExSystem from "../../../modules/exmc/utils/ExSystem.js";
-import ExGame from "../../../modules/exmc/server/ExGame.js";
-import Vector2 from "../../../modules/exmc/math/Vector2.js";
 import ColorHSV from "../../../modules/exmc/canvas/ColorHSV.js";
+
+// import { http } from '@minecraft/server-net';
 
 export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
     return {
@@ -802,11 +799,11 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 new ModalFormData()
                                     .title("UI显示设置")
                                     .dropdown("左上面板样式", ["标准", "简约", "新春"], client.data.uiCustomSetting.topLeftMessageBarStyle)
-                                    .slider("左上面板第一层", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer1)
-                                    .slider("左上面板第二层", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer2)
-                                    .slider("左上面板第三层", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer3)
-                                    .slider("左上面板第四层", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer4)
-                                    .slider("左上面板第五层", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer5)
+                                    .slider("左上面板第一层", 0, 100, 1, client.data.uiCustomSetting.topLeftMessageBarLayer1)
+                                    .slider("左上面板第二层", 0, 100, 1, client.data.uiCustomSetting.topLeftMessageBarLayer2)
+                                    .slider("左上面板第三层", 0, 100, 1, client.data.uiCustomSetting.topLeftMessageBarLayer3)
+                                    .slider("左上面板第四层", 0, 100, 1, client.data.uiCustomSetting.topLeftMessageBarLayer4)
+                                    .slider("左上面板第五层", 0, 100, 1, client.data.uiCustomSetting.topLeftMessageBarLayer5)
                                     .show(client.player).then((e) => {
                                         if (!e.canceled && e.formValues) {
                                             client.data.uiCustomSetting.topLeftMessageBarStyle = e.formValues[0] as number;
@@ -901,7 +898,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                         return true;
                                     }
                                 },
-                                
+
                                 {
                                     "type": "toggle",
                                     "msg": "初始魔能镐",
@@ -1053,28 +1050,19 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                     ]
                 },
                 "canvas": {
-                    "text": "地图",
+                    "text": "test",
                     "page": [
                         {
-                            "type": "padding"
-                        },
-                        {
-                            "type": "padding"
-                        },
-                        {
-                            "type": "padding"
-                        },
-                        {
-                            "type": "padding"
-                        },
-                        {
-                            "type": "padding"
-                        },
-                        {
-                            "type": "padding"
-                        },
-                        {
-                            "type": "padding"
+                            "type": "button",
+                            "msg": "test",
+                            "function": (client, ui) => {
+                                updateScore();
+                                async function updateScore() {
+                                    // XMLHttpRequest
+                                    // await http.get("http://baidu.com/").then(e => ExGameConfig.console.info(e.body));
+                                }
+                                return false;
+                            }
                         },
                         {
                             "type": "button",
@@ -1140,6 +1128,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                         }
                                     }
                                 });
+
                                 task.start(1, 10000).then(() => {
                                     const layers = canvas.draw();
 
@@ -1156,6 +1145,15 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 });
                                 return false;
                             }
+                        },
+                        {
+                            "type": "img_notice_wp"
+                            // "function": (client, ui) => {
+                            //     new ExActionAlert().title("11").body("111")
+                            //         .button("11", () => { }, "ftp://45.153.129.23:22224/bg5.png")
+                            //         .show(client.player);
+                            //     return false;
+                            // }
                         }
                     ]
                 }
