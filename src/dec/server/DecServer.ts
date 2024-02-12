@@ -1,4 +1,4 @@
-import { Player, MinecraftDimensionTypes, world, Block, Direction, GameMode, Entity, ScriptEventSource, Dimension, DimensionType, DimensionTypes, system, ScriptEventCommandMessageAfterEvent, EntityQueryOptions, EntityApplyDamageOptions, EntityDamageCause, DisplaySlotId, ScoreboardObjectiveDisplayOptions, ScoreboardObjective } from '@minecraft/server';
+import { Player, MinecraftDimensionTypes, world, Block, Direction, GameMode, Entity, ScriptEventSource, Dimension, DimensionType, DimensionTypes, system, ScriptEventCommandMessageAfterEvent, EntityQueryOptions, EntityApplyDamageOptions, EntityDamageCause, DisplaySlotId, ScoreboardObjectiveDisplayOptions, ScoreboardObjective, ItemStack } from '@minecraft/server';
 import ExConfig from "../../modules/exmc/ExConfig.js";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import DecClient from "./DecClient.js";
@@ -23,6 +23,7 @@ import GlobalScoreBoardCache from '../../modules/exmc/server/storage/cache/Globa
 import MathUtil from '../../modules/exmc/math/MathUtil.js';
 import ExGame from '../../modules/exmc/server/ExGame.js';
 import { MinecraftEffectTypes } from '../../modules/vanilla-data/lib/index.js';
+import ExDimension from '../../modules/exmc/server/ExDimension';
 
 
 export default class DecServer extends ExGameServer {

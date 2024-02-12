@@ -54,33 +54,41 @@ export default class DecClient extends ExGameClient {
                 this.totemEffect('dec:fire_totem', ['function item/fire_totem']);
             };
             if (e.currentTick % 4 === 0) {
-                const item = this.exPlayer.getBag().itemOnOffHand;
+                const item_offhand = this.exPlayer.getBag().itemOnOffHand;
+                const item_head = this.exPlayer.getBag().equipmentOnHead;
 
                 this.totemEffect('dec:energy_totem', ['function item/energy_totem']);
-                if (item) {
-                    this.decreaseCooldownEqu(item, 'gun', 9, 'dec:archer_bullet_bag');
-                    this.decreaseCooldownEqu(item, 'gun', 7, 'dec:lava_bullet_bag');
-                    this.decreaseCooldownEqu(item, 'gun', 4, 'dec:blood_bullet_bag');
-                    this.decreaseCooldownEqu(item, 'gun', 3, 'dec:hunter_bullet_bag');
-                    this.decreaseCooldownEqu(item, 'gun', 3, 'dec:pirate_bullet_bag');
-                    this.decreaseCooldownEqu(item, 'gun', 2, 'dec:bullet_bag');
-                    this.decreaseCooldownEqu(item, 'catapult', 5, 'dec:stones_bag');
-                    this.decreaseCooldownEqu(item, 'catapult', 13, 'dec:archer_stones_bag');
-                    this.decreaseCooldownEqu(item, 'staff', 4, 'dec:magic_surge_core');
-                    this.decreaseCooldownEqu(item, 'staff', 3, 'dec:alchemic_stone');
-                    this.decreaseCooldownEqu(item, 'katana', 6, 'dec:fire_heart');
-                    this.decreaseCooldownEqu(item, 'magic_book', 4, 'dec:herb_bag');
-                    this.decreaseCooldownEqu(item, 'magic_book', 7, 'dec:shadow_feather');
-                    this.decreaseCooldownEqu(item, 'staff', 8, 'dec:tear_from_dream');
-                    this.decreaseCooldownEqu(item, 'staff', 6, 'dec:time_compass');
-                    this.decreaseCooldownEqu(item, 'missile', 3, 'dec:diamond_ring');
-                    this.decreaseCooldownEqu(item, 'missile', 4, 'dec:emerald_ring');
-                    this.decreaseCooldownEqu(item, 'missile', 7, 'dec:ender_ring');
-                    this.decreaseCooldownEqu(item, 'missile', 6, 'dec:fire_ring');
-                    this.decreaseCooldownEqu(item, 'missile', 4, 'dec:gold_ring');
-                    this.decreaseCooldownEqu(item, 'missile', 5, 'dec:heart_ring');
-                    this.decreaseCooldownEqu(item, 'missile', 3, 'dec:natural_ring');
-                    this.decreaseCooldownEqu(item, 'missile', 7, 'dec:dust_ring');
+                if (item_offhand) {
+                    this.decreaseCooldownEqu(item_offhand, 'gun', 9, 'dec:archer_bullet_bag');
+                    this.decreaseCooldownEqu(item_offhand, 'gun', 7, 'dec:lava_bullet_bag');
+                    this.decreaseCooldownEqu(item_offhand, 'gun', 4, 'dec:blood_bullet_bag');
+                    this.decreaseCooldownEqu(item_offhand, 'gun', 3, 'dec:hunter_bullet_bag');
+                    this.decreaseCooldownEqu(item_offhand, 'gun', 3, 'dec:pirate_bullet_bag');
+                    this.decreaseCooldownEqu(item_offhand, 'gun', 2, 'dec:bullet_bag');
+                    this.decreaseCooldownEqu(item_offhand, 'catapult', 5, 'dec:stones_bag');
+                    this.decreaseCooldownEqu(item_offhand, 'catapult', 13, 'dec:archer_stones_bag');
+                    this.decreaseCooldownEqu(item_offhand, 'staff', 4, 'dec:magic_surge_core');
+                    this.decreaseCooldownEqu(item_offhand, 'staff', 3, 'dec:alchemic_stone');
+                    this.decreaseCooldownEqu(item_offhand, 'katana', 6, 'dec:fire_heart');
+                    this.decreaseCooldownEqu(item_offhand, 'magic_book', 4, 'dec:herb_bag');
+                    this.decreaseCooldownEqu(item_offhand, 'magic_book', 7, 'dec:shadow_feather');
+                    this.decreaseCooldownEqu(item_offhand, 'staff', 8, 'dec:tear_from_dream');
+                    this.decreaseCooldownEqu(item_offhand, 'staff', 6, 'dec:time_compass');
+                    this.decreaseCooldownEqu(item_offhand, 'missile', 3, 'dec:diamond_ring');
+                    this.decreaseCooldownEqu(item_offhand, 'missile', 4, 'dec:emerald_ring');
+                    this.decreaseCooldownEqu(item_offhand, 'missile', 7, 'dec:ender_ring');
+                    this.decreaseCooldownEqu(item_offhand, 'missile', 6, 'dec:fire_ring');
+                    this.decreaseCooldownEqu(item_offhand, 'missile', 4, 'dec:gold_ring');
+                    this.decreaseCooldownEqu(item_offhand, 'missile', 5, 'dec:heart_ring');
+                    this.decreaseCooldownEqu(item_offhand, 'missile', 3, 'dec:natural_ring');
+                    this.decreaseCooldownEqu(item_offhand, 'missile', 7, 'dec:dust_ring');
+                }
+                if (item_head) {
+                    this.decreaseCooldownEqu(item_head, 'staff', 1, 'dec:blue_gem_hat');
+                    this.decreaseCooldownEqu(item_head, 'magic_book', 2, 'dec:blue_gem_hat');
+                    this.decreaseCooldownEqu(item_head, 'staff', 2, 'dec:red_gem_hat');
+                    this.decreaseCooldownEqu(item_head, 'magic_book', 2, 'dec:red_gem_hat');
+                    this.decreaseCooldownEqu(item_head, 'gun', 2, 'dec:archer_hat');
                 }
             }
         });
