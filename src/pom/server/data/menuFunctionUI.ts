@@ -770,7 +770,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                     "page": [
                         {
                             "type": "toggle",
-                            "msg": "连锁挖矿",
+                            "msg": "连锁挖矿(特定镐子可使用)",
                             "state": (client, ui) => client.data.gamePreferrence.chainMining,
                             "function": (client, ui) => {
                                 client.data.gamePreferrence.chainMining = !client.data.gamePreferrence.chainMining;
@@ -797,16 +797,16 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                         },
                         {
                             "type": "button",
-                            "msg": "玩家界面自定义",
+                            "msg": "玩家状态UI个性化设置",
                             "function": (client, ui): boolean => {
                                 new ModalFormData()
                                     .title("UI显示设置")
-                                    .dropdown("左上面板样式", ["标准", "简约", "新春"], client.data.uiCustomSetting.topLeftMessageBarStyle)
-                                    .slider("左上面板第一层", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer1)
-                                    .slider("左上面板第二层", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer2)
-                                    .slider("左上面板第三层", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer3)
-                                    .slider("左上面板第四层", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer4)
-                                    .slider("左上面板第五层", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer5)
+                                    .dropdown("左上面板样式", ["标准", "简约(未开放)", "新春(未开放）"], client.data.uiCustomSetting.topLeftMessageBarStyle)
+                                    .slider("主要UI底板", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer1)
+                                    .slider("下方装饰底板", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer2)
+                                    .slider("右侧装饰纹样框", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer3)
+                                    .slider("左侧装饰纹样框", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer4)
+                                    .slider("背景层", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer5)
                                     .show(client.player).then((e) => {
                                         if (!e.canceled && e.formValues) {
                                             client.data.uiCustomSetting.topLeftMessageBarStyle = e.formValues[0] as number;
@@ -904,7 +904,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 
                                 {
                                     "type": "toggle",
-                                    "msg": "初始魔能镐",
+                                    "msg": "初始魔能镐(清除石头模式）",
                                     "state": (client, ui) => client.globalSettings.initialMagicPickaxe,
                                     "function": (client, ui) => {
                                         client.globalSettings.initialMagicPickaxe = !client.globalSettings.initialMagicPickaxe;
@@ -956,7 +956,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 },
                                 {
                                     "type": "button",
-                                    "msg": "重置遗迹",
+                                    "msg": "重置遗迹（特指4个BOSS的传送门遗迹）",
                                     "function": (client, ui) => {
                                         new ExMessageAlert().title("确认").body(`是否重置遗迹？`)
                                             .button1("是", () => {
