@@ -1077,7 +1077,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 paint.strokeWidth = 1;
                                 paint.style = Style.FILL;
 
-                                const num = 100
+                                const num = 16
                                 const step = 1
                                 let centerX = 100, centerY = 100;
                                 let perSize = centerX / num * 2 ** 0.5;
