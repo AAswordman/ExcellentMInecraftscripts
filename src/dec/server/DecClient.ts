@@ -99,13 +99,6 @@ export default class DecClient extends ExGameClient {
 
         })
 
-        /*this.getEvents().exEvents.afterItemReleaseUse.subscribe((e) => {
-            //物品使用后清除skill_count
-            if(e.itemStack.getTags().includes('use_skill_count')){
-                this.exPlayer.getScoresManager().setScore('skill_count',0)
-            }
-        })*/
-
         this.getEvents().exEvents.afterItemUse.subscribe((e) => {
             if (e.itemStack.hasComponentById('minecraft:cooldown')) {
                 //这里写有饰品时触发的东西
@@ -158,9 +151,7 @@ export default class DecClient extends ExGameClient {
 
             //哭泣套受伤效果
             if (this.useArmor === ArmorPlayerDec.crying) {
-                if (ra < 1) {
-
-                } else if (1 <= ra && ra <= 10) {
+                if (1 <= ra && ra <= 10) {
                     this.player.addEffect(MinecraftEffectTypes.Weakness, 5 * 20);
                 } else if (ra <= 20) {
                     this.player.addEffect(MinecraftEffectTypes.Slowness, 4 * 20);
@@ -277,8 +268,6 @@ export default class DecClient extends ExGameClient {
                     let lor: string[] = [];
                     let t = DecGlobal.isDec() ? DecTasks : PomTasks;
                     for (let i = 0; i < t_n; i++) {
-                        //lor.push(numTranToTask(randonNumber(0, 9)) + numTranToTask(randonNumber(0, 9)) + numTranToTask(randonNumber(0, 9)))
-                        //lor.push("Ao Ao " + numTranToTask(MathUtil.randomInteger(0, 9)));
                         lor.push(numTranToTask(Random.choice(t).id));
 
                     }
@@ -402,9 +391,6 @@ export default class DecClient extends ExGameClient {
                     }
                 }
             }
-            /*if (p.getItemCooldown("village_portal") > 10) {
-                p.startItemCooldown("village_portal",p.getItemCooldown("village_portal")-10)
-            }*/
 
             if (scores.getScore('i_heavy') > 0) {//防末影珍珠的放function/global里的
                 this.exPlayer.command.run('tag @e[r=10,type=ender_pearl] add no_ender_pearl')
