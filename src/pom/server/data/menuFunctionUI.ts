@@ -104,10 +104,12 @@ export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
 名字排序为随机排序
 
 Main creator:   - LiLeyi   AAswordsman
+
+Creator:  Him1025(kALE) - 部分贴图、logo、icon、剧情、建筑、模型动画、加农炮战车、ui贴图、弩弓、合并工作
+
 Assistants:  -  
 EnderghostScale  - 人造肉、部分怪物、投掷炸药和技术支持
-Him1025(kALE) - 部分贴图、logo、icon、剧情、建筑、模型动画、加农炮战车、ui贴图、弩弓
-haveyouwantto - 技术支持
+haveyouwantto(Maple-Kaede) - 技术支持
 huo鱼一只 - 技术支持
 AR_UnryAllenCN - 技术支持
 世心 - 狼人，暗狼人
@@ -130,20 +132,24 @@ Mr.龙灵 - 提供结构和贴图
 Hanyi寒翼 - 灵感、建筑和贴图
 鸥吃鱼 - 部分翻译
 KucerLuo - 建筑
-Repforce - 建筑
+Repforce2 - 建筑
 一只有疑问的猪 - 建筑
 枨触 - 建筑
 LZN - 提供建筑、贴图
 豆沙 - 部分怪物
 某不知名的琦玉 - 灵感
-夜长生 - 建筑
-默笙 - 建筑
-StereoRoom411 - 建筑
-岚天 - 建筑
-WINDes - 任务清单、测试、灵感、部分
-文海求生 - 任务清单、测试反馈
-ALiFang ZHE - 部分模型、贴图
-屑屑猹 - 部分翻译
+夜长生 - 提供建筑
+默笙 - 提供建筑
+StereoRoom411 - 提供建筑
+岚天 - 提供建筑
+WINDes - 提供任务清单、测试、灵感、部分
+文海求生 - 提供任务清单、测试反馈
+ALiFang ZHE - 提供部分模型、贴图
+屑屑猹 - 提供部分翻译
+小小尽喵 - 提供贴图
+幻想贝壳 - 提供方块贴图、建筑
+驼贰 - 部分配乐
+基岩 - 灰烬塔建筑、建议
 
 Our Team
 竹翼团队     无上蓝痕(BlueMark Studio)
