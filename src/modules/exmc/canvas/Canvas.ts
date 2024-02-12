@@ -1,7 +1,7 @@
 import Matrix3 from "../math/Matrix3.js";
 import Bitmap from "./Bitmap.js";
 import Paint, { Style } from "./Paint.js";
-import PixelFilter, { Pixel } from "./PixelFilter.js";
+import PixelFilter from "./PixelFilter.js";
 
 export default class Canvas {
     private _context: Bitmap;
