@@ -21,6 +21,7 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
 
     debuggerChatTest = (e: ChatSendBeforeEvent) => {
         ExGame.run(() => {
+            
             if (e.message.startsWith("*/"))
                 ExGameConfig.console.info(eval(e.message.substring(2, e.message.length)));
         });
@@ -43,6 +44,9 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
         new ExActionAlert().title("aaa").body("bbbb").button("alert", () => { })
             .button("alert", () => { })
             .show(this.player);
+    }
+    debug_error() {
+        return ExErrorQueue.getError();
     }
 
     constructor(server: ExGameServer, id: string, player: Player) {

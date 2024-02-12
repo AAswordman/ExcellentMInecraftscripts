@@ -68,20 +68,21 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     getHeadLocation() {
         return new Vector3(this._entity.getHeadLocation());
     }
-
+    static propertyNameCache = "exCache";
     protected constructor(entity: Entity) {
         this._entity = entity;
-    }
-
-    protected static idMap = new WeakMap<Entity, ExEntity>();
-    static getInstance(source: Entity): ExEntity {
-        if (ExEntity.idMap.has(source)) {
-            return ExEntity.idMap.get(source)!;
+        if (ExEntity.propertyNameCache in entity) {
+            throw new Error("Already have a instance in entity.please use ExEntity.getInstance to get it.");
         } else {
-            let entity = new ExEntity(source);
-            ExEntity.idMap.set(source, entity);
-            return entity;
+            Reflect.set(entity, ExEntity.propertyNameCache, this);
         }
+    }
+    static getInstance(source: Entity): ExEntity {
+        let entity = source;
+        if (this.propertyNameCache in entity) {
+            return Reflect.get(entity, this.propertyNameCache);
+        }
+        return (new ExEntity(entity));
     }
     get exDimension() {
         return ExDimension.getInstance(this.dimension);

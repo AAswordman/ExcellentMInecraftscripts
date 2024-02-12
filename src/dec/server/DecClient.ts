@@ -15,6 +15,7 @@ import { MinecraftEffectTypes } from "../../modules/vanilla-data/lib/index.js";
 import DecBossBarrier from "./entities/DecBossBarrier.js";
 import ExEntity, { ExEntityShootOption } from '../../modules/exmc/server/entity/ExEntity.js';
 import ExPlayer from '../../modules/exmc/server/entity/ExPlayer.js';
+import ExErrorQueue from '../../modules/exmc/server/ExErrorQueue.js';
 
 
 export default class DecClient extends ExGameClient {
