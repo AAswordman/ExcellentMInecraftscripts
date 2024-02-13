@@ -108,6 +108,9 @@ export default class ExPlayer extends ExEntity {
         }
         return (entity[this.propertyNameCache] = new ExPlayer(entity));
     }
+    static deleteInstance(source: any) {
+        delete source[this.propertyNameCache]
+    }
 
     override getScoresManager(): ExScoresManager {
         return this.scoresManager;

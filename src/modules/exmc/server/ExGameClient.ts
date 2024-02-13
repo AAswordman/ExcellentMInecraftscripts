@@ -10,7 +10,7 @@ import ExActionAlert from "./ui/ExActionAlert.js";
 import ExInterworkingPool from '../interface/ExInterworkingPool.js';
 import { basicFinalType } from "../interface/types.js";
 
-import "../../reflect-metadata/Reflect.js"
+import "../../reflect-metadata/Reflect.js";
 import { eventDecoratorFactory } from "./events/eventDecoratorFactory.js";
 import notUtillTask from "../utils/notUtillTask.js";
 import { TickEvent } from "./events/events.js";
@@ -21,7 +21,6 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
 
     debuggerChatTest = (e: ChatSendBeforeEvent) => {
         ExGame.run(() => {
-            
             if (e.message.startsWith("*/"))
                 ExGameConfig.console.info(eval(e.message.substring(2, e.message.length)));
         });
@@ -138,8 +137,10 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
     onLoad() {
     }
 
+    
     onLeave() {
         this._events.cancelAll();
+        ExPlayer.deleteInstance(this.player);
     }
 
     getEvents() {

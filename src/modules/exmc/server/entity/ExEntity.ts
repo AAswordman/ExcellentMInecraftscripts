@@ -8,8 +8,6 @@ import SetTimeOutSupport from '../../interface/SetTimeOutSupport.js';
 import ExCommand from '../env/ExCommand.js';
 import ExDimension from '../ExDimension.js';
 import Vector2, { IVector2 } from '../../math/Vector2.js';
-import { AlsoInstanceType } from '../../utils/tool.js';
-import { EntityMovementComponent } from '@minecraft/server';
 import Matrix4 from '../../math/Matrix4.js';
 
 export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
