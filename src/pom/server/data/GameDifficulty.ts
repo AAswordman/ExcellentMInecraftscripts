@@ -57,7 +57,7 @@ export class PomGameHardDifficulty implements GameDifficulty {
 export class PomGameHellDifficulty implements GameDifficulty {
     name = "Human play???";
     id = "5"
-    healthAddionion = -20;
+    healthAddionion = -15;
     physicalDefenseAddFactor = -0.2;
     magicDefenseAddFactor = -0.2;
     damageAddFactor = 0.5;

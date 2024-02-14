@@ -144,7 +144,7 @@ export default class PomTalentSystem extends GameController {
             this.skillLoop.stop();
         }
         //this.exPlayer.triggerEvent("hp:" + Math.round((20 + (this.talentRes.get(Talent.VIENTIANE) ?? 0))));
-        this.client.magicSystem.gameMaxHealth = Math.round(this.client.getDifficulty().healthAddionion + (40 + (this.talentRes.get(Talent.VIENTIANE) ?? 0)));
+        this.client.magicSystem.gameMaxHealth = Math.round(this.client.getDifficulty().healthAddionion + (30 + (this.talentRes.get(Talent.VIENTIANE) ?? 0)));
     }
 
     //更新盔甲属性（在不换甲的情况下）
@@ -164,13 +164,15 @@ export default class PomTalentSystem extends GameController {
                 + (this.chestComp?.getComponentWithGroup(e) ?? 0)
                 + (this.legComp?.getComponentWithGroup(e) ?? 0)
                 + (this.feetComp?.getComponentWithGroup(e) ?? 0)) as any;
-        this.armor_protection = (["armor_magic_protection", "armor_physical_protection", "armor_magic_reduction", "armor_physical_reduction", "armor_magic_reduction", "armor_resilience"
-            , "final_magic_reduction", "final_physical_reduction"] as any[])
+        this.armor_protection = ["armor_magic_protection", "armor_physical_protection",
+            "armor_magic_reduction", "armor_physical_reduction",
+            "armor_resilience"
+            , "final_magic_reduction", "final_physical_reduction"]
             .map(e =>
-                (this.headComp?.getComponentWithGroup(e) ?? 0)
-                + (this.chestComp?.getComponentWithGroup(e) ?? 0)
-                + (this.legComp?.getComponentWithGroup(e) ?? 0)
-                + (this.feetComp?.getComponentWithGroup(e) ?? 0)) as any;
+                (this.headComp?.getComponentWithGroup(e as any) as number ?? 0)
+                + (this.chestComp?.getComponentWithGroup(e as any) as number ?? 0)
+                + (this.legComp?.getComponentWithGroup(e as any) as number ?? 0)
+                + (this.feetComp?.getComponentWithGroup(e as any) as number ?? 0)) as any;
         const dataList: [number, number] = (["armor_protection", "armor_resilience"] as any[])
             .map(e =>
                 (this.headComp?.getComponentWithGroup(e) ?? 0)
@@ -263,6 +265,8 @@ export default class PomTalentSystem extends GameController {
             // console.warn("hurt"+e.damage,"now"+this.exPlayer.health);
             let damage = (this.exPlayer.getPreRemoveHealth() ?? 0) + e.damage;
             let willdamage = damage;
+            // console.warn(willdamage);
+
             willdamage *= 1 - this.armor_protection[4];
             if (PomTalentSystem.magicDamageType.has(e.damageSource.cause)) {
                 willdamage -= this.armor_protection[2];
@@ -272,13 +276,15 @@ export default class PomTalentSystem extends GameController {
                 willdamage *= (1 - this.armor_protection[1] / 100);
             }
             willdamage *= (1 - ((this.talentRes.get(Talent.DEFENSE) ?? 0) / 100));
-            willdamage *= (1 - this.client.getDifficulty().magicDefenseAddFactor);
 
             if (PomTalentSystem.magicDamageType.has(e.damageSource.cause)) {
+                willdamage *= (1 - this.client.getDifficulty().magicDefenseAddFactor);
                 willdamage -= this.armor_protection[5];
             } else if (PomTalentSystem.physicalDamageType.has(e.damageSource.cause)) {
+                willdamage *= (1 - this.client.getDifficulty().physicalDefenseAddFactor);
                 willdamage -= this.armor_protection[6];
             }
+            // console.warn(willdamage);
 
             let add = Math.min(damage - willdamage, damage - 1);
             // console.warn(actualDamageFactor);
@@ -361,7 +367,7 @@ export default class PomTalentSystem extends GameController {
                     if (comp.hasComponent("sneak_movement_addition"))
                         base[base.length - 1] += ("§r§7 | 潜行移速" + (smove < 0 ? "§c" + smove : "§6+" + smove));
                 } else if (comp.hasComponent("sneak_movement_addition")) base.push("§r§7•潜行移速" + (smove < 0 ? "§c" + smove : "§6+" + smove));
-                if(comp.hasComponent("attack_addition")){
+                if (comp.hasComponent("attack_addition")) {
                     base.push("§r§7•攻击伤害§6+" + comp.getComponentWithGroup("attack_addition"));
                 }
                 if (comp.hasComponent("equipment_type")) {
