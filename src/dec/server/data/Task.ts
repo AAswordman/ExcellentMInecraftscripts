@@ -223,7 +223,7 @@ export let DecTasks = [
         "execute if entity @s[tag=task_complete] run clear @s dec:stream_stone 0 72"
     ]),
     new DecTask("042", 421, [
-        "execute if entity @s[hasitem={item=log,quantity=64..}] run tag @s add task_complete",
+        "execute if entity @s[hasitem={item=birch_log,quantity=64..}] run tag @s add task_complete",
         "execute if entity @s[tag=task_complete] run clear @s log -1 64"
     ]),
     new DecTask("043", 562, [
@@ -231,7 +231,7 @@ export let DecTasks = [
         "execute if entity @s[tag=task_complete] run clear @s log -1 73"
     ]),
     new DecTask("044", 741, [
-        "execute if entity @s[hasitem={item=log,quantity=134..}] run tag @s add task_complete",
+        "execute if entity @s[hasitem={item=oak_log,quantity=134..}] run tag @s add task_complete",
         "execute if entity @s[tag=task_complete] run clear @s log -1 134"
     ]),
     new DecTask("045", 854, [
