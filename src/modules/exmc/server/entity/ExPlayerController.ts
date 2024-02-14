@@ -9,7 +9,7 @@ import ExPlayer from './ExPlayer.js';
 import ExEntityController from "./ExEntityController.js";
 import applyMixins from "../../utils/applyMixins.js";
 
-import "../../../reflect-metadata/Reflect.js"
+import "../../../reflect-metadata/Reflect.js";
 
 export default class ExPlayerController extends ExEntityController implements DisposeAble {
     public constructor(e: Player, server: ExGameServer) {

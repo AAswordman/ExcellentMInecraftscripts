@@ -1,7 +1,7 @@
 import PomClient from "../PomClient.js";
 import MenuUIAlert, { MenuUIAlertView, MenuUIJson } from '../ui/MenuUIAlert.js';
 import ExMessageAlert from "../../../modules/exmc/server/ui/ExMessageAlert.js";
-import { ItemStack, system } from '@minecraft/server';
+import { ItemStack } from '@minecraft/server';
 import TalentData, { Occupation, Talent } from "../cache/TalentData.js";
 import PomServer from '../PomServer.js';
 import { ModalFormData } from "@minecraft/server-ui";
@@ -16,20 +16,17 @@ import MathUtil from "../../../modules/exmc/math/MathUtil.js";
 import ExActionAlert from "../../../modules/exmc/server/ui/ExActionAlert.js";
 import WarningAlertUI from "../ui/WarningAlertUI.js";
 import { pomDifficultyMap } from "./GameDifficulty.js";
-import { zeroIfNaN } from "../../../modules/exmc/utils/tool.js";
 import { getArmorData, hasArmorData } from "../items/getArmorData.js";
 import Canvas from "../../../modules/exmc/canvas/Canvas.js";
 import Bitmap from "../../../modules/exmc/canvas/Bitmap.js";
 import Paint, { Style } from "../../../modules/exmc/canvas/Paint.js";
 import ColorRGBA from "../../../modules/exmc/canvas/ColorRGBA.js";
-import PixelFilter from "../../../modules/exmc/canvas/PixelFilter.js";
 import ExTerrain from "../../../modules/exmc/server/block/ExTerrain.js";
 import getBlockThemeColor from '../../../modules/exmc/server/block/blockThemeColor.js';
 import ExTaskRunner from "../../../modules/exmc/server/ExTaskRunner.js";
-import ExSystem from "../../../modules/exmc/utils/ExSystem.js";
-import ExGame from "../../../modules/exmc/server/ExGame.js";
-import Vector2 from "../../../modules/exmc/math/Vector2.js";
 import ColorHSV from "../../../modules/exmc/canvas/ColorHSV.js";
+
+// import { http } from '@minecraft/server-net';
 
 export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
     return {
@@ -107,10 +104,12 @@ export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
 名字排序为随机排序
 
 Main creator:   - LiLeyi   AAswordsman
+
+Creator:  Him1025(kALE) - 部分贴图、logo、icon、剧情、建筑、模型动画、加农炮战车、ui贴图、弩弓、合并工作
+
 Assistants:  -  
 EnderghostScale  - 人造肉、部分怪物、投掷炸药和技术支持
-Him1025(kALE) - 部分贴图、logo、icon、剧情、建筑、模型动画、加农炮战车、ui贴图、弩弓
-haveyouwantto - 技术支持
+haveyouwantto(Maple-Kaede) - 技术支持
 huo鱼一只 - 技术支持
 AR_UnryAllenCN - 技术支持
 世心 - 狼人，暗狼人
@@ -133,20 +132,24 @@ Mr.龙灵 - 提供结构和贴图
 Hanyi寒翼 - 灵感、建筑和贴图
 鸥吃鱼 - 部分翻译
 KucerLuo - 建筑
-Repforce - 建筑
+Repforce2 - 建筑
 一只有疑问的猪 - 建筑
 枨触 - 建筑
 LZN - 提供建筑、贴图
 豆沙 - 部分怪物
 某不知名的琦玉 - 灵感
-夜长生 - 建筑
-默笙 - 建筑
-StereoRoom411 - 建筑
-岚天 - 建筑
-WINDes - 任务清单、测试、灵感、部分
-文海求生 - 任务清单、测试反馈
-ALiFang ZHE - 部分模型、贴图
-屑屑猹 - 部分翻译
+夜长生 - 提供建筑
+默笙 - 提供建筑
+StereoRoom411 - 提供建筑
+岚天 - 提供建筑
+WINDes - 提供任务清单、测试、灵感、部分
+文海求生 - 提供任务清单、测试反馈
+ALiFang ZHE - 提供部分模型、贴图
+屑屑猹 - 提供部分翻译
+小小尽喵 - 提供贴图
+幻想贝壳 - 提供方块贴图、建筑
+驼贰 - 部分配乐
+基岩 - 灰烬塔建筑、建议
 
 Our Team
 竹翼团队     无上蓝痕(BlueMark Studio)
@@ -770,7 +773,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                     "page": [
                         {
                             "type": "toggle",
-                            "msg": "连锁挖矿",
+                            "msg": "连锁挖矿(特定镐子可使用)",
                             "state": (client, ui) => client.data.gamePreferrence.chainMining,
                             "function": (client, ui) => {
                                 client.data.gamePreferrence.chainMining = !client.data.gamePreferrence.chainMining;
@@ -797,16 +800,16 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                         },
                         {
                             "type": "button",
-                            "msg": "玩家界面自定义",
+                            "msg": "玩家状态UI个性化设置",
                             "function": (client, ui): boolean => {
                                 new ModalFormData()
                                     .title("UI显示设置")
-                                    .dropdown("左上面板样式", ["标准", "简约", "新春"], client.data.uiCustomSetting.topLeftMessageBarStyle)
-                                    .slider("左上面板第一层", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer1)
-                                    .slider("左上面板第二层", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer2)
-                                    .slider("左上面板第三层", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer3)
-                                    .slider("左上面板第四层", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer4)
-                                    .slider("左上面板第五层", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer5)
+                                    .dropdown("左上面板样式", ["标准", "简约(未开放)", "新春(未开放）"], client.data.uiCustomSetting.topLeftMessageBarStyle)
+                                    .slider("主要UI底板", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer1)
+                                    .slider("下方装饰底板", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer2)
+                                    .slider("右侧装饰纹样框", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer3)
+                                    .slider("左侧装饰纹样框", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer4)
+                                    .slider("背景层", 0, 100,1, client.data.uiCustomSetting.topLeftMessageBarLayer5)
                                     .show(client.player).then((e) => {
                                         if (!e.canceled && e.formValues) {
                                             client.data.uiCustomSetting.topLeftMessageBarStyle = e.formValues[0] as number;
@@ -901,7 +904,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                         return true;
                                     }
                                 },
-                                
+
                                 {
                                     "type": "toggle",
                                     "msg": "初始魔能镐",
@@ -956,7 +959,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 },
                                 {
                                     "type": "button",
-                                    "msg": "重置遗迹",
+                                    "msg": "重置遗迹（特指4个BOSS的传送门遗迹）",
                                     "function": (client, ui) => {
                                         new ExMessageAlert().title("确认").body(`是否重置遗迹？`)
                                             .button1("是", () => {
@@ -1053,28 +1056,19 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                     ]
                 },
                 "canvas": {
-                    "text": "地图",
+                    "text": "test",
                     "page": [
                         {
-                            "type": "padding"
-                        },
-                        {
-                            "type": "padding"
-                        },
-                        {
-                            "type": "padding"
-                        },
-                        {
-                            "type": "padding"
-                        },
-                        {
-                            "type": "padding"
-                        },
-                        {
-                            "type": "padding"
-                        },
-                        {
-                            "type": "padding"
+                            "type": "button",
+                            "msg": "test",
+                            "function": (client, ui) => {
+                                updateScore();
+                                async function updateScore() {
+                                    // XMLHttpRequest
+                                    // await http.get("http://baidu.com/").then(e => ExGameConfig.console.info(e.body));
+                                }
+                                return false;
+                            }
                         },
                         {
                             "type": "button",
@@ -1140,6 +1134,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                         }
                                     }
                                 });
+
                                 task.start(1, 10000).then(() => {
                                     const layers = canvas.draw();
 
@@ -1156,6 +1151,15 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 });
                                 return false;
                             }
+                        },
+                        {
+                            "type": "img_notice_wp"
+                            // "function": (client, ui) => {
+                            //     new ExActionAlert().title("11").body("111")
+                            //         .button("11", () => { }, "ftp://45.153.129.23:22224/bg5.png")
+                            //         .show(client.player);
+                            //     return false;
+                            // }
                         }
                     ]
                 }

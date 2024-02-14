@@ -8,8 +8,6 @@ import SetTimeOutSupport from '../../interface/SetTimeOutSupport.js';
 import ExCommand from '../env/ExCommand.js';
 import ExDimension from '../ExDimension.js';
 import Vector2, { IVector2 } from '../../math/Vector2.js';
-import { AlsoInstanceType } from '../../utils/tool.js';
-import { EntityMovementComponent } from '@minecraft/server';
 import Matrix4 from '../../math/Matrix4.js';
 
 export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
@@ -68,20 +66,21 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     getHeadLocation() {
         return new Vector3(this._entity.getHeadLocation());
     }
-
+    static propertyNameCache = "exCache";
     protected constructor(entity: Entity) {
         this._entity = entity;
-    }
-
-    protected static idMap = new WeakMap<Entity, ExEntity>();
-    static getInstance(source: Entity): ExEntity {
-        if (ExEntity.idMap.has(source)) {
-            return ExEntity.idMap.get(source)!;
+        if (ExEntity.propertyNameCache in entity) {
+            throw new Error("Already have a instance in entity.please use ExEntity.getInstance to get it.");
         } else {
-            let entity = new ExEntity(source);
-            ExEntity.idMap.set(source, entity);
-            return entity;
+            Reflect.set(entity, ExEntity.propertyNameCache, this);
         }
+    }
+    static getInstance(source: Entity): ExEntity {
+        let entity = source;
+        if (this.propertyNameCache in entity) {
+            return Reflect.get(entity, this.propertyNameCache);
+        }
+        return (new ExEntity(entity));
     }
     get exDimension() {
         return ExDimension.getInstance(this.dimension);

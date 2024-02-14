@@ -98,15 +98,18 @@ export default class ExPlayer extends ExEntity {
         return this.bag;
     }
 
-    protected static override idMap = new WeakMap<Entity, ExPlayer>();
     static override getInstance(source: Player): ExPlayer {
-        if (ExPlayer.idMap.has(source)) {
-            return ExPlayer.idMap.get(source)!;
-        } else {
-            let entity = new ExPlayer(source);
-            ExPlayer.idMap.set(source, entity);
-            return entity;
+        let entity = <any>source;
+        if (this.propertyNameCache in entity) {
+            // ExGameConfig.console.log("Property id " + (entity as Player).name + "//" + (ExSystem.getId((entity[this.propertyNameCache] as ExPlayer).entity) == ExSystem.getId(entity)))
+            // ExGameConfig.console.log("Property == " + (entity[this.propertyNameCache] as ExPlayer).entity == entity)
+            // if((entity[this.propertyNameCache] as ExPlayer).entity != entity) (entity[this.propertyNameCache] as ExPlayer).entity = entity;
+            return entity[this.propertyNameCache];
         }
+        return (entity[this.propertyNameCache] = new ExPlayer(entity));
+    }
+    static deleteInstance(source: any) {
+        delete source[this.propertyNameCache]
     }
 
     override getScoresManager(): ExScoresManager {

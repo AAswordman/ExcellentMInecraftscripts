@@ -10,7 +10,7 @@ import ExActionAlert from "./ui/ExActionAlert.js";
 import ExInterworkingPool from '../interface/ExInterworkingPool.js';
 import { basicFinalType } from "../interface/types.js";
 
-import "../../reflect-metadata/Reflect.js"
+import "../../reflect-metadata/Reflect.js";
 import { eventDecoratorFactory } from "./events/eventDecoratorFactory.js";
 import notUtillTask from "../utils/notUtillTask.js";
 import { TickEvent } from "./events/events.js";
@@ -43,6 +43,9 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
         new ExActionAlert().title("aaa").body("bbbb").button("alert", () => { })
             .button("alert", () => { })
             .show(this.player);
+    }
+    debug_error() {
+        return ExErrorQueue.getError();
     }
 
     constructor(server: ExGameServer, id: string, player: Player) {
@@ -134,8 +137,10 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
     onLoad() {
     }
 
+    
     onLeave() {
         this._events.cancelAll();
+        ExPlayer.deleteInstance(this.player);
     }
 
     getEvents() {

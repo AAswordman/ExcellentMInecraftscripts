@@ -19,13 +19,20 @@ export default class SimpleItemUseFunc extends GameController {
                 if (e.brokenBlockPermutation.hasTag("log")) {
                     this.chainDigging(new Vector3(e.block), e.brokenBlockPermutation.type.id, 16);
                 }
-            } else if (itemId === "dec:everlasting_winter_pickaxe" && this.player.isSneaking) {
-                if (this.data.gamePreferrence.chainMining) this.chainDigging(new Vector3(e.block), e.brokenBlockPermutation.type.id, 4);
-            } else if (itemId === "wb:pickaxex_equipment_a") {
-                if (this.data.gamePreferrence.chainMining && this.player.isSneaking) {
-                    if (this.exPlayer.getScoresManager().getScore("wbfl") >= 30) {
+            } 
+            else if (itemId === "dec:everlasting_winter_pickaxe_axe" && this.player.isSneaking) {
+                if (this.data.gamePreferrence.chainMining) {
+                    if (this.exPlayer.getScoresManager().getScore("wbfl") >= 7) {
+                        this.chainDigging(new Vector3(e.block), e.brokenBlockPermutation.type.id, 3);
+                        this.exPlayer.getScoresManager().removeScore("wbfl", 7);
+                    } 
+                }
+            }
+             else if (itemId === "wb:pickaxex_equipment_a" && this.player.isSneaking) {
+                if (this.data.gamePreferrence.chainMining) {
+                    if (this.exPlayer.getScoresManager().getScore("wbfl") >= 20) {
                         this.chainDigging(new Vector3(e.block), e.brokenBlockPermutation.type.id, 5);
-                        this.exPlayer.getScoresManager().removeScore("wbfl", 30);
+                        this.exPlayer.getScoresManager().removeScore("wbfl", 20);
                     }
                 }
                 // else {
