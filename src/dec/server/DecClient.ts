@@ -180,6 +180,10 @@ export default class DecClient extends ExGameClient {
             }
 
 
+            if (ra <= 50 && ExEntity.getInstance(e.hurtEntity).getBag().equipmentOnHead?.typeId === 'dec:glass_tank') {
+                e.hurtEntity.runCommandAsync('playsound random.glass @a ~~1~')
+            }
+
             if (!DecGlobal.isDec() && !this.player.hasTag("wbkjlq")) {
                 const tmpV = new Vector3();
                 switch (this.useArmor) {
