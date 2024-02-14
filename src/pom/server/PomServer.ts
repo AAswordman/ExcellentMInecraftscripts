@@ -39,45 +39,45 @@ import { MinecraftBlockTypes, MinecraftEffectTypes, MinecraftEntityTypes } from 
 export default class PomServer extends ExGameServer {
 
     //实体清理
-    entityCleaner: TimeLoopTask;
-    entityCleanerLooper: TimeLoopTask;
-    tpsListener: TimeLoopTask;
+    entityCleaner!: TimeLoopTask;
+    entityCleanerLooper!: TimeLoopTask;
+    tpsListener!: TimeLoopTask;
     tps = 20;
     private _mtps = 20;
 
-    clearEntityNumUpdate: TimeLoopTask;
+    clearEntityNumUpdate!: TimeLoopTask;
     entityCleanerLeastNum!: number;
     entityCleanerStrength!: number;
     entityCleanerDelay!: number;
 
-    ruinCleaner;
-    ruinFuncLooper: TickDelayTask;
+    ruinCleaner!: TickDelayTask;
+    ruinFuncLooper!: TickDelayTask;
     //遗迹沙漠
-    ruin_desertBoss: PomDesertBossRuin;
-    portal_desertBoss: ExBlockStructure;
-    ruinDesertGuardPos: Vector3;
-    ruinDesertGuardRule: TickDelayTask;
+    ruin_desertBoss!: PomDesertBossRuin;
+    portal_desertBoss!: ExBlockStructure;
+    ruinDesertGuardPos!: Vector3;
+    ruinDesertGuardRule!: TickDelayTask;
 
     //遗迹石块
-    ruin_stoneBoss: PomStoneBossRuin;
-    portal_stoneBoss: ExBlockStructure;
+    ruin_stoneBoss!: PomStoneBossRuin;
+    portal_stoneBoss!: ExBlockStructure;
 
     //遗迹洞穴
-    ruin_caveBoss: PomCaveBossRuin;
-    portal_caveBoss: ExBlockStructure;
+    ruin_caveBoss!: PomCaveBossRuin;
+    portal_caveBoss!: ExBlockStructure;
 
     //遗迹远古
-    ruin_ancientBoss: PomAncientBossRuin;
-    portal_ancientBoss: ExBlockStructure;
+    ruin_ancientBoss!: PomAncientBossRuin;
+    portal_ancientBoss!: ExBlockStructure;
 
     //遗迹内心
-    ruin_mindBoss: PomMindBossRuin;
-    portal_mindBoss: ExBlockStructure;
+    ruin_mindBoss!: PomMindBossRuin;
+    portal_mindBoss!: ExBlockStructure;
 
 
     //虚拟玩家
     fakeplayers: PomFakePlayer[] = [];
-    setting: GlobalSettings;
+    setting!: GlobalSettings;
 
     sayTo(str: string) {
         this.getExDimension(MinecraftDimensionTypes.theEnd).command.run(`tellraw @a {"rawtext": [{"text": "${str}"}]}`);
@@ -85,70 +85,205 @@ export default class PomServer extends ExGameServer {
 
     constructor(config: ExConfig) {
         super(config);
-        this.setting = new GlobalSettings(new Objective("wpsetting"));
-        if (!this.setting.has("entityShowMsg")) this.setting.entityShowMsg = true;
-        if (!this.setting.has("damageShow")) this.setting.damageShow = true;
-        if (!this.setting.has("playerTpListShowPos")) this.setting.playerTpListShowPos = true;
-        if (!this.setting.has("playerCanTp")) this.setting.playerCanTp = true;
-        if (!this.setting.has("tpPointRecord")) this.setting.tpPointRecord = true;
-        // if(!this.setting.has("chainMining")) this.setting.chainMining = true;
+        this.initGlobalVars();
+        this.initEntityCleaner();
+        this.initRuinsGeneration();
+        this.initRuinsRules();
+        this.initBossControllers();
+    }
+    private initBossControllers() {
+        //实体监听
+        this.addEntityController(PomMagicStoneBoss.typeId, PomMagicStoneBoss);
+        this.addEntityController(PomHeadlessGuardBoss.typeId, PomHeadlessGuardBoss);
+        this.addEntityController(PomAncientStoneBoss.typeId, PomAncientStoneBoss);
+        this.addEntityController(PomIntentionsBoss1.typeId, PomIntentionsBoss1);
+        this.addEntityController(PomIntentionsBoss2.typeId, PomIntentionsBoss2);
+        this.addEntityController(PomIntentionsBoss3.typeId, PomIntentionsBoss3);
+    }
 
-        //实体清理
-        (this.clearEntityNumUpdate = new TimeLoopTask(this.getEvents(), () => {
-            this.updateClearEntityNum();
-        }).delay(10000)).start();
-
-        this.updateClearEntityNum();
-
-
-        this.entityCleaner = new TimeLoopTask(this.getEvents(), () => {
-            if (!this.entityCleanerLooper.isStarted()) {
-                let entities: Entity[] = (Array.from(ExDimension.getInstance(this.getDimension(MinecraftDimensionTypes.overworld)).getEntities())
-                    .concat(Array.from(ExDimension.getInstance(this.getDimension(MinecraftDimensionTypes.theEnd)).getEntities()))
-                    .concat(Array.from(ExDimension.getInstance(this.getDimension(MinecraftDimensionTypes.nether)).getEntities())));
-
-                if (entities.length > this.entityCleanerLeastNum) {
-                    cleanTimes = 11;
-                    this.entityCleanerLooper.start();
+    private initRuinsRules() {
+        //遗迹掉落物清理
+        const upDateMonster = () => {
+            let entities = this.getExDimension(MinecraftDimensionTypes.theEnd).getEntities({
+                location: RuinsLoaction.DESERT_RUIN_LOCATION_CENTER,
+                maxDistance: 400
+            });
+            // .concat(
+            //     this.getExDimension(MinecraftDimensionTypes.theEnd).getEntities({
+            //         location: ExGameVector3.getLocation(RuinsLoaction.STONE_RUIN_LOCATION_CENTER),
+            //         maxDistance: 128
+            //     })
+            // );
+            for (let e of entities) {
+                if (e.typeId === "minecraft:item" && e.getViewDirection().y === 0) {
+                    e.kill();
                 }
             }
-        }).delay(8000);
+        };
+        this.ruinCleaner = ExSystem.tickTask(() => {
+            upDateMonster();
+        }).delay(60 * 20);
+        upDateMonster();
+        this.ruinCleaner.start();
 
-        let cleanTimes = 11;
-        this.entityCleanerLooper = new TimeLoopTask(this.getEvents(), () => {
-            if (cleanTimes === 11) {
-                if (this.setting.entityShowMsg) this.say("Prepare for entities cleaning...");
-            } else if (cleanTimes === 10 || cleanTimes === 5) {
-                if (this.setting.entityShowMsg) this.say(`Remaining ${cleanTimes}s for entities cleaning`);
-            } else if (cleanTimes === 0) {
-                this.clearEntity();
-                this.entityCleanerLooper.stop();
-            } else if (cleanTimes <= 3) {
-                if (this.setting.entityShowMsg) this.say(`Remaining ${cleanTimes}s for entities cleaning`);
+
+
+        //遗迹保护
+        this.getEvents().events.afterPlayerBreakBlock.subscribe(e => {
+            if (e.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && (RuinsLoaction.isInProtectArea(e.block))) {
+
+                let ex = ExPlayer.getInstance(e.player);
+                // if (ex.getGameMode() === GameMode.creative) return;
+                let b = e.dimension.getBlock(e.block.location);
+                if (!b) return;
+                b.setType(e.brokenBlockPermutation.type);
+                ex.exDimension.command.run("kill @e[type=item,r=2,x=" + e.block.x + ",y=" + e.block.y + ",z=" + e.block.z + "]");
+                ex.addEffect(MinecraftEffectTypes.Nausea, 200, 0, true);
+                ex.addEffect(MinecraftEffectTypes.Darkness, 400, 0, true);
+                ex.addEffect(MinecraftEffectTypes.Wither, 100, 0, true);
+                ex.addEffect(MinecraftEffectTypes.MiningFatigue, 600, 2, true);
+                ex.addEffect(MinecraftEffectTypes.Hunger, 600, 1, true);
+                ex.addEffect(MinecraftEffectTypes.Blindness, 200, 0, true);
+                ex.command.run("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }");
             }
-            cleanTimes -= 1;
-        }).delay(1000);
-        this.upDateEntityCleaner();
-
-
-        let ticks = 0;
-        this.tpsListener = new TimeLoopTask(this.getEvents(), () => {
-            this.tps = ticks;
-
-            let liner = (this.tps - this._mtps) > 0 ? this.entityCleanerStrength : 11 - this.entityCleanerStrength;
-            this._mtps = this._mtps * (liner - 1) / liner + this.tps / liner;
-
-            //ExGameConfig.console.log("tps：" + this.tps, "myps : " + this._mtps,"delay:"+this.entityCleanerDelay ** (this._mtps));
-            this.entityCleaner.delay(this.entityCleanerDelay ** (this._mtps));
-            ticks = 0;
-        }).delay(1000);
-
-
-        this.getEvents().exEvents.tick.subscribe(e => {
-            ticks++;
         });
 
-        this.tpsListener.start();
+        this.getEvents().events.beforeItemUseOn.subscribe(e => {
+            if (e.source.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && (RuinsLoaction.isInProtectArea(e.block))) {
+                // if (e.source instanceof Player) {
+                //     let ex = ExPlayer.getInstance(e.source);
+                //     if (ex.getGameMode() === GameMode.creative) return;
+                // }
+                e.cancel = true;
+            }
+
+        });
+        this.getEvents().events.beforeExplosion.subscribe(e => {
+            if (e.source && e.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && (
+                RuinsLoaction.isInProtectArea(e.source.location)
+            )) {
+                e.setImpactedBlocks([]);
+
+                // bugjump nmsl 
+                // bugjump nmsl 
+                // bugjump nmsl 
+                // bugjump nmsl 
+                // bugjump nmsl 
+                // bugjump nmsl 
+                // if (e.getImpactedBlocks.length !== 0) {
+                //     this.getExDimension(MinecraftDimensionTypes.theEnd).spawnParticle("dec:damp_explosion_particle", e.source.location);
+                //     e.cancel = true;
+                // }
+                //this.getExDimension(MinecraftDimensionTypes.theEnd).createExplosion(e.source.location,e.impactedBlocks.length);
+            }
+        });
+        this.getEvents().events.beforeItemUse.subscribe(e => {
+            if (e.source.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && (
+                RuinsLoaction.isInProtectArea(e.source.location)
+            )) {
+                if (itemCanChangeBlock(e.itemStack.typeId)) {
+                    e.cancel = true;
+
+                };
+            }
+        });
+
+
+
+        //守卫遗迹规则
+        const enddim = this.getExDimension(MinecraftDimensionTypes.theEnd);
+        let ruin_desert_count = 0;
+        const tmpV = new Vector3();
+        const tmpP = new Vector3();
+        this.ruinDesertGuardPos = new Vector3(RuinsLoaction.DESERT_RUIN_LOCATION_CENTER);
+        this.ruinDesertGuardRule = ExSystem.tickTask(() => {
+            enddim.spawnParticle("wb:ruin_desert_guardpar", this.ruinDesertGuardPos);
+            if (ruin_desert_count > 400) {
+                ruin_desert_count = 0;
+            }
+            if (ruin_desert_count > 200) {
+                let entities = enddim.getPlayers({
+                    location: RuinsLoaction.DESERT_RUIN_LOCATION_CENTER,
+                    maxDistance: 400,
+                    closest: 1,
+                    gameMode: GameMode.adventure
+                });
+                if (entities.length > 0) {
+                    const loc = entities[0].location;
+                    if (loc.x && loc.y && loc.z) {
+                        tmpP.set(loc);
+                        tmpV.set(this.ruinDesertGuardPos);
+                        tmpP.sub(tmpV);
+                        if (tmpP.len() < 2) {
+                            ExEntity.getInstance(entities[0]).damage(4);
+                        }
+
+                        tmpP.normalize();
+
+                        tmpV.set(loc).sub(RuinsLoaction.DESERT_RUIN_LOCATION_START).div(16).floor();
+                        if (!this.ruin_desertBoss.isInRoom(`${tmpV.x},${tmpV.y},${tmpV.z}`)) {
+                            this.ruinDesertGuardPos.add(tmpP.scl(0.38));
+                        } else {
+                            this.ruinDesertGuardPos.add(tmpP.scl(0.2));
+                        }
+                    }
+                }
+            }
+
+            ruin_desert_count += 1;
+        }).delay(1);
+
+
+        //遗迹功能总监听
+        this.ruinFuncLooper = ExSystem.tickTask(() => {
+            let desertFlag = false;
+            let mindFlag = false;
+            for (let client of this.getClients()) {
+                tmpV.set(client.player.location);
+                if (this.ruin_desertBoss.isCompleted()) {
+                    if (tmpV.x >= RuinsLoaction.DESERT_RUIN_LOCATION_START.x && tmpV.x <= RuinsLoaction.DESERT_RUIN_LOCATION_END.x
+                        && tmpV.z >= RuinsLoaction.DESERT_RUIN_LOCATION_START.z && tmpV.z <= RuinsLoaction.DESERT_RUIN_LOCATION_END.z) {
+                        desertFlag = true;
+                    }
+                }
+                if (tmpV.x >= RuinsLoaction.MIND_RUIN_LOCATION_START.x && tmpV.x <= RuinsLoaction.MIND_RUIN_LOCATION_END.x
+                    && tmpV.z >= RuinsLoaction.MIND_RUIN_LOCATION_START.z && tmpV.z <= RuinsLoaction.MIND_RUIN_LOCATION_END.z) {
+                    mindFlag = true;
+                }
+            }
+
+            if (!desertFlag) {
+                this.ruinDesertGuardRule.stop();
+                this.ruinCleaner.stop();
+            } else {
+                this.ruinDesertGuardRule.start();
+                this.ruinCleaner.start();
+            }
+            if (mindFlag) {
+                let area = this.ruin_mindBoss.getBossSpawnArea()?.center();
+                if (area && !PomBossBarrier.find(area))
+                    this.getExDimension(MinecraftDimensionTypes.theEnd).spawnParticle("wb:ruin_mind_boss_center_par",
+                        area);
+            }
+        }).delay(20 * 12);
+        this.ruinFuncLooper.start();
+
+        //末影人清理
+        this.getEvents().events.afterEntitySpawn.subscribe(e => {
+            if (!falseIfError(() => (e.entity.typeId))) return;
+            if (e.entity.typeId === MinecraftEntityTypes.Enderman) {
+                if (e.entity.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) &&
+                    (
+                        RuinsLoaction.isInProtectArea(e.entity.location)
+                    )) {
+                    e.entity.remove();
+
+                }
+            }
+        });
+    }
+
+    private initRuinsGeneration() {
 
         //守卫遗迹
         this.portal_desertBoss = new ExBlockStructureNormal();
@@ -174,7 +309,8 @@ export default class PomServer extends ExGameServer {
                     "AAAAA",
                     "AAAAA",
                     "CAAAC"
-                ]])
+                ]
+            ])
             .analysis({
                 X: MinecraftBlockTypes.Sandstone,
                 W: MinecraftBlockTypes.Water,
@@ -329,223 +465,75 @@ export default class PomServer extends ExGameServer {
                 this.getDimension(MinecraftDimensionTypes.theEnd));
             this.ruin_ancientBoss.dispose();
         });
-
-
-        //遗迹掉落物清理
-        const upDateMonster = () => {
-            let entities = this.getExDimension(MinecraftDimensionTypes.theEnd).getEntities({
-                location: RuinsLoaction.DESERT_RUIN_LOCATION_CENTER,
-                maxDistance: 400
-            })
-            // .concat(
-            //     this.getExDimension(MinecraftDimensionTypes.theEnd).getEntities({
-            //         location: ExGameVector3.getLocation(RuinsLoaction.STONE_RUIN_LOCATION_CENTER),
-            //         maxDistance: 128
-            //     })
-            // );
-            for (let e of entities) {
-                if (e.typeId === "minecraft:item" && e.getViewDirection().y === 0) {
-                    e.kill();
-                }
-            }
-        }
-        this.ruinCleaner = ExSystem.tickTask(() => {
-            upDateMonster();
-        }).delay(60 * 20);
-        upDateMonster();
-        this.ruinCleaner.start();
-
-
-
-        //遗迹保护
-        this.getEvents().events.afterPlayerBreakBlock.subscribe(e => {
-            if (e.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && (RuinsLoaction.isInProtectArea(e.block))) {
-
-                let ex = ExPlayer.getInstance(e.player);
-                // if (ex.getGameMode() === GameMode.creative) return;
-                let b = e.dimension.getBlock(e.block.location);
-                if (!b) return;
-                b.setType(e.brokenBlockPermutation.type);
-                ex.exDimension.command.run("kill @e[type=item,r=2,x=" + e.block.x + ",y=" + e.block.y + ",z=" + e.block.z + "]")
-                ex.addEffect(MinecraftEffectTypes.Nausea, 200, 0, true);
-                ex.addEffect(MinecraftEffectTypes.Darkness, 400, 0, true);
-                ex.addEffect(MinecraftEffectTypes.Wither, 100, 0, true);
-                ex.addEffect(MinecraftEffectTypes.MiningFatigue, 600, 2, true);
-                ex.addEffect(MinecraftEffectTypes.Hunger, 600, 1, true);
-                ex.addEffect(MinecraftEffectTypes.Blindness, 200, 0, true);
-                ex.command.run("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }");
-            }
-        });
-
-        this.getEvents().events.beforeItemUseOn.subscribe(e => {
-            if (e.source.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && (RuinsLoaction.isInProtectArea(e.block))) {
-                // if (e.source instanceof Player) {
-                //     let ex = ExPlayer.getInstance(e.source);
-                //     if (ex.getGameMode() === GameMode.creative) return;
-                // }
-                e.cancel = true;
-            }
-
-        });
-        this.getEvents().events.beforeExplosion.subscribe(e => {
-            if (e.source && e.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && (
-                RuinsLoaction.isInProtectArea(e.source.location)
-            )) {
-                e.setImpactedBlocks([]);
-
-                // bugjump nmsl 
-                // bugjump nmsl 
-                // bugjump nmsl 
-                // bugjump nmsl 
-                // bugjump nmsl 
-                // bugjump nmsl 
-
-                // if (e.getImpactedBlocks.length !== 0) {
-                //     this.getExDimension(MinecraftDimensionTypes.theEnd).spawnParticle("dec:damp_explosion_particle", e.source.location);
-                //     e.cancel = true;
-                // }
-                //this.getExDimension(MinecraftDimensionTypes.theEnd).createExplosion(e.source.location,e.impactedBlocks.length);
-            }
-        });
-        this.getEvents().events.beforeItemUse.subscribe(e => {
-            if (e.source.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && (
-                RuinsLoaction.isInProtectArea(e.source.location)
-            )) {
-                if (itemCanChangeBlock(e.itemStack.typeId)) {
-                    e.cancel = true;
-
-                };
-            }
-        });
-
-
-
-        //守卫遗迹规则
-        const enddim = this.getExDimension(MinecraftDimensionTypes.theEnd);
-        let ruin_desert_count = 0;
-        const tmpV = new Vector3();
-        const tmpP = new Vector3();
-        this.ruinDesertGuardPos = new Vector3(RuinsLoaction.DESERT_RUIN_LOCATION_CENTER);
-        this.ruinDesertGuardRule = ExSystem.tickTask(() => {
-            enddim.spawnParticle("wb:ruin_desert_guardpar", this.ruinDesertGuardPos);
-            if (ruin_desert_count > 400) {
-                ruin_desert_count = 0;
-            }
-            if (ruin_desert_count > 200) {
-                let entities = enddim.getPlayers({
-                    location: RuinsLoaction.DESERT_RUIN_LOCATION_CENTER,
-                    maxDistance: 400,
-                    closest: 1,
-                    gameMode: GameMode.adventure
-                });
-                if (entities.length > 0) {
-                    const loc = entities[0].location;
-                    if (loc.x && loc.y && loc.z) {
-                        tmpP.set(loc);
-                        tmpV.set(this.ruinDesertGuardPos);
-                        tmpP.sub(tmpV);
-                        if (tmpP.len() < 2) {
-                            ExEntity.getInstance(entities[0]).damage(4);
-                        }
-
-                        tmpP.normalize();
-
-                        tmpV.set(loc).sub(RuinsLoaction.DESERT_RUIN_LOCATION_START).div(16).floor();
-                        if (!this.ruin_desertBoss.isInRoom(`${tmpV.x},${tmpV.y},${tmpV.z}`)) {
-                            this.ruinDesertGuardPos.add(tmpP.scl(0.38));
-                        } else {
-                            this.ruinDesertGuardPos.add(tmpP.scl(0.2));
-                        }
-                    }
-                }
-            }
-
-            ruin_desert_count += 1;
-        }).delay(1);
-
-
-        //遗迹功能总监听
-        this.ruinFuncLooper = ExSystem.tickTask(() => {
-            let desertFlag = false;
-            let mindFlag = false;
-            for (let client of this.getClients()) {
-                tmpV.set(client.player.location);
-                if (this.ruin_desertBoss.isCompleted()) {
-                    if (tmpV.x >= RuinsLoaction.DESERT_RUIN_LOCATION_START.x && tmpV.x <= RuinsLoaction.DESERT_RUIN_LOCATION_END.x
-                        && tmpV.z >= RuinsLoaction.DESERT_RUIN_LOCATION_START.z && tmpV.z <= RuinsLoaction.DESERT_RUIN_LOCATION_END.z) {
-                        desertFlag = true;
-                    }
-                }
-                if (tmpV.x >= RuinsLoaction.MIND_RUIN_LOCATION_START.x && tmpV.x <= RuinsLoaction.MIND_RUIN_LOCATION_END.x
-                    && tmpV.z >= RuinsLoaction.MIND_RUIN_LOCATION_START.z && tmpV.z <= RuinsLoaction.MIND_RUIN_LOCATION_END.z) {
-                    mindFlag = true;
-                }
-            }
-
-            if (!desertFlag) {
-                this.ruinDesertGuardRule.stop();
-                this.ruinCleaner.stop();
-            } else {
-                this.ruinDesertGuardRule.start();
-                this.ruinCleaner.start();
-            }
-            if (mindFlag) {
-                let area = this.ruin_mindBoss.getBossSpawnArea()?.center();
-                if (area && !PomBossBarrier.find(area))
-                    this.getExDimension(MinecraftDimensionTypes.theEnd).spawnParticle("wb:ruin_mind_boss_center_par",
-                        area);
-            }
-        }).delay(20 * 12);
-        this.ruinFuncLooper.start();
-
-        //末影人清理
-        this.getEvents().events.afterEntitySpawn.subscribe(e => {
-            if (!falseIfError(() => (e.entity.typeId))) return;
-            if (e.entity.typeId === MinecraftEntityTypes.Enderman) {
-                if (e.entity.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) &&
-                    (
-                        RuinsLoaction.isInProtectArea(e.entity.location)
-                    )) {
-                    e.entity.remove();
-
-                }
-            }
-        });
-
-
-        //实体监听
-        this.addEntityController(PomMagicStoneBoss.typeId, PomMagicStoneBoss);
-        this.addEntityController(PomHeadlessGuardBoss.typeId, PomHeadlessGuardBoss);
-        this.addEntityController(PomAncientStoneBoss.typeId, PomAncientStoneBoss);
-        this.addEntityController(PomIntentionsBoss1.typeId, PomIntentionsBoss1);
-        this.addEntityController(PomIntentionsBoss2.typeId, PomIntentionsBoss2);
-        this.addEntityController(PomIntentionsBoss3.typeId, PomIntentionsBoss3);
-
-        // //清理留下的boss
-        // let bossIds = [
-        //     PomMagicStoneBoss.typeId,
-        //     PomHeadlessGuardBoss.typeId,
-        //     PomAncientStoneBoss.typeId,
-        //     PomIntentionsBoss1.typeId,
-        //     PomIntentionsBoss2.typeId,
-        //     PomIntentionsBoss3.typeId
-        // ];
-        // for (let id of bossIds) {
-        //     this.getExDimension(MinecraftDimensionTypes.overworld).getEntities({
-        //         type: id
-        //     }).forEach(e => { if (e.isValid()) e.remove() });
-        // }
-
-
-        // gt.register("Pom", "fakeplayer", (test) => {
-        //     this.fakeplayers.push(new PomFakePlayer(
-        //         test.spawnSimulatedPlayer(this.fakePlayerSpawnLoc, "Steve1025", GameMode.survival), this)
-        //     );
-        // })
-        //     .structureName("pom:camp_fire");
-
-        // new b.NeuralNetwork();
     }
+
+    private initEntityCleaner() {
+        (this.clearEntityNumUpdate = new TimeLoopTask(this.getEvents(), () => {
+            this.updateClearEntityNum();
+        }).delay(10000)).start();
+
+        this.updateClearEntityNum();
+
+
+        this.entityCleaner = new TimeLoopTask(this.getEvents(), () => {
+            if (!this.entityCleanerLooper.isStarted()) {
+                let entities: Entity[] = (Array.from(ExDimension.getInstance(this.getDimension(MinecraftDimensionTypes.overworld)).getEntities())
+                    .concat(Array.from(ExDimension.getInstance(this.getDimension(MinecraftDimensionTypes.theEnd)).getEntities()))
+                    .concat(Array.from(ExDimension.getInstance(this.getDimension(MinecraftDimensionTypes.nether)).getEntities())));
+
+                if (entities.length > this.entityCleanerLeastNum) {
+                    cleanTimes = 11;
+                    this.entityCleanerLooper.start();
+                }
+            }
+        }).delay(8000);
+
+        let cleanTimes = 11;
+        this.entityCleanerLooper = new TimeLoopTask(this.getEvents(), () => {
+            if (cleanTimes === 11) {
+                if (this.setting.entityShowMsg) this.say("Prepare for entities cleaning...");
+            } else if (cleanTimes === 10 || cleanTimes === 5) {
+                if (this.setting.entityShowMsg) this.say(`Remaining ${cleanTimes}s for entities cleaning`);
+            } else if (cleanTimes === 0) {
+                this.clearEntity();
+                this.entityCleanerLooper.stop();
+            } else if (cleanTimes <= 3) {
+                if (this.setting.entityShowMsg) this.say(`Remaining ${cleanTimes}s for entities cleaning`);
+            }
+            cleanTimes -= 1;
+        }).delay(1000);
+        this.upDateEntityCleaner();
+
+
+        let ticks = 0;
+        this.tpsListener = new TimeLoopTask(this.getEvents(), () => {
+            this.tps = ticks;
+
+            let liner = (this.tps - this._mtps) > 0 ? this.entityCleanerStrength : 11 - this.entityCleanerStrength;
+            this._mtps = this._mtps * (liner - 1) / liner + this.tps / liner;
+
+            //ExGameConfig.console.log("tps：" + this.tps, "myps : " + this._mtps,"delay:"+this.entityCleanerDelay ** (this._mtps));
+            this.entityCleaner.delay(this.entityCleanerDelay ** (this._mtps));
+            ticks = 0;
+        }).delay(1000);
+
+
+        this.getEvents().exEvents.tick.subscribe(e => {
+            ticks++;
+        });
+
+        this.tpsListener.start();
+    }
+
+    private initGlobalVars() {
+        this.setting = new GlobalSettings(new Objective("wpsetting"));
+        if (!this.setting.has("entityShowMsg")) this.setting.entityShowMsg = true;
+        if (!this.setting.has("damageShow")) this.setting.damageShow = true;
+        if (!this.setting.has("playerTpListShowPos")) this.setting.playerTpListShowPos = true;
+        if (!this.setting.has("playerCanTp")) this.setting.playerCanTp = true;
+        if (!this.setting.has("tpPointRecord")) this.setting.tpPointRecord = true;
+    }
+
     private clearEntity() {
         let entities: Entity[] = Array.from(ExDimension.getInstance(this.getDimension(MinecraftDimensionTypes.overworld)).getEntities())
             .concat(Array.from(ExDimension.getInstance(this.getDimension(MinecraftDimensionTypes.theEnd)).getEntities()))
