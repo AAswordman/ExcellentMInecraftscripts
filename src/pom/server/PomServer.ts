@@ -527,11 +527,12 @@ export default class PomServer extends ExGameServer {
 
     private initGlobalVars() {
         this.setting = new GlobalSettings(new Objective("wpsetting"));
-        if (!this.setting.has("entityShowMsg")) this.setting.entityShowMsg = true;
-        if (!this.setting.has("damageShow")) this.setting.damageShow = true;
-        if (!this.setting.has("playerTpListShowPos")) this.setting.playerTpListShowPos = true;
-        if (!this.setting.has("playerCanTp")) this.setting.playerCanTp = true;
-        if (!this.setting.has("tpPointRecord")) this.setting.tpPointRecord = true;
+        this.setting.initializeBoolean("entityShowMsg",true);
+        this.setting.initializeBoolean("damageShow",true);
+        this.setting.initializeBoolean("playerTpListShowPos",true);
+        this.setting.initializeBoolean("playerCanTp",true);
+        this.setting.initializeBoolean("tpPointRecord",true);
+        this.setting.initializeBoolean("chainMining",true);
     }
 
     private clearEntity() {

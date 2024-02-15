@@ -58,6 +58,7 @@ export default class Matrix4 {
             this.val = new Float32Array(16);
             this.idt();
         } else {
+            this.val = new Float32Array(16);
             this.val[0] = val;
             this.val[1] = m01!;
             this.val[2] = m02!;

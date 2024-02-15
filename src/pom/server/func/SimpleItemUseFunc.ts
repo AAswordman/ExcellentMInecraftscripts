@@ -12,23 +12,25 @@ import { MinecraftEffectTypes } from '../../../modules/vanilla-data/lib/index.js
 export default class SimpleItemUseFunc extends GameController {
     onJoin(): void {
         //连锁挖矿
+
         this.getEvents().exEvents.afterPlayerBreakBlock.subscribe(e => {
             const itemId = this.exPlayer.getBag().itemOnMainHand?.typeId;
             if (RuinsLoaction.isInProtectArea(e.block) && this.exPlayer.getScoresManager().getScore("i_inviolable") > 1) return;
+            if (!this.globalSettings.chainMining) return;
             if (itemId === "wb:axex_equipment_a") {
                 if (e.brokenBlockPermutation.hasTag("log")) {
                     this.chainDigging(new Vector3(e.block), e.brokenBlockPermutation.type.id, 16);
                 }
-            } 
+            }
             else if (itemId === "dec:everlasting_winter_pickaxe_axe" && this.player.isSneaking) {
                 if (this.data.gamePreferrence.chainMining) {
                     if (this.exPlayer.getScoresManager().getScore("wbfl") >= 7) {
                         this.chainDigging(new Vector3(e.block), e.brokenBlockPermutation.type.id, 3);
                         this.exPlayer.getScoresManager().removeScore("wbfl", 7);
-                    } 
+                    }
                 }
             }
-             else if (itemId === "wb:pickaxex_equipment_a" && this.player.isSneaking) {
+            else if (itemId === "wb:pickaxex_equipment_a" && this.player.isSneaking) {
                 if (this.data.gamePreferrence.chainMining) {
                     if (this.exPlayer.getScoresManager().getScore("wbfl") >= 20) {
                         this.chainDigging(new Vector3(e.block), e.brokenBlockPermutation.type.id, 5);

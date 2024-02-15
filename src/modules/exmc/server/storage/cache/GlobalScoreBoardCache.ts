@@ -58,4 +58,7 @@ export default class GlobalScoreBoardCache {
             return false
         }
     }
+    public initializeBoolean(name: string,value: boolean) {
+        return this.initializeNumber(name,value ? 1 : 0);
+    }
 }

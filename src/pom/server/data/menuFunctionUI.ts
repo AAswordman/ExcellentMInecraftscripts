@@ -918,6 +918,15 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 },
                                 {
                                     "type": "toggle",
+                                    "msg": "连锁挖矿总开关",
+                                    "state": (client, ui) => client.globalSettings.chainMining,
+                                    "function": (client, ui) => {
+                                        client.globalSettings.chainMining = !client.globalSettings.chainMining;
+                                        return true;
+                                    }
+                                },
+                                {
+                                    "type": "toggle",
                                     "msg": "服务器内耗模式(你猜这是啥)",
                                     "state": (client, ui) => client.globalSettings.smallMapMode,
                                     "function": (client, ui) => {
