@@ -5,7 +5,7 @@ import ExGame from "./modules/exmc/server/ExGame.js";
 
 let config = new ExConfig();
 config.addonName = "POM";
-config.addonVersion = "1.8.2B3";
+config.addonVersion = "1.8.2B4";
 config.gameVersion = "1.20.0";
 config.watchDog = false;
 config.debug = true;
