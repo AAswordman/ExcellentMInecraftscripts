@@ -94,6 +94,14 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
         return this._server;
     }
 
+    getClient(name: string | Player) {
+        if (typeof name === "string") {
+            return this.getServer().findClientByName(name);
+        } else {
+            return this.getServer().findClientByPlayer(name);
+        }
+    }
+
     setInterworkingPool(pool: T) {
         this._pool = pool;
         this._poolCache = {};
@@ -137,7 +145,7 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
     onLoad() {
     }
 
-    
+
     onLeave() {
         this._events.cancelAll();
         ExPlayer.deleteInstance(this.player);

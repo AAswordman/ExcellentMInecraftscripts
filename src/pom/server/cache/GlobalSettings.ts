@@ -80,6 +80,12 @@ export default class GlobalSettings extends GlobalScoreBoardCache {
     public set initialMagicPickaxe(value: boolean) {
         this.setBoolean("initialMagicPickaxe", value);
     }
+    public get nuclearBomb() {
+        return this.getBoolean("nuclearBomb");
+    }
+    public set nuclearBomb(value: boolean) {
+        this.setBoolean("nuclearBomb", value);
+    }
     public get smallMapMode() {
         return this.getBoolean("smallMapMode");
     }

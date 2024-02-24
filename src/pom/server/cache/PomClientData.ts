@@ -1,16 +1,16 @@
 
-import Vector3 from "../../../modules/exmc/math/Vector3.js";
+import Vector3, { IVector3 } from "../../../modules/exmc/math/Vector3.js";
 import TalentData from "./TalentData.js";
 
-export default class PomData {
+export default class PomClientData {
     licenseRead?: boolean;
 
     talent!: TalentData;
     occupationChooseNum?: number;
 
     pointRecord!: {
-        deathPoint: [string, Vector3][];
-        point: [string, string, Vector3][]
+        deathPoint: [string, IVector3][];
+        point: [string, string, IVector3][]
     };
 
     tasks!: {
@@ -30,20 +30,36 @@ export default class PomData {
         }
     }
 
+    socialList!: {
+        refuseList: [number, string][];
+        acceptList: [number, string][];
+    }
+
+    territory!: {
+        data: {
+            position: IVector3,
+            isRemoved: boolean,
+            isUnderBuilding: boolean,
+            mark: object,
+            coolingTime: number;
+        }[];
+
+    }
+
     uiCustomSetting!: {
-        topLeftMessageBarLayer1:number;
-        topLeftMessageBarLayer2:number;
-        topLeftMessageBarLayer3:number;
-        topLeftMessageBarLayer4:number;
-        topLeftMessageBarLayer5:number;
-        topLeftMessageBarStyle:number;
+        topLeftMessageBarLayer1: number;
+        topLeftMessageBarLayer2: number;
+        topLeftMessageBarLayer3: number;
+        topLeftMessageBarLayer4: number;
+        topLeftMessageBarLayer5: number;
+        topLeftMessageBarStyle: number;
     }
 
     dimBackPoint: Vector3 | undefined;
     dimBackMode: number | undefined;
 
     lang?: "en" | "zh";
-    
+
     gamePreferrence!: {
         chainMining: boolean;
     };

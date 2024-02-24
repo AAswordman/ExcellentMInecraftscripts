@@ -15,7 +15,7 @@ export default class SimpleItemUseFunc extends GameController {
 
         this.getEvents().exEvents.afterPlayerBreakBlock.subscribe(e => {
             const itemId = this.exPlayer.getBag().itemOnMainHand?.typeId;
-            if (RuinsLoaction.isInProtectArea(e.block) && this.exPlayer.getScoresManager().getScore("i_inviolable") > 1) return;
+            if (RuinsLoaction.isInProtectArea(e.block) || this.exPlayer.getScoresManager().getScore("i_inviolable") > 1) return;
             if (!this.globalSettings.chainMining) return;
             if (itemId === "wb:axex_equipment_a") {
                 if (e.brokenBlockPermutation.hasTag("log")) {

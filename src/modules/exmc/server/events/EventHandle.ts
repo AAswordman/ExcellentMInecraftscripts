@@ -1,6 +1,8 @@
 import { Entity } from '@minecraft/server';
 import ExGameServer from '../ExGameServer.js';
 import DisposeAble from '../../interface/DisposeAble.js';
+import MonitorManager from '../../utils/MonitorManager.js';
+import { falseIfError } from '../../utils/tool.js';
 
 export default class EventHandle<T> {
     private listeners!: EventListenerSettings<T>;
@@ -16,7 +18,7 @@ export default class EventHandle<T> {
             this.monitorMap[k] = new Map();
         }
         for (let k in this.monitorMap) {
-            let p:EventListenerSetting = (<any>this.listeners)[k];
+            let p: EventListenerSetting = (<any>this.listeners)[k];
             let registerName = k;
             if (p.name) {
                 registerName = p.name;
@@ -24,28 +26,24 @@ export default class EventHandle<T> {
             p.pattern(registerName, k);
         }
     }
-    monitorMap: { [event: string]: Map<Entity, ((args: unknown) => void)[]> } = {
+    monitorMap: { [event: string]: Map<Entity, MonitorManager<unknown[]>> } = {
 
     }
 
     subscribe(entity: Entity, name: string, callback: (args: unknown) => void) {
         let e = this.monitorMap[name];
         if (!e.has(entity)) {
-            e.set(entity, []);
+            e.set(entity, new MonitorManager());
         }
 
-        e.get(entity)?.push(callback);
+        e.get(entity)?.addMonitor(callback);
 
     }
 
     unsubscribe(entity: Entity, name: string, callback: (args: unknown) => void) {
         let e = this.monitorMap[name];
         let arr = e.get(entity);
-        if (arr) {
-            let index = arr.indexOf(callback);
-            if (index !== -1)
-                arr.splice(index, 1);
-        }
+        arr?.removeMonitor(callback);
     }
 
     unsubscribeAll(e: Entity) {
@@ -59,15 +57,13 @@ export default class EventHandle<T> {
             const name = (this.listeners as any)[k].filter?.name;
             if (name) {
                 let player;
-                for(let k of name.split(".")){
+                for (let k of name.split(".")) {
                     player = player ? player[k] : e[k];
                 }
-                
+
                 let fArr = this.monitorMap[k].get(player);
                 if (fArr) {
-                    fArr.forEach((f) => {
-                        f(e);
-                    });
+                    fArr.trigger(e);
                 }
             }
         });
@@ -76,9 +72,9 @@ export default class EventHandle<T> {
     registerToServerByServerEvent = (registerName: string, k: string) => {
         this.server.getEvents().register(registerName, (e: any) => {
             for (let [key, value] of this.monitorMap[k]) {
-                value.forEach((f) => {
-                    f(e);
-                });
+                if (falseIfError(() => key.isValid())) {
+                    value.trigger(e);
+                }
             }
         });
     }
@@ -93,13 +89,25 @@ export interface EventListenerSetting {
     name?: string;
     filter?: EventFilter;
 }
-export interface EventListener {
-    subscribe: (callback: (arg: any) => void) => void;
-    unsubscribe: (callback: (arg: any) => void) => void;
+export interface EventListener<T> {
+    subscribe: (callback: (arg: T) => void) => void;
+    unsubscribe: (callback: (arg: T) => void) => void;
 }
 export type EventListeners = {
-    [x:string]: EventListener;
+    [x: string]: EventListener<any>;
 };
 export interface EventFilter {
     name?: string;
+}
+
+export function eventGetter<T>(lis: EventListener<T>, filter: ((e: T) => boolean)) {
+    return new Promise<T>((resolve, reject) => {
+        const f = (e: T) => {
+            if (filter(e)) {
+                lis.unsubscribe(f);
+                resolve(e);
+            }
+        }
+        lis.subscribe(f);
+    });
 }

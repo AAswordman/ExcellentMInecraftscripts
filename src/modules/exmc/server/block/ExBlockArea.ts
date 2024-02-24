@@ -7,21 +7,30 @@ export class ExBlockArea {
     center(): Vector3 {
         return this.end.cpy().sub(this.start).scl(1 / 2).add(this.start);
     }
-    contains(tmpV: IVector3) {
-        return this.start.x <= tmpV.x && this.start.z <= tmpV.z &&
-            tmpV.x <= this.end.x && tmpV.z <= this.end.z &&
-            this.start.y <= tmpV.y && tmpV.y <= this.end.y
+    contains(tmpV: IVector3 | ExBlockArea) {
+        if (tmpV instanceof ExBlockArea) {
+            return this.start.x <= tmpV.end.x &&
+                this.start.z <= tmpV.end.z &&
+                this.end.x >= tmpV.start.x &&
+                this.end.z >= tmpV.start.z &&
+                this.start.y <= tmpV.end.y &&
+                this.end.y >= tmpV.start.y;
+        } else {
+            return this.start.x <= tmpV.x && this.start.z <= tmpV.z &&
+                tmpV.x <= this.end.x && tmpV.z <= this.end.z &&
+                this.start.y <= tmpV.y && tmpV.y <= this.end.y
+        }
     }
     start: Vector3;
     end: Vector3;
     private _width = new Vector3();
     mat!: Matrix4;
 
-    constructor(start: Vector3, end: Vector3, usePoint: true)
-    constructor(start: Vector3, width: Vector3)
-    constructor(a: Vector3, b: Vector3, usePoint?: true) {
-        this.start = a.cpy();
-        this.end = b.cpy();
+    constructor(start: IVector3, end: IVector3, usePoint: true)
+    constructor(start: IVector3, width: IVector3)
+    constructor(a: IVector3, b: IVector3, usePoint?: true) {
+        this.start = new Vector3(a);
+        this.end = new Vector3(b);
         if (!usePoint) {
             if (this.end.x < 0 || this.end.y < 0 || this.end.z < 0) throw new Error("Invalid value (x,y,z < 0)");
 
@@ -137,5 +146,9 @@ export class ExBlockArea {
             ExBlockArea.tempP.y * Math.random(),
             ExBlockArea.tempP.z * Math.random());
         return ExBlockArea.tempV.add(ExBlockArea.tempP).cpy();
+    }
+
+    toString(){
+        return `ExBlockArea(${this.start},${this.end},${this.mat})`;
     }
 }

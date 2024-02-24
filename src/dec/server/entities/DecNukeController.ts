@@ -4,6 +4,8 @@ import ExEntityController from "../../../modules/exmc/server/entity/ExEntityCont
 import Vector3 from "../../../modules/exmc/math/Vector3.js";
 import ExTaskRunner from "../../../modules/exmc/server/ExTaskRunner.js";
 import { MinecraftBlockTypes } from "../../../modules/vanilla-data/lib/index.js";
+import { Objective } from "../../../modules/exmc/server/entity/ExScoresManager.js";
+import GlobalSettings from "../../../pom/server/cache/GlobalSettings.js";
 
 export default class DecNukeController extends ExEntityController {
     constructor(e: Entity, server: DecServer) {
@@ -14,6 +16,10 @@ export default class DecNukeController extends ExEntityController {
     }
     override onSpawn(): void {
         super.onSpawn();
+        if (!new GlobalSettings(new Objective("wpsetting")).nuclearBomb) {
+            this.entity.remove();
+            return;
+        }
         this.setTimeout(() => {
             const tmpV = new Vector3();
             // for (let i = 0; i <= 50; i += 10) {

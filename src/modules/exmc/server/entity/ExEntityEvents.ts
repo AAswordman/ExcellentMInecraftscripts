@@ -61,28 +61,6 @@ export default class ExEntityEvents implements ExEventManager {
             },
             name: ExEventNames.afterEntityHurt
         },
-        [ExOtherEventNames.afterItemOnHandChange]: {
-            pattern: (registerName: string, k: string) => {
-                this.onHandItemMap = new Map<Player, [ItemStack | undefined, number]>();
-                ExEntityEvents.eventHandlers.server.getEvents().register(registerName, (e: TickEvent) => {
-                    for (let i of (<Map<Player, ((e: ItemOnHandChangeEvent) => void)[]>>ExEntityEvents.eventHandlers.monitorMap[k])) {
-                        let lastItemCache = this.onHandItemMap.get(i[0]);
-                        let lastItem = lastItemCache?.[0];
-                        let nowItem = ExPlayer.getInstance(i[0]).getBag().itemOnMainHand;
-
-                        if (lastItem?.typeId !== nowItem?.typeId || i[0].selectedSlot !== lastItemCache?.[1]) {
-                            i[1].forEach((f) => {
-                                f(new ItemOnHandChangeEvent(lastItem, lastItemCache?.[1] ?? 0, nowItem, i[0].selectedSlot, i[0]));
-                            });
-
-                            this.onHandItemMap.set(i[0], [nowItem, i[0].selectedSlot]);
-                        }
-                    }
-
-                });
-            },
-            name: ExOtherEventNames.onLongTick
-        },
         [ExOtherEventNames.onLongTick]: {
             pattern: ExEntityEvents.eventHandlers.registerToServerByServerEvent
         },
@@ -104,7 +82,6 @@ export default class ExEntityEvents implements ExEventManager {
         [ExEventNames.afterEntityHitBlock]: new Listener<EntityHurtAfterEvent>(this, ExEventNames.afterEntityHitBlock),
         [ExEventNames.afterEntityHitEntity]: new Listener<EntityHurtAfterEvent>(this, ExEventNames.afterEntityHitEntity),
         [ExOtherEventNames.afterOnHurt]: new Listener<EntityHurtAfterEvent>(this, ExOtherEventNames.afterOnHurt),
-        [ExOtherEventNames.afterItemOnHandChange]: new CallBackListener<ItemOnHandChangeEvent,ItemStack>(this, ExOtherEventNames.afterItemOnHandChange),
         [ExOtherEventNames.onLongTick]: new Listener<TickEvent>(this, ExOtherEventNames.onLongTick),
         [ExOtherEventNames.beforeTick]: new Listener<TickEvent>(this, ExOtherEventNames.beforeTick),
         [ExEventNames.afterPlayerBreakBlock]: new Listener<PlayerBreakBlockAfterEvent>(this, ExEventNames.afterPlayerBreakBlock),
@@ -115,7 +92,7 @@ export default class ExEntityEvents implements ExEventManager {
         this.eventHandlers.setEventLiseners(this.exEventSetting);
         this.eventHandlers.init(s);
     }
-    static onHandItemMap = new Map<Player, [ItemStack | undefined, number]>();
+    static onHandItemMap = new Map<Entity, [ItemStack | undefined, number]>();
     static onceItemUseOnMap = new Map<Entity, [TickDelayTask, boolean]>();
 
     constructor(ctrl: ExEntityController) {

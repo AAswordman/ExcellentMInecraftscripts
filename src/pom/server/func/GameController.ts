@@ -25,6 +25,12 @@ export default abstract class GameController implements ExCommandNativeRunner,Se
     public get data(){
         return this._client.data;
     }
+    public get globalData(){
+        return this._client.getServer().data;
+    }
+    public get gameId(){
+        return this._client.gameId;
+    }
     runCommandAsync(str: string): Promise<any> {
         return ExGameConfig.runCommandAsync(str);
     }

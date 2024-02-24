@@ -21,6 +21,8 @@ export default class PomMagicSystem extends GameController {
     healthShow = true;
     additionHealth = 40;
     gameHealth = 30;
+    isDied = false;
+    isProtected = false;
     gameMaxHealth = 30;
     scoresManager = this.exPlayer.getScoresManager();
     wbflLooper = ExSystem.tickTask(() => {
@@ -66,36 +68,6 @@ export default class PomMagicSystem extends GameController {
     };
     dataCacheRefreshDelay = 0;
     actionbarShow = ExSystem.tickTask(() => {
-        // let fromData: [string, number, boolean, boolean, string][] = [
-        //     [PomMagicSystem.AdditionHPChar, this.additionHealth / 100, true, this.additionHealthShow, "HP"],
-        //     [PomMagicSystem.AdditionHPChar, this.gameHealth / 100, true, this.healthShow, "HP"],
-        //     [PomMagicSystem.wbflChar, this.scoresManager.getScore("wbfl") / 200, true, true, "MP"],
-        //     [PomMagicSystem.weaponCoolingChar, this.scoresManager.getScore("wbwqlq") / 20, false, true, "CD"],
-        //     [PomMagicSystem.armorCoolingChar, this.scoresManager.getScore("wbkjlqcg") / 20, false, true, "CD"]];
-
-        // let arr: string[] = [];
-        // for (let e of fromData) {
-        //     if ((e[1] === 0 && !e[2]) || !e[3]) {
-        //         continue;
-        //     }
-        //     let s = "";
-        //     while (e[1] >= 0.2) {
-        //         e[1] -= 0.2;
-        //         s += e[0][0];
-        //     }
-        //     if (e[1] < 0) {
-        //         e[1] = 0;
-        //     }
-        //     if (s.length < 5) {
-        //         s += e[0][e[0].length - 1 - Math.floor(e[1] / (0.2 / e[0].length))];
-        //     }
-        //     while (s.length < 5) {
-        //         s += e[0][e[0].length - 1];
-        //     }
-        //     s = e[4] + ": " + s;
-
-        //     arr.push(s);
-        // }
         const oldData = this.lastFromData;
         this.dataCacheRefreshDelay += 1;
         if (this.dataCacheRefreshDelay >= this.globalSettings.uiDataUpdateDelay) {
@@ -118,11 +90,11 @@ export default class PomMagicSystem extends GameController {
             [this.data.gameExperience / (this.getGradeNeedExperience(1 + this.data.gameGrade) - this.getGradeNeedExperience(this.data.gameGrade))],
             [(grade), grade.length * 3],
             [this.magicReduce / this.gameMaxHealth],
-            [this.data.uiCustomSetting.topLeftMessageBarLayer1/100],
-            [this.data.uiCustomSetting.topLeftMessageBarLayer2/100],
-            [this.data.uiCustomSetting.topLeftMessageBarLayer3/100],
-            [this.data.uiCustomSetting.topLeftMessageBarLayer4/100],
-            [this.data.uiCustomSetting.topLeftMessageBarLayer5/100],
+            [this.data.uiCustomSetting.topLeftMessageBarLayer1 / 100],
+            [this.data.uiCustomSetting.topLeftMessageBarLayer2 / 100],
+            [this.data.uiCustomSetting.topLeftMessageBarLayer3 / 100],
+            [this.data.uiCustomSetting.topLeftMessageBarLayer4 / 100],
+            [this.data.uiCustomSetting.topLeftMessageBarLayer5 / 100],
             [this.data.uiCustomSetting.topLeftMessageBarStyle]
         ];
         this.lastFromData = fromData;
@@ -182,23 +154,11 @@ export default class PomMagicSystem extends GameController {
     hurtMaxNum = 0;
     onJoin(): void {
         const health = this.exPlayer.getComponent("minecraft:health")!;
-        // let healthListener = new VarOnChangeListener((n, l) => {
-        //     if (this.gameHealth === this.gameMaxHealth && this.gameHealth + (n - (l ?? 0)) > this.gameMaxHealth) return;
-        //     // if (n < 40000) {
-        //     //     health.setCurrentValue(25000 + this.gameHealth);
-        //     // }
-        //     if (25000 + this.gameHealth !== n) {
-        //         // console.warn(n,l);
-        //         let change = n - (l ?? 0);
-        //         this.gameHealth = MathUtil.clamp(this.gameHealth + change, -1, this.gameMaxHealth);
-        //         console.warn(healthListener.value,health.currentValue);
-        //         healthListener.value = 25000 + this.gameHealth;
-        //         health.setCurrentValue(25000 + this.gameHealth);
-        //     }
-        // }, health!.currentValue);
 
         let hurtTimeId = 0;
         let healthListener = new VarOnChangeListener((n, l) => {
+            healthListener.value = 25000;
+            health.setCurrentValue(25000);
             let change = n - (l ?? 0);
             // if (change < 0 && this.hurtState) {
             //     if (this.hurtMaxNum <= -change) return;//build-in method
@@ -218,23 +178,24 @@ export default class PomMagicSystem extends GameController {
             //     this.hurtState = true;
             //     this.hurtMaxNum = change;
             // }
-            if (n === 1) {
-                //不死图腾
-                this.gameHealth = 1;
-            } else {
-                this.gameHealth = Math.min(this.gameHealth + change, this.gameMaxHealth);
+            if (!this.isProtected) {
+                if (n === 1) {
+                    //不死图腾
+                    this.gameHealth = 1;
+                    this.isProtected = true;
+                    this.setTimeout(() => {
+                        this.isProtected = false;
+                    }, 1500);
+                } else {
+                    this.gameHealth = Math.min(this.gameHealth + change, this.gameMaxHealth);
+                }
             }
-            healthListener.value = 25000;
-            health.setCurrentValue(25000);
         }, health!.currentValue);
         // this.getEvents().exEvents.tick.subscribe(e => {
         //     healthListener.upDate(health!.currentValue);
         // });
         this.getEvents().exEvents.afterEntityHealthChanged.subscribe(e => {
             healthListener.upDate(e.newValue);
-        });
-        this.getEvents().exEvents.afterPlayerSpawn.subscribe(e => {
-            this.gameHealth = this.gameMaxHealth;
         });
         this.healthSaver.start();
         let n: number
@@ -244,6 +205,12 @@ export default class PomMagicSystem extends GameController {
             //设置默认游戏血量
 
             //绕开常规逻辑设置血量
+            this.isDied = false;
+            this.isProtected = true;
+            this.setTimeout(() => {
+                this.isProtected = false;
+            }, 3000);
+            this.gameHealth = this.gameMaxHealth;
             healthListener.value = 25000;
             health.setCurrentValue(25000);
             if (e.initialSpawn) {
@@ -259,8 +226,8 @@ export default class PomMagicSystem extends GameController {
         this.magicReduce = this.player.getDynamicProperty("magicReduce") as number ?? 0;
         this.damageAbsorbed = this.player.getDynamicProperty("damageAbsorbed") as number ?? 0;
         this.gameHealth = MathUtil.clamp(
-                    this.player.getDynamicProperty("health") as number ?? this.gameMaxHealth,
-                    1, this.gameMaxHealth);
+            this.player.getDynamicProperty("health") as number ?? this.gameMaxHealth,
+            1, this.gameMaxHealth);
         this.actionbarShow.delay(this.globalSettings.uiUpdateDelay);
 
         this.getEvents().exEvents.afterEffectAdd.subscribe(e => {

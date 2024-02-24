@@ -69,6 +69,9 @@ export default class ItemTagComponent {
     getComponent<T extends (keyof ItemTagComponentType)>(key: T): ItemTagComponentType[T] {
         return this.components.get(key) as ItemTagComponentType[T];
     }
+    isEmpty(){
+        return this.components.size === 0;
+    }
     getComponentWithGroup<T extends (keyof ItemTagComponentType)>(key: T, group = this.currentGroup): ItemTagComponentType[T][0] {
         const c = this.getComponent(key);
         if (!c || c.length === 0) return itemTagComponentType[key][0];

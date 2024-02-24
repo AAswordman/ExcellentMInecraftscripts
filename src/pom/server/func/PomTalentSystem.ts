@@ -261,6 +261,8 @@ export default class PomTalentSystem extends GameController {
         let lastResist = 0;
         //玩家减伤
         this.getEvents().exEvents.afterPlayerHurt.subscribe((e) => {
+            if(this.client.magicSystem.isDied) return;
+            if(this.client.magicSystem.isProtected) return;
             if (e.damage > 10000000 || e.damage < 0) return;
             // console.warn("hurt"+e.damage,"now"+this.exPlayer.health);
             let damage = (this.exPlayer.getPreRemoveHealth() ?? 0) + e.damage;
@@ -312,6 +314,7 @@ export default class PomTalentSystem extends GameController {
             if (this.client.magicSystem.gameHealth - damage + add <= 0) {
                 const clnE = { ...e.damageSource };
                 ExGame.run(() => {
+
                     if (clnE.cause === EntityDamageCause.projectile) {
                         if (clnE.damagingEntity) {
                             this.player.applyDamage(99999999, {
@@ -328,6 +331,7 @@ export default class PomTalentSystem extends GameController {
                             "cause": clnE.cause
                         });
                     }
+                    this.client.magicSystem.isDied = true;
                 });
                 return;
             }
@@ -347,74 +351,75 @@ export default class PomTalentSystem extends GameController {
                 //TalentData.calculateTalentToLore(this.data.talent.talents, this.data.talent.occupation, ExItem.getInstance(e.afterItem), this.getLang());
 
                 let comp = new ItemTagComponent(e.afterItem);
-                comp.setGroup(comp.dataGroupJudge(this.client));
-                let base: string[] = [];
-                if (comp.hasComponent("actual_level")) base.push(`§r§e基础属性` + "  §r§6LV." + comp.getComponentWithGroup("actual_level"));
-                if (comp.hasComponent("armor_protection")) base.push("§r§7•护甲值§6+" + comp.getComponentWithGroup("armor_protection") + "§r§7 | 护甲韧性§6+" + comp.getComponentWithGroup("armor_resilience") ?? 0);
+                if (!comp.isEmpty()) {
+                    comp.setGroup(comp.dataGroupJudge(this.client));
+                    let base: string[] = [];
+                    if (comp.hasComponent("actual_level")) base.push(`§r§e基础属性` + "  §r§6LV." + comp.getComponentWithGroup("actual_level"));
+                    if (comp.hasComponent("armor_protection")) base.push("§r§7•护甲值§6+" + comp.getComponentWithGroup("armor_protection") + "§r§7 | 护甲韧性§6+" + comp.getComponentWithGroup("armor_resilience") ?? 0);
 
-                if (comp.hasComponent("armor_type")) {
-                    //let typeMsg = comp.getComponentWithGroup("armor_type");
-                    //lore.setValueUseDefault("盔甲类型", typeMsg.tagName + ": " + typeMsg.data);
-                    // if (comp.hasComponent("armor_physical_protection")) base.push("§r§7•物理抗性§6+" + comp.getComponentWithGroup("armor_physical_protection") + "％§r§7 | 受到的物理伤害§6-" + comp.getComponentWithGroup("armor_physical_reduction") ?? 0);
-                    // if (comp.hasComponent("armor_magic_protection")) base.push("§r§7•魔法抗性§6+" + comp.getComponentWithGroup("armor_magic_protection") + "％§r§7 | 受到的魔法伤害§6-" + comp.getComponentWithGroup("armor_magic_reduction") ?? 0);
-                    if (comp.hasComponent("armor_physical_protection")) base.push("§r§7•物理抗性§6+" + comp.getComponentWithGroup("armor_physical_protection") + "％§r§7 | 物理防御§6+" + comp.getComponentWithGroup("armor_physical_reduction") ?? 0);
-                    if (comp.hasComponent("armor_magic_protection")) base.push("§r§7•魔法抗性§6+" + comp.getComponentWithGroup("armor_magic_protection") + "％§r§7 | 魔法防御§6+" + comp.getComponentWithGroup("armor_magic_reduction") ?? 0);
-                }
-                let smove = comp.getComponentWithGroup("sneak_movement_addition") ?? 0;
-                if (comp.hasComponent("movement_addition")) {
-                    base.push("§r§7•移动速度§6+" + comp.getComponentWithGroup("movement_addition"));
-
-                    if (comp.hasComponent("sneak_movement_addition"))
-                        base[base.length - 1] += ("§r§7 | 潜行移速" + (smove < 0 ? "§c" + smove : "§6+" + smove));
-                } else if (comp.hasComponent("sneak_movement_addition")) base.push("§r§7•潜行移速" + (smove < 0 ? "§c" + smove : "§6+" + smove));
-                if (comp.hasComponent("attack_addition")) {
-                    base.push("§r§7•攻击伤害§6+" + comp.getComponentWithGroup("attack_addition"));
-                }
-                if (comp.hasComponent("equipment_type")) {
-                    if (e.afterItem.typeId.startsWith("dec:")) {
-                        base.push("§r§7•在主手时: +20％§7攻击伤害");
+                    if (comp.hasComponent("armor_type")) {
+                        //let typeMsg = comp.getComponentWithGroup("armor_type");
+                        //lore.setValueUseDefault("盔甲类型", typeMsg.tagName + ": " + typeMsg.data);
+                        // if (comp.hasComponent("armor_physical_protection")) base.push("§r§7•物理抗性§6+" + comp.getComponentWithGroup("armor_physical_protection") + "％§r§7 | 受到的物理伤害§6-" + comp.getComponentWithGroup("armor_physical_reduction") ?? 0);
+                        // if (comp.hasComponent("armor_magic_protection")) base.push("§r§7•魔法抗性§6+" + comp.getComponentWithGroup("armor_magic_protection") + "％§r§7 | 受到的魔法伤害§6-" + comp.getComponentWithGroup("armor_magic_reduction") ?? 0);
+                        if (comp.hasComponent("armor_physical_protection")) base.push("§r§7•物理抗性§6+" + comp.getComponentWithGroup("armor_physical_protection") + "％§r§7 | 物理防御§6+" + comp.getComponentWithGroup("armor_physical_reduction") ?? 0);
+                        if (comp.hasComponent("armor_magic_protection")) base.push("§r§7•魔法抗性§6+" + comp.getComponentWithGroup("armor_magic_protection") + "％§r§7 | 魔法防御§6+" + comp.getComponentWithGroup("armor_magic_reduction") ?? 0);
                     }
-                    // let typeMsg = comp.getComponentWithGroup("equipment_type");
-                    // lore.setValueUseDefault("武器类型", typeMsg.tagName + ": " + typeMsg.data);
-                }
-                if (base.length > 0) {
-                    base[base.length - 1] = base[base.length - 1] + "§r";
-                    lore.setTags(base);
-                }
-                lore.sort();
-                this.itemOnHandComp = comp;
+                    let smove = comp.getComponentWithGroup("sneak_movement_addition") ?? 0;
+                    if (comp.hasComponent("movement_addition")) {
+                        base.push("§r§7•移动速度§6+" + comp.getComponentWithGroup("movement_addition"));
 
-                //武器特殊项
-                if (comp.hasComponent("equipment_type")) {
-                    let maxSingleDamage = parseFloat(lore.getValueUseMap("total", this.getLang().maxSingleDamage) ?? "0");
-                    let maxSecondaryDamage = parseFloat(lore.getValueUseMap("total", this.getLang().maxSecondaryDamage) ?? "0");
-                    let damage = 0;
-                    this.hasCauseDamage.removeMonitor(lastListener);
-                    lastListener = (d: number) => {
-                        damage += d;
-                        maxSingleDamage = Math.ceil(Math.max(d, maxSingleDamage));
-                    };
-                    this.hasCauseDamage.addMonitor(lastListener);
-                    this.equiTotalTask?.stop();
-                    (this.equiTotalTask = ExSystem.tickTask(() => {
-                        let shouldUpstate = false;
-                        maxSecondaryDamage = Math.ceil(Math.max(maxSecondaryDamage, damage / 5));
-                        damage = 0;
-                        if ((lore.getValueUseMap("total", this.getLang().maxSingleDamage) ?? "0") !== maxSingleDamage + "") {
-                            lore.setValueUseMap("total", this.getLang().maxSingleDamage, maxSingleDamage + "");
-                            shouldUpstate = true;
+                        if (comp.hasComponent("sneak_movement_addition"))
+                            base[base.length - 1] += ("§r§7 | 潜行移速" + (smove < 0 ? "§c" + smove : "§6+" + smove));
+                    } else if (comp.hasComponent("sneak_movement_addition")) base.push("§r§7•潜行移速" + (smove < 0 ? "§c" + smove : "§6+" + smove));
+                    if (comp.hasComponent("attack_addition")) {
+                        base.push("§r§7•攻击伤害§6+" + comp.getComponentWithGroup("attack_addition"));
+                    }
+                    if (comp.hasComponent("equipment_type")) {
+                        if (e.afterItem.typeId.startsWith("dec:")) {
+                            base.push("§r§7•在主手时: +20％§7攻击伤害");
                         }
-                        if ((lore.getValueUseMap("total", this.getLang().maxSecondaryDamage) ?? "0") !== maxSecondaryDamage + "") {
-                            lore.setValueUseMap("total", this.getLang().maxSecondaryDamage, maxSecondaryDamage + "");
-                            shouldUpstate = true;
-                        }
-                        if (shouldUpstate && bag.itemOnMainHand?.typeId === e?.afterItem?.typeId) {
-                            lore.sort();
-                            bag.itemOnMainHand = e.afterItem;
-                        }
-                    }).delay(5 * 20)).start(); //
-                }
+                        // let typeMsg = comp.getComponentWithGroup("equipment_type");
+                        // lore.setValueUseDefault("武器类型", typeMsg.tagName + ": " + typeMsg.data);
+                    }
+                    if (base.length > 0) {
+                        base[base.length - 1] = base[base.length - 1] + "§r";
+                        lore.setTags(base);
+                    }
+                    lore.sort();
+                    this.itemOnHandComp = comp;
 
+                    //武器特殊项
+                    if (comp.hasComponent("equipment_type")) {
+                        let maxSingleDamage = parseFloat(lore.getValueUseMap("total", this.getLang().maxSingleDamage) ?? "0");
+                        let maxSecondaryDamage = parseFloat(lore.getValueUseMap("total", this.getLang().maxSecondaryDamage) ?? "0");
+                        let damage = 0;
+                        this.hasCauseDamage.removeMonitor(lastListener);
+                        lastListener = (d: number) => {
+                            damage += d;
+                            maxSingleDamage = Math.ceil(Math.max(d, maxSingleDamage));
+                        };
+                        this.hasCauseDamage.addMonitor(lastListener);
+                        this.equiTotalTask?.stop();
+                        (this.equiTotalTask = ExSystem.tickTask(() => {
+                            let shouldUpstate = false;
+                            maxSecondaryDamage = Math.ceil(Math.max(maxSecondaryDamage, damage / 5));
+                            damage = 0;
+                            if ((lore.getValueUseMap("total", this.getLang().maxSingleDamage) ?? "0") !== maxSingleDamage + "") {
+                                lore.setValueUseMap("total", this.getLang().maxSingleDamage, maxSingleDamage + "");
+                                shouldUpstate = true;
+                            }
+                            if ((lore.getValueUseMap("total", this.getLang().maxSecondaryDamage) ?? "0") !== maxSecondaryDamage + "") {
+                                lore.setValueUseMap("total", this.getLang().maxSecondaryDamage, maxSecondaryDamage + "");
+                                shouldUpstate = true;
+                            }
+                            if (shouldUpstate && bag.itemOnMainHand?.typeId === e?.afterItem?.typeId) {
+                                lore.sort();
+                                bag.itemOnMainHand = e.afterItem;
+                            }
+                        }).delay(5 * 20)).start(); //
+                    }
+                }
             } else {
                 this.equiTotalTask?.stop();
                 this.itemOnHandComp = undefined;
@@ -424,6 +429,7 @@ export default class PomTalentSystem extends GameController {
             if (e.afterItem) {
                 return e.afterItem;
             }
+
         });
 
         //设置职业技能

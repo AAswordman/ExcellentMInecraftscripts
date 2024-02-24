@@ -1,4 +1,4 @@
-import { ChatSendBeforeEvent, DimensionType, DimensionTypes, Entity, EntityDamageCause, EntityHurtAfterEvent, GameMode, MinecraftDimensionTypes, Player, world } from '@minecraft/server';
+import { ChatSendBeforeEvent, DimensionType, DimensionTypes, Entity, EntityDamageCause, EntityHurtAfterEvent, GameMode, MinecraftDimensionTypes, MolangVariableMap, Player, world } from '@minecraft/server';
 import ExConfig from "../../modules/exmc/ExConfig.js";
 import Vector3, { IVector3 } from '../../modules/exmc/math/Vector3.js';
 import ExDimension from "../../modules/exmc/server/ExDimension.js";
@@ -34,6 +34,13 @@ import PomStoneBossRuin from './func/ruins/stone/PomStoneBossRuin.js';
 import damageShow from './helper/damageShow.js';
 import itemCanChangeBlock from './items/itemCanChangeBlock.js';
 import { MinecraftBlockTypes, MinecraftEffectTypes, MinecraftEntityTypes } from '../../modules/vanilla-data/lib/index.js';
+import { MinecraftItemTypes } from '../../modules/vanilla-data/lib/index.js';
+import PomServerData from './cache/PomServerData.js';
+import ExPropCache from '../../modules/exmc/server/storage/cache/ExPropCache.js';
+import { ExBlockArea } from '../../modules/exmc/server/block/ExBlockArea.js';
+import BlockPartitioning from './map/BlockPartitioning.js';
+import ExGame from '../../modules/exmc/server/ExGame.js';
+import TerritoryData from './data/TerritoryData.js';
 // import * as b from "brain.js";
 
 export default class PomServer extends ExGameServer {
@@ -77,7 +84,17 @@ export default class PomServer extends ExGameServer {
 
     //虚拟玩家
     fakeplayers: PomFakePlayer[] = [];
+
+    //全局变量
     setting!: GlobalSettings;
+    cache!: ExPropCache<PomServerData>;
+    looper!: TickDelayTask;
+    data!: PomServerData;
+
+    //领域
+    territoryParLooper?: TickDelayTask;
+    territoryData?: BlockPartitioning<TerritoryData>;
+
 
     sayTo(str: string) {
         this.getExDimension(MinecraftDimensionTypes.theEnd).command.run(`tellraw @a {"rawtext": [{"text": "${str}"}]}`);
@@ -90,6 +107,88 @@ export default class PomServer extends ExGameServer {
         this.initRuinsGeneration();
         this.initRuinsRules();
         this.initBossControllers();
+        this.initTerritory();
+    }
+    private initTerritory() {
+        this.territoryData = new BlockPartitioning<TerritoryData>(this.data.territoryData);
+        this.territoryParLooper = ExSystem.tickTask(() => {
+            let terAreas: [ExBlockArea, number][] = [];
+            let terSet = new Set<string>();
+            for (let p of this.getExPlayers()) {
+                for (let area of this.territoryData!.getAreasByNearby(p.position, 2)) {
+                    if (!terSet.has(area[0].center().toString())) {
+                        terSet.add(area[0].center().toString());
+                        terAreas.push([area[0], area[1].parIndex]);
+                    }
+                }
+            }
+
+            for (let area of terAreas) {
+                const vars = new MolangVariableMap();
+                const width = area[0].getWidth();
+                vars.setFloat("index", area[1]);
+                vars.setFloat("x", width.x);
+                vars.setFloat("y", width.y);
+                vars.setFloat("z", width.z);
+                this.getExDimension(MinecraftDimensionTypes.overworld).spawnParticle("wb:territiry_barrier_par", area[0].start, vars);
+
+                // console.warn("show " + area)
+            }
+        });
+        this.territoryParLooper.delay(1 * 20);
+        this.territoryParLooper.start();
+
+
+        //领地保护
+        this.getEvents().events.beforePlayerBreakBlock.subscribe(e => {
+            if (e.dimension === this.getDimension(MinecraftDimensionTypes.overworld)
+                && (<PomClient>this.findClientByPlayer(e.player)).territorySystem.isLocationLevelToPlayer(new Vector3(e.block))) {
+                let ex = ExPlayer.getInstance(e.player);
+                ExGame.run(() => {
+                    ex.addEffect(MinecraftEffectTypes.Nausea, 200, 0, true);
+                    ex.addEffect(MinecraftEffectTypes.Darkness, 400, 0, true);
+                    ex.addEffect(MinecraftEffectTypes.Wither, 100, 0, true);
+                    ex.addEffect(MinecraftEffectTypes.MiningFatigue, 600, 2, true);
+                    ex.addEffect(MinecraftEffectTypes.Hunger, 600, 1, true);
+                    ex.addEffect(MinecraftEffectTypes.Blindness, 200, 0, true);
+                    ex.command.run("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }");
+                });
+                e.cancel = true;
+            }
+        });
+
+        this.getEvents().events.beforeItemUseOn.subscribe(e => {
+            if (e.source.dimension === this.getDimension(MinecraftDimensionTypes.overworld)
+                && (<PomClient>this.findClientByPlayer(e.source)).territorySystem.isLocationLevelToPlayer(new Vector3(e.block))) {
+                e.cancel = true;
+            }
+
+        });
+        this.getEvents().events.beforeExplosion.subscribe(e => {
+            if (e.source && e.dimension === this.getDimension(MinecraftDimensionTypes.overworld) && (
+                this.territoryData!.getAreaIn(new Vector3(e.source.location), 2)
+            )) {
+                e.cancel = true;
+                const s = e.source.location;
+                ExGame.run(() => this.getExDimension(MinecraftDimensionTypes.overworld).spawnParticle("dec:damp_explosion_particle", s));
+            }
+        });
+        this.getEvents().events.beforeItemUseOn.subscribe(e => {
+            if (e.source.dimension === this.getDimension(MinecraftDimensionTypes.overworld) && (
+                (<PomClient>this.findClientByPlayer(e.source)).territorySystem.isLocationLevelToPlayer(new Vector3(e.block))
+            )) {
+                if (itemCanChangeBlock(e.itemStack.typeId)) {
+                    e.cancel = true;
+                };
+            }
+        });
+        this.getEvents().events.beforePlayerInteractWithBlock.subscribe(e => {
+            if (e.player.dimension === this.getDimension(MinecraftDimensionTypes.overworld) && (
+                (<PomClient>this.findClientByPlayer(e.player)).territorySystem.isLocationLevelToPlayer(new Vector3(e.block))
+            )) {
+                e.cancel = true;
+            }
+        });
     }
     private initBossControllers() {
         //实体监听
@@ -129,22 +228,19 @@ export default class PomServer extends ExGameServer {
 
 
         //遗迹保护
-        this.getEvents().events.afterPlayerBreakBlock.subscribe(e => {
+        this.getEvents().events.beforePlayerBreakBlock.subscribe(e => {
             if (e.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && (RuinsLoaction.isInProtectArea(e.block))) {
-
                 let ex = ExPlayer.getInstance(e.player);
-                // if (ex.getGameMode() === GameMode.creative) return;
-                let b = e.dimension.getBlock(e.block.location);
-                if (!b) return;
-                b.setType(e.brokenBlockPermutation.type);
-                ex.exDimension.command.run("kill @e[type=item,r=2,x=" + e.block.x + ",y=" + e.block.y + ",z=" + e.block.z + "]");
-                ex.addEffect(MinecraftEffectTypes.Nausea, 200, 0, true);
-                ex.addEffect(MinecraftEffectTypes.Darkness, 400, 0, true);
-                ex.addEffect(MinecraftEffectTypes.Wither, 100, 0, true);
-                ex.addEffect(MinecraftEffectTypes.MiningFatigue, 600, 2, true);
-                ex.addEffect(MinecraftEffectTypes.Hunger, 600, 1, true);
-                ex.addEffect(MinecraftEffectTypes.Blindness, 200, 0, true);
-                ex.command.run("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }");
+                ExGame.run(() => {
+                    ex.addEffect(MinecraftEffectTypes.Nausea, 200, 0, true);
+                    ex.addEffect(MinecraftEffectTypes.Darkness, 400, 0, true);
+                    ex.addEffect(MinecraftEffectTypes.Wither, 100, 0, true);
+                    ex.addEffect(MinecraftEffectTypes.MiningFatigue, 600, 2, true);
+                    ex.addEffect(MinecraftEffectTypes.Hunger, 600, 1, true);
+                    ex.addEffect(MinecraftEffectTypes.Blindness, 200, 0, true);
+                    ex.command.run("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }");
+                });
+                e.cancel = true;
             }
         });
 
@@ -163,18 +259,8 @@ export default class PomServer extends ExGameServer {
                 RuinsLoaction.isInProtectArea(e.source.location)
             )) {
                 e.setImpactedBlocks([]);
-
-                // bugjump nmsl 
-                // bugjump nmsl 
-                // bugjump nmsl 
-                // bugjump nmsl 
-                // bugjump nmsl 
-                // bugjump nmsl 
-                // if (e.getImpactedBlocks.length !== 0) {
-                //     this.getExDimension(MinecraftDimensionTypes.theEnd).spawnParticle("dec:damp_explosion_particle", e.source.location);
-                //     e.cancel = true;
-                // }
-                //this.getExDimension(MinecraftDimensionTypes.theEnd).createExplosion(e.source.location,e.impactedBlocks.length);
+                const s = e.source.location;
+                ExGame.run(() => this.getExDimension(MinecraftDimensionTypes.theEnd).spawnParticle("dec:damp_explosion_particle", s));
             }
         });
         this.getEvents().events.beforeItemUse.subscribe(e => {
@@ -183,7 +269,6 @@ export default class PomServer extends ExGameServer {
             )) {
                 if (itemCanChangeBlock(e.itemStack.typeId)) {
                     e.cancel = true;
-
                 };
             }
         });
@@ -527,12 +612,30 @@ export default class PomServer extends ExGameServer {
 
     private initGlobalVars() {
         this.setting = new GlobalSettings(new Objective("wpsetting"));
-        this.setting.initializeBoolean("entityShowMsg",true);
-        this.setting.initializeBoolean("damageShow",true);
-        this.setting.initializeBoolean("playerTpListShowPos",true);
-        this.setting.initializeBoolean("playerCanTp",true);
-        this.setting.initializeBoolean("tpPointRecord",true);
-        this.setting.initializeBoolean("chainMining",true);
+        this.setting.initializeBoolean("entityShowMsg", true);
+        this.setting.initializeBoolean("damageShow", true);
+        this.setting.initializeBoolean("playerTpListShowPos", true);
+        this.setting.initializeBoolean("playerCanTp", true);
+        this.setting.initializeBoolean("tpPointRecord", true);
+        this.setting.initializeBoolean("chainMining", true);
+        this.setting.initializeBoolean("nuclearBomb", true);
+
+        this.cache = new ExPropCache(world);
+        this.looper = ExSystem.tickTask(() => {
+            this.cache.save();
+        });
+        this.looper.delay(10 * 20);
+        this.looper.start();
+        this.data = this.cache.get(new PomServerData());
+
+        if (!this.data.territoryData) {
+            this.data.territoryData = {}
+        }
+        if (!this.data.socialListGlobalMap) {
+            this.data.socialListGlobalMap = {}
+        }
+
+        // console.warn(JSON.stringify(this.data));
     }
 
     private clearEntity() {
@@ -563,6 +666,7 @@ export default class PomServer extends ExGameServer {
             entities.forEach(e => {
                 if (!e || !e.typeId || e.typeId !== max[1]) return;
                 if (e.typeId === "minecraft:item" && e.getViewDirection().y !== 0) return;
+                if (e.typeId === "minecraft:item" && e.getComponent("minecraft:item")?.typeId === MinecraftItemTypes.ShulkerBox) return;
                 //if (e.nameTag) return;
                 e.kill();
             });

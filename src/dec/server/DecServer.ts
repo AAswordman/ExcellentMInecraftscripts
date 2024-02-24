@@ -30,6 +30,7 @@ export default class DecServer extends ExGameServer {
     i_inviolable: Objective;
     i_damp: Objective;
     i_soft: Objective;
+    i_softx: Objective;
     i_heavy: Objective;
     skill_count: Objective;
     gametime: Objective;
@@ -54,6 +55,7 @@ export default class DecServer extends ExGameServer {
         this.i_inviolable = new Objective("i_inviolable").create("i_inviolable");
         this.i_damp = new Objective("i_damp").create("i_damp");
         this.i_soft = new Objective("i_soft").create("i_soft");
+        this.i_softx = new Objective("i_softx").create("i_softx");
         this.i_heavy = new Objective("i_heavy").create("i_heavy");
         this.skill_count = new Objective("skill_count").create("skill_count");
         this.gametime = new Objective("gametime").create("gametime");
@@ -285,22 +287,23 @@ export default class DecServer extends ExGameServer {
                 'facing': true
             }
         }
-        this.getEvents().events.afterPlayerBreakBlock.subscribe(e => {
+        this.getEvents().events.beforePlayerBreakBlock.subscribe(e => {
             const entity = ExPlayer.getInstance(e.player);
-            const block_before_id = e.brokenBlockPermutation.type.id
             //防破坏方块 i_inviolable计分板控制
             if (entity.getScoresManager().getScore(this.i_inviolable) > 1) {
-                e.dimension.getBlock(e.block.location)?.setType(e.brokenBlockPermutation.type);
                 let ep = ExPlayer.getInstance(e.player);
-                entity.exDimension.command.run("kill @e[type=item,r=2,x=" + e.block.x + ",y=" + e.block.y + ",z=" + e.block.z + "]")
                 ep.addEffect(MinecraftEffectTypes.Blindness, 200, 0, true);
                 ep.addEffect(MinecraftEffectTypes.Darkness, 400, 0, true);
                 ep.addEffect(MinecraftEffectTypes.Wither, 100, 0, true);
                 ep.addEffect(MinecraftEffectTypes.MiningFatigue, 600, 2, true);
                 ep.addEffect(MinecraftEffectTypes.Hunger, 600, 1, true);
                 ep.addEffect(MinecraftEffectTypes.Nausea, 200, 0, true);
-                entity.command.run("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }")
-            }
+                entity.command.run("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }");
+                e.cancel = true;
+            };
+        })
+        this.getEvents().events.afterPlayerBreakBlock.subscribe(e => {
+            const block_before_id = e.brokenBlockPermutation.type.id
             //种植架
             const block = e.block
             function print(s: any) {
@@ -333,23 +336,25 @@ export default class DecServer extends ExGameServer {
                 const entity = ExEntity.getInstance(e.source);
                 //防爆 i_inviolable计分板控制
                 if (entity.getScoresManager().getScore(this.i_damp) > 0) {
-                    entity.exDimension.spawnParticle("dec:damp_explosion_particle", e.source.location);
+                    const s = e.source.location;
+                    ExGame.run(() => entity.exDimension.spawnParticle("dec:damp_explosion_particle", s));;
                     e.cancel = true;
                 }
             }
         });
 
-        const block_except = new Set(['minecraft:chest', 'minecraft:anvil', 'minecraft:enchanting_table', 'minecraft:black_shulker_box', 'minecraft:blue_shulker_box',
-            'minecraft:brown_shulker_box', 'minecraft:cyan_shulker_box', 'minecraft:gray_shulker_box', 'minecraft:green_shulker_box', 'minecraft:light_blue_shulker_box',
-            'minecraft:light_gray_shulker_box', 'minecraft:lime_shulker_box', 'minecraft:magenta_shulker_box', 'minecraft:orange_shulker_box', 'minecraft:pink_shulker_box',
-            'minecraft:purple_shulker_box', 'minecraft:red_shulker_box', 'minecraft:undyed_shulker_box', 'minecraft:white_shulker_box', 'minecraft:yellow_shulker_box',
-            'minecraft:ender_chest', 'minecraft:trapped_chest', 'minecraft:barrel', 'minecraft:grindstone', 'minecraft:brewing_stand',
+        const block_exceptx = new Set<string>(['minecraft:enchanting_table', 'minecraft:barrel', 'minecraft:grindstone', 'minecraft:brewing_stand',
             'minecraft:crafting_table', 'minecraft:smithing_table', 'minecraft:cartography_table', 'minecraft:lectern', 'minecraft:cauldron', 'minecraft:composter',
             'minecraft:acacia_door', 'minecraft:acacia_trapdoor', 'minecraft:bamboo_door', 'minecraft:bamboo_trapdoor', 'minecraft:birch_door', 'minecraft:birch_trapdoor',
             'minecraft:cherry_door', 'minecraft:cherry_trapdoor', 'minecraft:crimson_door', 'minecraft:crimson_trapdoor', 'minecraft:dark_oak_door', 'minecraft:dark_oak_trapdoor',
             'minecraft:jungle_door', 'minecraft:jungle_trapdoor', 'minecraft:mangrove_door', 'minecraft:mangrove_trapdoor', 'minecraft:spruce_door', 'minecraft:spruce_trapdoor',
             'minecraft:warped_door', 'minecraft:warped_trapdoor', 'minecraft:trapdoor', 'minecraft:wooden_door', 'minecraft:smoker', 'minecraft:blast_furnace', 'minecraft:furnace']);
         let item_except = new Set(['dec:iron_key', 'dec:frozen_power', 'dec:ash_key', 'dec:challenge_of_ash', 'dec:ice_ingot']);
+        const block_except = new Set<string>(['minecraft:chest', 'minecraft:anvil', 'minecraft:black_shulker_box', 'minecraft:blue_shulker_box',
+            'minecraft:brown_shulker_box', 'minecraft:cyan_shulker_box', 'minecraft:gray_shulker_box', 'minecraft:green_shulker_box', 'minecraft:light_blue_shulker_box',
+            'minecraft:light_gray_shulker_box', 'minecraft:lime_shulker_box', 'minecraft:magenta_shulker_box', 'minecraft:orange_shulker_box', 'minecraft:pink_shulker_box',
+            'minecraft:purple_shulker_box', 'minecraft:red_shulker_box', 'minecraft:undyed_shulker_box', 'minecraft:white_shulker_box', 'minecraft:yellow_shulker_box',
+            'minecraft:ender_chest', 'minecraft:trapped_chest'].concat(Array.from(block_exceptx.values())));
         this.getEvents().events.beforeItemUseOn.subscribe(e => {
             const entity = ExEntity.getInstance(e.source);
             //防放方块
@@ -359,6 +364,15 @@ export default class DecServer extends ExGameServer {
                 } else {
                     // console.warn(block_except.has(e.block.typeId) || item_except.has(e.itemStack.typeId));
                     if ((block_except.has(e.block.typeId) || item_except.has(e.itemStack.typeId)) == false) {
+                        e.cancel = true
+                    }
+                }
+            } else if (entity.getScoresManager().getScore(this.i_softx) > 0) {
+                if (e.source.isSneaking) {
+                    e.cancel = true
+                } else {
+                    // console.warn(block_except.has(e.block.typeId) || item_except.has(e.itemStack.typeId));
+                    if ((block_exceptx.has(e.block.typeId) || item_except.has(e.itemStack.typeId)) == false) {
                         e.cancel = true
                     }
                 }

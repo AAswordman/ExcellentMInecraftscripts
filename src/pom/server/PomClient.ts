@@ -10,7 +10,7 @@ import Random from "../../modules/exmc/utils/Random.js";
 import PomTransmission from '../PomTransmission.js';
 import PomServer from "./PomServer.js";
 import GlobalSettings from "./cache/GlobalSettings.js";
-import PomData from "./cache/PomData.js";
+import PomClientData from "./cache/PomClientData.js";
 import POMLICENSE from "./data/POMLICENSE.js";
 import lang from "./data/lang.js";
 import { langType } from "./data/langType.js";
@@ -29,6 +29,7 @@ import { ArmorData } from "../../dec/server/items/ArmorData.js";
 import { GameDifficulty, pomDifficultyMap } from "./data/GameDifficulty.js";
 import Vector3 from "../../modules/exmc/math/Vector3.js";
 import TalentData from "./cache/TalentData.js";
+import PomTerritorySystem from "./func/PomTerritorySystem.js";
 
 
 
@@ -36,8 +37,8 @@ export default class PomClient extends ExGameClient<PomTransmission> {
     gameControllers: GameController[] = [];
     gameId !: number;
     globalSettings: GlobalSettings;
-    cache: ExPropCache<PomData>;
-    data: PomData;
+    cache: ExPropCache<PomClientData>;
+    data: PomClientData;
     looper: TickDelayTask;
 
     enchantSystem = new PomEnchantSystem(this);
@@ -47,6 +48,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
     ruinsSystem = new PomDimRuinsSystem(this);
     taskSystem = new PomTaskSystem(this);
     interactSystem = new PomInteractSystem(this);
+    territorySystem = new PomTerritorySystem(this);
     licenseLooper?: TickDelayTask;
     // net;
 
@@ -59,7 +61,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
         });
         this.looper.delay(10 * 20);
         this.looper.start();
-        this.data = this.cache.get(new PomData());
+        this.data = this.cache.get(new PomClientData());
 
         if (!this.globalSettings.ownerExists) {
             player.addTag("owner");
@@ -72,6 +74,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
         this.addCtrller(this.ruinsSystem);
         this.addCtrller(this.taskSystem);
         this.addCtrller(this.interactSystem);
+        this.addCtrller(this.territorySystem);
 
         if (!this.data.pointRecord) {
             this.data.pointRecord = {
@@ -92,6 +95,19 @@ export default class PomClient extends ExGameClient<PomTransmission> {
                     complete: [],
                     data: {}
                 }
+            }
+        }
+        if (!this.data.socialList) {
+            this.data.socialList = {
+                refuseList: [],
+                acceptList: []
+            }
+        }
+        if (!this.data.territory) {
+            this.data.territory = {
+                data: [
+
+                ]
             }
         }
         if (!this.data.uiCustomSetting) {
@@ -138,6 +154,11 @@ export default class PomClient extends ExGameClient<PomTransmission> {
             this.gameId = Math.floor(Math.random() * Random.MAX_VALUE);
             scores.setScore("wbldid", this.gameId);
         }
+
+        if(this.data.socialList.acceptList.filter(e => e[0] === this.gameId).length === 0){
+            this.data.socialList.acceptList.push([this.gameId, this.playerName])
+        }
+        this.territorySystem.updateGlobalList();
 
         this.gameControllers.forEach(controller => controller.onLoad());
 
@@ -207,6 +228,10 @@ export default class PomClient extends ExGameClient<PomTransmission> {
 
     override getServer(): PomServer {
         return <PomServer>super.getServer();
+    }
+
+    getGlobalData() {
+        return this.getServer().data;
     }
 
     getDifficulty(): GameDifficulty {

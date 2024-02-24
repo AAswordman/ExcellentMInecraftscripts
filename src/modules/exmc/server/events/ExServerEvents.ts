@@ -5,6 +5,7 @@ import ExGameConfig from '../ExGameConfig.js';
 import ExErrorQueue from '../ExErrorQueue.js';
 import ExGame from '../ExGame.js';
 import { ExOtherEventNames, Merge, TickEvent } from './events.js';
+import MonitorManager from '../../utils/MonitorManager.js';
 
 //顶层事件分发
 export default class ExServerEvents implements ExEventManager {
@@ -22,9 +23,7 @@ export default class ExServerEvents implements ExEventManager {
             },
             pattern: () => {
                 ExGame.tickMonitor.addMonitor((e) => {
-                    ExServerEvents.monitorMap.get(ExOtherEventNames.tick)?.forEach((fun) => {
-                        fun(e);
-                    })
+                    ExServerEvents.monitorMap.get(ExOtherEventNames.tick)?.trigger(e);
                 });
             }
         },
@@ -37,9 +36,7 @@ export default class ExServerEvents implements ExEventManager {
             },
             pattern: () => {
                 ExGame.beforeTickMonitor.addMonitor((e) => {
-                    ExServerEvents.monitorMap.get(ExOtherEventNames.beforeTick)?.forEach((fun) => {
-                        fun(e);
-                    })
+                    ExServerEvents.monitorMap.get(ExOtherEventNames.beforeTick)?.trigger(e);
                 });
             }
         },
@@ -52,33 +49,28 @@ export default class ExServerEvents implements ExEventManager {
             },
             pattern: () => {
                 ExGame.longTickMonitor.addMonitor((e) => {
-                    ExServerEvents.monitorMap.get(ExOtherEventNames.onLongTick)?.forEach((fun) => {
-                        fun(e);
-                    })
+                    ExServerEvents.monitorMap.get(ExOtherEventNames.onLongTick)?.trigger(e);
                 });
             }
         }
 
     };
-    static monitorMap = new Map<string, ((arg: any) => void)[]>;
+    static monitorMap = new Map<string, MonitorManager<unknown[]>>();
 
     static init: boolean = false;
     _subscribe(name: string, callback: (arg: any) => void) {
         let e = ExServerEvents.monitorMap.get(name);
         if (e === undefined) {
-            e = [];
+            e = new MonitorManager();
             ExServerEvents.monitorMap.set(name, e);
         }
-        e.push(callback);
+        e.addMonitor(callback);
 
     }
 
     _unsubscribe(name: string, callback: (arg: any) => void) {
-        let arr = ExServerEvents.monitorMap.get(name) ?? [];
-
-        arr.splice(arr.findIndex((v, i) => {
-            if (v === callback) return true;
-        }), 1);
+        let arr = ExServerEvents.monitorMap.get(name);
+        if (arr) arr.removeMonitor(callback);
     }
 
     static interceptor = new Map<any, any>();

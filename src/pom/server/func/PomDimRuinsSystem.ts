@@ -12,16 +12,13 @@ import { Objective } from '../../../modules/exmc/server/entity/ExScoresManager.j
 import { MinecraftBlockTypes, MinecraftEffectTypes } from '../../../modules/vanilla-data/lib/index.js';
 
 export default class PomDimRuinsSystem extends GameController {
-    i_inviolable = new Objective("i_inviolable");
-    i_damp = new Objective("i_damp");
-    i_soft = new Objective("i_soft");
 
     desertRuinRules = new PomDesertRuinBasicRule(this);
     isInRuinJudge: boolean = false;
     causeDamage = 0;
     deathTimes = 0;
     private _causeDamageShow = false;
-    causeDamageMonitor: { (args_0: number, args_1: Entity): void;} | undefined;
+    causeDamageMonitor: { (args_0: number, args_1: Entity): void; } | undefined;
     barrier?: PomBossBarrier;
     deathTimesListener?: (e: EntityHurtAfterEvent) => void;
     public get causeDamageShow() {

@@ -17,6 +17,7 @@ declare module "@minecraft/server" {
         removeTag(tag: string): string;
         getComponentById<T extends keyof CompId>(key: T): AlsoInstanceType<CompId[T]> | undefined;
         hasComponentById<T extends keyof CompId>(key: T): boolean;
+        isWillBeRemoved: boolean;
     }
 }
 Object.assign(ItemStack.prototype, {
@@ -31,5 +32,6 @@ Object.assign(ItemStack.prototype, {
     },
     getComponentById<T extends keyof CompId>(key: T) {
         return (this as ItemStack).getComponent(key);
-    }
+    },
+    isWillBeRemoved: false
 });

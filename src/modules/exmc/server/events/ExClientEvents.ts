@@ -155,22 +155,26 @@ export default class ExClientEvents implements ExEventManager {
             pattern: (registerName: string, k: string) => {
                 this.onHandItemMap = new Map<Player, [ItemStack | undefined, number]>();
                 ExClientEvents.eventHandlers.server.getEvents().register(registerName, (e: TickEvent) => {
-                    for (let i of (<Map<Player, ((e: ItemOnHandChangeEvent) => void)[]>>ExClientEvents.eventHandlers.monitorMap[k])) {
-                        let lastItemCache = this.onHandItemMap.get(i[0]);
-                        if (e.currentTick % 4 === 0 || (i[0].selectedSlot !== lastItemCache?.[1])) {
+                    for (let i of (ExClientEvents.eventHandlers.monitorMap[k])) {
+                        let lastItemCache = this.onHandItemMap.get(<Player>i[0]);
+                        if (e.currentTick % 4 === 0 || ((<Player>i[0]).selectedSlot !== lastItemCache?.[1])) {
                             let lastItem = lastItemCache?.[0];
-                            let nowItem = ExPlayer.getInstance(i[0]).getBag().itemOnMainHand;
+                            let nowItem = ExPlayer.getInstance(<Player>i[0]).getBag().itemOnMainHand;
 
-                            if (lastItem?.typeId !== nowItem?.typeId || i[0].selectedSlot !== lastItemCache?.[1]) {
-                                let res: ItemStack | void = undefined;
+                            if (lastItem?.typeId !== nowItem?.typeId || (<Player>i[0]).selectedSlot !== lastItemCache?.[1]) {
+                                let res: ItemStack | undefined = nowItem;
                                 i[1].forEach((f) => {
-                                    res = res ?? f(new ItemOnHandChangeEvent(lastItem, lastItemCache?.[1] ?? 0, nowItem, i[0].selectedSlot, i[0]));
+                                    res = res ?? <ItemStack | undefined>f(new ItemOnHandChangeEvent(lastItem, lastItemCache?.[1] ?? 0, res, (<Player>i[0]).selectedSlot, <Player>i[0]));
                                 });
                                 if (res !== undefined) {
-                                    ExPlayer.getInstance(i[0]).getBag().itemOnMainHand = res;
+                                    if(res.isWillBeRemoved){
+                                        ExPlayer.getInstance(<Player>i[0]).getBag().itemOnMainHand = undefined;
+                                    }else{
+                                        ExPlayer.getInstance(<Player>i[0]).getBag().itemOnMainHand = res;
+                                    }
                                 }
 
-                                this.onHandItemMap.set(i[0], [nowItem, i[0].selectedSlot]);
+                                this.onHandItemMap.set(<Player>i[0], [res, (<Player>i[0]).selectedSlot]);
                             }
                         }
                     }

@@ -68,6 +68,8 @@ export default class PomEnChantSystem extends GameController {
                     if (item && item.amount === 1) {
                         PomEnChantSystem.blockTranslateData.delete(new Vector3(block).toString());
                         this.setTimeout(() => {
+                            const armor_pitch = [bag.equipmentOnHead,bag.equipmentOnChest,bag.equipmentOnLegs,bag.equipmentOnFeet];
+
                             let exHandItem = item;
                             let exSaveItem = saveItem;
                             let d = exSaveItem.getComponentById("minecraft:durability")!.damage;
@@ -113,6 +115,8 @@ export default class PomEnChantSystem extends GameController {
                             block.transTo("wb:block_translate");
                             bag.setItem(this.exPlayer.selectedSlot, item);
                             this.getDimension().spawnItem(exNewItem, pos.add(0, 1, 0));
+
+                            [bag.equipmentOnHead,bag.equipmentOnChest,bag.equipmentOnLegs,bag.equipmentOnFeet] = armor_pitch;
                         }, 0);
                     }
                 }
