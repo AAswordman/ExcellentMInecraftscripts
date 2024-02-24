@@ -20,7 +20,8 @@ import ExMusic from "./env/ExMusic.js";
 import { ExEventNames, TickEvent } from "./events/events.js";
 import { falseIfError } from "../utils/tool.js";
 import ExSystem from "../utils/ExSystem.js";
-
+import Vector3 from "../math/Vector3.js";
+import DynamicPropertyManager from "../interface/DynamicPropertyManager.js";
 
 export default class ExGameServer implements SetTimeOutSupport {
     clients;
@@ -78,6 +79,12 @@ export default class ExGameServer implements SetTimeOutSupport {
 
     addEntityController(id: string, ec: typeof ExEntityController) {
         this.entityControllers.set(id, ec);
+    }
+    getDefaultSpawnLocation(){
+        return new Vector3(world.getDefaultSpawnLocation());
+    }
+    getDynamicPropertyManager():DynamicPropertyManager {
+        return world;
     }
 
     @registerEvent(ExEventNames.afterEntitySpawn)

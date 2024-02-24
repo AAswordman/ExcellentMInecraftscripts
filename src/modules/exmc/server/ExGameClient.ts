@@ -15,6 +15,8 @@ import { eventDecoratorFactory } from "./events/eventDecoratorFactory.js";
 import notUtillTask from "../utils/notUtillTask.js";
 import { TickEvent } from "./events/events.js";
 import ExGame from "./ExGame.js";
+import DynamicPropertyManager from "../interface/DynamicPropertyManager.js";
+import Vector3 from "../math/Vector3.js";
 
 export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingPool> implements SetTimeOutSupport {
     private _events: ExClientEvents;
@@ -161,6 +163,12 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
     }
     notDebugger() {
         this.player.removeTag("debugger");
+    }
+    getDefaultSpawnLocation() {
+        return this.getServer().getDefaultSpawnLocation();
+    }
+    getDynamicPropertyManager(): DynamicPropertyManager {
+        return this.player;
     }
 
     runMethodOnEveryClient(fun: ((e: this) => void)) {

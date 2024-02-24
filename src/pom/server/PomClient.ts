@@ -55,7 +55,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
     constructor(server: ExGameServer, id: string, player: Player) {
         super(server, id, player);
         this.globalSettings = new GlobalSettings(new Objective("wpsetting"));
-        this.cache = new ExPropCache(this.exPlayer.entity);
+        this.cache = new ExPropCache(this.getDynamicPropertyManager());
         this.looper = ExSystem.tickTask(() => {
             this.cache.save();
         });

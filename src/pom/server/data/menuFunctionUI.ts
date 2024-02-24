@@ -28,6 +28,7 @@ import ColorHSV from "../../../modules/exmc/canvas/ColorHSV.js";
 import { eventGetter } from "../../../modules/exmc/server/events/EventHandle.js";
 import { MinecraftItemTypes } from "../../../modules/vanilla-data/lib/index.js";
 import { ExBlockArea } from "../../../modules/exmc/server/block/ExBlockArea.js";
+import { MinecraftDimensionTypes } from "../../../modules/vanilla-data/lib/index.js";
 
 // import { http } from '@minecraft/server-net';
 
@@ -662,7 +663,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 })
                             }
                         }
-                        if(num === 0){
+                        if (num === 0) {
                             arr.push({
                                 "type": "padding"
                             },
@@ -680,6 +681,14 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                     "msg": "创建领地",
                                     "function": (client, ui) => {
                                         to((async () => {
+                                            if (client.getDimension().id !== MinecraftDimensionTypes.Overworld) {
+                                                client.sayTo("§b只能在主世界创建领地");
+                                                return;
+                                            }
+                                            if (client.getDefaultSpawnLocation().distance(new Vector3(client.player.location)) <= 128) {
+                                                client.sayTo("§b请至少离开出生地128单位距离");
+                                                return;
+                                            }
                                             client.sayTo("§b请使用木棍点击选择点1");
                                             const p1 = new Vector3((await eventGetter(client.getEvents().exEvents.beforeItemUseOn,
                                                 (e) => e.itemStack.typeId === MinecraftItemTypes.Stick)).block);
@@ -697,15 +706,24 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                                 actions[0] = "面向方块坐标: " + vec.toString();
                                                 actions[1] = "领域大小(以面向方块为顶点2): " + (sizeJedge(width) ? "§c无效| " : "§a有效| ") + width.toString();
                                             }
-                                            client.getEvents().exEvents.onLongTick.subscribe(facingBlockGetter);
+                                            if (client.getDefaultSpawnLocation())
+                                                client.getEvents().exEvents.onLongTick.subscribe(facingBlockGetter);
                                             client.sayTo(`§b请使用木棍点击选择点2(长宽高在 ${minSize.toString()}-${maxSize.toString()})`);
                                             const p2 = new Vector3((await eventGetter(client.getEvents().exEvents.beforeItemUseOn,
                                                 (e) => e.itemStack.typeId === MinecraftItemTypes.Stick)).block);
-
+                                            //二次判断防止转空子
+                                            if (client.getDimension().id !== MinecraftDimensionTypes.Overworld) {
+                                                client.sayTo("§b只能在主世界创建领地");
+                                                return;
+                                            }
                                             client.getEvents().exEvents.onLongTick.unsubscribe(facingBlockGetter);
                                             client.magicSystem.deleteActionbarPass("facingBlockGetter");
-
+                                            
                                             const area = new ExBlockArea(p1, p2, true);
+                                            if (client.getDefaultSpawnLocation().distance(area.center()) <= 196) {
+                                                client.sayTo("§b领地中心应距离出生地196单位距离之外");
+                                                return;
+                                            }
                                             const width = area.getWidth();
                                             if ((client.territorySystem.territoryData!.getAreasByNearby(area.center(), 3).some(e => e[0].contains(area)))) {
                                                 client.sayTo("§b领地重叠，请换个位置")

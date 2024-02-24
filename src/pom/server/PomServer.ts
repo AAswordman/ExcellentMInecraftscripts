@@ -620,7 +620,7 @@ export default class PomServer extends ExGameServer {
         this.setting.initializeBoolean("chainMining", true);
         this.setting.initializeBoolean("nuclearBomb", true);
 
-        this.cache = new ExPropCache(world);
+        this.cache = new ExPropCache(this.getDynamicPropertyManager());
         this.looper = ExSystem.tickTask(() => {
             this.cache.save();
         });
