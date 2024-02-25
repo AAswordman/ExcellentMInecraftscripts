@@ -164,7 +164,7 @@ export default class ExClientEvents implements ExEventManager {
                             if (lastItem?.typeId !== nowItem?.typeId || (<Player>i[0]).selectedSlot !== lastItemCache?.[1]) {
                                 let res: ItemStack | undefined = nowItem;
                                 i[1].forEach((f) => {
-                                    res = res ?? <ItemStack | undefined>f(new ItemOnHandChangeEvent(lastItem, lastItemCache?.[1] ?? 0, res, (<Player>i[0]).selectedSlot, <Player>i[0]));
+                                    res = <ItemStack | undefined>f(new ItemOnHandChangeEvent(lastItem, lastItemCache?.[1] ?? 0, res, (<Player>i[0]).selectedSlot, <Player>i[0])) ?? res;
                                 });
                                 if (res !== undefined) {
                                     if(res.isWillBeRemoved){
