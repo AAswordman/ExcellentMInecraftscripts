@@ -67,8 +67,8 @@ export default class PomEnChantSystem extends GameController {
                 if (saveItem) {
                     if (item && item.amount === 1) {
                         PomEnChantSystem.blockTranslateData.delete(new Vector3(block).toString());
+                        const armor_pitch = [bag.equipmentOnHead,bag.equipmentOnChest,bag.equipmentOnLegs,bag.equipmentOnFeet];
                         this.setTimeout(() => {
-                            const armor_pitch = [bag.equipmentOnHead,bag.equipmentOnChest,bag.equipmentOnLegs,bag.equipmentOnFeet];
 
                             let exHandItem = item;
                             let exSaveItem = saveItem;
