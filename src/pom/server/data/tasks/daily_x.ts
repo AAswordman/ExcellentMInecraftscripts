@@ -228,7 +228,7 @@ export default function taskDaily_x(lang: langType):PomTaskJSON {
                 "conditions": [
                     {
                         "name": "觉醒末影龙",
-                        "typeId": MinecraftEntityTypes.EnderDragon,
+                        "typeId": "minecraft:ender_dragon",
                         "count": 1,
                         "type": "kill"
                     }

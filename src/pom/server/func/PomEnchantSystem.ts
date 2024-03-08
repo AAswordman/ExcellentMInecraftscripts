@@ -56,6 +56,7 @@ export default class PomEnChantSystem extends GameController {
             } else if (block.typeId === "wb:block_translate_book") {
                 e.cancel = true;
                 let bag = this.exPlayer.getBag();
+                const armor_pitch = [bag.equipmentOnHead,bag.equipmentOnChest,bag.equipmentOnLegs,bag.equipmentOnFeet];
                 const item = e.itemStack;
                 const saveItem = PomEnChantSystem.blockTranslateData.get(new Vector3(block).toString());
                 if (!saveItem) {
@@ -67,9 +68,7 @@ export default class PomEnChantSystem extends GameController {
                 if (saveItem) {
                     if (item && item.amount === 1) {
                         PomEnChantSystem.blockTranslateData.delete(new Vector3(block).toString());
-                        const armor_pitch = [bag.equipmentOnHead,bag.equipmentOnChest,bag.equipmentOnLegs,bag.equipmentOnFeet];
                         this.setTimeout(() => {
-
                             let exHandItem = item;
                             let exSaveItem = saveItem;
                             let d = exSaveItem.getComponentById("minecraft:durability")!.damage;

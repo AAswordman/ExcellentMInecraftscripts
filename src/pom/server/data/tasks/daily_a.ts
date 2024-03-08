@@ -100,19 +100,19 @@ export default function taskDaily_a(lang: langType):PomTaskJSON {
                 "conditions": [
                     {
                         "name": "僵尸",
-                        "typeId": MinecraftEntityTypes.Zombie,
+                        "typeId": "minecraft:zombie",
                         "count": 8,
                         "type": "kill"
                     },
                     {
                         "name": "苦力怕",
-                        "typeId": MinecraftEntityTypes.Creeper,
+                        "typeId": "minecraft:creeper",
                         "count": 2,
                         "type": "kill"
                     },
                     {
                         "name": "烈焰人",
-                        "typeId": MinecraftEntityTypes.Blaze,
+                        "typeId": "minecraft:blaze",
                         "count": 2,
                         "type": "kill"
                     }
@@ -150,19 +150,19 @@ export default function taskDaily_a(lang: langType):PomTaskJSON {
                 "conditions": [
                     {
                         "name": "猪",
-                        "typeId": MinecraftEntityTypes.Pig,
+                        "typeId": "minecraft:pig",
                         "count": 3,
                         "type": "kill"
                     },
                     {
                         "name": "牛",
-                        "typeId": MinecraftEntityTypes.Cow,
+                        "typeId": "minecraft:cow",
                         "count": 3,
                         "type": "kill"
                     },
                     {
                         "name": "羊",
-                        "typeId": MinecraftEntityTypes.Sheep,
+                        "typeId": "minecraft:sheep",
                         "count": 3,
                         "type": "kill"
                     }

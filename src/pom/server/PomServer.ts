@@ -578,11 +578,14 @@ export default class PomServer extends ExGameServer {
             if (cleanTimes === 11) {
                 if (this.setting.entityShowMsg) this.say("Prepare for entities cleaning...");
             } else if (cleanTimes === 10 || cleanTimes === 5) {
+                this.getExDimension(MinecraftDimensionTypes.theEnd).command.run(`scoreboard players set 清理时间 showlist ${cleanTimes}`);
                 if (this.setting.entityShowMsg) this.say(`Remaining ${cleanTimes}s for entities cleaning`);
             } else if (cleanTimes === 0) {
+                this.getExDimension(MinecraftDimensionTypes.theEnd).command.run(`scoreboard players set 清理时间 showlist -1`);
                 this.clearEntity();
                 this.entityCleanerLooper.stop();
             } else if (cleanTimes <= 3) {
+                this.getExDimension(MinecraftDimensionTypes.theEnd).command.run(`scoreboard players set 清理时间 showlist ${cleanTimes}`);
                 if (this.setting.entityShowMsg) this.say(`Remaining ${cleanTimes}s for entities cleaning`);
             }
             cleanTimes -= 1;
@@ -667,6 +670,13 @@ export default class PomServer extends ExGameServer {
                 if (!e || !e.typeId || e.typeId !== max[1]) return;
                 if (e.typeId === "minecraft:item" && e.getViewDirection().y !== 0) return;
                 if (e.typeId === "minecraft:item" && e.getComponent("minecraft:item")?.typeId === MinecraftItemTypes.ShulkerBox) return;
+                if (e.typeId === "minecraft:item" && e.getViewDirection().y === 0){
+                    e.runCommand('tag @s[name="Shulker Box"] add ShulkerBox')
+                    if (e.hasTag('ShulkerBox')) {
+                        return;
+                    }
+                }
+
                 //if (e.nameTag) return;
                 e.kill();
             });

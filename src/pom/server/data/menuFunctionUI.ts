@@ -29,7 +29,7 @@ import { eventGetter } from "../../../modules/exmc/server/events/EventHandle.js"
 import { MinecraftItemTypes } from "../../../modules/vanilla-data/lib/index.js";
 import { ExBlockArea } from "../../../modules/exmc/server/block/ExBlockArea.js";
 import { MinecraftDimensionTypes } from "../../../modules/vanilla-data/lib/index.js";
-
+import WorldCache from "../../../modules/exmc/server/storage/cache/WorldCache.js";
 // import { http } from '@minecraft/server-net';
 
 export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
@@ -787,6 +787,42 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 client.taskUI();
                                 return false;
                             }
+                        },
+                        {
+                            "type": "button",
+                            "msg": "兑换",
+                            "function": (client, ui) => {
+                                new ModalFormData().textField("输入你的兑换码", "阿巴阿巴阿巴巴巴")
+                                    .show(client.player)
+                                    .then(e => {
+                                        if (e.canceled)
+                                            return;
+                                        let cdk = String(e.formValues?.[0]);
+                                        // client.sayTo(`${cdk}`);
+                                        let cache = new WorldCache()
+                                        let award = cache.getNumber(cdk)
+                                        // client.sayTo(`${award}`);
+                                        if (award != undefined) {
+                                            if (!client.player.getDynamicProperty(`${cdk}`)) {
+                                                client.sayTo(`兑换成功`);
+                                                if (/^-?\d+$/.test(award.toString())) {
+                                                    client.player.setDynamicProperty(`${cdk}`, 1)
+                                                    client.data.gameExperience += Math.floor(award)
+                                                } else {
+                                                    client.player.setDynamicProperty(`${cdk}`, 1)
+                                                    client.player.runCommandAsync(`${award}`)
+                                                }
+                                            } else {
+                                                client.sayTo(`该兑换码已经用过了`);
+                                            }
+                                        } else {
+                                            client.sayTo(`兑换码错误`);
+                                        }
+                                    }).catch(e => {
+                                        ExErrorQueue.throwError(e);
+                                    });
+                                return false;
+                            }
                         }
                     ]
                 }
@@ -939,6 +975,35 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                                 client.sayTo(lang.menuUIMsgBailan74, i[0]);
                                             })
                                             .show(i[0]);
+                                    }, 0);
+                                    return false;
+                                }
+                            });
+                        }
+                        return arr;
+                    }
+                },
+                "gradeList": {
+                    "text": "等级排行榜",
+                    "page": (client, ui) => {
+                        let arr = <MenuUIAlertView<PomClient>[]>[
+                            {
+                                "type": "text_title",
+                                "msg": lang.menuUIMsgBailan33
+                            },
+                            {
+                                "type": "padding"
+                            }
+                        ]
+                        let players = client.getPlayersAndIds() ?? [];
+                        for (const i of players) {
+                            const p = ExPlayer.getInstance(i[0]);
+                            arr.push({
+                                "type": "button",
+                                "msg": `${p.nameTag} : ${(<PomClient>client.getClient(i[0])).data.gameGrade}`,
+                                "function": (client, ui) => {
+                                    client.setTimeout(() => {
+                                        client.sayTo((<PomClient>client.getClient(i[0])).data.gameGrade.toString())
                                     }, 0);
                                     return false;
                                 }
@@ -1244,6 +1309,32 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                             .show(client.player);
                                         return false;
                                     }
+                                },
+                                {
+                                    "type": "button",
+                                    "msg": "兑换奖励设置",
+                                    "function": (client, ui) => {
+                                        let cache = new WorldCache()
+                                        new ModalFormData()
+                                            .textField("输入需要设置的兑换码", "建议输入英文数字混合")
+                                            .title("兑换码设置")
+                                            .dropdown("兑换类型选择", [
+                                                "模组经验",
+                                                "指令"
+                                            ], 1)
+                                            .textField("如在此输入指令或模组经验值", "指令不用打/,经验直接输数值")
+                                            .show(client.player).then((e) => {
+                                                if (!e.canceled) {
+                                                    client.sayTo(`兑换码：${e.formValues?.[0]}`);
+                                                    client.sayTo(`奖励：${e.formValues?.[2]}`);
+                                                    cache.setString(`${e.formValues?.[0]}`, e.formValues?.[2] as string )
+                                                }
+                                            })
+                                            .catch((e) => {
+                                                ExErrorQueue.throwError(e);
+                                            });
+                                        return false;
+                                    }
                                 }
                             ];
                         } else {
@@ -1330,6 +1421,52 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 }
                             }
                             ];
+                        } else {
+                            return [{
+                                "type": "text",
+                                "msg": lang.menuUIMsgBailan83
+                            }];
+                        }
+                    }
+                },
+                "gradeOrg": { 
+                    "text": "等级管理",
+                    "page": (client, ui): MenuUIAlertView<PomClient>[] => {
+                        if (client.player.hasTag("owner")) {
+                            let arr = <MenuUIAlertView<PomClient>[]>[
+                                {
+                                    "msg": "在线玩家等级列表",
+                                    "type": "text_title"
+                                },
+                                {
+                                    "type": "padding"
+                                }
+                            ]
+                            let players = client.getPlayersAndIds() ?? [];
+                            for (const i of players) {
+                                const p = ExPlayer.getInstance(i[0]);
+                                arr.push({
+                                    "type": "button",
+                                    "msg": `${p.nameTag} : ${(<PomClient>client.getClient(i[0])).data.gameGrade}`,
+                                    "function": (client, ui): boolean => {
+                                        client.setTimeout(() => {
+                                            new ModalFormData()
+                                                .title("等级修改面板")
+                                                .slider("设置等级", 0, 99, 1, (<PomClient>client.getClient(i[0])).data.gameGrade)
+                                                .show(client.player).then((e) => {
+                                                    if (e.canceled)
+                                                        return;
+                                                    (<PomClient>client.getClient(i[0])).data.gameGrade =  Number(e.formValues?.[0] ?? 0);
+                                                })
+                                                .catch((e) => {
+                                                    ExErrorQueue.throwError(e);
+                                                });
+                                        }, 0);
+                                        return false;
+                                    }
+                                });
+                            }
+                            return arr;
                         } else {
                             return [{
                                 "type": "text",

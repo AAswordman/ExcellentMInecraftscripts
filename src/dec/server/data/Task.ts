@@ -2,10 +2,12 @@ import { Player, ItemStack } from "@minecraft/server";
 import { ActionFormData } from "@minecraft/server-ui";
 import ExPlayer from "../../../modules/exmc/server/entity/ExPlayer.js";
 import DecClient from "../DecClient.js";
+import PomClient from "../../../pom/server/PomClient.js";
 
 export class DecTask {
     id: string;
     commands?: string[];
+    xps?: number | string;
     conditions?: ((ep: ExPlayer) => boolean);
     respond?: ((ep: ExPlayer) => void);
     constructor(id: string, xp_change: number | string, condition: ((ep: ExPlayer) => boolean), respond: ((ep: ExPlayer) => void))
@@ -22,9 +24,9 @@ export class DecTask {
                     "tellraw @s[tag=!task_complete] { \"rawtext\" : [ { \"translate\" : \"text.dec:task_fail.name\" } ] }",
                     "loot give @s[tag=task_complete] loot \"tasks/" + id + "\"",
                     "xp " + xp_change.toString() + " @s[tag=task_complete]",
-                    "replaceitem entity @s[tag=task_complete] slot.weapon.mainhand 0 air",
-                    "tag @s remove task_complete"
+                    "replaceitem entity @s[tag=task_complete] slot.weapon.mainhand 0 air"
                 );
+                this.xps = xp_change;
             }
         } else if (respond && !(respond instanceof Array)) {
             this.conditions = condition;
@@ -39,7 +41,30 @@ export class DecTask {
         let body = "text.dec:task_" + this.id + "_body.name";
         return body;
     }
-    detect(ep: ExPlayer) {
+
+    detect(c: PomClient, lor: any) {
+        let item = c.exPlayer.getBag().itemOnMainHand;
+        if (!item || lor.toString() !== item.getLore().toString()) {
+            c.exPlayer.command.run("tellraw @s { \"rawtext\" : [ { \"text\" : \"咳咳咳\" } ] }")
+            return;
+        }
+        if (this.commands) {
+            c.exPlayer.command.run(this.commands);
+            c.setTimeout(() => {
+                if (c.exPlayer.hasTag('task_complete')) {
+                    c.data.gameExperience += Number(this.xps);
+                    c.exPlayer.command.run("tag @s remove task_complete");
+                }
+            }, 800);
+        }
+        if (this.conditions && this.respond) {
+            if (this.conditions(c.exPlayer)) {
+                this.respond(c.exPlayer);
+            }
+        }
+    }
+
+    dec_detect(ep: ExPlayer) {
         if (this.commands) {
             ep.command.run(this.commands);
         }
@@ -551,7 +576,7 @@ export function taskUiChoose(p: DecClient, id: string) {
         .body(DecTasks[index].body())
         .show(p.player).then(s => {
             if (s.selection == 0) {
-                DecTasks[index].detect(p.exPlayer);
+                DecTasks[index].dec_detect(p.exPlayer);
             }
         });
 }
