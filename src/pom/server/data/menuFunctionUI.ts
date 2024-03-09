@@ -700,7 +700,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                             const facingBlockGetter = () => {
                                                 const vec = new Vector3(client.player.getBlockFromViewDirection({
                                                     maxDistance: 6
-                                                })?.block ?? { x: 0, y: 0, z: 0 });
+                                                })?.block ?? { x: 0, y: 0, z: 0 }).floor();
                                                 const area = new ExBlockArea(p1, vec, true);
                                                 const width = area.getWidth();
                                                 actions[0] = "面向方块坐标: " + vec.toString();
@@ -799,7 +799,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                             return;
                                         let cdk = String(e.formValues?.[0]);
                                         // client.sayTo(`${cdk}`);
-                                        let cache = new WorldCache()
+                                        let cache = new WorldCache();
                                         let award = cache.getNumber(cdk)
                                         // client.sayTo(`${award}`);
                                         if (award != undefined) {

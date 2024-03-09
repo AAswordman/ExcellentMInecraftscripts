@@ -7,12 +7,12 @@ import PomClient from "../../../pom/server/PomClient.js";
 export class DecTask {
     id: string;
     commands?: string[];
-    xps?: number | string;
+    xps: number;
     conditions?: ((ep: ExPlayer) => boolean);
     respond?: ((ep: ExPlayer) => void);
-    constructor(id: string, xp_change: number | string, condition: ((ep: ExPlayer) => boolean), respond: ((ep: ExPlayer) => void))
-    constructor(id: string, xp_change: number | string, condition: string[], respond?: string[])
-    constructor(id: string, xp_change: number | string, condition: string[] | ((ep: ExPlayer) => boolean), respond?: string[] | ((ep: ExPlayer) => void)) {
+    constructor(id: string, xp_change: number, condition: ((ep: ExPlayer) => boolean), respond: ((ep: ExPlayer) => void))
+    constructor(id: string, xp_change: number, condition: string[], respond?: string[])
+    constructor(id: string, xp_change: number, condition: string[] | ((ep: ExPlayer) => boolean), respond?: string[] | ((ep: ExPlayer) => void)) {
         this.id = id;
         if (condition instanceof Array) {
             this.commands = condition;
@@ -26,12 +26,12 @@ export class DecTask {
                     "xp " + xp_change.toString() + " @s[tag=task_complete]",
                     "replaceitem entity @s[tag=task_complete] slot.weapon.mainhand 0 air"
                 );
-                this.xps = xp_change;
             }
         } else if (respond && !(respond instanceof Array)) {
             this.conditions = condition;
             this.respond = respond;
         }
+        this.xps = xp_change;
     }
     title() {
         let title = "text.dec:task_" + this.id + "_title.name";
@@ -42,18 +42,18 @@ export class DecTask {
         return body;
     }
 
-    detect(c: PomClient, lor: any) {
+    detect(c: PomClient, lor: string[]) {
         let item = c.exPlayer.getBag().itemOnMainHand;
         if (!item || lor.toString() !== item.getLore().toString()) {
-            c.exPlayer.command.run("tellraw @s { \"rawtext\" : [ { \"text\" : \"咳咳咳\" } ] }")
+            c.sayTo("阿巴阿巴");
             return;
         }
         if (this.commands) {
             c.exPlayer.command.run(this.commands);
             c.setTimeout(() => {
                 if (c.exPlayer.hasTag('task_complete')) {
-                    c.data.gameExperience += Number(this.xps);
-                    c.exPlayer.command.run("tag @s remove task_complete");
+                    c.data.gameExperience += this.xps;
+                    c.exPlayer.removeTag("task_complete");
                 }
             }, 800);
         }

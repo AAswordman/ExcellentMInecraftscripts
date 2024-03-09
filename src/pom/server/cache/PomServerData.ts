@@ -10,4 +10,8 @@ export default class PomServerData {
             acceptList: number[];
         }
     };
+    redemptionCode!: {
+        [id: string]: number
+    };
+
 }

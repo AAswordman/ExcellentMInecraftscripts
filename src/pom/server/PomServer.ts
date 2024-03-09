@@ -575,19 +575,21 @@ export default class PomServer extends ExGameServer {
 
         let cleanTimes = 11;
         this.entityCleanerLooper = new TimeLoopTask(this.getEvents(), () => {
+            for (let c of this.getClients()) {
+                (c as PomClient).magicSystem.setActionbarByPass("cleaner", ["实体清理: " + cleanTimes]);
+            }
             if (cleanTimes === 11) {
                 if (this.setting.entityShowMsg) this.say("Prepare for entities cleaning...");
-            } else if (cleanTimes === 10 || cleanTimes === 5) {
-                this.getExDimension(MinecraftDimensionTypes.theEnd).command.run(`scoreboard players set 清理时间 showlist ${cleanTimes}`);
-                if (this.setting.entityShowMsg) this.say(`Remaining ${cleanTimes}s for entities cleaning`);
             } else if (cleanTimes === 0) {
-                this.getExDimension(MinecraftDimensionTypes.theEnd).command.run(`scoreboard players set 清理时间 showlist -1`);
                 this.clearEntity();
+                for (let c of this.getClients()) {
+                    (c as PomClient).magicSystem.deleteActionbarPass("cleaner");
+                }
                 this.entityCleanerLooper.stop();
             } else if (cleanTimes <= 3) {
-                this.getExDimension(MinecraftDimensionTypes.theEnd).command.run(`scoreboard players set 清理时间 showlist ${cleanTimes}`);
                 if (this.setting.entityShowMsg) this.say(`Remaining ${cleanTimes}s for entities cleaning`);
             }
+
             cleanTimes -= 1;
         }).delay(1000);
         this.upDateEntityCleaner();
@@ -669,13 +671,13 @@ export default class PomServer extends ExGameServer {
             entities.forEach(e => {
                 if (!e || !e.typeId || e.typeId !== max[1]) return;
                 if (e.typeId === "minecraft:item" && e.getViewDirection().y !== 0) return;
-                if (e.typeId === "minecraft:item" && e.getComponent("minecraft:item")?.typeId === MinecraftItemTypes.ShulkerBox) return;
-                if (e.typeId === "minecraft:item" && e.getViewDirection().y === 0){
-                    e.runCommand('tag @s[name="Shulker Box"] add ShulkerBox')
-                    if (e.hasTag('ShulkerBox')) {
-                        return;
-                    }
-                }
+                if (e.typeId === "minecraft:item" && e.getComponent("minecraft:item")?.itemStack.typeId === MinecraftItemTypes.ShulkerBox) return;
+                // if (e.typeId === "minecraft:item" && e.getViewDirection().y === 0){
+                //     e.runCommand('tag @s[name="Shulker Box"] add ShulkerBox')
+                //     if (e.hasTag('ShulkerBox')) {
+                //         return;
+                //     }
+                // }
 
                 //if (e.nameTag) return;
                 e.kill();

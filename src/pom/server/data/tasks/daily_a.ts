@@ -112,7 +112,7 @@ export default function taskDaily_a(lang: langType):PomTaskJSON {
                     },
                     {
                         "name": "烈焰人",
-                        "typeId": "minecraft:blaze",
+                        "typeId": MinecraftEntityTypes.Blaze,
                         "count": 2,
                         "type": "kill"
                     }
@@ -121,25 +121,6 @@ export default function taskDaily_a(lang: langType):PomTaskJSON {
                     {
                         "name": "模组经验",
                         "count": 250,
-                        "unit": "点",
-                        "type": "integral"
-                    }
-                ]
-            },
-            {
-                "name": "初级升级台杀手",
-                "conditions": [
-                    {
-                        "name": "初级升级台",
-                        "typeId": "wb:station_upgrade_a",
-                        "count": 1,
-                        "type": "kill"
-                    }
-                ],
-                "rewards": [
-                    {
-                        "name": "模组经验",
-                        "count": 700,
                         "unit": "点",
                         "type": "integral"
                     }
