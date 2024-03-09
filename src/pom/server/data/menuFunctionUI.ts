@@ -1412,6 +1412,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                             if (!e.canceled && e.formValues) {
                                                 client.data.gameGrade = Number(e.formValues?.[0] ?? 0);
                                                 client.data.gameExperience = Number(e.formValues?.[1] ?? 0);
+                                                client.magicSystem.upDateGrade();
                                             }
                                         })
                                         .catch((e) => {
@@ -1457,6 +1458,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                                     if (e.canceled)
                                                         return;
                                                     (<PomClient>client.getClient(i[0])).data.gameGrade =  Number(e.formValues?.[0] ?? 0);
+                                                    (<PomClient>client.getClient(i[0])).magicSystem.upDateGrade();
                                                 })
                                                 .catch((e) => {
                                                     ExErrorQueue.throwError(e);
