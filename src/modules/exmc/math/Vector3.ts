@@ -313,7 +313,7 @@ export default class Vector3 {
     public mul(n: Matrix4): Vector3;
     public mul(n: IVector3 | Matrix4) {
         if (n instanceof Matrix4) {
-            return n.transformVector(this);
+            return n.rmulVector(this);
         } else {
             return n.x * this.x + n.y * this.y + n.z * this.z;
         }

@@ -61,19 +61,21 @@ export default class Matrix3 {
         return this;
     }
 
-    public mul(matrix: Matrix3): Matrix3 {
-        let v00 = this.val[0] * matrix.val[0] + this.val[1] * matrix.val[3] + this.val[2] * matrix.val[6];
-        let v01 = this.val[0] * matrix.val[1] + this.val[1] * matrix.val[4] + this.val[2] * matrix.val[7];
-        let v02 = this.val[0] * matrix.val[2] + this.val[1] * matrix.val[5] + this.val[2] * matrix.val[8];
+    public lmul(matrix: Matrix3): Matrix3 {
+        // 计算 matrix 与 this 相乘的结果并赋值给 this
+        let v00 = matrix.val[0] * this.val[0] + matrix.val[1] * this.val[3] + matrix.val[2] * this.val[6];
+        let v01 = matrix.val[0] * this.val[1] + matrix.val[1] * this.val[4] + matrix.val[2] * this.val[7];
+        let v02 = matrix.val[0] * this.val[2] + matrix.val[1] * this.val[5] + matrix.val[2] * this.val[8];
 
-        let v10 = this.val[3] * matrix.val[0] + this.val[4] * matrix.val[3] + this.val[5] * matrix.val[6];
-        let v11 = this.val[3] * matrix.val[1] + this.val[4] * matrix.val[4] + this.val[5] * matrix.val[7];
-        let v12 = this.val[3] * matrix.val[2] + this.val[4] * matrix.val[5] + this.val[5] * matrix.val[8];
+        let v10 = matrix.val[3] * this.val[0] + matrix.val[4] * this.val[3] + matrix.val[5] * this.val[6];
+        let v11 = matrix.val[3] * this.val[1] + matrix.val[4] * this.val[4] + matrix.val[5] * this.val[7];
+        let v12 = matrix.val[3] * this.val[2] + matrix.val[4] * this.val[5] + matrix.val[5] * this.val[8];
 
-        let v20 = this.val[6] * matrix.val[0] + this.val[7] * matrix.val[3] + this.val[8] * matrix.val[6];
-        let v21 = this.val[6] * matrix.val[1] + this.val[7] * matrix.val[4] + this.val[8] * matrix.val[7];
-        let v22 = this.val[6] * matrix.val[2] + this.val[7] * matrix.val[5] + this.val[8] * matrix.val[8];
+        let v20 = matrix.val[6] * this.val[0] + matrix.val[7] * this.val[3] + matrix.val[8] * this.val[6];
+        let v21 = matrix.val[6] * this.val[1] + matrix.val[7] * this.val[4] + matrix.val[8] * this.val[7];
+        let v22 = matrix.val[6] * this.val[2] + matrix.val[7] * this.val[5] + matrix.val[8] * this.val[8];
 
+        // 将计算得到的新矩阵元素赋值给当前矩阵
         this.val[0] = v00;
         this.val[1] = v01;
         this.val[2] = v02;
@@ -83,6 +85,7 @@ export default class Matrix3 {
         this.val[6] = v20;
         this.val[7] = v21;
         this.val[8] = v22;
+
         return this;
     }
 

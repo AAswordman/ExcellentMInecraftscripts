@@ -50,14 +50,14 @@ export class ExBlockArea {
     }
 
     turnUp() {
-        this.setMatrix4(this.mat.mul(new Matrix4(
+        this.setMatrix4(this.mat.lmul(new Matrix4(
             1, 0, 0, 0,
             0, 0, -1, 0,
             0, 1, 0, 0,
             0, 0, 0, 1)));
     }
     turnRight() {
-        this.setMatrix4(this.mat = this.mat.mul(new Matrix4(
+        this.setMatrix4(this.mat = this.mat.lmul(new Matrix4(
             0, 0, -1, 0,
             0, 1, 0, 0,
             1, 0, 0, 0,
@@ -65,7 +65,7 @@ export class ExBlockArea {
         )));
     }
     turnFrontClockwise() {
-        this.setMatrix4(this.mat.mul(new Matrix4(
+        this.setMatrix4(this.mat.lmul(new Matrix4(
             0, -1, 0, 0,
             1, 0, 0, 0,
             0, 0, 1, 0,

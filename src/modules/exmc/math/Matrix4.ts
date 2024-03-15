@@ -173,7 +173,7 @@ export default class Matrix4 {
        */
     public translate(x: number, y: number, z: number): Matrix4 {
         const translationMatrix = new Matrix4().setTranslation(x, y, z);
-        return this.mul(translationMatrix);
+        return this.lmul(translationMatrix);
     }
     /**
       * Rotates the matrix around the x-axis.
@@ -182,7 +182,7 @@ export default class Matrix4 {
       */
     public rotateX(angle: number): Matrix4 {
         const rotationMatrix = new Matrix4().setRotationX(angle);
-        return this.mul(rotationMatrix);
+        return this.lmul(rotationMatrix);
     }
     /**
        * Rotates the matrix around the y-axis.
@@ -191,7 +191,7 @@ export default class Matrix4 {
        */
     public rotateY(angle: number): Matrix4 {
         const rotationMatrix = new Matrix4().setRotationY(angle);
-        return this.mul(rotationMatrix);
+        return this.lmul(rotationMatrix);
     }
 
     /**
@@ -201,7 +201,7 @@ export default class Matrix4 {
        */
     public rotateZ(angle: number): Matrix4 {
         const rotationMatrix = new Matrix4().setRotationZ(angle);
-        return this.mul(rotationMatrix);
+        return this.lmul(rotationMatrix);
     }
 
     /**
@@ -213,28 +213,28 @@ export default class Matrix4 {
        */
     public scl(x: number, y: number, z: number): Matrix4 {
         const scaleMatrix = new Matrix4().setScale(x, y, z);
-        return this.mul(scaleMatrix);
+        return this.lmul(scaleMatrix);
     }
     /**
-       * Multiplies this matrix with another matrix.
+       * Multiplies this matrix with another matrix.(this * right)
        * @param {Matrix4} matrix - The matrix to multiply with.
        * @returns {Matrix4} The modified matrix.
        */
-    public mul(matrix: Matrix4): Matrix4 {
+    public rmul(matrix: Matrix4): Matrix4 {
         const result = new Matrix4();
         const a = this.val;
         const b = matrix.val;
         const out = result.val;
 
-        const a11 = a[0], a12 = a[4], a13 = a[8], a14 = a[12];
-        const a21 = a[1], a22 = a[5], a23 = a[9], a24 = a[13];
-        const a31 = a[2], a32 = a[6], a33 = a[10], a34 = a[14];
-        const a41 = a[3], a42 = a[7], a43 = a[11], a44 = a[15];
+        const a11 = a[0], a12 = a[1], a13 = a[2], a14 = a[3];
+        const a21 = a[4], a22 = a[5], a23 = a[6], a24 = a[7];
+        const a31 = a[8], a32 = a[9], a33 = a[10], a34 = a[11];
+        const a41 = a[12], a42 = a[13], a43 = a[14], a44 = a[15];
 
-        const b11 = b[0], b12 = b[4], b13 = b[8], b14 = b[12];
-        const b21 = b[1], b22 = b[5], b23 = b[9], b24 = b[13];
-        const b31 = b[2], b32 = b[6], b33 = b[10], b34 = b[14];
-        const b41 = b[3], b42 = b[7], b43 = b[11], b44 = b[15];
+        const b11 = b[0], b12 = b[1], b13 = b[2], b14 = b[3];
+        const b21 = b[4], b22 = b[5], b23 = b[6], b24 = b[7];
+        const b31 = b[8], b32 = b[9], b33 = b[10], b34 = b[11];
+        const b41 = b[12], b42 = b[13], b43 = b[14], b44 = b[15];
 
         out[0] = a11 * b11 + a12 * b21 + a13 * b31 + a14 * b41;
         out[4] = a11 * b12 + a12 * b22 + a13 * b32 + a14 * b42;
@@ -260,20 +260,64 @@ export default class Matrix4 {
         return this;
     }
     /**
+       * Multiplies this matrix with another matrix.(left * this)
+       * @param {Matrix4} matrix - The matrix to multiply with.
+       * @returns {Matrix4} The modified matrix.
+       */
+    public lmul(matrix: Matrix4): Matrix4 {
+        const result = new Matrix4();
+        const a = this.val;
+        const b = matrix.val;
+        const out = result.val;
+
+        const a11 = a[0], a12 = a[1], a13 = a[2], a14 = a[3];
+        const a21 = a[4], a22 = a[5], a23 = a[6], a24 = a[7];
+        const a31 = a[8], a32 = a[9], a33 = a[10], a34 = a[11];
+        const a41 = a[12], a42 = a[13], a43 = a[14], a44 = a[15];
+
+        const b11 = b[0], b12 = b[1], b13 = b[2], b14 = b[3];
+        const b21 = b[4], b22 = b[5], b23 = b[6], b24 = b[7];
+        const b31 = b[8], b32 = b[9], b33 = b[10], b34 = b[11];
+        const b41 = b[12], b42 = b[13], b43 = b[14], b44 = b[15];
+
+        out[0] = b11 * a11 + b21 * a12 + b31 * a13 + b41 * a14;
+        out[4] = b11 * a21 + b21 * a22 + b31 * a23 + b41 * a24;
+        out[8] = b11 * a31 + b21 * a32 + b31 * a33 + b41 * a34;
+        out[12] = b11 * a41 + b21 * a42 + b31 * a43 + b41 * a44;
+
+        out[1] = b12 * a11 + b22 * a12 + b32 * a13 + b42 * a14;
+        out[5] = b12 * a21 + b22 * a22 + b32 * a23 + b42 * a24;
+        out[9] = b12 * a31 + b22 * a32 + b32 * a33 + b42 * a34;
+        out[13] = b12 * a41 + b22 * a42 + b32 * a43 + b42 * a44;
+
+        out[2] = b13 * a11 + b23 * a12 + b33 * a13 + b43 * a14;
+        out[6] = b13 * a21 + b23 * a22 + b33 * a23 + b43 * a24;
+        out[10] = b13 * a31 + b23 * a32 + b33 * a33 + b43 * a34;
+        out[14] = b13 * a41 + b23 * a42 + b33 * a43 + b43 * a44;
+
+        out[3] = b14 * a11 + b24 * a12 + b34 * a13 + b44 * a14;
+        out[7] = b14 * a21 + b24 * a22 + b34 * a23 + b44 * a24;
+        out[11] = b14 * a31 + b24 * a32 + b34 * a33 + b44 * a34;
+        out[15] = b14 * a41 + b24 * a42 + b34 * a43 + b44 * a44;
+
+        this.val = out;
+        return this;
+    }
+    /**
       * Transforms a vector by this matrix.
       * @param {Vector3} vector - The vector to transform.
       * @returns {Vector3} The transformed vector.
       */
-    public transformVector(vector: Vector3): Vector3 {
+    public rmulVector(vector: Vector3): Vector3 {
         const x = vector.x;
         const y = vector.y;
         const z = vector.z;
 
         const m = this.val;
 
-        const newX = m[0] * x + m[4] * y + m[8] * z + m[12];
-        const newY = m[1] * x + m[5] * y + m[9] * z + m[13];
-        const newZ = m[2] * x + m[6] * y + m[10] * z + m[14];
+        const newX = m[0] * x + m[1] * y + m[2] * z + m[3];
+        const newY = m[4] * x + m[5] * y + m[6] * z + m[7];
+        const newZ = m[8] * x + m[9] * y + m[10] * z + m[11];
 
         return vector.set(newX, newY, newZ);
     }
