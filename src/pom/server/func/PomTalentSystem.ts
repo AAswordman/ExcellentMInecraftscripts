@@ -261,7 +261,12 @@ export default class PomTalentSystem extends GameController {
         let lastResist = 0;
         //玩家减伤
         this.getEvents().exEvents.afterPlayerHurt.subscribe((e) => {
-            if(this.client.magicSystem.isDied) return;
+            if(this.client.magicSystem.isDied) {
+                this.setTimeout(() => {
+                    this.client.magicSystem.isDied = false;
+                }, 2500);
+                return;
+            };
             if(this.client.magicSystem.isProtected) return;
             if (e.damage > 10000000 || e.damage < 0) return;
             // console.warn("hurt"+e.damage,"now"+this.exPlayer.health);
@@ -314,7 +319,18 @@ export default class PomTalentSystem extends GameController {
             if (this.client.magicSystem.gameHealth - damage + add <= 0) {
                 const clnE = { ...e.damageSource };
                 ExGame.run(() => {
-
+                    try {
+                        let bag = this.exPlayer.getBag();
+                        const armor_pitch = [bag.equipmentOnHead, bag.equipmentOnChest, bag.equipmentOnLegs, bag.equipmentOnFeet];
+                        const item_main = bag.itemOnMainHand;
+                        const item_off = bag.itemOnOffHand;
+                        if (item_main?.typeId == "minecraft:totem_of_undying" || item_off?.typeId == "minecraft:totem_of_undying") {
+                            this.client.sayTo("totm")
+                            this.setTimeout(() => {
+                                [bag.equipmentOnHead, bag.equipmentOnChest, bag.equipmentOnLegs, bag.equipmentOnFeet] = armor_pitch;
+                            }, 100);
+                        }
+                    }catch(e){ }
                     if (clnE.cause === EntityDamageCause.projectile) {
                         if (clnE.damagingEntity) {
                             this.player.applyDamage(99999999, {
