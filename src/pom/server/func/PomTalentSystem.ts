@@ -19,6 +19,7 @@ import PomOccupationSkillTrack from '../entities/PomOccupationSkillTrack.js';
 import damageShow from "../helper/damageShow.js";
 import GameController from "./GameController.js";
 import Vector3 from '../../../modules/exmc/math/Vector3.js';
+import { MinecraftItemTypes } from '../../../modules/vanilla-data/lib/index.js';
 
 export default class PomTalentSystem extends GameController {
     strikeSkill = true;
@@ -261,13 +262,13 @@ export default class PomTalentSystem extends GameController {
         let lastResist = 0;
         //玩家减伤
         this.getEvents().exEvents.afterPlayerHurt.subscribe((e) => {
-            if(this.client.magicSystem.isDied) {
+            if (this.client.magicSystem.isDied) {
                 this.setTimeout(() => {
                     this.client.magicSystem.isDied = false;
                 }, 2500);
                 return;
             };
-            if(this.client.magicSystem.isProtected) return;
+            if (this.client.magicSystem.isProtected) return;
             if (e.damage > 10000000 || e.damage < 0) return;
             // console.warn("hurt"+e.damage,"now"+this.exPlayer.health);
             let damage = (this.exPlayer.getPreRemoveHealth() ?? 0) + e.damage;
@@ -324,13 +325,12 @@ export default class PomTalentSystem extends GameController {
                         const armor_pitch = [bag.equipmentOnHead, bag.equipmentOnChest, bag.equipmentOnLegs, bag.equipmentOnFeet];
                         const item_main = bag.itemOnMainHand;
                         const item_off = bag.itemOnOffHand;
-                        if (item_main?.typeId == "minecraft:totem_of_undying" || item_off?.typeId == "minecraft:totem_of_undying") {
-                            this.client.sayTo("totm")
+                        if (item_main?.typeId == MinecraftItemTypes.TotemOfUndying || item_off?.typeId ==  MinecraftItemTypes.TotemOfUndying) {
                             this.setTimeout(() => {
                                 [bag.equipmentOnHead, bag.equipmentOnChest, bag.equipmentOnLegs, bag.equipmentOnFeet] = armor_pitch;
                             }, 100);
                         }
-                    }catch(e){ }
+                    } catch (e) { }
                     if (clnE.cause === EntityDamageCause.projectile) {
                         if (clnE.damagingEntity) {
                             this.player.applyDamage(99999999, {
