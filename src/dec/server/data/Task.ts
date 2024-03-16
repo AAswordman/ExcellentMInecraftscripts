@@ -499,7 +499,7 @@ export let DecTasks = [
         "execute if entity @s[hasitem={item=cooked_cod,quantity=72..}] run tag @s add task_complete",
         "execute if entity @s[tag=task_complete] run clear @s cooked_cod 0 72"
     ]),
-    new DecTask("104", 1542, [
+    new DecTask("105", 1542, [
         "execute if entity @s[hasitem={item=cooked_porkchop,quantity=71..}] run tag @s add task_complete",
         "execute if entity @s[tag=task_complete] run clear @s cooked_porkchop 0 71"
     ]),
