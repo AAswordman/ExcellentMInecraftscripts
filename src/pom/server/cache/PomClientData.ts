@@ -46,6 +46,10 @@ export default class PomClientData {
 
     }
 
+    redemptionCode!:{
+        [x:string]:number
+    }
+
     uiCustomSetting!: {
         topLeftMessageBarLayer1: number;
         topLeftMessageBarLayer2: number;

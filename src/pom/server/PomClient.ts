@@ -110,6 +110,9 @@ export default class PomClient extends ExGameClient<PomTransmission> {
                 ]
             }
         }
+        if(!this.data.redemptionCode){
+            this.data.redemptionCode = {};
+        }
         if (!this.data.uiCustomSetting) {
             this.data.uiCustomSetting = {
                 topLeftMessageBarStyle: 0,

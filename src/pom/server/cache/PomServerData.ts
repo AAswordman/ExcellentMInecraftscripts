@@ -11,7 +11,7 @@ export default class PomServerData {
         }
     };
     redemptionCode!: {
-        [id: string]: number
+        [id: string]: string
     };
 
 }

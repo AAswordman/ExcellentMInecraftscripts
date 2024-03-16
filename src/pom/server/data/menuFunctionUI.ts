@@ -792,25 +792,22 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                             "type": "button",
                             "msg": "兑换",
                             "function": (client, ui) => {
-                                new ModalFormData().textField("输入你的兑换码", "阿巴阿巴阿巴巴巴")
+                                new ModalFormData().textField("输入你的兑换码", "input")
                                     .show(client.player)
                                     .then(e => {
                                         if (e.canceled)
                                             return;
                                         let cdk = String(e.formValues?.[0]);
-                                        // client.sayTo(`${cdk}`);
-                                        let cache = new WorldCache();
-                                        let award = cache.getNumber(cdk)
-                                        // client.sayTo(`${award}`);
+                                        let cache = client.getGlobalData().redemptionCode;
+                                        let award = cache[cdk];
                                         if (award != undefined) {
-                                            if (!client.player.getDynamicProperty(`${cdk}`)) {
+                                            if (!client.data.redemptionCode[cdk]) {
                                                 client.sayTo(`兑换成功`);
+                                                client.data.redemptionCode[cdk] = 1
                                                 if (/^-?\d+$/.test(award.toString())) {
-                                                    client.player.setDynamicProperty(`${cdk}`, 1)
-                                                    client.data.gameExperience += Math.floor(award)
+                                                    client.data.gameExperience += Math.floor(parseInt(award))
                                                 } else {
-                                                    client.player.setDynamicProperty(`${cdk}`, 1)
-                                                    client.player.runCommandAsync(`${award}`)
+                                                    client.exPlayer.command.run(`${award}`)
                                                 }
                                             } else {
                                                 client.sayTo(`该兑换码已经用过了`);
@@ -983,35 +980,6 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                         return arr;
                     }
                 },
-                "gradeList": {
-                    "text": "等级排行榜",
-                    "page": (client, ui) => {
-                        let arr = <MenuUIAlertView<PomClient>[]>[
-                            {
-                                "type": "text_title",
-                                "msg": lang.menuUIMsgBailan33
-                            },
-                            {
-                                "type": "padding"
-                            }
-                        ]
-                        let players = client.getPlayersAndIds() ?? [];
-                        for (const i of players) {
-                            const p = ExPlayer.getInstance(i[0]);
-                            arr.push({
-                                "type": "button",
-                                "msg": `${p.nameTag} : ${(<PomClient>client.getClient(i[0])).data.gameGrade}`,
-                                "function": (client, ui) => {
-                                    client.setTimeout(() => {
-                                        client.sayTo((<PomClient>client.getClient(i[0])).data.gameGrade.toString())
-                                    }, 0);
-                                    return false;
-                                }
-                            });
-                        }
-                        return arr;
-                    }
-                },
                 "refusedlist": {
                     "text": "交往名单",
                     "page": function (client, ui) {
@@ -1078,6 +1046,29 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                     client.territorySystem.updateGlobalList();
                                     return true;
                                 }
+                            });
+                        }
+                        return arr;
+                    }
+                },
+                "gradeList": {
+                    "text": "排行榜",
+                    "page": (client, ui) => {
+                        let arr = <MenuUIAlertView<PomClient>[]>[
+                            {
+                                "type": "text_title",
+                                "msg": "等级排行榜"
+                            },
+                            {
+                                "type": "padding"
+                            }
+                        ]
+                        let players = client.getPlayersAndIds() ?? [];
+                        for (const i of players) {
+                            const p = ExPlayer.getInstance(i[0]);
+                            arr.push({
+                                "type": "text",
+                                "msg": `${p.nameTag} : ${(<PomClient>client.getClient(i[0])).data.gameGrade}`
                             });
                         }
                         return arr;
@@ -1314,20 +1305,20 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                     "type": "button",
                                     "msg": "兑换奖励设置",
                                     "function": (client, ui) => {
-                                        let cache = new WorldCache()
+                                        let cache = client.getGlobalData().redemptionCode;
                                         new ModalFormData()
+                                        .title("兑换码设置")
                                             .textField("输入需要设置的兑换码", "建议输入英文数字混合")
-                                            .title("兑换码设置")
                                             .dropdown("兑换类型选择", [
                                                 "模组经验",
                                                 "指令"
                                             ], 1)
                                             .textField("如在此输入指令或模组经验值", "指令不用打/,经验直接输数值")
                                             .show(client.player).then((e) => {
-                                                if (!e.canceled) {
-                                                    client.sayTo(`兑换码：${e.formValues?.[0]}`);
-                                                    client.sayTo(`奖励：${e.formValues?.[2]}`);
-                                                    cache.setString(`${e.formValues?.[0]}`, e.formValues?.[2] as string )
+                                                if (!e.canceled && e.formValues) {
+                                                    client.sayTo(`兑换码：${e.formValues[0]}`);
+                                                    client.sayTo(`奖励：${e.formValues[2]}`);
+                                                    cache[e.formValues[0] as string] = e.formValues[2] as string;
                                                 }
                                             })
                                             .catch((e) => {

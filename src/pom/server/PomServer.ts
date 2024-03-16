@@ -639,6 +639,9 @@ export default class PomServer extends ExGameServer {
         if (!this.data.socialListGlobalMap) {
             this.data.socialListGlobalMap = {}
         }
+        if (!this.data.redemptionCode) {
+            this.data.redemptionCode = {}
+        }
 
         // console.warn(JSON.stringify(this.data));
     }
