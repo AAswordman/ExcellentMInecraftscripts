@@ -14,4 +14,8 @@ export default class PomServerData {
         [id: string]: string
     };
 
+    entityCleanerSetting!: {
+        acceptListById: { [name: string]: number },
+        acceptListByTypeId: { [name: string]: number }
+    }
 }

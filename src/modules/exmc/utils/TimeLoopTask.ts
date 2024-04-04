@@ -2,52 +2,56 @@
 import ExEventManager from "../interface/ExEventManager.js";
 import SetTimeOutSupport from "../interface/SetTimeOutSupport.js";
 import { TickEvent } from "../server/events/events.js";
+import Random from "./Random.js";
 
 export default class TimeLoopTask {
     timeOut: ExEventManager;
     func ?: (e: TickEvent) => void;
     getDelay() {
-        return this.time;
+        return this.targetDelay;
     }
 
     looper: () => void;
-    time: number = 1000;
+    targetDelay: number = 1000;
     constructor(timeOut: ExEventManager, looper: () => void) {
         this.timeOut = timeOut;
         this.looper = looper;
     }
     delay(time: number) {
-        this.time = time;
+        this.targetDelay = time;
         return this;
     }
     isStarted(): boolean {
         return this.func !== undefined;
     }
     startOnce() {
-        let times = 0;
         if(this.isStarted()) return;
+        this.times = 0;
         this.func = (e: TickEvent) => {
-            times += e.deltaTime*1000;
-            if (times >= this.time) {
+            this.times += e.deltaTime*1000;
+            if (this.times >= this.targetDelay) {
                 this.stop();
                 this.looper();
             }
         }
         this.timeOut.register("tick", this.func);
     }
+    private times = 0;
     start() {
-        let times = 0;
         if(this.isStarted()) return;
+        this.times = 0;
         this.func = (e: TickEvent) => {
-            times += e.deltaTime*1000;
-            if (times >= this.time) {
+            this.times += e.deltaTime*1000;
+            if (this.times >= this.targetDelay) {
                 this.looper();
-                times = 0;
+                this.times = 0;
             }
         }
         this.timeOut.register("tick", this.func);
     }
-
+    trigger(){
+        if(this.isStarted()) this.times = Random.MAX_VALUE;
+    }
     stop() {
         if(!this.func) return;
         this.timeOut.cancel("tick", this.func);

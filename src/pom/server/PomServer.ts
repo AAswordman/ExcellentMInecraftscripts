@@ -551,6 +551,7 @@ export default class PomServer extends ExGameServer {
             this.ruin_ancientBoss.dispose();
         });
     }
+    cleanTimes = 11;
 
     private initEntityCleaner() {
         (this.clearEntityNumUpdate = new TimeLoopTask(this.getEvents(), () => {
@@ -567,30 +568,29 @@ export default class PomServer extends ExGameServer {
                     .concat(Array.from(ExDimension.getInstance(this.getDimension(MinecraftDimensionTypes.nether)).getEntities())));
 
                 if (entities.length > this.entityCleanerLeastNum) {
-                    cleanTimes = 11;
+                    this.cleanTimes = 11;
                     this.entityCleanerLooper.start();
                 }
             }
         }).delay(8000);
 
-        let cleanTimes = 11;
         this.entityCleanerLooper = new TimeLoopTask(this.getEvents(), () => {
             for (let c of this.getClients()) {
-                (c as PomClient).magicSystem.setActionbarByPass("cleaner", ["实体清理: " + cleanTimes]);
+                (c as PomClient).magicSystem.setActionbarByPass("cleaner", ["实体清理: " + this.cleanTimes]);
             }
-            if (cleanTimes === 11) {
+            if (this.cleanTimes === 11) {
                 if (this.setting.entityShowMsg) this.say("Prepare for entities cleaning...");
-            } else if (cleanTimes === 0) {
+            } else if (this.cleanTimes === 0) {
                 this.clearEntity();
                 for (let c of this.getClients()) {
                     (c as PomClient).magicSystem.deleteActionbarPass("cleaner");
                 }
                 this.entityCleanerLooper.stop();
-            } else if (cleanTimes <= 3) {
-                if (this.setting.entityShowMsg) this.say(`Remaining ${cleanTimes}s for entities cleaning`);
+            } else if (this.cleanTimes <= 3) {
+                if (this.setting.entityShowMsg) this.say(`Remaining ${this.cleanTimes}s for entities cleaning`);
             }
 
-            cleanTimes -= 1;
+            this.cleanTimes -= 1;
         }).delay(1000);
         this.upDateEntityCleaner();
 
@@ -642,6 +642,16 @@ export default class PomServer extends ExGameServer {
         if (!this.data.redemptionCode) {
             this.data.redemptionCode = {}
         }
+        if (!this.data.entityCleanerSetting) {
+            this.data.entityCleanerSetting = {
+                "acceptListById": {},
+                "acceptListByTypeId": {
+                    [MinecraftEntityTypes.Player]: 1,
+                    [MinecraftEntityTypes.Villager]: 1,
+                    [MinecraftEntityTypes.VillagerV2]: 1
+                }
+            }
+        }
 
         // console.warn(JSON.stringify(this.data));
     }
@@ -660,9 +670,10 @@ export default class PomServer extends ExGameServer {
 
         let max: [number, string] = [0, ""];
         map.forEach((v, k) => {
-            if (v > max[0] && [MinecraftEntityTypes.Player, MinecraftEntityTypes.Villager, MinecraftEntityTypes.VillagerV2].indexOf(k) === -1) {
+            if (v > max[0] && !this.data.entityCleanerSetting.acceptListByTypeId[k]) {
                 max[0] = v;
                 max[1] = k;
+                console.warn(max);
             }
         });
 
@@ -681,8 +692,8 @@ export default class PomServer extends ExGameServer {
                 //         return;
                 //     }
                 // }
-
-                //if (e.nameTag) return;
+                if (this.data.entityCleanerSetting.acceptListById[e.id]) return;
+                if (e.nameTag === "protect") return;
                 e.kill();
             });
         }

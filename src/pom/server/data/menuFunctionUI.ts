@@ -30,6 +30,7 @@ import { MinecraftItemTypes } from "../../../modules/vanilla-data/lib/index.js";
 import { ExBlockArea } from "../../../modules/exmc/server/block/ExBlockArea.js";
 import { MinecraftDimensionTypes } from "../../../modules/vanilla-data/lib/index.js";
 import WorldCache from "../../../modules/exmc/server/storage/cache/WorldCache.js";
+import ExEntity from "../../../modules/exmc/server/entity/ExEntity.js";
 // import { http } from '@minecraft/server-net';
 
 export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
@@ -718,7 +719,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                             }
                                             client.getEvents().exEvents.onLongTick.unsubscribe(facingBlockGetter);
                                             client.magicSystem.deleteActionbarPass("facingBlockGetter");
-                                            
+
                                             const area = new ExBlockArea(p1, p2, true);
                                             if (client.getDefaultSpawnLocation().distance(area.center()) <= 196) {
                                                 client.sayTo("§b领地中心应距离出生地196单位距离之外");
@@ -1303,11 +1304,25 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 },
                                 {
                                     "type": "button",
+                                    "msg": "手动触发实体清理",
+                                    "function": (client, ui) => {
+                                        new ExMessageAlert().title("确认").body(`是否触发实体清理？`)
+                                            .button1("是", () => {
+                                                (client.getServer() as PomServer).cleanTimes = 11;
+                                                (client.getServer() as PomServer).entityCleanerLooper.start();
+                                            })
+                                            .button2("否", () => { })
+                                            .show(client.player);
+                                        return false;
+                                    }
+                                },
+                                {
+                                    "type": "button",
                                     "msg": "兑换奖励设置",
                                     "function": (client, ui) => {
                                         let cache = client.getGlobalData().redemptionCode;
                                         new ModalFormData()
-                                        .title("兑换码设置")
+                                            .title("兑换码设置")
                                             .textField("输入需要设置的兑换码", "建议输入英文数字混合")
                                             .dropdown("兑换类型选择", [
                                                 "模组经验",
@@ -1340,78 +1355,139 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                     "text": lang.menuUIMsgBailan84,
                     "page": (client, ui): MenuUIAlertView<PomClient>[] => {
                         if (client.player.hasTag("owner")) {
-                            return [{
-                                "type": "button",
-                                "msg": lang.menuUIMsgBailan85,
-                                "function": (client, ui) => {
-                                    new ModalFormData()
-                                        .toggle(lang.menuUIMsgBailan80, client.globalSettings.entityCleaner)
-                                        .slider(lang.menuUIMsgBailan91, 40, 1000, 20, client.globalSettings.entityCleanerLeastNum)
-                                        .slider(lang.menuUIMsgBailan92, 2, 10, 1, client.globalSettings.entityCleanerStrength)
-                                        .slider(lang.menuUIMsgBailan93, 1, 60, 1, client.globalSettings.entityCleanerDelay)
-                                        .toggle("清理信息显示", client.globalSettings.entityShowMsg)
-                                        .show(client.player).then((e) => {
-                                            if (e.canceled) return;
-                                            client.globalSettings.entityCleaner = Boolean(e.formValues?.[0] ?? false);
-                                            client.globalSettings.entityShowMsg = Boolean(e.formValues?.[4] ?? false);
-                                            client.globalSettings.entityCleanerLeastNum = Number(e.formValues?.[1] ?? 200);
-                                            client.globalSettings.entityCleanerStrength = Number(e.formValues?.[2] ?? 5);
-                                            client.globalSettings.entityCleanerDelay = Number(e.formValues?.[3] ?? 30);
-                                        })
-                                        .catch((e) => {
-                                            ExErrorQueue.throwError(e);
-                                        })
-                                    return false;
-                                }
-                            },
-                            {
-                                "type": "button",
-                                "msg": "ui刷新间隔",
-                                "function": (client, ui): boolean => {
-                                    let map = pomDifficultyMap;
-                                    new ModalFormData()
-                                        .title("ui刷新间隔")
-                                        .slider("界面刷新间隔(tick)", 4, 20, 1, 4)
-                                        .slider("数据刷新间隔(每刷新n次界面刷新1次数据)", 1, 5, 1, 2)
-                                        .show(client.player).then((e) => {
-                                            if (!e.canceled) {
-                                                let v = (e.formValues?.[0]);
-                                                client.globalSettings.uiUpdateDelay = Number(v ?? 8);
-                                                client.globalSettings.uiDataUpdateDelay = Number(v ?? 2);
-                                                client.magicSystem.actionbarShow.stop();
-                                                client.magicSystem.actionbarShow.delay(client.globalSettings.uiUpdateDelay);
-                                                client.magicSystem.actionbarShow.start();
-                                            }
-                                        })
-                                        .catch((e) => {
-                                            ExErrorQueue.throwError(e);
-                                        });
-                                    return false;
-                                }
-                            },
-                            {
+                            return [
+                                {
+                                    "type": "text_title",
+                                    "msg": "杂项"
+                                },
+                                {
+                                    "type": "button",
+                                    "msg": lang.menuUIMsgBailan85,
+                                    "function": (client, ui) => {
+                                        new ModalFormData()
+                                            .toggle(lang.menuUIMsgBailan80, client.globalSettings.entityCleaner)
+                                            .slider(lang.menuUIMsgBailan91, 40, 1000, 20, client.globalSettings.entityCleanerLeastNum)
+                                            .slider(lang.menuUIMsgBailan92, 2, 10, 1, client.globalSettings.entityCleanerStrength)
+                                            .slider(lang.menuUIMsgBailan93, 1, 60, 1, client.globalSettings.entityCleanerDelay)
+                                            .toggle("清理信息显示", client.globalSettings.entityShowMsg)
 
-                                "type": "button",
-                                "msg": "作弊",
-                                "function": (client, ui): boolean => {
-                                    let map = pomDifficultyMap;
-                                    new ModalFormData()
-                                        .title("作弊面板")
-                                        .slider("设置等级", 0, 99, 1, client.data.gameGrade)
-                                        .slider("设置经验", 0, 990000, 10000, client.data.gameExperience)
-                                        .show(client.player).then((e) => {
-                                            if (!e.canceled && e.formValues) {
-                                                client.data.gameGrade = Number(e.formValues?.[0] ?? 0);
-                                                client.data.gameExperience = Number(e.formValues?.[1] ?? 0);
-                                                client.magicSystem.upDateGrade();
-                                            }
-                                        })
-                                        .catch((e) => {
-                                            ExErrorQueue.throwError(e);
-                                        });
-                                    return false;
+                                            .textField("实体TypeId白名单", `{"xxx":1}`, JSON.stringify(client.getGlobalData().entityCleanerSetting.acceptListByTypeId))
+                                            .textField("实体Id白名单", `{"134":1}`, JSON.stringify(client.getGlobalData().entityCleanerSetting.acceptListById))
+                                            .show(client.player).then((e) => {
+                                                if (e.canceled || !e.formValues) return;
+                                                client.globalSettings.entityCleaner = Boolean(e.formValues?.[0] ?? false);
+                                                client.globalSettings.entityShowMsg = Boolean(e.formValues?.[4] ?? false);
+                                                client.globalSettings.entityCleanerLeastNum = Number(e.formValues?.[1] ?? 200);
+                                                client.globalSettings.entityCleanerStrength = Number(e.formValues?.[2] ?? 5);
+                                                client.globalSettings.entityCleanerDelay = Number(e.formValues?.[3] ?? 30);
+
+                                                const input1 = String(e.formValues[5]), input2 = String(e.formValues[6]);
+                                                if (input2 !== "")
+                                                    try {
+                                                        client.getGlobalData().entityCleanerSetting.acceptListById = JSON.parse(input2);
+                                                    } catch (e) {
+                                                        client.sayTo("输入格式错误，设置失败")
+                                                    }
+                                                if (input1 !== "")
+                                                    try {
+                                                        client.getGlobalData().entityCleanerSetting.acceptListByTypeId = JSON.parse(input1);
+                                                    } catch (e) {
+                                                        client.sayTo("输入格式错误，设置失败")
+                                                    }
+                                                client.sayTo("设置成功")
+                                            })
+                                            .catch((e) => {
+                                                ExErrorQueue.throwError(e);
+                                            })
+                                        return false;
+                                    }
+                                },
+                                {
+                                    "type": "button",
+                                    "msg": "添加实体清理白名单(个体)",
+                                    "function": (client, ui) => {
+                                        to((async () => {
+
+                                            client.sayTo("§b请使用木棍点击实体。(小tips:还可以把实体命名为protect来避免清理)");
+                                            const e = (await eventGetter(client.getEvents().exEvents.afterPlayerHitEntity,
+                                                (e) => e.hurtEntity.isValid() && client.exPlayer.getBag().itemOnMainHand?.typeId === MinecraftItemTypes.Stick));
+                                            ExEntity.getInstance(e.hurtEntity).addHealth(client, e.damage);
+                                            client.getGlobalData().entityCleanerSetting.acceptListById[e.hurtEntity.id] = 1
+                                            client.sayTo("§b成功添加: " + e.hurtEntity.id);
+
+
+                                        })());
+                                        return false;
+                                    }
+                                },
+                                {
+                                    "type": "button",
+                                    "msg": "添加实体清理白名单(同类)",
+                                    "function": (client, ui) => {
+                                        to((async () => {
+
+                                            client.sayTo("§b请使用木棍点击实体。");
+                                            const e = (await eventGetter(client.getEvents().exEvents.afterPlayerHitEntity,
+                                                (e) => e.hurtEntity.isValid() && client.exPlayer.getBag().itemOnMainHand?.typeId === MinecraftItemTypes.Stick));
+                                            ExEntity.getInstance(e.hurtEntity).addHealth(client, e.damage);
+                                            client.getGlobalData().entityCleanerSetting.acceptListByTypeId[e.hurtEntity.typeId] = 1
+                                            client.sayTo("§b成功添加: " + e.hurtEntity.typeId);
+
+                                        })());
+                                        return false;
+                                    }
+                                },
+                                {
+                                    "type": "button",
+                                    "msg": "ui刷新间隔",
+                                    "function": (client, ui): boolean => {
+                                        let map = pomDifficultyMap;
+                                        new ModalFormData()
+                                            .title("ui刷新间隔")
+                                            .slider("界面刷新间隔(tick)", 4, 20, 1, 4)
+                                            .slider("数据刷新间隔(每刷新n次界面刷新1次数据)", 1, 5, 1, 2)
+                                            .show(client.player).then((e) => {
+                                                if (!e.canceled) {
+                                                    let v = (e.formValues?.[0]);
+                                                    client.globalSettings.uiUpdateDelay = Number(v ?? 8);
+                                                    client.globalSettings.uiDataUpdateDelay = Number(v ?? 2);
+                                                    client.magicSystem.actionbarShow.stop();
+                                                    client.magicSystem.actionbarShow.delay(client.globalSettings.uiUpdateDelay);
+                                                    client.magicSystem.actionbarShow.start();
+                                                }
+                                            })
+                                            .catch((e) => {
+                                                ExErrorQueue.throwError(e);
+                                            });
+                                        return false;
+                                    }
+                                },
+                                {
+
+                                    "type": "button",
+                                    "msg": "作弊",
+                                    "function": (client, ui): boolean => {
+                                        let map = pomDifficultyMap;
+                                        new ModalFormData()
+                                            .title("作弊面板")
+                                            .slider("设置等级", 0, 99, 1, client.data.gameGrade)
+                                            .slider("设置经验", 0, 990000, 10000, client.data.gameExperience)
+                                            .show(client.player).then((e) => {
+                                                if (!e.canceled && e.formValues) {
+                                                    client.data.gameGrade = Number(e.formValues?.[0] ?? 0);
+                                                    client.data.gameExperience = Number(e.formValues?.[1] ?? 0);
+                                                    client.magicSystem.upDateGrade();
+                                                }
+                                            })
+                                            .catch((e) => {
+                                                ExErrorQueue.throwError(e);
+                                            });
+                                        return false;
+                                    }
+                                },
+                                {
+                                    "type": "padding"
                                 }
-                            }
                             ];
                         } else {
                             return [{
@@ -1421,7 +1497,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                         }
                     }
                 },
-                "gradeOrg": { 
+                "gradeOrg": {
                     "text": "等级管理",
                     "page": (client, ui): MenuUIAlertView<PomClient>[] => {
                         if (client.player.hasTag("owner")) {
@@ -1448,7 +1524,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                                 .show(client.player).then((e) => {
                                                     if (e.canceled)
                                                         return;
-                                                    (<PomClient>client.getClient(i[0])).data.gameGrade =  Number(e.formValues?.[0] ?? 0);
+                                                    (<PomClient>client.getClient(i[0])).data.gameGrade = Number(e.formValues?.[0] ?? 0);
                                                     (<PomClient>client.getClient(i[0])).magicSystem.upDateGrade();
                                                 })
                                                 .catch((e) => {
