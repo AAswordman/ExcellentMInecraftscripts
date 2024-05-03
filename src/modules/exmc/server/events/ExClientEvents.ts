@@ -10,7 +10,7 @@ import EventHandle, { EventListenerSettings } from './EventHandle.js';
 import ExEntity from "../entity/ExEntity.js";
 import Vector3 from "../../math/Vector3.js";
 import { MinecraftEntityTypes } from "../../../vanilla-data/lib/index.js";
-
+import { ItemStartUseAfterEvent } from "@minecraft/server";
 
 
 export default class ExClientEvents implements ExEventManager {
@@ -99,6 +99,7 @@ export default class ExClientEvents implements ExEventManager {
                 "name": "source"
             }
         },
+
         // onceItemUseOn: {
         //     pattern: (registerName: string, k: string) => {
         //         this.onceItemUseOnMap = new Map<Entity, [TickDelayTask, boolean]>();
@@ -264,7 +265,13 @@ export default class ExClientEvents implements ExEventManager {
             filter: {
                 "name": "entity"
             }
-        }
+        },
+        [ExEventNames.afterItemStartUse]: {
+            pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
+            filter: {
+                "name": "source"
+            }
+        },
     }
 
     exEvents = {
@@ -289,7 +296,9 @@ export default class ExClientEvents implements ExEventManager {
         [ExEventNames.afterPlayerBreakBlock]: new Listener<PlayerBreakBlockAfterEvent>(this, ExEventNames.afterPlayerBreakBlock),
         [ExEventNames.afterPlayerSpawn]: new Listener<PlayerSpawnAfterEvent>(this, ExEventNames.afterPlayerSpawn),
         [ExEventNames.afterEntityHealthChanged]: new Listener<EntityHealthChangedAfterEvent>(this, ExEventNames.afterEntityHealthChanged),
-        [ExEventNames.afterEffectAdd]: new Listener<EffectAddAfterEvent>(this, ExEventNames.afterEffectAdd)
+        [ExEventNames.afterEffectAdd]: new Listener<EffectAddAfterEvent>(this, ExEventNames.afterEffectAdd),
+
+        [ExEventNames.afterItemStartUse]: new Listener<ItemStartUseAfterEvent>(this, ExEventNames.afterItemStartUse)
     };
 
     public static init(s: ExGameServer) {

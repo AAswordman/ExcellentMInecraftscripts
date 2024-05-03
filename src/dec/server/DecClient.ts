@@ -1,4 +1,4 @@
-import { EntityDamageCause, EquipmentSlot, GameMode, ItemStack, MinecraftDimensionTypes, Player, system, ItemStopUseAfterEvent, Vector, ItemDurabilityComponent, ProjectileShootOptions, EntityProjectileComponent, ContainerSlot } from '@minecraft/server';
+import { EntityDamageCause, EquipmentSlot, GameMode, ItemStack, MinecraftDimensionTypes, Player, system, ItemStopUseAfterEvent, Vector, ItemDurabilityComponent, ProjectileShootOptions, EntityProjectileComponent, ContainerSlot, EntityHurtAfterEvent } from '@minecraft/server';
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import ExGameServer from "../../modules/exmc/server/ExGameServer.js";
 import { ArmorData, ArmorPlayerDec, ArmorPlayerPom } from "./items/ArmorData.js";
@@ -16,7 +16,6 @@ import DecBossBarrier from "./entities/DecBossBarrier.js";
 import ExEntity, { ExEntityShootOption } from '../../modules/exmc/server/entity/ExEntity.js';
 import ExPlayer from '../../modules/exmc/server/entity/ExPlayer.js';
 import ExErrorQueue from '../../modules/exmc/server/ExErrorQueue.js';
-
 
 export default class DecClient extends ExGameClient {
     useArmor?: ArmorData;
@@ -180,7 +179,38 @@ export default class DecClient extends ExGameClient {
                 }
             }
 
-
+//EPIC
+        //日光套装受伤效果
+        if (!DecGlobal.isDec() && !this.player.hasTag("wbkjlq")) {
+            const tmpV = new Vector3();
+            switch (this.useArmor) {
+                case ArmorPlayerPom.sunlight:
+                        this.exPlayer.addTag("skill_user");
+                    for (let e of this.getExDimension().getEntities({
+                        "maxDistance": 5,
+                        "excludeTags": ["skill_user","wbmsyh"],
+                        "excludeFamilies": [],
+                        "excludeTypes":["item"],
+                        "location": this.player.location
+                    })) {
+                    try {
+                        e.applyDamage(15, {
+                            "cause": EntityDamageCause.magic,
+                            "damagingEntity": this.player
+                        });
+                        e.setOnFire(5,false)
+                        let direction = tmpV.set(e.location).sub(this.player.location).normalize();
+                        e.applyKnockback(direction.x, direction.z, 1.2, 0.6);
+                        } catch (e) { }
+                    }
+                      this.exPlayer.addEffect(MinecraftEffectTypes.FireResistance, 5 * 20, 0);
+                      this.exPlayer.addEffect(MinecraftEffectTypes.Absorption, 1 * 20, 0);
+                      this.exPlayer.command.run("function EPIC/armor/sunlight");
+                      this.exPlayer.removeTag("skill_user")
+                      break;
+                }
+            }
+//WB
             if (ra <= 50 && ExEntity.getInstance(e.hurtEntity).getBag().equipmentOnHead?.typeId === 'dec:glass_tank') {
                 e.hurtEntity.runCommandAsync('playsound random.glass @a ~~1~')
             }

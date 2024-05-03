@@ -54,6 +54,7 @@ export default class PomTalentSystem extends GameController {
         EntityDamageCause.thorns,
         EntityDamageCause.wither]);
     static physicalDamageType = new Set([
+        EntityDamageCause.none,
         EntityDamageCause.anvil,
         EntityDamageCause.contact,
         EntityDamageCause.magma,
