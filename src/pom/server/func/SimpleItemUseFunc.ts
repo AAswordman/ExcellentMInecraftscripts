@@ -1,4 +1,4 @@
-import { EntityDamageCause, ItemType, ItemStack, ItemTypes, ItemReleaseUseAfterEvent, ItemUseOnAfterEvent, ItemUseOnBeforeEvent, EquipmentSlot, ItemCooldownComponent, Entity } from '@minecraft/server';
+import { EntityDamageCause, ItemType, ItemStack, ItemTypes, MinecraftDimensionTypes,ItemReleaseUseAfterEvent, ItemUseOnAfterEvent, ItemUseOnBeforeEvent, EquipmentSlot, ItemCooldownComponent, Entity } from '@minecraft/server';
 import { ModalFormData } from "@minecraft/server-ui";
 import Vector3 from '../../../modules/exmc/math/Vector3.js';
 import ExDimension from '../../../modules/exmc/server/ExDimension.js';
@@ -16,7 +16,7 @@ export default class SimpleItemUseFunc extends GameController {
         
         this.getEvents().exEvents.afterPlayerBreakBlock.subscribe(e => {
             const itemId = this.exPlayer.getBag().itemOnMainHand?.typeId;
-            if (RuinsLoaction.isInProtectArea(e.block) || this.exPlayer.getScoresManager().getScore("i_inviolable") > 1) return;
+            if ((e.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && RuinsLoaction.isInProtectArea(e.block)) || this.exPlayer.getScoresManager().getScore("i_inviolable") > 1) return;
             if (!this.globalSettings.chainMining) return;
             if (itemId === "wb:axex_equipment_a") {
                 if (e.brokenBlockPermutation.hasTag("log")) {
