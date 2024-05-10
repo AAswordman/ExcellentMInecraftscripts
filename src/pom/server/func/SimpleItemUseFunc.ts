@@ -1,4 +1,4 @@
-import { EntityDamageCause, ItemType, ItemStack, ItemTypes, MinecraftDimensionTypes, ItemReleaseUseAfterEvent, ItemUseOnAfterEvent, ItemUseOnBeforeEvent, EquipmentSlot, ItemCooldownComponent, Entity, EntityItemComponent, Direction } from '@minecraft/server';
+import { EntityDamageCause, ItemType, ItemStack, ItemTypes, MinecraftDimensionTypes } from '@minecraft/server';
 import { ModalFormData } from "@minecraft/server-ui";
 import Vector3 from '../../../modules/exmc/math/Vector3.js';
 import ExDimension from '../../../modules/exmc/server/ExDimension.js';
@@ -8,14 +8,11 @@ import MenuUIAlert from "../ui/MenuUIAlert.js";
 import GameController from "./GameController.js";
 import RuinsLoaction from './ruins/RuinsLoaction.js';
 import { MinecraftEffectTypes } from '../../../modules/vanilla-data/lib/index.js';
-import ItemTagComponent, { ItemTagComponentGroup } from '../data/ItemTagComponent.js';
-import ExEntity from '../../../modules/exmc/server/entity/ExEntity';
-import isEquipment from '../items/isEquipment.js';
 
 export default class SimpleItemUseFunc extends GameController {
     onJoin(): void {
         //连锁挖矿
-        
+
         this.getEvents().exEvents.afterPlayerBreakBlock.subscribe(e => {
             const itemId = this.exPlayer.getBag().itemOnMainHand?.typeId;
             if ((e.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && RuinsLoaction.isInProtectArea(e.block)) || this.exPlayer.getScoresManager().getScore("i_inviolable") > 1) return;
@@ -40,18 +37,6 @@ export default class SimpleItemUseFunc extends GameController {
                         this.exPlayer.getScoresManager().removeScore("wbfl", 20);
                     }
                 }
-                // else {
-                // this.exPlayer.command.run([
-                //     "execute as @s[scores={wbfl=..39}] at @s run tellraw @s {\"rawtext\":[{\"translate\":\"tell.play.29.name\"}]}",
-                //     "execute as @s[tag=!wbplot,scores={wbfl=40..},m=!adventure] at @s run fill ~+4 ~+4 ~+4 ~-4 ~ ~-4 air [] replace stone []",
-                //     "execute as @s[tag=!wbplot,scores={wbfl=40..},m=!adventure] at @s run fill ~+4 ~+4 ~+4 ~-4 ~ ~-4 air [] replace end_stone []",
-                //     "execute as @s[tag=!wbplot,scores={wbfl=40..},m=!adventure] at @s run fill ~+4 ~+4 ~+4 ~-4 ~ ~-4 air [] replace cobblestone []",
-                //     "execute as @s[tag=!wbplot,scores={wbfl=40..},m=!adventure] at @s run fill ~+4 ~+4 ~+4 ~-4 ~ ~-4 air [] replace netherrack []",
-                //     "execute as @s[tag=!wbplot,scores={wbfl=40..},m=!adventure] at @s run fill ~+4 ~+4 ~+4 ~-4 ~ ~-4 air [] replace red_sandstone []",
-                //     "execute as @s[tag=!wbplot,scores={wbfl=40..},m=!adventure] at @s run fill ~+4 ~+4 ~+4 ~-4 ~ ~-4 air [] replace deepslate []",
-                //     "execute as @s[scores={wbfl=40..}] at @s run scoreboard players remove @s wbfl 40"
-                // ]);
-                // }
             }
         });
         this.getEvents().exEvents.beforeItemUseOn.subscribe(e => {
@@ -91,7 +76,7 @@ export default class SimpleItemUseFunc extends GameController {
         });
 
 
-        this.getEvents().exEvents.afterItemStartUse.subscribe((e) =>{
+        this.getEvents().exEvents.afterItemStartUse.subscribe((e) => {
             const item = e.itemStack;
             let time = e.useDuration;
             if (item.typeId === "wb:jet_pack") {
@@ -99,138 +84,113 @@ export default class SimpleItemUseFunc extends GameController {
                 this.setTimeout(() => {
                     this.exPlayer.addEffect(MinecraftEffectTypes.Levitation, 2, time, false);
                     this.exPlayer.addEffect(MinecraftEffectTypes.SlowFalling, 10, 3, false);
-                    this.exPlayer.command.run("/say "+time);
-                },0);
-           }
+                    this.exPlayer.command.run("/say " + time);
+                }, 0);
+            }
         }
         );
 
         this.getEvents().exEvents.afterItemReleaseUse.subscribe((e) => {
             const tmpV = new Vector3();
             const item = e.itemStack;
-            const time = Math.round(e.useDuration/20 * 100)/100;
+            const time = Math.round(e.useDuration / 20 * 100) / 100;
             if (item?.typeId === "epic:sunlight_sword") {
                 //日光长剑 蓄能打击
-                let use_time = (20-time > 2.5) ? 2.5 : 20-time;
+                let use_time = (20 - time > 2.5) ? 2.5 : 20 - time;
                 const sharpness = item?.getComponentById("minecraft:enchantable")!.getEnchantment("sharpness")?.level || 0;
-                const base_atk = 8 + sharpness*1.25;
-                let multipler = (use_time > 0.5) ? 2*use_time : 1
-                let dam = Math.round(multipler*(base_atk+10))
+                const base_atk = 8 + sharpness * 1.25;
+                let multipler = (use_time > 0.5) ? 2 * use_time : 1
+                let dam = Math.round(multipler * (base_atk + 10))
                 this.setTimeout(() => {
                     this.exPlayer.addTag("skill_user");
-                    this.exPlayer.command.run("/say "+use_time);
+                    this.exPlayer.command.run("/say " + use_time);
                     for (let e of this.getExDimension().getEntities({
                         "maxDistance": 5,
-                        "excludeTags": ["skill_user","wbmsyh"],
+                        "excludeTags": ["skill_user", "wbmsyh"],
                         "excludeFamilies": [],
-                        "excludeTypes":["item"],
+                        "excludeTypes": ["item"],
                         "location": this.player.location
                     })) {
-                    try {
-                        e.applyDamage(dam, {
-                            "cause": EntityDamageCause.magic,
-                            "damagingEntity": this.player
-                        });
-                        let direction = tmpV.set(e.location).sub(this.player.location).normalize();
-                        e.applyKnockback(direction.x, direction.z, 1.2, 0.5);
-                        if(use_time > 2){
-                            e.addEffect(MinecraftEffectTypes.Slowness, 3 * 20, {
-                                "amplifier": 255,
-                                "showParticles": true
+                        try {
+                            e.applyDamage(dam, {
+                                "cause": EntityDamageCause.magic,
+                                "damagingEntity": this.player
                             });
-                            e.addEffect(MinecraftEffectTypes.Weakness, 3 * 20, {
-                                "amplifier": 255,
-                                "showParticles": true
-                            });
+                            let direction = tmpV.set(e.location).sub(this.player.location).normalize();
+                            e.applyKnockback(direction.x, direction.z, 1.2, 0.5);
+                            if (use_time > 2) {
+                                e.addEffect(MinecraftEffectTypes.Slowness, 3 * 20, {
+                                    "amplifier": 255,
+                                    "showParticles": true
+                                });
+                                e.addEffect(MinecraftEffectTypes.Weakness, 3 * 20, {
+                                    "amplifier": 255,
+                                    "showParticles": true
+                                });
+                            }
                         }
-                        }
-                         catch (e) { }
+                        catch (e) { }
                     }
-                    if(use_time > 0.5){
-                    this.exPlayer.command.run("/function EPIC/weapon/sunlight_sword");
-                    this.player.startItemCooldown("sword",2*20)
+                    if (use_time > 0.5) {
+                        this.exPlayer.command.run("/function EPIC/weapon/sunlight_sword");
+                        this.player.startItemCooldown("sword", 2 * 20)
                     }
                     this.exPlayer.removeTag("skill_user");
-                },100);
-           }
+                }, 100);
+            }
         })
-       
 
-        
+
+
         this.getEvents().exEvents.afterPlayerHitEntity.subscribe(e => {
         });
 
         this.getEvents().exEvents.beforeItemUse.subscribe(e => {
             const item = e.itemStack;
-            const fl = this.exPlayer.getScoresManager().getScore("wbfl");
-            const cd = this.player.getItemCooldown(<string>e.itemStack.getComponent('minecraft:cooldown')?.cooldownCategory);
-        if(cd == 0) {
-            if (item.typeId === "epic:echoing_scream_saber" && fl>=25 ) {
-                //尖啸回响
-                const tmpV = new Vector3();
-                const sharpness = item?.getComponentById("minecraft:enchantable")!.getEnchantment("sharpness")?.level || 0;
-                //const strength = (this.exPlayer.entity.getEffect("strength")?.amplifier || -1) + 1;
-                //const weakness = (this.exPlayer.entity.getEffect("weakness")?.amplifier || -1) + 1;
-                const base_atk = 7 + sharpness*1.25;
-                //let eff_atk = base_atk*(1.25^strength)/(1.25^weakness)
-                let dam = 2.4*Math.round(base_atk) + 15
-                this.setTimeout(() => {
-                    this.exPlayer.addTag("skill_user");
-                    this.exPlayer.command.run("/function EPIC/weapon/echoing_scream_saber");
-                },0);
-                this.setTimeout(() => {
-                    for (let e of this.getExDimension().getEntities({
-                        "maxDistance": 5,
-                        "excludeTags": ["skill_user","wbmsyh"],
-                        "excludeFamilies": [],
-                        "excludeTypes":["item"],
-                        "location": this.player.location
-                    })) {
-                    try {
-                        let i = Number(e.getDynamicProperty('echo_record')) || 0;
-                        if (i <= 4){
-                          e.setDynamicProperty('echo_record', i+1);
-                          i=i+1
+            const wbfl = this.exPlayer.getScoresManager().getScore("wbfl");
+            if (item.typeId === "epic:echoing_scream_saber" && wbfl >= 25) {
+                const cd = this.player.getItemCooldown(e.itemStack.getComponent('minecraft:cooldown')!.cooldownCategory);
+                if (cd == 0) {
+                    //尖啸回响
+                    const tmpV = new Vector3();
+                    const sharpness = item?.getComponentById("minecraft:enchantable")!.getEnchantment("sharpness")?.level || 0;
+                    //const strength = (this.exPlayer.entity.getEffect("strength")?.amplifier || -1) + 1;
+                    //const weakness = (this.exPlayer.entity.getEffect("weakness")?.amplifier || -1) + 1;
+                    const base_atk = 7 + sharpness * 1.25;
+                    //let eff_atk = base_atk*(1.25^strength)/(1.25^weakness)
+                    let dam = 2.4 * Math.round(base_atk) + 15
+                    this.setTimeout(() => {
+                        this.exPlayer.addTag("skill_user");
+                        this.exPlayer.command.run("/function EPIC/weapon/echoing_scream_saber");
+                    }, 0);
+                    this.setTimeout(() => {
+                        for (let e of this.getExDimension().getEntities({
+                            "maxDistance": 5,
+                            "excludeTags": ["skill_user", "wbmsyh"],
+                            "excludeFamilies": [],
+                            "excludeTypes": ["item"],
+                            "location": this.player.location
+                        })) {
+                            try {
+                                let i = Number(e.getDynamicProperty('echo_record')) || 0;
+                                if (i <= 4) {
+                                    e.setDynamicProperty('echo_record', (i = i + 1));
+                                }
+                                e.runCommand("/say " + i)
+                                e.applyDamage(dam, {
+                                    "cause": EntityDamageCause.magic,
+                                    "damagingEntity": this.player
+                                });
+                                let direction = tmpV.set(e.location).sub(this.player.location).normalize();
+                                e.applyKnockback(direction.x, direction.z, 1.5, 0.7);
+                            } catch (e) { }
                         }
-                        e.runCommand("/say "+i)
-                        e.applyDamage(dam, {
-                            "cause": EntityDamageCause.magic,
-                            "damagingEntity": this.player
-                        });
-                        let direction = tmpV.set(e.location).sub(this.player.location).normalize();
-                        e.applyKnockback(direction.x, direction.z, 1.5, 0.7);
-                        } catch (e) { }
-                    }
-                    this.exPlayer.removeTag("skill_user");
-                    this.exPlayer.getScoresManager().removeScore("wbfl", 25);
-                },150);
+                        this.exPlayer.removeTag("skill_user");
+                        this.exPlayer.getScoresManager().removeScore("wbfl", 25);
+                    }, 150);
+                }
             }
-        }
-            // if (item.typeId === "wb:technology_world_explorer") {
-            //     const e = this.player.runCommand("locate biome ice_plains");
-            //     console.warn(e);
-            //     console.warn(JSON.stringify(e));
-            //     console.warn(ExSystem.parseObj(e));
-
-
-            // }
         });
-
-        // let target: undefined | Entity;
-        // this.getEvents().exEvents.afterPlayerShootProj.subscribe((e) => {
-        //     if (target) {
-        //         const ec = this.client.getServer().createEntityController(e.projectile, PomOccupationSkillTrack);
-        //         ec.setTarget(target);
-
-        //     }
-        //     // if(e.afterItem?.typeId === MinecraftItemTypes.Stick){
-        //     //     this.exPlayer.selectedSlot = e.beforeSlot;
-
-        //     // }
-        // });
-        // this.getEvents().exEvents.afterPlayerHitEntity.subscribe(e => {
-        //     target = e.hurtEntity;
-        // });
 
     }
     chainDigging(v: Vector3, idType: string, times: number, posData?: Set<string>) {
