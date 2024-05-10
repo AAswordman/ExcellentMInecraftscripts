@@ -1,4 +1,4 @@
-import { EntityDamageCause, ItemType, ItemStack, ItemTypes, MinecraftDimensionTypes,ItemReleaseUseAfterEvent, ItemUseOnAfterEvent, ItemUseOnBeforeEvent, EquipmentSlot, ItemCooldownComponent, Entity } from '@minecraft/server';
+import { EntityDamageCause, ItemType, ItemStack, ItemTypes, MinecraftDimensionTypes, ItemReleaseUseAfterEvent, ItemUseOnAfterEvent, ItemUseOnBeforeEvent, EquipmentSlot, ItemCooldownComponent, Entity, EntityItemComponent, Direction } from '@minecraft/server';
 import { ModalFormData } from "@minecraft/server-ui";
 import Vector3 from '../../../modules/exmc/math/Vector3.js';
 import ExDimension from '../../../modules/exmc/server/ExDimension.js';
@@ -9,6 +9,8 @@ import GameController from "./GameController.js";
 import RuinsLoaction from './ruins/RuinsLoaction.js';
 import { MinecraftEffectTypes } from '../../../modules/vanilla-data/lib/index.js';
 import ItemTagComponent, { ItemTagComponentGroup } from '../data/ItemTagComponent.js';
+import ExEntity from '../../../modules/exmc/server/entity/ExEntity';
+import isEquipment from '../items/isEquipment.js';
 
 export default class SimpleItemUseFunc extends GameController {
     onJoin(): void {
@@ -89,9 +91,9 @@ export default class SimpleItemUseFunc extends GameController {
         });
 
 
-        this.getEvents().exEvents.afterItemStartUse.subscribe(e =>{
+        this.getEvents().exEvents.afterItemStartUse.subscribe((e) =>{
             const item = e.itemStack;
-            let time = 5/e.useDuration;
+            let time = e.useDuration;
             if (item.typeId === "wb:jet_pack") {
                 // jet pack
                 this.setTimeout(() => {
@@ -99,9 +101,64 @@ export default class SimpleItemUseFunc extends GameController {
                     this.exPlayer.addEffect(MinecraftEffectTypes.SlowFalling, 10, 3, false);
                     this.exPlayer.command.run("/say "+time);
                 },0);
-            }
+           }
         }
         );
+
+        this.getEvents().exEvents.afterItemReleaseUse.subscribe((e) => {
+            const tmpV = new Vector3();
+            const item = e.itemStack;
+            const time = Math.round(e.useDuration/20 * 100)/100;
+            if (item?.typeId === "epic:sunlight_sword") {
+                //日光长剑 蓄能打击
+                let use_time = (20-time > 2.5) ? 2.5 : 20-time;
+                const sharpness = item?.getComponentById("minecraft:enchantable")!.getEnchantment("sharpness")?.level || 0;
+                const base_atk = 8 + sharpness*1.25;
+                let multipler = (use_time > 0.5) ? 2*use_time : 1
+                let dam = Math.round(multipler*(base_atk+10))
+                this.setTimeout(() => {
+                    this.exPlayer.addTag("skill_user");
+                    this.exPlayer.command.run("/say "+use_time);
+                    for (let e of this.getExDimension().getEntities({
+                        "maxDistance": 5,
+                        "excludeTags": ["skill_user","wbmsyh"],
+                        "excludeFamilies": [],
+                        "excludeTypes":["item"],
+                        "location": this.player.location
+                    })) {
+                    try {
+                        e.applyDamage(dam, {
+                            "cause": EntityDamageCause.magic,
+                            "damagingEntity": this.player
+                        });
+                        let direction = tmpV.set(e.location).sub(this.player.location).normalize();
+                        e.applyKnockback(direction.x, direction.z, 1.2, 0.5);
+                        if(use_time > 2){
+                            e.addEffect(MinecraftEffectTypes.Slowness, 3 * 20, {
+                                "amplifier": 255,
+                                "showParticles": true
+                            });
+                            e.addEffect(MinecraftEffectTypes.Weakness, 3 * 20, {
+                                "amplifier": 255,
+                                "showParticles": true
+                            });
+                        }
+                        }
+                         catch (e) { }
+                    }
+                    if(use_time > 0.5){
+                    this.exPlayer.command.run("/function EPIC/weapon/sunlight_sword");
+                    this.player.startItemCooldown("sword",2*20)
+                    }
+                    this.exPlayer.removeTag("skill_user");
+                },100);
+           }
+        })
+       
+
+        
+        this.getEvents().exEvents.afterPlayerHitEntity.subscribe(e => {
+        });
 
         this.getEvents().exEvents.beforeItemUse.subscribe(e => {
             const item = e.itemStack;
@@ -119,7 +176,6 @@ export default class SimpleItemUseFunc extends GameController {
                 let dam = 2.4*Math.round(base_atk) + 15
                 this.setTimeout(() => {
                     this.exPlayer.addTag("skill_user");
-                    
                     this.exPlayer.command.run("/function EPIC/weapon/echoing_scream_saber");
                 },0);
                 this.setTimeout(() => {
@@ -131,20 +187,12 @@ export default class SimpleItemUseFunc extends GameController {
                         "location": this.player.location
                     })) {
                     try {
-                        for(let i = 3; i>0 && i<4; i-- ) {
-                            e.runCommand("/say "+i)
-                            var t ="echo_record_";
-                            e.addTag(t+"add");
-                            if(e.hasTag(t+i)){
-                                e.removeTag(t+i);
-                                e.removeTag(t+"add");
-                                e.addTag(t+(i+1));
-                            }
-                            else{
-                            }
+                        let i = Number(e.getDynamicProperty('echo_record')) || 0;
+                        if (i <= 4){
+                          e.setDynamicProperty('echo_record', i+1);
+                          i=i+1
                         }
-                        e.runCommand("/tag @s[tag=echo_record_add] add echo_record_1")
-                        e.runCommand("/tag @s[tag=echo_record_add] remove echo_record_add")
+                        e.runCommand("/say "+i)
                         e.applyDamage(dam, {
                             "cause": EntityDamageCause.magic,
                             "damagingEntity": this.player

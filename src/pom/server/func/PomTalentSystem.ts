@@ -275,7 +275,6 @@ export default class PomTalentSystem extends GameController {
             let damage = (this.exPlayer.getPreRemoveHealth() ?? 0) + e.damage;
             let willdamage = damage;
             // console.warn(willdamage);
-
             willdamage *= 1 - this.armor_protection[4];
             if (PomTalentSystem.magicDamageType.has(e.damageSource.cause)) {
                 willdamage -= this.armor_protection[2];
