@@ -65,18 +65,18 @@ export default class SimpleItemUseFunc extends GameController {
                 } else {
                     new MenuUIAlert(this.client, menuFunctionUI(this.getLang())).showPage("main", "notice");
                 }
-            } /*else if (item.typeId === "wb:jet_pack") {
+            } else if (item.typeId === "wb:jet_pack") {
                  //jet pack
                 this.setTimeout(() => {
                     this.exPlayer.addEffect(MinecraftEffectTypes.Levitation, 2, 100, false);
                     this.exPlayer.addEffect(MinecraftEffectTypes.SlowFalling, 10, 3, false);
                     this.exPlayer.dimension.spawnEntity("wb:ball_jet_pack", this.exPlayer.position.sub(this.exPlayer.viewDirection.scl(2)));
                 }, 0);
-            }*/
+            }
         });
 
 
-        this.getEvents().exEvents.afterItemStartUse.subscribe((e) => {
+        /*this.getEvents().exEvents.afterItemStartUse.subscribe((e) => {
             const item = e.itemStack;
             let time = e.useDuration;
             if (item.typeId === "wb:jet_pack") {
@@ -88,7 +88,7 @@ export default class SimpleItemUseFunc extends GameController {
                 }, 0);
             }
         }
-        );
+        );*/
 
         this.getEvents().exEvents.afterItemReleaseUse.subscribe((e) => {
             const tmpV = new Vector3();
