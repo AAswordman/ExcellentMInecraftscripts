@@ -1,5 +1,5 @@
 import ExGameClient from "../ExGameClient.js";
-import { PlayerBreakBlockAfterEvent, ChatSendAfterEvent, ChatSendBeforeEvent, EffectAddAfterEvent, EntityHealthChangedAfterEvent, EntityHitBlockAfterEvent, EntityHurtAfterEvent, ItemDefinitionTriggeredAfterEvent, ItemDefinitionTriggeredBeforeEvent, ItemReleaseUseAfterEvent, ItemStopUseAfterEvent, ItemUseAfterEvent, ItemUseBeforeEvent, ItemUseOnAfterEvent, ItemUseOnBeforeEvent, PlayerSpawnAfterEvent } from '@minecraft/server';
+import { PlayerBreakBlockAfterEvent, ChatSendAfterEvent, ChatSendBeforeEvent, EffectAddAfterEvent, EntityHealthChangedAfterEvent, EntityHitBlockAfterEvent, EntityHurtAfterEvent, ItemReleaseUseAfterEvent, ItemStopUseAfterEvent, ItemUseAfterEvent, ItemUseBeforeEvent, ItemUseOnAfterEvent, ItemUseOnBeforeEvent, PlayerSpawnAfterEvent } from '@minecraft/server';
 import ExEventManager from "../../interface/ExEventManager.js";
 import ExGameServer from '../ExGameServer.js';
 import { Player, ItemStack, Entity } from '@minecraft/server';
@@ -30,18 +30,6 @@ export default class ExClientEvents implements ExEventManager {
     _client: ExGameClient;
 
     static exEventSetting: EventListenerSettings<ExClientEvents["exEvents"]> = {
-        [ExEventNames.beforeItemDefinitionEvent]: {
-            pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
-            filter: {
-                "name": "source"
-            }
-        },
-        [ExEventNames.afterItemDefinitionEvent]: {
-            pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
-            filter: {
-                "name": "source"
-            }
-        },
         [ExEventNames.beforeItemUse]: {
             pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
             filter: {
@@ -229,10 +217,6 @@ export default class ExClientEvents implements ExEventManager {
                         }
                     }
                 };
-
-                ExClientEvents.eventHandlers.server.getEvents().events.afterItemDefinitionEvent.subscribe((e) => {
-                    func(<Player>e.source, e);
-                });
                 ExClientEvents.eventHandlers.server.getEvents().events.afterItemReleaseUse.subscribe((e) => {
                     if (e.itemStack) func(e.source, { "itemStack": e.itemStack });
                 });
@@ -275,8 +259,6 @@ export default class ExClientEvents implements ExEventManager {
     }
 
     exEvents = {
-        [ExEventNames.beforeItemDefinitionEvent]: new Listener<ItemDefinitionTriggeredBeforeEvent>(this, ExEventNames.beforeItemDefinitionEvent),
-        [ExEventNames.afterItemDefinitionEvent]: new Listener<ItemDefinitionTriggeredAfterEvent>(this, ExEventNames.afterItemDefinitionEvent),
         [ExEventNames.beforeItemUse]: new Listener<ItemUseBeforeEvent>(this, ExEventNames.beforeItemUse),
         [ExEventNames.afterItemUse]: new Listener<ItemUseAfterEvent>(this, ExEventNames.afterItemUse),
         [ExEventNames.afterItemStopUse]: new Listener<ItemStopUseAfterEvent>(this, ExEventNames.afterItemStopUse),

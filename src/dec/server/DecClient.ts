@@ -1,4 +1,4 @@
-import { EntityDamageCause, EquipmentSlot, GameMode, ItemStack, MinecraftDimensionTypes, Player, system, ItemStopUseAfterEvent, Vector, ItemDurabilityComponent, ProjectileShootOptions, EntityProjectileComponent, ContainerSlot, EntityHurtAfterEvent } from '@minecraft/server';
+import { EntityDamageCause, GameMode, ItemStack, MinecraftDimensionTypes, Player, ItemDurabilityComponent } from '@minecraft/server';
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import ExGameServer from "../../modules/exmc/server/ExGameServer.js";
 import { ArmorData, ArmorPlayerDec, ArmorPlayerPom } from "./items/ArmorData.js";
@@ -14,8 +14,6 @@ import Random from "../../modules/exmc/utils/Random.js";
 import { MinecraftEffectTypes } from "../../modules/vanilla-data/lib/index.js";
 import DecBossBarrier from "./entities/DecBossBarrier.js";
 import ExEntity, { ExEntityShootOption } from '../../modules/exmc/server/entity/ExEntity.js';
-import ExPlayer from '../../modules/exmc/server/entity/ExPlayer.js';
-import ExErrorQueue from '../../modules/exmc/server/ExErrorQueue.js';
 
 export default class DecClient extends ExGameClient {
     useArmor?: ArmorData;

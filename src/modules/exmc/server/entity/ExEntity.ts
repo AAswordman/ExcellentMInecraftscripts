@@ -1,4 +1,4 @@
-import { Entity, EntityHealthComponent, EntityInventoryComponent, Dimension, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent, EntityDamageSource, EntityDamageCause, EquipmentSlot, TeleportOptions, EffectType, EntityAttributeComponent, EntityEquippableComponent, Vector, EntityProjectileComponent, ProjectileShootOptions, EntityComponentTypeMap } from '@minecraft/server';
+import { Entity, EntityHealthComponent, EntityInventoryComponent, Dimension, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent, EntityDamageSource, EntityDamageCause, EquipmentSlot, TeleportOptions, EffectType, EntityAttributeComponent, EntityEquippableComponent, EntityProjectileComponent, ProjectileShootOptions, EntityComponentTypeMap } from '@minecraft/server';
 import { ExCommandNativeRunner } from '../../interface/ExCommandRunner.js';
 import ExTagManager from '../../interface/ExTagManager.js';
 import ExScoresManager from './ExScoresManager.js';
@@ -266,13 +266,13 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     }
 
     protected getViewVectorBase() {
-        let c = this._entity.getViewDirection()
-        let b = Vector.cross(new Vector3(0, 1, 0), c)
-        let a = Vector.cross(c, b)
+        let c = this.viewDirection;
+        let b = new Vector3(0, 1, 0).crs(c);
+        let a = c.crs(b);
         let base = [
             a, b, c
         ]
-        return base
+        return base;
     }
 
     protected getViewVector(v: Vector3) {

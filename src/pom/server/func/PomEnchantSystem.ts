@@ -1,4 +1,4 @@
-import { ItemDurabilityComponent, ItemStack, ItemType, ItemTypes } from "@minecraft/server";
+import { EnchantmentTypes, ItemDurabilityComponent, ItemStack, ItemType, ItemTypes } from "@minecraft/server";
 import Vector3 from "../../../modules/exmc/math/Vector3.js";
 import "../../../modules/exmc/server/block/ExBlock.js";
 import ExColorLoreUtil from "../../../modules/exmc/server/item/ExColorLoreUtil.js";
@@ -22,8 +22,8 @@ export default class PomEnChantSystem extends GameController {
                         if (item.hasComponentById("minecraft:enchantable")) {
                             const comp = item.getComponentById("minecraft:enchantable")!;
                             for (let i of lore.entries("enchants")) {
-                                if (comp.canAddEnchantment({ "level": parseInt(i[1]), "type": i[0] })) {
-                                    comp.addEnchantment({ "level": parseInt(i[1]), "type": i[0] });
+                                if (comp.canAddEnchantment({ "level": parseInt(i[1]), "type": EnchantmentTypes.get(i[0])! })) {
+                                    comp.addEnchantment({ "level": parseInt(i[1]), "type": EnchantmentTypes.get(i[0])! });
                                 }
                             }
                         }
@@ -56,7 +56,7 @@ export default class PomEnChantSystem extends GameController {
             } else if (block.typeId === "wb:block_translate_book") {
                 e.cancel = true;
                 let bag = this.exPlayer.getBag();
-                const armor_pitch = [bag.equipmentOnHead,bag.equipmentOnChest,bag.equipmentOnLegs,bag.equipmentOnFeet];
+                const armor_pitch = [bag.equipmentOnHead, bag.equipmentOnChest, bag.equipmentOnLegs, bag.equipmentOnFeet];
                 const item = e.itemStack;
                 const saveItem = PomEnChantSystem.blockTranslateData.get(new Vector3(block).toString());
                 if (!saveItem) {
@@ -82,8 +82,8 @@ export default class PomEnChantSystem extends GameController {
                             let handlore = new ExColorLoreUtil(exHandItem);
                             let lore = new ExColorLoreUtil(exNewItem);
                             let savelore = new ExColorLoreUtil(saveItem);
-                            for(let i of handlore.entries("enchants")){
-                                lore.setValueUseMap("enchants", i[0],i[1]);
+                            for (let i of handlore.entries("enchants")) {
+                                lore.setValueUseMap("enchants", i[0], i[1]);
                             }
                             handlore.delete("enchants");
                             if (exHandItem.hasComponentById("minecraft:enchantable")) {
@@ -92,8 +92,8 @@ export default class PomEnChantSystem extends GameController {
                                 }
                                 exHandItem.getComponentById("minecraft:enchantable")!.removeAllEnchantments();
                             }
-                            for(let i of savelore.entries("enchants")){
-                                handlore.setValueUseMap("enchants", i[0],i[1]);
+                            for (let i of savelore.entries("enchants")) {
+                                handlore.setValueUseMap("enchants", i[0], i[1]);
                             }
                             savelore.delete("enchants");
                             // if (exSaveItem.hasComponentById("minecraft:enchantable") && exNewItem.hasComponentById("minecraft:enchantable")) {
@@ -115,7 +115,7 @@ export default class PomEnChantSystem extends GameController {
                             bag.setItem(this.exPlayer.selectedSlot, item);
                             this.getDimension().spawnItem(exNewItem, pos.add(0, 1, 0));
 
-                            [bag.equipmentOnHead,bag.equipmentOnChest,bag.equipmentOnLegs,bag.equipmentOnFeet] = armor_pitch;
+                            [bag.equipmentOnHead, bag.equipmentOnChest, bag.equipmentOnLegs, bag.equipmentOnFeet] = armor_pitch;
                         }, 0);
                     }
                 }

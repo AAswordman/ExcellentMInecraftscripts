@@ -234,6 +234,15 @@ export default class Vector3 {
             this.y.toFixed(2) === other.y.toFixed(2) &&
             this.z.toFixed(2) === other.z.toFixed(2);
     }
+    /**
+     * 计算两个向量的叉积。
+     * 
+     * @param other 另一个向量，与当前向量进行叉积计算。
+     * @returns 返回一个新的向量，表示两个向量的叉积。
+     */
+    public crs(other: IVector3): Vector3 {
+        return new Vector3(this.y * other.z - this.z * other.y, this.z * other.x - this.x * other.z, this.x * other.y - this.y * other.x);
+    }
 
     /**
      * Calculates the distance between this vector and another vector.
