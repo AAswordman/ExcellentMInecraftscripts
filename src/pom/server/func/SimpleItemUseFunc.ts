@@ -103,7 +103,7 @@ export default class SimpleItemUseFunc extends GameController {
                 let dam = Math.round(multipler * (base_atk + 10))
                 this.setTimeout(() => {
                     this.exPlayer.addTag("skill_user");
-                    this.exPlayer.command.run("/say " + use_time);
+                    // this.exPlayer.command.run("/say " + use_time);
                     for (let e of this.getExDimension().getEntities({
                         "maxDistance": 5,
                         "excludeTags": ["skill_user", "wbmsyh"],
@@ -176,7 +176,7 @@ export default class SimpleItemUseFunc extends GameController {
                                 if (i <= 4) {
                                     e.setDynamicProperty('echo_record', (i = i + 1));
                                 }
-                                e.runCommand("/say " + i)
+                                // e.runCommand("/say " + i)
                                 e.applyDamage(dam, {
                                     "cause": EntityDamageCause.magic,
                                     "damagingEntity": this.player
