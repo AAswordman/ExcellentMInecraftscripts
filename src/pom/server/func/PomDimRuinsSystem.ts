@@ -300,6 +300,9 @@ export default class PomDimRuinsSystem extends GameController {
                 let show = [];
                 show = this.desertRuinRules.getShowMap();
                 this.client.magicSystem.setActionbarByPass("desertRuinMap", show);
+
+                // this.exPlayer.command.run(`fog @s push wb:ruin_desert_boss "ruin_fog"`);
+
             }
 
             this.desertRuinRules.inRuinsListener.upDate(isInGuardRuin);

@@ -669,7 +669,7 @@ export default class DecClient extends ExGameClient {
                     if (p.gamemode != GameMode.creative) {
                         if (dur.damage + 1 < dur.maxDurability) {
                             dur.damage += 1
-                            p.getBag().setItem(e.source.selectedSlot, new_item)
+                            p.getBag().setItem(e.source.selectedSlotIndex, new_item)
                         } else {
                             e.source.playSound('random.break')
                             p.getBag().clearItem(e.itemStack.typeId, 1)

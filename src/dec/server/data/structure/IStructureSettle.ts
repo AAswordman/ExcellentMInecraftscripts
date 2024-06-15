@@ -52,7 +52,9 @@ export default class IStructureSettle implements DisposeAble{
                 s.set(...c.start);
                 e.set(...(c.end ? c.end : c.start))
                 if (c.end) e.sub(1);
-                dim.fillBlocks(tmpV.set(pos).add(s), tmpP.set(pos).add(e), t.block.get(c.blockId) ?? MinecraftBlockTypes.Air)
+                //TTOD
+
+                // dim.fillBlocks(tmpV.set(pos).add(s), tmpP.set(pos).add(e), t.block.get(c.blockId) ?? MinecraftBlockTypes.Air)
                 yield true;
             }
             return false;

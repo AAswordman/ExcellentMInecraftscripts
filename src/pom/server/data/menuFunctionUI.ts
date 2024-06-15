@@ -157,7 +157,7 @@ ALiFang ZHE - 提供部分模型、贴图
 基岩 - 灰烬塔建筑、建议
 
 Our Team
-竹翼团队     无上蓝痕(BlueMark Studio)
+无上蓝痕(BlueMark Studio)
 
 Special Thanks
 BunBun不是笨笨    在矿里的小金呀

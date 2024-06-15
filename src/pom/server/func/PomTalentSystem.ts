@@ -469,7 +469,7 @@ export default class PomTalentSystem extends GameController {
 
         this.getEvents().exEvents.afterItemOnHandChange.subscribe(e => {
             if (e.afterItem?.typeId === "wb:skill_tracking_arrow") {
-                this.exPlayer.selectedSlot = e.beforeSlot;
+                this.exPlayer.selectedSlotIndex = e.beforeSlot;
                 if (this.player.getItemCooldown("occupation_skill_1") == 0) {
                     this.player.startItemCooldown("occupation_skill_1", 5 * 20);
                     if (this.skill_stateNum[0] <= 0) {

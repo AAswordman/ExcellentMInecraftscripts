@@ -46,13 +46,13 @@ export default class ExDimension implements ExCommandNativeRunner {
     getBlock(vec: IVector3) {
         return ignorn(() => this._dimension.getBlock(vec));
     }
-    fillBlocks(start: IVector3, end: IVector3, blockId: string | BlockType, option?: BlockFillOptions) {
-        // console.warn("fillBlocks", start, end, blockId);
-        if (typeof blockId === "string") blockId = <BlockType>BlockTypes.get(blockId);
-        this.dimension.fillBlocks(start, end, blockId, option);
-        //b?.permutation;
+    // fillBlocks(start: IVector3, end: IVector3, blockId: string | BlockType, option?: BlockFillOptions) {
+    //     // console.warn("fillBlocks", start, end, blockId);
+    //     if (typeof blockId === "string") blockId = <BlockType>BlockTypes.get(blockId);
+    //     this.dimension.fillBlocks(start, end, blockId, option);
+    //     //b?.permutation;
 
-    }
+    // }
     setBlock(vec: IVector3, blockId: string | BlockType) {
         if (typeof blockId === "string") blockId = <BlockType>BlockTypes.get(blockId);
         let b = this.getBlock(vec);

@@ -55,11 +55,11 @@ export default class ExPlayer extends ExEntity {
         //this.runCommandAsync(`titleraw @s actionbar {"rawtext":[{"text":"${str}"}]}`);
         this.entity.onScreenDisplay.setActionBar(str);
     }
-    public get selectedSlot() {
-        return this.entity.selectedSlot;
+    public get selectedSlotIndex() {
+        return this.entity.selectedSlotIndex;
     }
-    public set selectedSlot(value: number) {
-        this.entity.selectedSlot = value;
+    public set selectedSlotIndex(value: number) {
+        this.entity.selectedSlotIndex = value;
     }
 
     override get viewDirection() {

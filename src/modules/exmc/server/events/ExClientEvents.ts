@@ -146,14 +146,14 @@ export default class ExClientEvents implements ExEventManager {
                 ExClientEvents.eventHandlers.server.getEvents().register(registerName, (e: TickEvent) => {
                     for (let i of (ExClientEvents.eventHandlers.monitorMap[k])) {
                         let lastItemCache = this.onHandItemMap.get(<Player>i[0]);
-                        if (e.currentTick % 4 === 0 || ((<Player>i[0]).selectedSlot !== lastItemCache?.[1])) {
+                        if (e.currentTick % 4 === 0 || ((<Player>i[0]).selectedSlotIndex !== lastItemCache?.[1])) {
                             let lastItem = lastItemCache?.[0];
                             let nowItem = ExPlayer.getInstance(<Player>i[0]).getBag().itemOnMainHand;
 
-                            if (lastItem?.typeId !== nowItem?.typeId || (<Player>i[0]).selectedSlot !== lastItemCache?.[1]) {
+                            if (lastItem?.typeId !== nowItem?.typeId || (<Player>i[0]).selectedSlotIndex !== lastItemCache?.[1]) {
                                 let res: ItemStack | undefined = nowItem;
                                 i[1].forEach((f) => {
-                                    res = <ItemStack | undefined>f(new ItemOnHandChangeEvent(lastItem, lastItemCache?.[1] ?? 0, res, (<Player>i[0]).selectedSlot, <Player>i[0])) ?? res;
+                                    res = <ItemStack | undefined>f(new ItemOnHandChangeEvent(lastItem, lastItemCache?.[1] ?? 0, res, (<Player>i[0]).selectedSlotIndex, <Player>i[0])) ?? res;
                                 });
                                 if (res !== undefined) {
                                     if(res.isWillBeRemoved){
@@ -163,7 +163,7 @@ export default class ExClientEvents implements ExEventManager {
                                     }
                                 }
 
-                                this.onHandItemMap.set(<Player>i[0], [res, (<Player>i[0]).selectedSlot]);
+                                this.onHandItemMap.set(<Player>i[0], [res, (<Player>i[0]).selectedSlotIndex]);
                             }
                         }
                     }
