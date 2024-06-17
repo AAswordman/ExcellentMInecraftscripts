@@ -2,7 +2,7 @@ import { ExBlockArea } from "../../../../modules/exmc/server/block/ExBlockArea.j
 import UUID from "../../../../modules/exmc/utils/UUID.js";
 import ExDimension from "../../../../modules/exmc/server/ExDimension.js";
 import DisposeAble from '../../../../modules/exmc/interface/DisposeAble.js';
-import Vector3, { IVector3 } from "../../../../modules/exmc/math/Vector3.js";
+import Vector3, { IVector3 } from "../../../../modules/exmc/utils/math/Vector3.js";
 import ExEventManager from '../../../../modules/exmc/interface/ExEventManager.js';
 import PomServer from "../../PomServer.js";
 import { Player, Entity } from '@minecraft/server';

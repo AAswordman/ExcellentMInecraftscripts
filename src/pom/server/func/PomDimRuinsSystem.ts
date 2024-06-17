@@ -2,7 +2,7 @@ import { MinecraftDimensionTypes, Block, EntityHurtAfterEvent, Entity } from '@m
 import GameController from "./GameController.js";
 import RuinsLoaction from "./ruins/RuinsLoaction.js";
 import { ExBlockArea } from '../../../modules/exmc/server/block/ExBlockArea.js';
-import Vector3 from '../../../modules/exmc/math/Vector3.js';
+import Vector3 from '../../../modules/exmc/utils/math/Vector3.js';
 import PomDesertRuinBasicRule from './ruins/desert/PomDesertRuinBasicRule.js';
 import VarOnChangeListener from '../../../modules/exmc/utils/VarOnChangeListener.js';
 import ExMessageAlert from '../../../modules/exmc/server/ui/ExMessageAlert.js';

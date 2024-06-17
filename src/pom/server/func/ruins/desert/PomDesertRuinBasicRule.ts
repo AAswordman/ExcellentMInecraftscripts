@@ -3,7 +3,7 @@ import GameControllerRuinRule from "../GameControllerRuinRule.js";
 import RuinsLoaction from "../RuinsLoaction.js";
 import PomDesertRuinRules from "./PomDesertRuinRules.js";
 import PomMazeMapBuilder from "../PomMazeMapBuilder.js";
-import Vector3 from "../../../../../modules/exmc/math/Vector3.js";
+import Vector3 from "../../../../../modules/exmc/utils/math/Vector3.js";
 import ExErrorQueue from "../../../../../modules/exmc/server/ExErrorQueue.js";
 import VarOnChangeListener from "../../../../../modules/exmc/utils/VarOnChangeListener.js";
 import { MinecraftEntityTypes } from "../../../../../modules/vanilla-data/lib/index.js";

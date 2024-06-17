@@ -1,5 +1,5 @@
 import { world } from "@minecraft/server";
-import MathUtil from "../../math/MathUtil.js";
+import MathUtil from "../../utils/math/MathUtil.js";
 
 export default class ExEnvironment {
     time: number;

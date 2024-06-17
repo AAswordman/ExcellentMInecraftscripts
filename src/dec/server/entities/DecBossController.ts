@@ -7,7 +7,7 @@ import PomServer from "../../../pom/server/PomServer.js";
 import DecGlobal from '../DecGlobal.js';
 import { ExBlockArea } from "../../../modules/exmc/server/block/ExBlockArea.js";
 import DecBossBarrier from "./DecBossBarrier.js";
-import Vector3 from "../../../modules/exmc/math/Vector3.js";
+import Vector3 from "../../../modules/exmc/utils/math/Vector3.js";
 
 export default class DecBossController extends ExEntityController {
     startPos: Vector3;

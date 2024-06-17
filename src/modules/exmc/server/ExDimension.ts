@@ -1,6 +1,6 @@
 import { Dimension, EntityQueryOptions, Block, ItemStack, Entity, BlockType, ExplosionOptions, MolangVariableMap, BlockTypes, BlockFillOptions } from '@minecraft/server';
 import { ExCommandNativeRunner } from '../interface/ExCommandRunner.js';
-import Vector3, { IVector3 } from "../math/Vector3.js";
+import Vector3, { IVector3 } from "../utils/math/Vector3.js";
 import ExGameConfig from './ExGameConfig.js';
 import ExCommand from './env/ExCommand.js';
 import { ignorn } from './ExErrorQueue.js';

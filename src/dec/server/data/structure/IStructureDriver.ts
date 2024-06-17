@@ -1,4 +1,4 @@
-import Vector3 from "../../../../modules/exmc/math/Vector3.js";
+import Vector3 from "../../../../modules/exmc/utils/math/Vector3.js";
 import IStructureSettle from "./IStructureSettle.js";
 import ExDimension from '../../../../modules/exmc/server/ExDimension.js';
 import { MinecraftBlockTypes } from "../../../../modules/vanilla-data/lib/index.js";

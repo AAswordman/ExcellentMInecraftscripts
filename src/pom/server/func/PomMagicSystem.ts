@@ -1,5 +1,5 @@
 import { Effect } from '@minecraft/server';
-import MathUtil from "../../../modules/exmc/math/MathUtil.js";
+import MathUtil from "../../../modules/exmc/utils/math/MathUtil.js";
 import ExSystem from "../../../modules/exmc/utils/ExSystem.js";
 import VarOnChangeListener from "../../../modules/exmc/utils/VarOnChangeListener.js";
 import { Talent } from "../cache/TalentData.js";

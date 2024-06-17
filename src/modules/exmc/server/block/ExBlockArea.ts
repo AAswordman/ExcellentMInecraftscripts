@@ -1,6 +1,6 @@
 import ExGameConfig from '../ExGameConfig.js';
-import Matrix4 from '../../math/Matrix4.js';
-import Vector3, { IVector3 } from '../../math/Vector3.js';
+import Matrix4 from '../../utils/math/Matrix4.js';
+import Vector3, { IVector3 } from '../../utils/math/Vector3.js';
 
 
 export class ExBlockArea {

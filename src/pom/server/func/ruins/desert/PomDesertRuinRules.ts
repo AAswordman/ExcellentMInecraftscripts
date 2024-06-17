@@ -6,7 +6,7 @@ import GameController from "../../GameController.js";
 
 import * as desertCommand from "../../ruins/desert/PomDesertRuinCommmand.js";
 import ExEntity from "../../../../../modules/exmc/server/entity/ExEntity.js";
-import Vector3 from '../../../../../modules/exmc/math/Vector3.js';
+import Vector3 from '../../../../../modules/exmc/utils/math/Vector3.js';
 import ExSystem from "../../../../../modules/exmc/utils/ExSystem.js";
 import { MinecraftEffectTypes } from "../../../../../modules/vanilla-data/lib/index.js";
 export default class PomDesertRuinRules {

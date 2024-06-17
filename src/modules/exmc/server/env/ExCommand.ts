@@ -6,7 +6,7 @@ import { ExCommandRunner, ExCommandNativeRunner } from '../../interface/ExComman
 import ExGameServer from '../ExGameServer.js';
 import TickDelayTask from '../../utils/TickDelayTask.js';
 import ExErrorQueue from '../ExErrorQueue.js';
-import Queue from '../../utils/Queue.js';
+import Queue from '../../utils/queue/Queue.js';
 import ExSystem from '../../utils/ExSystem.js';
 export default class ExCommand {
     runner: ExCommandNativeRunner;

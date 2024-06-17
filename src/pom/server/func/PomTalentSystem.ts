@@ -1,6 +1,6 @@
 import { Entity, EntityDamageCause } from '@minecraft/server';
 import { ArmorData } from '../../../dec/server/items/ArmorData.js';
-import MathUtil from "../../../modules/exmc/math/MathUtil.js";
+import MathUtil from "../../../modules/exmc/utils/math/MathUtil.js";
 import ExDimension from '../../../modules/exmc/server/ExDimension.js';
 import ExGame from '../../../modules/exmc/server/ExGame.js';
 import ExEntity from "../../../modules/exmc/server/entity/ExEntity.js";
@@ -18,7 +18,7 @@ import ItemTagComponent from '../data/ItemTagComponent.js';
 import PomOccupationSkillTrack from '../entities/PomOccupationSkillTrack.js';
 import damageShow from "../helper/damageShow.js";
 import GameController from "./GameController.js";
-import Vector3 from '../../../modules/exmc/math/Vector3.js';
+import Vector3 from '../../../modules/exmc/utils/math/Vector3.js';
 import { MinecraftItemTypes } from '../../../modules/vanilla-data/lib/index.js';
 
 export default class PomTalentSystem extends GameController {

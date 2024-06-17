@@ -16,7 +16,7 @@ import notUtillTask from "../utils/notUtillTask.js";
 import { TickEvent } from "./events/events.js";
 import ExGame from "./ExGame.js";
 import DynamicPropertyManager from "../interface/DynamicPropertyManager.js";
-import Vector3 from "../math/Vector3.js";
+import Vector3 from "../utils/math/Vector3.js";
 
 export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingPool> implements SetTimeOutSupport {
     private _events: ExClientEvents;

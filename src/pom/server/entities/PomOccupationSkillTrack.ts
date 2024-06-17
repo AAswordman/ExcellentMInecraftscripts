@@ -1,7 +1,7 @@
 import ExEntityController from "../../../modules/exmc/server/entity/ExEntityController.js";
 import { Entity } from '@minecraft/server';
 import { TickEvent } from "../../../modules/exmc/server/events/events.js";
-import Vector3, { IVector3 } from "../../../modules/exmc/math/Vector3.js";
+import Vector3, { IVector3 } from "../../../modules/exmc/utils/math/Vector3.js";
 
 export default class PomOccupationSkillTrack extends ExEntityController {
     target: Entity | undefined;

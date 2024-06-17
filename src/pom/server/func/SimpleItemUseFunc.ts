@@ -1,6 +1,6 @@
 import { EntityDamageCause, ItemType, ItemStack, ItemTypes, MinecraftDimensionTypes } from '@minecraft/server';
 import { ModalFormData } from "@minecraft/server-ui";
-import Vector3 from '../../../modules/exmc/math/Vector3.js';
+import Vector3 from '../../../modules/exmc/utils/math/Vector3.js';
 import ExDimension from '../../../modules/exmc/server/ExDimension.js';
 import ExErrorQueue from '../../../modules/exmc/server/ExErrorQueue.js';
 import menuFunctionUI from "../data/menuFunctionUI.js";

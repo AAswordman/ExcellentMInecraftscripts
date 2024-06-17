@@ -1,4 +1,4 @@
-import { IVector3 } from "../../../modules/exmc/math/Vector3.js";
+import { IVector3 } from "../../../modules/exmc/utils/math/Vector3.js";
 import { ExBlockArea } from "../../../modules/exmc/server/block/ExBlockArea.js";
 
 export default interface BlockPartitioningCache<T> {

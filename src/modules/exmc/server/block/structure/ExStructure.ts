@@ -1,6 +1,6 @@
-import Vector3 from '../../../math/Vector3.js';
+import Vector3 from '../../../utils/math/Vector3.js';
 import { Dimension, StructureRotation, world } from '@minecraft/server';
-import Vector2 from '../../../math/Vector2.js';
+import Vector2 from '../../../utils/math/Vector2.js';
 import ExDimension from '../../ExDimension.js';
 import { to } from '../../ExErrorQueue.js';
 export default class ExStructure {

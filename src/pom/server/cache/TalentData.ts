@@ -1,4 +1,4 @@
-import MathUtil from "../../../modules/exmc/math/MathUtil.js";
+import MathUtil from "../../../modules/exmc/utils/math/MathUtil.js";
 import { langType } from '../data/langType.js';
 import format from '../../../modules/exmc/utils/format.js';
 import ExLoreManager from "../../../modules/exmc/interface/ExLoreManager.js";

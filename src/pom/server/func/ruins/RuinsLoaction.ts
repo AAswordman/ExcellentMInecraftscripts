@@ -1,4 +1,4 @@
-import Vector3, { IVector3 } from "../../../../modules/exmc/math/Vector3.js";
+import Vector3, { IVector3 } from "../../../../modules/exmc/utils/math/Vector3.js";
 import { ExBlockArea } from '../../../../modules/exmc/server/block/ExBlockArea.js';
 
 export default class RuinsLoaction {

@@ -2,13 +2,13 @@ import { Entity, EntityHealthComponent, EntityInventoryComponent, Dimension, Ent
 import { ExCommandNativeRunner } from '../../interface/ExCommandRunner.js';
 import ExTagManager from '../../interface/ExTagManager.js';
 import ExScoresManager from './ExScoresManager.js';
-import Vector3, { IVector3 } from '../../math/Vector3.js';
+import Vector3, { IVector3 } from '../../utils/math/Vector3.js';
 import ExEntityBag from './ExEntityBag.js';
 import SetTimeOutSupport from '../../interface/SetTimeOutSupport.js';
 import ExCommand from '../env/ExCommand.js';
 import ExDimension from '../ExDimension.js';
-import Vector2, { IVector2 } from '../../math/Vector2.js';
-import Matrix4 from '../../math/Matrix4.js';
+import Vector2, { IVector2 } from '../../utils/math/Vector2.js';
+import Matrix4 from '../../utils/math/Matrix4.js';
 
 export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     public command = new ExCommand(this);

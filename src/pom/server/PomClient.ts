@@ -27,7 +27,7 @@ import TickDelayTask from "../../modules/exmc/utils/TickDelayTask.js";
 import ExPropCache from "../../modules/exmc/server/storage/cache/ExPropCache.js";
 import { ArmorData } from "../../dec/server/items/ArmorData.js";
 import { GameDifficulty, pomDifficultyMap } from "./data/GameDifficulty.js";
-import Vector3 from "../../modules/exmc/math/Vector3.js";
+import Vector3 from "../../modules/exmc/utils/math/Vector3.js";
 import TalentData from "./cache/TalentData.js";
 import PomTerritorySystem from "./func/PomTerritorySystem.js";
 

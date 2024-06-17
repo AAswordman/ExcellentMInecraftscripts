@@ -8,7 +8,7 @@ import { ExEventNames, ExOtherEventNames, ItemOnHandChangeEvent, PlayerShootProj
 import TickDelayTask from "../../utils/TickDelayTask.js";
 import EventHandle, { EventListenerSettings } from './EventHandle.js';
 import ExEntity from "../entity/ExEntity.js";
-import Vector3 from "../../math/Vector3.js";
+import Vector3 from "../../utils/math/Vector3.js";
 import { MinecraftEntityTypes } from "../../../vanilla-data/lib/index.js";
 import { ItemStartUseAfterEvent } from "@minecraft/server";
 

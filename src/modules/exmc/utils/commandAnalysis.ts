@@ -1,4 +1,4 @@
-import MathUtil from "../math/MathUtil.js";
+import MathUtil from "./math/MathUtil.js";
 
 export default function(command:string) {
     if (command.startsWith("/") || command.startsWith("$")) {

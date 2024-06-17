@@ -1,5 +1,5 @@
 import { EnchantmentTypes, ItemDurabilityComponent, ItemStack, ItemType, ItemTypes } from "@minecraft/server";
-import Vector3 from "../../../modules/exmc/math/Vector3.js";
+import Vector3 from "../../../modules/exmc/utils/math/Vector3.js";
 import "../../../modules/exmc/server/block/ExBlock.js";
 import ExColorLoreUtil from "../../../modules/exmc/server/item/ExColorLoreUtil.js";
 import "../../../modules/exmc/server/item/ExItem.js";

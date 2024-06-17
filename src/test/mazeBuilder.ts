@@ -1,7 +1,7 @@
 import Random from "../modules/exmc/utils/Random.js";
-import Vector2 from "../modules/exmc/math/Vector2.js";
+import Vector2 from "../modules/exmc/utils/math/Vector2.js";
 import ExStructureJigsaw from "../modules/exmc/server/block/structure/ExStructureJigsaw.js";
-import Vector3 from "../modules/exmc/math/Vector3.js";
+import Vector3 from "../modules/exmc/utils/math/Vector3.js";
 const maze = Array.from(new Array<number>(32), () => new Array<number>(32).fill(0));
 
 let block = 64;

@@ -8,7 +8,7 @@ import PomClient from '../PomClient.js';
 import ExMusic from '../../../modules/exmc/server/env/ExMusic.js';
 import VarOnChangeListener from '../../../modules/exmc/utils/VarOnChangeListener.js';
 import { TickEvent } from '../../../modules/exmc/server/events/events.js';
-import Vector3 from '../../../modules/exmc/math/Vector3.js';
+import Vector3 from '../../../modules/exmc/utils/math/Vector3.js';
 
 export default class PomAncientStoneBoss extends PomBossController {
     static typeId = "wb:ancient_stone"

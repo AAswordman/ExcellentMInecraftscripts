@@ -1,6 +1,6 @@
 import { Player } from '@minecraft/server';
 import TimeLoopTask from '../../utils/TimeLoopTask.js';
-import { IVector3 } from '../../math/Vector3.js';
+import { IVector3 } from '../../utils/math/Vector3.js';
 import ExDimension from '../ExDimension.js';
 import ExGameServer from '../ExGameServer.js';
 export default class ExMusic {

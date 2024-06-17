@@ -1,4 +1,4 @@
-import Vector3 from "../../../../modules/exmc/math/Vector3.js";
+import Vector3 from "../../../../modules/exmc/utils/math/Vector3.js";
 import { Dimension, Block } from '@minecraft/server';
 import ExDimension from "../../../../modules/exmc/server/ExDimension.js";
 import ExTaskRunner from "../../../../modules/exmc/server/ExTaskRunner.js";

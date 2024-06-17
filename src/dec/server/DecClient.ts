@@ -2,8 +2,8 @@ import { EntityDamageCause, GameMode, ItemStack, MinecraftDimensionTypes, Player
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import ExGameServer from "../../modules/exmc/server/ExGameServer.js";
 import { ArmorData, ArmorPlayerDec, ArmorPlayerPom } from "./items/ArmorData.js";
-import MathUtil from "../../modules/exmc/math/MathUtil.js";
-import Vector3 from "../../modules/exmc/math/Vector3.js";
+import MathUtil from "../../modules/exmc/utils/math/MathUtil.js";
+import Vector3 from "../../modules/exmc/utils/math/Vector3.js";
 import DecGlobal from "./DecGlobal.js";
 import { DecTasks, PomTasks, numTranToTask, taskUi } from "./data/Task.js";
 import ExGame from "../../modules/exmc/server/ExGame.js";

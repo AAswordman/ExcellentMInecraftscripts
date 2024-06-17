@@ -1,6 +1,6 @@
 import { ChatSendBeforeEvent, DimensionType, DimensionTypes, Entity, EntityDamageCause, EntityHurtAfterEvent, GameMode, MinecraftDimensionTypes, MolangVariableMap, Player, world } from '@minecraft/server';
 import ExConfig from "../../modules/exmc/ExConfig.js";
-import Vector3, { IVector3 } from '../../modules/exmc/math/Vector3.js';
+import Vector3, { IVector3 } from '../../modules/exmc/utils/math/Vector3.js';
 import ExDimension from "../../modules/exmc/server/ExDimension.js";
 import ExGameServer from "../../modules/exmc/server/ExGameServer.js";
 import ExTickQueue from "../../modules/exmc/server/ExTickQueue.js";

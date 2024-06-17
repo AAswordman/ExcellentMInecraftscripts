@@ -1,4 +1,4 @@
-import MathUtil from "../../../modules/exmc/math/MathUtil.js";
+import MathUtil from "../../../modules/exmc/utils/math/MathUtil.js";
 
 export default function getCharByNum(num: number, long: number, useChr: string) {
     num = MathUtil.clamp(num, 0,1);

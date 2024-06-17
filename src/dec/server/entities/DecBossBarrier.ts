@@ -1,6 +1,6 @@
 import DisposeAble from "../../../modules/exmc/interface/DisposeAble.js";
 import ExEventManager from "../../../modules/exmc/interface/ExEventManager.js";
-import Vector3, { IVector3 } from "../../../modules/exmc/math/Vector3.js";
+import Vector3, { IVector3 } from "../../../modules/exmc/utils/math/Vector3.js";
 import ExDimension from "../../../modules/exmc/server/ExDimension.js";
 import { ignorn } from "../../../modules/exmc/server/ExErrorQueue.js";
 import { ExBlockArea } from "../../../modules/exmc/server/block/ExBlockArea.js";

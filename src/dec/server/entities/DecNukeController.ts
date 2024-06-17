@@ -1,7 +1,7 @@
 import { Entity } from "@minecraft/server";
 import DecServer from "../DecServer.js";
 import ExEntityController from "../../../modules/exmc/server/entity/ExEntityController.js";
-import Vector3 from "../../../modules/exmc/math/Vector3.js";
+import Vector3 from "../../../modules/exmc/utils/math/Vector3.js";
 import ExTaskRunner from "../../../modules/exmc/server/ExTaskRunner.js";
 import { MinecraftBlockTypes } from "../../../modules/vanilla-data/lib/index.js";
 import { Objective } from "../../../modules/exmc/server/entity/ExScoresManager.js";
