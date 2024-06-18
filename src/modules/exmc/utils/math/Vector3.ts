@@ -249,7 +249,7 @@ export default class Vector3 {
      * @param {Vector3} vec - The other vector to calculate the distance to.
      * @returns {number} The distance between the two vectors.
      */
-    public distance(vec: Vector3): number {
+    public distance(vec: IVector3): number {
         return this.cpy().sub(vec).len();
     }
 

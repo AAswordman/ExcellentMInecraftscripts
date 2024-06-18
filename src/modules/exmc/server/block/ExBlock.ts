@@ -21,6 +21,7 @@ declare module "@minecraft/server" {
 }
 Object.assign(Block.prototype, {
     addTag: function (tag: string): string {
+        
         throw new Error("cant add tag");
     },
     removeTag: function (tag: string): string {
