@@ -25,46 +25,53 @@ export default class PomDesertRuinBasicRule extends GameControllerRuinRule {
         // console.warn(spos);
         // console.warn(epos);
         this.tmpA.set(this.client.getServer().ruinDesertGuardPos).sub(RuinsLoaction.DESERT_RUIN_LOCATION_START).div(16).floor();
-        for (; spos.z < epos.z; spos.z++) {
-            let line: string[] = [];
-            for (spos.x = spos2.x; spos.x < epos.x; spos.x++) {
-                const posStr = `${spos.x},${spos.y},${spos.z}`;
-                if (spos.x === this.tmpA.x && spos.y === this.tmpA.y && spos.z === this.tmpA.z) {
-                    line.push(PomMazeMapBuilder.CHAR_MAZE_PATH_GUARD);
-                } else if (spos.x === playerPos.x && spos.z === playerPos.z) {
-                    const view = this.game.player.getViewDirection();
-                    if (ruin.isInRoom(posStr)) {
-                        if (view.x > view.z) {
-                            if (Math.abs(view.x) > Math.abs(view.z)) line.push(PomMazeMapBuilder.CHAR_MAZE_ROOM_ARROW_LEFT);
-                            else line.push(PomMazeMapBuilder.CHAR_MAZE_ROOM_ARROW_DOWN);
+        let center = RuinsLoaction.DESERT_RUIN_AREA.center().sub(RuinsLoaction.DESERT_RUIN_LOCATION_START).div(16).floor();
+        if (
+            center.x - 2 <= playerPos.x && playerPos.x < center.x + 2
+            && center.z - 2 <= playerPos.z && playerPos.z < center.z + 2
+        ) {
+        } else {
+            for (; spos.z < epos.z; spos.z++) {
+                let line: string[] = [];
+                for (spos.x = spos2.x; spos.x < epos.x; spos.x++) {
+                    const posStr = `${spos.x},${spos.y},${spos.z}`;
+                    if (spos.x === this.tmpA.x && spos.y === this.tmpA.y && spos.z === this.tmpA.z) {
+                        line.push(PomMazeMapBuilder.CHAR_MAZE_PATH_GUARD);
+                    } else if (spos.x === playerPos.x && spos.z === playerPos.z) {
+                        const view = this.game.player.getViewDirection();
+                        if (ruin.isInRoom(posStr)) {
+                            if (view.x > view.z) {
+                                if (Math.abs(view.x) > Math.abs(view.z)) line.push(PomMazeMapBuilder.CHAR_MAZE_ROOM_ARROW_LEFT);
+                                else line.push(PomMazeMapBuilder.CHAR_MAZE_ROOM_ARROW_DOWN);
+                            } else {
+                                if (Math.abs(view.x) > Math.abs(view.z)) line.push(PomMazeMapBuilder.CHAR_MAZE_ROOM_ARROW_RIGHT);
+                                else line.push(PomMazeMapBuilder.CHAR_MAZE_ROOM_ARROW_UP);
+                            }
+                        } else if (ruin.isOnPath(posStr)) {
+                            if (view.x > view.z) {
+                                if (Math.abs(view.x) > Math.abs(view.z)) line.push(PomMazeMapBuilder.CHAR_MAZE_PATH_ARROW_LEFT);
+                                else line.push(PomMazeMapBuilder.CHAR_MAZE_PATH_ARROW_DOWN);
+                            } else {
+                                if (Math.abs(view.x) > Math.abs(view.z)) line.push(PomMazeMapBuilder.CHAR_MAZE_PATH_ARROW_RIGHT);
+                                else line.push(PomMazeMapBuilder.CHAR_MAZE_PATH_ARROW_UP);
+                            }
                         } else {
-                            if (Math.abs(view.x) > Math.abs(view.z)) line.push(PomMazeMapBuilder.CHAR_MAZE_ROOM_ARROW_RIGHT);
-                            else line.push(PomMazeMapBuilder.CHAR_MAZE_ROOM_ARROW_UP);
+                            line.push(PomMazeMapBuilder.CHAR_MAZE_EMPTY);
+                        }
+                    } else if (ruin.isInRoom(posStr)) {
+                        if (this.desertRoomCounter.has(posStr)) {
+                            line.push(PomMazeMapBuilder.CHAR_MAZE_ROOM_PASSED);
+                        } else {
+                            line.push(PomMazeMapBuilder.CHAR_MAZE_ROOM);
                         }
                     } else if (ruin.isOnPath(posStr)) {
-                        if (view.x > view.z) {
-                            if (Math.abs(view.x) > Math.abs(view.z)) line.push(PomMazeMapBuilder.CHAR_MAZE_PATH_ARROW_LEFT);
-                            else line.push(PomMazeMapBuilder.CHAR_MAZE_PATH_ARROW_DOWN);
-                        } else {
-                            if (Math.abs(view.x) > Math.abs(view.z)) line.push(PomMazeMapBuilder.CHAR_MAZE_PATH_ARROW_RIGHT);
-                            else line.push(PomMazeMapBuilder.CHAR_MAZE_PATH_ARROW_UP);
-                        }
+                        line.push(PomMazeMapBuilder.CHAR_MAZE_PATH);
                     } else {
                         line.push(PomMazeMapBuilder.CHAR_MAZE_EMPTY);
                     }
-                } else if (ruin.isInRoom(posStr)) {
-                    if (this.desertRoomCounter.has(posStr)) {
-                        line.push(PomMazeMapBuilder.CHAR_MAZE_ROOM_PASSED);
-                    } else {
-                        line.push(PomMazeMapBuilder.CHAR_MAZE_ROOM);
-                    }
-                } else if (ruin.isOnPath(posStr)) {
-                    line.push(PomMazeMapBuilder.CHAR_MAZE_PATH);
-                } else {
-                    line.push(PomMazeMapBuilder.CHAR_MAZE_EMPTY);
                 }
+                show.unshift(line.reverse().join(""));
             }
-            show.unshift(line.reverse().join(""));
         }
         return show;
     }

@@ -47,9 +47,12 @@ export default class KDTree {
     // 插入节点
     insert(point: KDPoint): void {
         this.root = this._insert(this.root, point, 0);
-        if (this.maxDepth > 36 && this.getNodes().size < 1000){
+        if (this.maxDepth > 24 && this.getNodes().size < 1024) {
             this.rebuild();
-        }
+        } else
+            if (this.maxDepth > 48 && this.getNodes().size < 2048) {
+                this.rebuild();
+            }
     }
     /**
        * Private method to recursively insert a point into the tree.
@@ -82,8 +85,10 @@ export default class KDTree {
     * @param {KDPoint[]} points - Array of points to build the tree from.
     */
     build(points: KDPoint[]): void {
+        // console.log("build");
+        this.maxDepth = 0;
         this.nodes.clear();
-        this.k = points[0].coordinates.length;
+        // this.k = points[0].coordinates.length;
         this.root = this._buildTree(points, 0);
     }
     /**
@@ -92,6 +97,7 @@ export default class KDTree {
     rebuild(): void {
         // Clear the current tree
         this.root = undefined;
+        this.maxDepth = 0;
         // Rebuild using the current list of points (assuming you maintain such a list)
         if (this.nodes && this.nodes.size > 0) {
             this.build(this.getPoints());
@@ -102,9 +108,8 @@ export default class KDTree {
      * @returns {KDPoint[]} - An array of points.
      */
     getPoints() {
-        return Array.from(this.nodes.values()).map(e => e.point);
+        return Array.from(this.nodes.values()).map(e => e.point).filter(e => e !== undefined);
     }
-
     /**
      * Retrieves all nodes currently stored in the tree.
      * @returns {Set<KDNode>} - A set of KDNodes.
