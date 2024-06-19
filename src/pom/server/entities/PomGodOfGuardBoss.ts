@@ -7,14 +7,95 @@ import KDTree, { KDPoint } from '../../../modules/exmc/utils/tree/KDTree.js';
 import VarOnChangeListener from '../../../modules/exmc/utils/VarOnChangeListener.js';
 import PomServer from '../PomServer.js';
 import PomBossController from './PomBossController.js';
+import UUID from '../../../modules/exmc/utils/UUID.js';
+import ExSystem from '../../../modules/exmc/utils/ExSystem.js';
+import TickDelayTask from '../../../modules/exmc/utils/TickDelayTask.js';
+
+export class PomGodOfGuardBossState {
+    constructor(public centers: PomGodOfGuardShootCenters, public ctrl: PomBossController) {
+
+    }
+    onEnter() {
+
+    }
+    onTick(e: TickEvent) {
+        return false;
+    }
+    onExit() {
+
+    }
+}
+export class PomGodOfGuardBossState1 extends PomGodOfGuardBossState {
+    tickNum = 0;
+    center1!: PomGodOfGuardShootCenter;
+    override onEnter() {
+        this.center1 = this.centers.addCenter(this.ctrl.entity.location);
+    }
+    override onTick(e: TickEvent) {
+        if(this.tickNum++ > 100){
+            return true;
+        }
+        let x = Math.PI*this.tickNum/10;
+        let y = Math.PI*this.tickNum/100 + Math.random()*Math.PI*2;
+        this.center1.add(8,{
+            x:Math.cos(x),
+            z:Math.sin(x),
+            y:0
+        },6*1000);
+        this.center1.add(8,{
+            x:Math.cos(y),
+            z:Math.sin(y),
+            y:0
+        },6*1000);
+        this.center1.add(4,{
+            x:Math.cos(x),
+            z:Math.sin(x),
+            y:0
+        },10*1000);
+        return false;
+    }
+    override onExit() {
+        this.centers.remove(this.center1);
+    }
+}
+
+export class PomGodOfGuardBossStates {
+    state?: PomGodOfGuardBossState;
+    centers: PomGodOfGuardShootCenters;
+    constructor(public ctrl: PomBossController) {
+        this.centers = new PomGodOfGuardShootCenters(ctrl.entity.dimension);
+    }
+    onTick(e: TickEvent) {
+        this.centers.tick(e.deltaTime, Array.from(this.ctrl.barrier.getPlayers()), this.ctrl.entity);
+        if (this.state) {
+            if (this.state.onTick(e)) {
+                this.state.onExit();
+                this.state = undefined;
+            }
+        }
+    }
+    set(istate: typeof PomGodOfGuardBossState) {
+        if (this.state) {
+            return;
+        }
+        this.state = (new (istate)(this.centers, this.ctrl));
+        this.state.onEnter();
+    }
+    
+}
 
 export class PomGodOfGuardBoss1 extends PomBossController {
     static typeId = "wb:god_of_guard_first";
-    centers: PomGodOfGuardShootCenters;
+    states: PomGodOfGuardBossStates;
+    timer: TickDelayTask;
     constructor(e: Entity, server: PomServer) {
         super(e, server);
-        this.centers = new PomGodOfGuardShootCenters(this.entity.dimension);
-        let center = this.centers.addCenter(new Vector3(this.entity.location).add(0,0.3,0));
+        this.states = new PomGodOfGuardBossStates(this);
+        this.timer = ExSystem.tickTask(() => {
+            this.states.set(PomGodOfGuardBossState1);
+        });
+        this.timer.delay(5*20);
+        this.timer.start();
     }
     override initBossEntity(): void {
         super.initBossEntity();
@@ -32,43 +113,13 @@ export class PomGodOfGuardBoss1 extends PomBossController {
 
     @registerEvent("onLongTick")
     onLongTick(e: TickEvent) {
-        
+
     }
+
 
     @registerEvent("tick")
     onTick(e: TickEvent) {
-        let x = Math.PI * 2/15*e.currentTick;
-        this.centers.centers[0].add(2, {
-            "x": Math.cos(x),
-            "z": Math.sin(x),
-            "y": 0
-        },10000);
-        this.centers.centers[0].add(10, {
-            "x": Math.cos(x),
-            "z": Math.sin(x),
-            "y": 0
-        },10000);
-        // this.centers.centers[0].add(5, {
-        //     "x": Math.cos(x),
-        //     "z": Math.sin(x),
-        //     "y": Math.sin(x/4+Math.PI/4)
-        // },8000);
-        // this.centers.centers[0].add(15, {
-        //     "x": Math.cos(x),
-        //     "z": Math.sin(x),
-        //     "y": Math.sin(x/4+Math.PI*2/4)
-        // },8000);
-        // this.centers.centers[0].add(8, {
-        //     "x": Math.cos(x),
-        //     "z": Math.sin(x),
-        //     "y": Math.sin(x/4+Math.PI*3/4)
-        // },8000);
-        // this.centers.centers[0].add(20, {
-        //     "x": Math.cos(x),
-        //     "z": Math.sin(x),
-        //     "y": Math.cos(x/2)
-        // },8000);
-        this.centers.tick(e.deltaTime, Array.from(this.barrier.getPlayers()),this.entity);
+        this.states.onTick(e);
 
     }
 
@@ -215,13 +266,13 @@ export class PomGodOfGuardShootCenter {
         this.trajectory.insert(point);
         let map = new MolangVariableMap();
         map.setSpeedAndDirection("def", speed, this.tmpV);
-        map.setFloat("lifetime",lifeTime/1000);
+        map.setFloat("lifetime", lifeTime / 1000);
         this.pointJudge.set(point, { speed: speed, direction: this.tmpV.cpy(), spawnTime: new Date().getTime(), lifeTime: lifeTime });
         this.dimension.spawnParticle("wb:ruin_desert_boss_shoot_par", this.center, map);
     }
     judgeHurt(pos: IVector3, pastTime: number) {
         let boxR = 0.7;
-        let boxR2 = boxR / this.tmpV.set(pos).sub(this.center).len()*1.42;
+        let boxR2 = boxR / this.tmpV.set(pos).sub(this.center).len() * 1.42;
         let dic = this.trajectory.rangeSearch(new KDPoint(...this.tmpV.set(pos).sub(this.center).normalize().toArray()), boxR2);
         for (let i of dic) {
             if (this.pointJudge.has(i)) {
@@ -237,7 +288,7 @@ export class PomGodOfGuardShootCenter {
                     }
                     let midLen = this.tmpV.set(afterPos).sub(beforePos).scl(0.5).add(beforePos).distance(pos);
                     let d = this.tmpV.set(afterPos).sub(beforePos);
-                    if (midLen < dis1 && midLen < dis2 && d.crs(beforePos.sub(pos)).len()/d.len() <= boxR) {
+                    if (midLen < dis1 && midLen < dis2 && d.crs(beforePos.sub(pos)).len() / d.len() <= boxR) {
                         return true;
                     }
                 } else {
@@ -255,25 +306,29 @@ export class PomGodOfGuardShootCenter {
 
 
 export class PomGodOfGuardShootCenters {
-    centers: PomGodOfGuardShootCenter[] = [];
+    centers = new Set<PomGodOfGuardShootCenter>();
     constructor(public dimension: Dimension) {
 
     }
     addCenter(pos: IVector3) {
         let center = new PomGodOfGuardShootCenter(this.dimension, pos);
-        this.centers.push(center);
+        let id = UUID.randomUUID();
+        this.centers.add(center);
         return center;
+    }
+    remove(center: PomGodOfGuardShootCenter) {
+        return this.centers.delete(center);
     }
     tickNum = 0;
     tmpV = new Vector3();
-    tick(tickDelay: number, targets: Entity[],from:Entity) {
+    tick(tickDelay: number, targets: Entity[], from: Entity) {
         for (let c of this.centers) {
             for (let p of targets) {
-                if (c.judgeHurt(this.tmpV.set(p.location).add(0,0.5,0), tickDelay)) {
+                if (c.judgeHurt(this.tmpV.set(p.location).add(0, 0.5, 0), tickDelay)) {
                     // console.warn("打到了");
                     p.applyDamage(5, {
-                        "cause":EntityDamageCause.entityAttack,
-                        "damagingEntity":from
+                        "cause": EntityDamageCause.entityAttack,
+                        "damagingEntity": from
                     })
                     p.applyKnockback(0, 0, 0.5, 0.2)
                 }
@@ -281,7 +336,7 @@ export class PomGodOfGuardShootCenters {
         }
 
         this.tickNum++;
-        if(this.tickNum%(10 * 20) === 0){
+        if (this.tickNum % (10 * 20) === 0) {
             this.centers.forEach(c => {
                 c.optmize();
             });

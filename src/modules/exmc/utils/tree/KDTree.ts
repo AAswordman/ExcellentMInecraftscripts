@@ -31,6 +31,7 @@ export class KDNode {
 export default class KDTree {
     root: KDNode | undefined;
     k = 0;
+    maxDepth: number = 0;
     /**
      * Initializes a new instance of the KDTree class.
      * @param {number} dim - The dimensionality of the points to be stored in the tree.
@@ -46,6 +47,9 @@ export default class KDTree {
     // 插入节点
     insert(point: KDPoint): void {
         this.root = this._insert(this.root, point, 0);
+        if (this.maxDepth > 36 && this.getNodes().size < 1000){
+            this.rebuild();
+        }
     }
     /**
        * Private method to recursively insert a point into the tree.
@@ -59,6 +63,7 @@ export default class KDTree {
         if (node === undefined) {
             let newNode = new KDNode(point, depth % this.k);
             this.nodes.add(newNode);
+            this.maxDepth = Math.max(this.maxDepth, depth);
             return newNode;
         }
 
@@ -120,6 +125,7 @@ export default class KDTree {
         const node = new KDNode(points[medianIndex], splitDimension, parent);
         node.left = this._buildTree(points.slice(0, medianIndex), depth + 1, node);
         node.right = this._buildTree(points.slice(medianIndex + 1), depth + 1, node);
+        this.maxDepth = Math.max(this.maxDepth, depth);
         this.nodes.add(node);
         return node;
     }
