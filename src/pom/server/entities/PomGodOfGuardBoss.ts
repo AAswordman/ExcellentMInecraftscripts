@@ -11,6 +11,7 @@ import UUID from '../../../modules/exmc/utils/UUID.js';
 import ExSystem from '../../../modules/exmc/utils/ExSystem.js';
 import TickDelayTask from '../../../modules/exmc/utils/TickDelayTask.js';
 import Random from '../../../modules/exmc/utils/Random.js';
+import MathUtil from '../../../modules/exmc/utils/math/MathUtil.js';
 
 export class PomGodOfGuardBossState {
     constructor(public centers: PomGodOfGuardShootCenters, public ctrl: PomBossController) {
@@ -62,7 +63,7 @@ export class PomGodOfGuardBossState1 extends PomGodOfGuardBossState {
     override onExit() {
         ExSystem.tickTask(() => {
             this.centers.remove(this.center1);
-        }).delay(10 * 1000).startOnce();
+        }).delay(10 * 20).startOnce();
     }
 }
 export class PomGodOfGuardBossState2 extends PomGodOfGuardBossState {
@@ -92,7 +93,7 @@ export class PomGodOfGuardBossState2 extends PomGodOfGuardBossState {
     override onExit() {
         ExSystem.tickTask(() => {
             this.centers.remove(this.center1);
-        }).delay(4 * 1000).startOnce();
+        }).delay(4 * 20).startOnce();
     }
 }
 export class PomGodOfGuardBossState3 extends PomGodOfGuardBossState {
@@ -127,7 +128,7 @@ export class PomGodOfGuardBossState3 extends PomGodOfGuardBossState {
     override onExit() {
         ExSystem.tickTask(() => {
             this.centers.remove(this.center1);
-        }).delay(6 * 1000).startOnce();
+        }).delay(6 * 20).startOnce();
     }
 }
 export class PomGodOfGuardBossState4 extends PomGodOfGuardBossState {
@@ -157,7 +158,7 @@ export class PomGodOfGuardBossState4 extends PomGodOfGuardBossState {
     override onExit() {
         ExSystem.tickTask(() => {
             this.centers.remove(this.center1);
-        }).delay(5 * 1000).startOnce();
+        }).delay(5 * 20).startOnce();
     }
 }
 export class PomGodOfGuardBossState5 extends PomGodOfGuardBossState {
@@ -228,7 +229,7 @@ export class PomGodOfGuardBossState5 extends PomGodOfGuardBossState {
     override onExit() {
         ExSystem.tickTask(() => {
             this.centers.remove(this.center1);
-        }).delay(10 * 1000).startOnce();
+        }).delay(10 * 20).startOnce();
     }
 }
 export class PomGodOfGuardBossState6 extends PomGodOfGuardBossState {
@@ -252,7 +253,7 @@ export class PomGodOfGuardBossState6 extends PomGodOfGuardBossState {
     override onExit() {
         ExSystem.tickTask(() => {
             this.centers.remove(this.center1);
-        }).delay(3 * 1000).startOnce();
+        }).delay(3 * 20).startOnce();
     }
 }
 export class PomGodOfGuardBossState7 extends PomGodOfGuardBossState {
@@ -276,7 +277,7 @@ export class PomGodOfGuardBossState7 extends PomGodOfGuardBossState {
     override onExit() {
         ExSystem.tickTask(() => {
             this.centers.remove(this.center1);
-        }).delay(3 * 1000).startOnce();
+        }).delay(3 * 20).startOnce();
     }
 }
 export class PomGodOfGuardBossState8 extends PomGodOfGuardBossState {
@@ -307,7 +308,7 @@ export class PomGodOfGuardBossState8 extends PomGodOfGuardBossState {
     override onExit() {
         ExSystem.tickTask(() => {
             this.centers.remove(this.center1);
-        }).delay(6 * 1000).startOnce();
+        }).delay(6 * 20).startOnce();
     }
 }
 export class PomGodOfGuardBossState9 extends PomGodOfGuardBossState {
@@ -338,7 +339,7 @@ export class PomGodOfGuardBossState9 extends PomGodOfGuardBossState {
     override onExit() {
         ExSystem.tickTask(() => {
             this.centers.remove(this.center1);
-        }).delay(10 * 1000).startOnce();
+        }).delay(10 * 20).startOnce();
     }
 }
 
@@ -349,15 +350,24 @@ export class PomGodOfGuardBossState10 extends PomGodOfGuardBossState {
     override onEnter() {
         this.center1 = this.centers.addCenter(this.ctrl.entity.location);
     }
+    tmpV = new Vector3();
+    tmpF = new Vector3();
 
     override onTick(e: TickEvent) {
         if (this.tickNum++ > 10) return true;
-
+        let c = this.ctrl.entity.location;
         const randomDir = () => new Vector3({ x: Math.random() * 2 - 1, z: Math.random() * 2 - 1, y: 0 }).normalize();
         const directions = [randomDir(), randomDir()];
         directions[1].y = Math.random() * 5;
-        let p = new Vector3(Random.choice(Array.from(this.ctrl.barrier.getPlayers())).location).sub(this.ctrl.entity.location);
-        this.center1.add(30,p,3*1000,"4");
+        let p = new Vector3(Random.choice(Array.from(this.ctrl.barrier.getPlayers())).location);
+        if (this.tickNum === 1) {
+            this.tmpV.set(c).sub(p).normalize().scl(2);
+            this.tmpF.set(p).add(this.tmpV).add(0, 1, 0);
+
+            this.ctrl.entity.dimension.spawnParticle("wb:tech_explorer_para", this.tmpF);
+        }
+        p.sub(c);
+        this.center1.add(20, p, 3 * 1000, "4");
         directions.forEach((dir, index) => {
             this.center1.add(5 + index, dir, 10000 + index * 1000, "3");
         });
@@ -368,12 +378,118 @@ export class PomGodOfGuardBossState10 extends PomGodOfGuardBossState {
     override onExit() {
         ExSystem.tickTask(() => {
             this.centers.remove(this.center1);
-        }).delay(15 * 1000).startOnce();
+        }).delay(15 * 20).startOnce();
     }
 }
 
 
-//多中心攻击
+//双中心攻击
+export class PomGodOfGuardBossState11 extends PomGodOfGuardBossState {
+    tickNum = 0;
+    center1!: PomGodOfGuardShootCenter;
+    center2!: PomGodOfGuardShootCenter;
+    entity2!: Entity;
+    pos!: Vector3;
+    pos2!: Vector3;
+
+    override onEnter() {
+        this.pos = new Vector3(this.ctrl.entity.location);
+        this.center1 = this.centers.addCenter(this.pos);
+
+        let c = this.ctrl.barrier.center.cpy();
+        this.pos2 = this.tmpV.set(this.pos).sub(c).scl(-1).add(c).cpy();
+        this.pos2.y = this.pos.y;
+        this.center2 = this.centers.addCenter(this.pos2);
+
+        this.entity2 = this.ctrl.entity.dimension.spawnEntity("wb:god_of_guard_settle", this.pos);
+    }
+    tmpV = new Vector3();
+    override onTick(e: TickEvent) {
+        if (this.tickNum++ > 80) return true;
+        if (this.tickNum > 20) {
+            for (let i = 0; i < 4; i++) {
+                const angle = i * Math.PI / 2 + this.tickNum * Math.PI / 18;
+                this.center1.add(10, {
+                    x: Math.cos(angle),
+                    z: Math.sin(angle),
+                    y: 0
+                }, (5) * 1000);
+                this.center2.add(10, {
+                    x: Math.cos(angle),
+                    z: Math.sin(angle),
+                    y: 0
+                }, (5) * 1000);
+            }
+        } else {
+            this.entity2.teleport(this.tmpV.set(this.pos2).sub(this.pos).scl(this.tickNum / 20).add(this.pos), {
+                "keepVelocity": true
+            })
+        }
+        return false;
+    }
+
+    override onExit() {
+        ExSystem.tickTask(() => {
+            this.centers.remove(this.center1);
+            this.centers.remove(this.center2);
+            // console.warn("remove");
+            this.entity2.remove();
+        }).delay(5 * 20).startOnce();
+    }
+}
+export class PomGodOfGuardBossState12 extends PomGodOfGuardBossState {
+    tickNum = 0;
+    center1!: PomGodOfGuardShootCenter;
+    center2!: PomGodOfGuardShootCenter;
+    entity2!: Entity;
+    pos!: Vector3;
+    pos2!: Vector3;
+
+    override onEnter() {
+        this.pos = new Vector3(this.ctrl.entity.location);
+        this.center1 = this.centers.addCenter(this.pos);
+
+        let c = this.ctrl.barrier.center.cpy();
+        this.pos2 = new Vector3(
+            MathUtil.randomInteger(c.x - 30, c.x + 30),
+            this.pos.y,
+            MathUtil.randomInteger(c.z - 30, c.z + 30)
+        )
+        this.center2 = this.centers.addCenter(this.pos2);
+
+        this.entity2 = this.ctrl.entity.dimension.spawnEntity("wb:god_of_guard_settle", this.pos)
+    }
+    tmpV = new Vector3();
+    override onTick(e: TickEvent) {
+        if (this.tickNum++ > 60) return true;
+        if (this.tickNum > 20) {
+            let p = Random.choice(Array.from(this.ctrl.barrier.getPlayers()));
+            let targetV = new Vector3(p.getVelocity());
+            let targetPos = new Vector3(p.location);
+            targetPos.add(targetV.scl(60))
+            this.tmpV.set(targetPos);
+            targetPos.sub(this.pos2);
+            if (this.tickNum % 10 === 0) {
+                this.center2.add(targetPos.len() / 3, targetPos, 4 * 1000, "4");
+                this.ctrl.entity.dimension.spawnParticle("wb:tech_explorer_para", this.tmpV.add(0, 1, 0));
+            }
+        } else {
+            this.entity2.teleport(this.tmpV.set(this.pos2).sub(this.pos).scl(this.tickNum / 20).add(this.pos), {
+                "keepVelocity": true
+            })
+        }
+        return false;
+    }
+
+    override onExit() {
+        ExSystem.tickTask(() => {
+            this.centers.remove(this.center1);
+            this.centers.remove(this.center2);
+
+            this.entity2.remove();
+        }).delay(4 * 20).startOnce();
+    }
+}
 
 
 
@@ -423,7 +539,9 @@ export class PomGodOfGuardBoss1 extends PomBossController {
                 PomGodOfGuardBossState7,
                 PomGodOfGuardBossState8,
                 PomGodOfGuardBossState9,
-                PomGodOfGuardBossState10
+                PomGodOfGuardBossState10,
+                PomGodOfGuardBossState11,
+                PomGodOfGuardBossState12
             ];
             this.states.set(Random.choice(arr));
         });
@@ -438,7 +556,10 @@ export class PomGodOfGuardBoss1 extends PomBossController {
         super.onSpawn();
     }
     override onKilled(e: EntityHurtAfterEvent): void {
+        console.warn("onWin");
+        this.stopBarrier();
         super.onKilled(e);
+
     }
     override onFail(): void {
         super.onFail();
