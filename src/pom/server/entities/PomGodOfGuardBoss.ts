@@ -190,9 +190,9 @@ export class PomGodOfGuardBossState4 extends PomGodOfGuardBossState {
         if (this.tickNum % 6 === 0) {
             let p = new Vector3(Random.choice(Array.from(this.ctrl.barrier.getPlayers())).location).sub(this.ctrl.entity.location);
             let tmpV = new Vector3();
-            for (let i = -12; i <= 12; i += 3) {
-                for (let j = -12; j <= 12; j += 3) {
-                    for (let k = -12; k <= 12; k += 3) {
+            for (let i = -12; i <= 12; i += 4) {
+                for (let j = -12; j <= 12; j += 4) {
+                    for (let k = -12; k <= 12; k += 4) {
                         this.center1.add(10, tmpV.set(p).add(i, j, k), 5 * 1000, this.defDamage);
                     }
                 }

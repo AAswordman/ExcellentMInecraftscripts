@@ -114,8 +114,11 @@ export default class PomBossBarrier implements DisposeAble {
                         // notUtillTask(this.server,() => ExPlayer.getInstance(e).getHealth()>0,()=>{
                         this.server.setTimeout(() => {
                             if (this.dim.dimension !== e.dimension) {
-                                e.addEffect(MinecraftEffectTypes.Resistance, 14 * 20, 10, false);
-                                e.addEffect(MinecraftEffectTypes.Weakness, 14 * 20, 10, false);
+                                e.addEffect(MinecraftEffectTypes.Resistance, 15 * 20, 10, false);
+                                e.addEffect(MinecraftEffectTypes.Weakness, 15 * 20, 10, false);
+                            } else {
+                                e.addEffect(MinecraftEffectTypes.Resistance, 5 * 20, 10, false);
+                                e.addEffect(MinecraftEffectTypes.Weakness, 5 * 20, 10, false);
                             }
                             e.setPosition(this.area.center(), this.dim.dimension);
                         }, 2000);
