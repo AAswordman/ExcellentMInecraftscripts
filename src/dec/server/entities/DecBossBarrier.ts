@@ -74,10 +74,12 @@ export default class DecBossBarrier implements DisposeAble {
         this.manager.cancel("onLongTick", this.tickEvent);
         for (let c of this.clientsByPlayer()) {
             c.bossBarrier = undefined;
-            if (c.player.getDynamicProperty('InBoundary') === this.id) {
-                c.player.setDynamicProperty('InBoundary', undefined);
-                c.exPlayer.gameModeCode = c.exPlayer.getScoresManager().getScore("pre_gamemode");
 
+        }
+        for (let c of this.server.getExPlayers()) {
+            if (c.entity.getDynamicProperty('InBoundary') === this.id) {
+                c.entity.setDynamicProperty('InBoundary', undefined);
+                c.gameModeCode = c.getScoresManager().getScore("pre_gamemode");
             }
         }
     }
