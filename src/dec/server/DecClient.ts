@@ -43,6 +43,7 @@ export default class DecClient extends ExGameClient {
     override onJoin(): void {
         super.onJoin();
         this.exPlayer.command.run('fog @s remove \"night_event\"')
+
         this.getEvents().exEvents.onLongTick.subscribe((e) => {
             if (e.currentTick % 40 === 0) {
                 this.totemEffect('dec:gingerbread_totem', ['function item/gingerbread_totem']);
@@ -177,38 +178,38 @@ export default class DecClient extends ExGameClient {
                 }
             }
 
-//EPIC
-        //日光套装受伤效果
-        if (!DecGlobal.isDec() && !this.player.hasTag("wbkjlq")) {
-            const tmpV = new Vector3();
-            switch (this.useArmor) {
-                case ArmorPlayerPom.sunlight:
+            //EPIC
+            //日光套装受伤效果
+            if (!DecGlobal.isDec() && !this.player.hasTag("wbkjlq")) {
+                const tmpV = new Vector3();
+                switch (this.useArmor) {
+                    case ArmorPlayerPom.sunlight:
                         this.exPlayer.addTag("skill_user");
-                    for (let e of this.getExDimension().getEntities({
-                        "maxDistance": 5,
-                        "excludeTags": ["skill_user","wbmsyh"],
-                        "excludeFamilies": [],
-                        "excludeTypes":["item"],
-                        "location": this.player.location
-                    })) {
-                    try {
-                        e.applyDamage(15, {
-                            "cause": EntityDamageCause.magic,
-                            "damagingEntity": this.player
-                        });
-                        e.setOnFire(5,false)
-                        let direction = tmpV.set(e.location).sub(this.player.location).normalize();
-                        e.applyKnockback(direction.x, direction.z, 1.2, 0.6);
-                        } catch (e) { }
-                    }
-                      this.exPlayer.addEffect(MinecraftEffectTypes.FireResistance, 5 * 20, 0);
-                      this.exPlayer.addEffect(MinecraftEffectTypes.Absorption, 1 * 20, 0);
-                      this.exPlayer.command.run("function EPIC/armor/sunlight");
-                      this.exPlayer.removeTag("skill_user")
-                      break;
+                        for (let e of this.getExDimension().getEntities({
+                            "maxDistance": 5,
+                            "excludeTags": ["skill_user", "wbmsyh"],
+                            "excludeFamilies": [],
+                            "excludeTypes": ["item"],
+                            "location": this.player.location
+                        })) {
+                            try {
+                                e.applyDamage(15, {
+                                    "cause": EntityDamageCause.magic,
+                                    "damagingEntity": this.player
+                                });
+                                e.setOnFire(5, false)
+                                let direction = tmpV.set(e.location).sub(this.player.location).normalize();
+                                e.applyKnockback(direction.x, direction.z, 1.2, 0.6);
+                            } catch (e) { }
+                        }
+                        this.exPlayer.addEffect(MinecraftEffectTypes.FireResistance, 5 * 20, 0);
+                        this.exPlayer.addEffect(MinecraftEffectTypes.Absorption, 1 * 20, 0);
+                        this.exPlayer.command.run("function EPIC/armor/sunlight");
+                        this.exPlayer.removeTag("skill_user")
+                        break;
                 }
             }
-//WB
+            //WB
             if (ra <= 50 && ExEntity.getInstance(e.hurtEntity).getBag().equipmentOnHead?.typeId === 'dec:glass_tank') {
                 e.hurtEntity.runCommandAsync('playsound random.glass @a ~~1~')
             }
@@ -725,6 +726,44 @@ export default class DecClient extends ExGameClient {
 
     override onLoad(): void {
         super.onLoad();
+        if (this.globalscores.getNumber('FirstEnter') === 0) {
+            this.exPlayer.addTag('owner')
+            this.globalscores.setNumber('FirstEnter', 1)
+            this.exPlayer.runCommandAsync('gamerule commandblockoutput false')
+            if(DecGlobal.isDec()) this.exPlayer.runCommandAsync('function test/creator_list')
+            this.exPlayer.runCommandAsync('function test/load_ok')
+            this.exPlayer.runCommandAsync('tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:command_help.name\" } ] }')
+        }
+        if (this.player.getDynamicProperty('has_initalized') === undefined) {
+            const score_init = (obj_str: string, value: number) => {
+                new Objective(obj_str).initScore(this.player, value);
+            }
+            score_init('i_inviolable', 0)
+            score_init('i_damp', 0)
+            score_init('i_soft', 0)
+            score_init('i_heavy', 0)
+            score_init('skill_count', 0)
+            score_init('pre_gamemode', 0)
+            if (DecGlobal.isDec()) {
+                score_init('magicpoint', 20)
+                score_init('maxmagic', 20)
+                score_init('magicgain', 0)
+                score_init('magicreckon', 0)
+            }
+            if (this.exPlayer.hasTag('mok')) {
+                //将原来用于标记已初始化的mok去除
+                this.exPlayer.removeTag('mok')
+            } else if (DecGlobal.isDec()) {
+                this.exPlayer.addTag('hpl1')
+            }
+            this.player.setDynamicProperty('has_initalized', true)
+        }
+
+        if(this.player.getDynamicProperty('InBoundary')){
+            this.player.setDynamicProperty('InBoundary',undefined);
+            this.exPlayer.gameModeCode = this.exPlayer.getScoresManager().getScore("pre_gamemode");
+        }
+
     }
 
     override onLeave(): void {

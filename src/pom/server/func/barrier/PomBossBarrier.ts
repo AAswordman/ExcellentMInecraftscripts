@@ -5,7 +5,7 @@ import DisposeAble from '../../../../modules/exmc/interface/DisposeAble.js';
 import Vector3, { IVector3 } from "../../../../modules/exmc/utils/math/Vector3.js";
 import ExEventManager from '../../../../modules/exmc/interface/ExEventManager.js';
 import PomServer from "../../PomServer.js";
-import { Player, Entity } from '@minecraft/server';
+import { Player, Entity, GameMode } from '@minecraft/server';
 import PomClient from "../../PomClient.js";
 import PomBossController from "../../entities/PomBossController.js";
 import { ignorn } from "../../../../modules/exmc/server/ExErrorQueue.js";
@@ -73,6 +73,11 @@ export default class PomBossBarrier implements DisposeAble {
         for (let c of this.clientsByPlayer()) {
             c.ruinsSystem.causeDamageShow = false;
             c.ruinsSystem.barrier = undefined;
+            if (c.player.getDynamicProperty('InBoundary') === this.id) {
+                c.player.setDynamicProperty('InBoundary', undefined);
+                c.exPlayer.gameModeCode = c.exPlayer.getScoresManager().getScore("pre_gamemode");
+            }
+
         }
     }
     *clientsByPlayer() {
@@ -85,7 +90,7 @@ export default class PomBossBarrier implements DisposeAble {
     }
     *getPlayers() {
         for (let e of this.players) {
-            if(e[0].isValid()) yield e[0];
+            if (e[0].isValid()) yield e[0];
         }
     }
 
@@ -122,7 +127,16 @@ export default class PomBossBarrier implements DisposeAble {
                 }
             } else {
                 if (this.area.contains(e.entity.location)) {
-                    e.entity.kill();
+                    if (!e.entity.getDynamicProperty('InBoundary')) {
+                        e.entity.setDynamicProperty('InBoundary', this.id);
+                        e.getScoresManager().setScore("pre_gamemode", e.gameModeCode);
+                        e.gamemode = GameMode.spectator;
+                    }
+                } else {
+                    if (e.entity.getDynamicProperty('InBoundary') === this.id) {
+                        e.entity.setDynamicProperty('InBoundary', undefined);
+                        e.gameModeCode = e.getScoresManager().getScore("pre_gamemode");
+                    }
                 }
             }
         }
@@ -138,7 +152,7 @@ export default class PomBossBarrier implements DisposeAble {
         this.clearFog();
         this.dispose();
     }
-    clearFog(){
+    clearFog() {
         this.dim.command.run(`fog @a[x=${this.center.x},y=${this.center.y},z=${this.center.z},r=128] remove "ruin_fog"`);
     }
     changeFog(name: string) {

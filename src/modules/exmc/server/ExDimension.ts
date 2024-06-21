@@ -10,7 +10,7 @@ export default class ExDimension implements ExCommandNativeRunner {
 
     spawnParticle(p: string, v: IVector3, varMap = new MolangVariableMap()) {
         try {
-            this._dimension.spawnParticle(p, v, varMap);
+            (this._dimension.spawnParticle(p, v, varMap));
             return true;
         } catch (e) {
             return false;

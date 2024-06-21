@@ -325,7 +325,7 @@ export default class PomTalentSystem extends GameController {
                         const armor_pitch = [bag.equipmentOnHead, bag.equipmentOnChest, bag.equipmentOnLegs, bag.equipmentOnFeet];
                         const item_main = bag.itemOnMainHand;
                         const item_off = bag.itemOnOffHand;
-                        if (item_main?.typeId == MinecraftItemTypes.TotemOfUndying || item_off?.typeId ==  MinecraftItemTypes.TotemOfUndying) {
+                        if (item_main?.typeId == MinecraftItemTypes.TotemOfUndying || item_off?.typeId == MinecraftItemTypes.TotemOfUndying) {
                             this.setTimeout(() => {
                                 [bag.equipmentOnHead, bag.equipmentOnChest, bag.equipmentOnLegs, bag.equipmentOnFeet] = armor_pitch;
                             }, 100);
@@ -435,6 +435,8 @@ export default class PomTalentSystem extends GameController {
                             }
                         }).delay(5 * 20)).start(); //
                     }
+                } else {
+                    this.itemOnHandComp = undefined;
                 }
             } else {
                 this.equiTotalTask?.stop();

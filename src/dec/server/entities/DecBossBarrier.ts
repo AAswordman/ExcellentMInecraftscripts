@@ -10,7 +10,8 @@ import { MinecraftEffectTypes } from "../../../modules/vanilla-data/lib/index.js
 import DecServer from "../DecServer.js";
 import DecBossController from "./DecBossController.js";
 import DecClient from "../DecClient.js";
-import { Entity, Player } from "@minecraft/server";
+import { Entity, GameMode, Player } from "@minecraft/server";
+import ExPlayer from "../../../modules/exmc/server/entity/ExPlayer.js";
 
 
 export default class DecBossBarrier implements DisposeAble {
@@ -73,6 +74,11 @@ export default class DecBossBarrier implements DisposeAble {
         this.manager.cancel("onLongTick", this.tickEvent);
         for (let c of this.clientsByPlayer()) {
             c.bossBarrier = undefined;
+            if (c.player.getDynamicProperty('InBoundary') === this.id) {
+                c.player.setDynamicProperty('InBoundary', undefined);
+                c.exPlayer.gameModeCode = c.exPlayer.getScoresManager().getScore("pre_gamemode");
+
+            }
         }
     }
     *clientsByPlayer() {
@@ -116,7 +122,16 @@ export default class DecBossBarrier implements DisposeAble {
                 }
             } else {
                 if (this.area.contains(e.entity.location)) {
-                    e.entity.kill();
+                    if (!e.entity.getDynamicProperty('InBoundary')) {
+                        e.entity.setDynamicProperty('InBoundary', this.id);
+                        e.getScoresManager().setScore("pre_gamemode", e.gameModeCode);
+                        e.gamemode = GameMode.spectator;
+                    }
+                } else {
+                    if (e.entity.getDynamicProperty('InBoundary') === this.id) {
+                        e.entity.setDynamicProperty('InBoundary', undefined);
+                        e.gameModeCode = e.getScoresManager().getScore("pre_gamemode");
+                    }
                 }
             }
         }

@@ -13,4 +13,7 @@ export default class Queue<T>{
 
         return this.queue.length;
     }
+    sort(compareFn?: (a: T, b: T) => number){
+        this.queue.sort(compareFn)
+    }
 }

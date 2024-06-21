@@ -1,6 +1,7 @@
-import { Entity, world } from '@minecraft/server';
+import { Entity, ScoreboardIdentity, ScoreboardObjective, ScoreboardScoreInfo, world } from '@minecraft/server';
 import ExNullEntity from "./ExNullEntity.js";
 import ExGameConfig from '../ExGameConfig.js';
+
 
 
 export default class ExScoresManager {
@@ -65,9 +66,9 @@ export default class ExScoresManager {
      * @LiLeyi
      * 用来初始化计分板上某一项的值。若未初始化返回true，初始化了返回false
      * */
-    initializeScore(name: string,value: number) {
-        if (!this.hasScore(name)){
-            this.setScore(name,value)
+    initializeScore(name: string, value: number) {
+        if (!this.hasScore(name)) {
+            this.setScore(name, value)
             return true
         } else {
             return false
@@ -77,18 +78,17 @@ export default class ExScoresManager {
 }
 export class Objective {
     name: string;
+    scoreboardObjective: ScoreboardObjective | undefined;
     constructor(name: string) {
         this.name = name;
+        this.scoreboardObjective = world.scoreboard.getObjective(name);
     }
-
     create(showName: string) {
-        try {
-            world.scoreboard.addObjective(this.name, showName);
-        } catch (e) { }
+        if (!world.scoreboard.getObjective(this.name)) this.scoreboardObjective = world.scoreboard.addObjective(this.name, showName);
         return this;
     }
     delete() {
-        world.scoreboard.removeObjective(this.name);
+        if (world.scoreboard.getObjective(this.name)) world.scoreboard.removeObjective(this.name);
     }
     setDisplay(mode = "sidebar", ascending = true) {
         if (mode == "sidebar") {
@@ -97,5 +97,36 @@ export class Objective {
             ExGameConfig.runCommandAsync(`scoreboard objectives setdisplay ${mode} ${this.name}`);
         }
         return this;
+    }
+
+    addScore(participant: Entity | ScoreboardIdentity | string, scoreToAdd: number): number {
+        return this.scoreboardObjective?.addScore(participant, scoreToAdd) ?? 0;
+    }
+    getParticipants(): ScoreboardIdentity[] {
+        return this.scoreboardObjective?.getParticipants() ?? [];
+    }
+    getScore(participant: Entity | ScoreboardIdentity | string): number | undefined {
+        return this.scoreboardObjective?.getScore(participant) ?? undefined;
+    }
+    getScores(): ScoreboardScoreInfo[] {
+        return this.scoreboardObjective?.getScores() ?? [];
+    }
+    hasParticipant(participant: Entity | ScoreboardIdentity | string): boolean {
+        return this.scoreboardObjective?.hasParticipant(participant) ?? false;
+    }
+    isValid(): boolean {
+        return this.scoreboardObjective?.isValid() ?? false;
+    }
+    removeParticipant(participant: Entity | ScoreboardIdentity | string): boolean {
+        return this.scoreboardObjective?.removeParticipant(participant) ?? false;
+    }
+    setScore(participant: Entity | ScoreboardIdentity | string, score: number): void {
+        return this.scoreboardObjective?.setScore(participant, score) ?? undefined;
+    }
+
+    initScore(participant: Entity | ScoreboardIdentity | string, score: number): void {
+        if (!this.hasParticipant(participant)) {
+            this.setScore(participant, score);
+        }
     }
 }
