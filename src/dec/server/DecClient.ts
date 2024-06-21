@@ -337,6 +337,7 @@ export default class DecClient extends ExGameClient {
                 this.globalscores.setNumber("AlreadyGmCheat", 1);
                 if (this.globalscores.getNumber('DieMode')) {
                     p.addTag('diemode_gmcheat')
+                    this.globalscores.setNumber("DieModeGmCheat", 1);
                 }
             } else if (p.hasTag('gaming')) {
                 p.removeTag('gaming')
