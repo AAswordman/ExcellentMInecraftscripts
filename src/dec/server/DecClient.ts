@@ -770,4 +770,4 @@ export default class DecClient extends ExGameClient {
     override onLeave(): void {
         super.onLeave();
     }
-}
+}  
