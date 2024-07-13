@@ -1,4 +1,4 @@
-import { Dimension } from "@minecraft/server";
+import { Dimension, StructureMirrorAxis } from "@minecraft/server";
 import { ExBlockArea } from "../../../../../modules/exmc/server/block/ExBlockArea.js";
 import PomRuinCommon from "../PomRuinCommon.js";
 import ExStructureJigsaw from "../../../../../modules/exmc/server/block/structure/ExStructureJigsaw.js";
@@ -33,25 +33,25 @@ export default class PomAncientBossRuin implements PomRuinCommon {
         this.dim = dim;
         this.jigsaw = new ExStructureJigsaw(32, 4);
 
-        this.jigsaw.setStructurePlane(0, 0, 0, 0, 0, this.structure_area1, 0, "none");
-        this.jigsaw.setStructurePlane(3, 0, 0, 0, 0, this.structure_area1, 0, "z");
-        this.jigsaw.setStructurePlane(0, 3, 0, 0, 0, this.structure_area1, 0, "x");
-        this.jigsaw.setStructurePlane(3, 3, 0, 0, 0, this.structure_area1, 0, "xz");
+        this.jigsaw.setStructurePlane(0, 0, 0, 0, 0, this.structure_area1, 0, StructureMirrorAxis.None);
+        this.jigsaw.setStructurePlane(3, 0, 0, 0, 0, this.structure_area1, 0, StructureMirrorAxis.Z);
+        this.jigsaw.setStructurePlane(0, 3, 0, 0, 0, this.structure_area1, 0, StructureMirrorAxis.X);
+        this.jigsaw.setStructurePlane(3, 3, 0, 0, 0, this.structure_area1, 0, StructureMirrorAxis.XZ);
 
-        this.jigsaw.setStructurePlane(1, 0, 0, 0, 0, this.structure_area2, 0, "none");
-        this.jigsaw.setStructurePlane(2, 0, 0, 0, 0, this.structure_area2, 0, "z");
-        this.jigsaw.setStructurePlane(1, 3, 0, 0, 0, this.structure_area2, 0, "x");
-        this.jigsaw.setStructurePlane(2, 3, 0, 0, 0, this.structure_area2, 0, "xz");
+        this.jigsaw.setStructurePlane(1, 0, 0, 0, 0, this.structure_area2, 0, StructureMirrorAxis.None);
+        this.jigsaw.setStructurePlane(2, 0, 0, 0, 0, this.structure_area2, 0, StructureMirrorAxis.Z);
+        this.jigsaw.setStructurePlane(1, 3, 0, 0, 0, this.structure_area2, 0, StructureMirrorAxis.X);
+        this.jigsaw.setStructurePlane(2, 3, 0, 0, 0, this.structure_area2, 0, StructureMirrorAxis.XZ);
 
-        this.jigsaw.setStructurePlane(0, 1, 0, 0, 0, this.structure_area3, 0, "none");
-        this.jigsaw.setStructurePlane(3, 1, 0, 0, 0, this.structure_area3, 0, "z");
-        this.jigsaw.setStructurePlane(0, 2, 0, 0, 0, this.structure_area3, 0, "x");
-        this.jigsaw.setStructurePlane(3, 2, 0, 0, 0, this.structure_area3, 0, "xz");
+        this.jigsaw.setStructurePlane(0, 1, 0, 0, 0, this.structure_area3, 0, StructureMirrorAxis.None);
+        this.jigsaw.setStructurePlane(3, 1, 0, 0, 0, this.structure_area3, 0, StructureMirrorAxis.Z);
+        this.jigsaw.setStructurePlane(0, 2, 0, 0, 0, this.structure_area3, 0, StructureMirrorAxis.X);
+        this.jigsaw.setStructurePlane(3, 2, 0, 0, 0, this.structure_area3, 0, StructureMirrorAxis.XZ);
 
-        this.jigsaw.setStructurePlane(1, 1, 0, 0, 0, this.structure_area4, 0, "none");
-        this.jigsaw.setStructurePlane(2, 1, 0, 0, 0, this.structure_area4, 0, "z");
-        this.jigsaw.setStructurePlane(1, 2, 0, 0, 0, this.structure_area4, 0, "x");
-        this.jigsaw.setStructurePlane(2, 2, 0, 0, 0, this.structure_area4, 0, "xz");
+        this.jigsaw.setStructurePlane(1, 1, 0, 0, 0, this.structure_area4, 0, StructureMirrorAxis.None);
+        this.jigsaw.setStructurePlane(2, 1, 0, 0, 0, this.structure_area4, 0, StructureMirrorAxis.Z);
+        this.jigsaw.setStructurePlane(1, 2, 0, 0, 0, this.structure_area4, 0, StructureMirrorAxis.X);
+        this.jigsaw.setStructurePlane(2, 2, 0, 0, 0, this.structure_area4, 0, StructureMirrorAxis.XZ);
 
         this._bossArea = (new ExBlockArea(new Vector3(62, 2, 62).add(x, y, z), new Vector3(4, 6, 4)));
         this._playerArea.push(

@@ -24,6 +24,7 @@ import MathUtil from '../../modules/exmc/utils/math/MathUtil.js';
 import ExGame from '../../modules/exmc/server/ExGame.js';
 import { MinecraftEffectTypes } from '../../modules/vanilla-data/lib/index.js';
 import { DecLeavesGolemBoss } from './entities/DecLeavesGolemBoss.js';
+import { DecEscapeSoulBoss3, DecEscapeSoulBoss4, DecEscapeSoulBoss5 } from './entities/DecEscapeSoulBoss.js';
 
 
 export default class DecServer extends ExGameServer {
@@ -498,7 +499,9 @@ export default class DecServer extends ExGameServer {
         this.addEntityController("dec:abyssal_controller", DecCommonBossLastStage);
         this.addEntityController("dec:predators", DecCommonBossLastStage);
         this.addEntityController("dec:enchant_illager_2", DecCommonBossLastStage);
-        this.addEntityController("dec:escaped_soul_entity", DecCommonBossLastStage);
+        this.addEntityController("dec:escaped_soul_1", DecEscapeSoulBoss3);
+        this.addEntityController("dec:escaped_soul_2", DecEscapeSoulBoss4);
+        this.addEntityController("dec:escaped_soul_entity", DecEscapeSoulBoss5);
         this.addEntityController("dec:host_of_deep", DecHostOfDeepBoss1);
         this.addEntityController("dec:host_of_deep_1", DecHostOfDeepBoss2);
         this.addEntityController("dec:host_of_deep_2", DecHostOfDeepBoss3);

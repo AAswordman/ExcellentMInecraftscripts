@@ -17,7 +17,7 @@ export default class ExColorLoreUtil{
         this.lore.setValueUseDefault("§r§b" + key,(typeof value === "number" ? "§r§e":"§r§a") + value);
     }
     getValueUseDefault(key:string) {
-        return this.lore.getValueUseDefault("§r§l" + key);
+        return this.lore.getValueUseDefault("§r§b" + key)?.substring(4);
     }
     *entries(key?: string) {
         for (let i of this.lore.entries("§r§l"+key)) {

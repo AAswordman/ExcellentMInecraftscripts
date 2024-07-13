@@ -80,7 +80,7 @@ export default class PomAncientStoneBoss extends PomBossController {
             this.stopBarrier();
             this.music.stop();
         }
-        if (e.damageSource.cause === EntityDamageCause.suicide) {
+        if (e.damageSource.cause === EntityDamageCause.suicide || e.damageSource.cause === EntityDamageCause.selfDestruct) {
             this.music.stop();
         }
         super.onKilled(e);

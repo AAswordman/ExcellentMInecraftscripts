@@ -55,7 +55,7 @@ export default class DecBossController extends ExEntityController {
     }
     override onKilled(e: EntityHurtAfterEvent): void {
         this.destroyBossEntity();
-        if (e.damageSource.cause === EntityDamageCause.suicide) {
+        if (e.damageSource.cause === EntityDamageCause.suicide || e.damageSource.cause === EntityDamageCause.selfDestruct ) {
             this.stopBarrier();
         }
         super.onKilled(e);

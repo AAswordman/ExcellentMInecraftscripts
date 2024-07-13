@@ -1,6 +1,6 @@
 {
     "name": "@minecraft/vanilla-data",
-    "version": "1.20.50-preview.24",
+    "version": "1.21.0-preview.24",
     "description": "Contains types for Minecraft Vanilla Content",
     "exports": "./lib/index.js",
     "types": "./lib/index.d.ts",

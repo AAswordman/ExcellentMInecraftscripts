@@ -7,11 +7,11 @@ import DecBossController from "./DecBossController.js";
 import DecServer from '../DecServer.js';
 import { DecCommonBossLastStage } from "./DecCommonBossLastStage.js";
 
-export class DecEverlastingWinterGhastBoss1 extends DecBossController {
+export class DecEscapeSoulBoss3 extends DecBossController {
     music: ExMusic;
     constructor(e: Entity, server: DecServer) {
         super(e, server);
-        this.music = server.getMusic("music.wb.ghost_tears");
+        this.music = server.getMusic("music.wb.chasing_stage1");
         this.music.trackPlayers(Array.from(this.barrier.getPlayers()));
         this.music.loop();
     }
@@ -29,11 +29,33 @@ export class DecEverlastingWinterGhastBoss1 extends DecBossController {
         super.onSpawn();
     }
 }
-export class DecEverlastingWinterGhastBoss2 extends DecCommonBossLastStage {
+export class DecEscapeSoulBoss4 extends DecBossController {
     music: ExMusic;
     constructor(e: Entity, server: DecServer) {
         super(e, server);
-        this.music = server.getMusic("music.wb.the_peotry_of_ghost");
+        this.music = server.getMusic("music.wb.chasing_stage2");
+        this.music.trackPlayers(Array.from(this.barrier.getPlayers()));
+        this.music.loop();
+    }
+    override onKilled(e: EntityHurtAfterEvent): void {
+        super.onKilled(e);
+        if (e.damageSource.cause === EntityDamageCause.suicide || e.damageSource.cause === EntityDamageCause.selfDestruct) {
+            this.music.stop();
+        }
+    }
+    override onFail(): void {
+        this.music.stop();
+        super.onFail();
+    }
+    override onSpawn(): void {
+        super.onSpawn();
+    }
+}
+export class DecEscapeSoulBoss5 extends DecCommonBossLastStage {
+    music: ExMusic;
+    constructor(e: Entity, server: DecServer) {
+        super(e, server);
+        this.music = server.getMusic("music.wb.chasing_stage3");
         this.music.trackPlayers(Array.from(this.barrier.getPlayers()));
         this.music.loop();
     }

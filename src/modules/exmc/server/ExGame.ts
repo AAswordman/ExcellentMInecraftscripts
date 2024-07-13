@@ -54,8 +54,8 @@ export default class ExGame {
     }
 
     static serverMap = new Map<typeof ExGameServer, ExGameServer>;
-    static runJob(r: () => Generator<unknown, any, unknown>) {
-        
+    static runJob(r: () => Generator<void, void, void>) {
+        system.runJob(r())
     }
     static createServer(serverCons: typeof ExGameServer, config: ExConfig) {
         let server = new serverCons(config);

@@ -6,6 +6,7 @@ import ExTaskRunner from "../../../modules/exmc/server/ExTaskRunner.js";
 import { MinecraftBlockTypes } from "../../../modules/vanilla-data/lib/index.js";
 import { Objective } from "../../../modules/exmc/server/entity/ExScoresManager.js";
 import GlobalSettings from "../../../pom/server/cache/GlobalSettings.js";
+import ExGame from "../../../modules/exmc/server/ExGame.js";
 
 export default class DecNukeController extends ExEntityController {
     constructor(e: Entity, server: DecServer) {
@@ -27,8 +28,8 @@ export default class DecNukeController extends ExEntityController {
             this.setTimeout(() => {
                 const dim = this.exEntity.exDimension;
                 const pos = this.entity.location;
-                let task = new ExTaskRunner();
-                task.setTasks(function* () {
+                ExGame.runJob(function* () {
+                    console.warn("start");
                     for (let x = -i; x <= i; x++) {
                         for (let y = -i; y <= i; y++) {
                             for (let z = -i; z <= i; z++) {
@@ -38,13 +39,11 @@ export default class DecNukeController extends ExEntityController {
                                 }
                             }
                             dim.spawnParticle("dec:nuke_blast", pos);
-
-                            yield true;
+                            yield void 0;
                         }
                     }
                 });
-                task.start(1, 20);
-            }, i * 100);
+            }, 3000);
             // }
         }, 10000);
     }

@@ -728,7 +728,7 @@ export default class PomServer extends ExGameServer {
         new ExEnvironment().print();
     }
 
-    @registerEvent<PomServer>(ExEventNames.afterEntityHurt, (server, e: EntityHurtAfterEvent) => server.setting.damageShow && e.damageSource.cause !== EntityDamageCause.suicide)
+    @registerEvent<PomServer>(ExEventNames.afterEntityHurt, (server, e: EntityHurtAfterEvent) => server.setting.damageShow && e.damageSource.cause !== EntityDamageCause.suicide && e.damageSource.cause !== EntityDamageCause.selfDestruct)
     damageShow(e: EntityHurtAfterEvent) {
         if (!e.hurtEntity.isValid()) return;
         if (!(e.damageSource.damagingEntity instanceof Player)) damageShow(this.getExDimension(e.hurtEntity.dimension.id), e.damage, e.hurtEntity.location);

@@ -2,6 +2,8 @@ import { ItemCooldownComponent, ItemDurabilityComponent, ItemEnchantableComponen
 import ExLoreManager from "../../interface/ExLoreManager.js";
 import ExTagManager from "../../interface/ExTagManager.js";
 import { AlsoInstanceType } from "../../utils/tool.js";
+import ExColorLoreUtil from "./ExColorLoreUtil.js";
+import ExLoreUtil from "./ExLoreUtil.js";
 if (ItemStack.prototype === undefined) ItemStack.prototype = {} as any;
 
 const compId = {
@@ -17,6 +19,8 @@ declare module "@minecraft/server" {
         removeTag(tag: string): string;
         getComponentById<T extends keyof CompId>(key: T): AlsoInstanceType<CompId[T]> | undefined;
         hasComponentById<T extends keyof CompId>(key: T): boolean;
+        getColorLoreUtil(): ExColorLoreUtil;
+        getLoreUtil(): ExLoreUtil;
         isWillBeRemoved: boolean;
     }
 }
@@ -32,6 +36,12 @@ Object.assign(ItemStack.prototype, {
     },
     getComponentById<T extends keyof CompId>(key: T) {
         return (this as ItemStack).getComponent(key);
+    },
+    getColorLoreUtil(){
+        return new ExColorLoreUtil(this as ItemStack);
+    },
+    getLoreUtil(){
+        return new ExLoreUtil(this as ItemStack);
     },
     isWillBeRemoved: false
 });

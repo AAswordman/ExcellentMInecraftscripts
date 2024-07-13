@@ -55,10 +55,7 @@ export default class ExDimension implements ExCommandNativeRunner {
     // }
     setBlock(vec: IVector3, blockId: string | BlockType) {
         if (typeof blockId === "string") blockId = <BlockType>BlockTypes.get(blockId);
-        let b = this.getBlock(vec);
-        b?.setType(blockId);
-        //b?.permutation;
-
+        let b = this.dimension.setBlockType(vec,blockId)
     }
     setBlockAsync(vec: IVector3, blockId: string) {
         this.runCommandAsync(`setBlock ${vec.x} ${vec.y} ${vec.z} ${blockId}`);
