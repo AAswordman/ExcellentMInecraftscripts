@@ -129,7 +129,6 @@ export default class PomMagicSystem extends GameController {
 
             return v + "x".repeat(Math.max(0, 10 - v.length));
         });
-        // console.warn(arr1);
         let arr2: string[] = [];
         for (let i = 0; i < 50; i++) {
             arr2.push("");

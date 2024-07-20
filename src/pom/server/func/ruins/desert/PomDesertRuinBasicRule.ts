@@ -20,10 +20,6 @@ export default class PomDesertRuinBasicRule extends GameControllerRuinRule {
         const spos2 = spos.cpy();
         const epos = spos.cpy().add(mapSize, 0, mapSize);
         const ruin = this.client.getServer().ruin_desertBoss;
-        //ExGameConfig.console.warn(this.client.getServer());
-
-        // console.warn(spos);
-        // console.warn(epos);
         this.tmpA.set(this.client.getServer().ruinDesertGuardPos).sub(RuinsLoaction.DESERT_RUIN_LOCATION_START).div(16).floor();
         let center = RuinsLoaction.DESERT_RUIN_AREA.center().sub(RuinsLoaction.DESERT_RUIN_LOCATION_START).div(16).floor();
         if (

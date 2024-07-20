@@ -493,7 +493,6 @@ export class PomGodOfGuardBossState11 extends PomGodOfGuardBossState {
         ExSystem.tickTask(() => {
             this.centers.remove(this.center1);
             this.centers.remove(this.center2);
-            // console.warn("remove");
             this.entity2.remove();
         }).delay(5 * 20).startOnce();
     }
@@ -887,7 +886,6 @@ export class PomGodOfGuardBossPassive implements DisposeAble {
                 for (let p of ctrl.barrier.getPlayers()) {
                     let loc = new Vector3(p.location);
                     let under = undefIfError(() => ctrl.entity.dimension.getBlock(loc.sub(0, 1, 0)));
-                    // console.warn(under?.typeId);
                     let getter = this.playerSkipperData.get(p)!;
                     if (p.getGameMode() === GameMode.creative) continue;
                     getter[1] -= getter[0].shift()!;
@@ -906,7 +904,6 @@ export class PomGodOfGuardBossPassive implements DisposeAble {
     getSkipper() {
         for (let i of this.playerSkipperData) {
             let s = i[1][1];
-            // console.warn(i[1][0],i[1][1]);
             if (s > 20) {
                 return i[0];
             }

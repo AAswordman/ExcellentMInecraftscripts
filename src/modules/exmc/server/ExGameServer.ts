@@ -197,6 +197,7 @@ export default class ExGameServer implements SetTimeOutSupport {
     @registerEvent(ExEventNames.afterPlayerLeave)
     onClientLeave(event: PlayerLeaveAfterEvent) {
         this.playerIsInSet.delete(event.playerName);
+        console.warn("Player " + event.playerName + " leave");
 
         let client = this.findClientByName(event.playerName);
         if (client === undefined) {

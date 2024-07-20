@@ -104,7 +104,6 @@ export default class DecBossBarrier implements DisposeAble {
         this.dim.spawnParticle("wb:boss_barrier", this.center);
         for (let e of this.server.getExPlayers()) {
             if (!e.entity.location) continue;
-            // console.warn(this.area.contains(e.location))
             if (this.players.has(e.entity)) {
                 if (!this.area.contains(e.entity.location)) {
                     if (this.players.get(e.entity)) {

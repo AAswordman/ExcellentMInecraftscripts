@@ -14,6 +14,7 @@ import ExSystem from '../../../modules/exmc/utils/ExSystem.js';
 import TickDelayTask from '../../../modules/exmc/utils/TickDelayTask.js';
 import { MinecraftEntityTypes } from '../../../modules/vanilla-data/lib/index.js';
 import { falseIfError } from '../../../modules/exmc/utils/tool.js';
+import ExEntityQuery from '../../../modules/exmc/server/env/ExEntityQuery.js';
 
 export default class SimpleItemUseFunc extends GameController {
     worldExploreTimer?: TickDelayTask;
@@ -219,6 +220,21 @@ export default class SimpleItemUseFunc extends GameController {
 
 
         this.getEvents().exEvents.afterPlayerHitEntity.subscribe(e => {
+            if(e.damageSource.cause === EntityDamageCause.entityAttack && this.exPlayer.getBag().itemOnMainHand?.typeId === "wb:sword_intentions"){
+                new ExEntityQuery(this.getDimension()).at(this.player.location)
+                .setMatrix(ExEntityQuery.getFacingMatrix(this.player.getViewDirection()))
+                .queryBall(6,this.player.hasTag("wbmsyh")?{
+                    "excludeTags":["wbmsyh"]
+                }:undefined)
+                .except(this.player)
+                .filterSector(6,6,Vector3.forward,90)
+                .forEach(e => {
+                    e.applyDamage(20,{
+                        "damagingEntity":this.player,
+                        "cause":EntityDamageCause.contact
+                    })
+                });
+            }
         });
 
         this.getEvents().exEvents.beforeItemUse.subscribe(e => {

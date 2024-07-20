@@ -37,8 +37,6 @@ export default class PomDimRuinsSystem extends GameController {
                 }
             });
             this.deathTimesListener = (e: EntityHurtAfterEvent) => {
-                // console.warn("add"+e.damage);
-                // console.warn(this.exPlayer.health);
                 if (this.exPlayer.health <= 0) {
                     this.barrier?.notifyDeathAdd();
                 }
@@ -190,7 +188,6 @@ export default class PomDimRuinsSystem extends GameController {
             try {
                 block = this.getDimension().getBlock(tmpV.floor());
             } catch (err) { }
-            // console.warn(tmpV + "/"+block?.typeId);
             if (block?.typeId === "wb:portal_desertboss") {
                 //守卫遗迹判断
                 this.data.dimBackPoint = new Vector3(this.player.location).add(3, 2, 3);

@@ -518,4 +518,11 @@ export default class Matrix4 {
     public getValue(): Float32Array {
         return this.val;
     }
+
+    [Symbol.toStringTag](){
+        return `Matrix4(${this.val.join(", ")})`;
+    }
+    toString(){
+        return `Matrix4(${this.val.join(", ")})`;
+    }
 }

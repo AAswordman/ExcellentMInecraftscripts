@@ -271,10 +271,8 @@ export default class PomTalentSystem extends GameController {
             };
             if (this.client.magicSystem.isProtected) return;
             if (e.damage > 10000000 || e.damage < 0) return;
-            // console.warn("hurt"+e.damage,"now"+this.exPlayer.health);
             let damage = (this.exPlayer.getPreRemoveHealth() ?? 0) + e.damage;
             let willdamage = damage;
-            // console.warn(willdamage);
             if (PomTalentSystem.physicalDamageType.has(e.damageSource.cause)) {
                 willdamage *= 1 - this.armor_protection[4];
             }
@@ -294,11 +292,8 @@ export default class PomTalentSystem extends GameController {
                 willdamage *= (1 - this.client.getDifficulty().physicalDefenseAddFactor);
                 willdamage -= this.armor_protection[6];
             }
-            // console.warn(willdamage);
 
             let add = Math.min(damage - willdamage, damage - 1);
-            // console.warn(actualDamageFactor);
-            // console.warn(add);
 
             let anotherAdd = 0;
             if (PomTalentSystem.physicalDamageType.has(e.damageSource.cause)) {
@@ -311,13 +306,6 @@ export default class PomTalentSystem extends GameController {
             }
 
             add += anotherAdd;
-            // console.warn(this.client.magicSystem.hurtState,e.damage,add,lastResist)
-            // if (this.client.magicSystem.hurtState) {
-            //     add -= lastResist;
-            //     lastResist = add;
-            // } else {
-            //     lastResist = 0;
-            // }
 
             if (this.client.magicSystem.gameHealth - damage + add <= 0) {
                 const clnE = { ...e.damageSource };

@@ -200,7 +200,6 @@ export default class ExBlockStructureNormal implements ExBlockStructure {
 
                         if (c == ' ') continue;
                         res.calculateRelPos(vec, tmpV).add(res.start);
-                        // console.warn("get block at " +tmpV+" :P "+dimension?.getBlock(tmpV)?.typeId);
                         if (dimension?.getBlock(tmpV)?.typeId !== (this.analysisMap?.get(c) ?? MinecraftBlockTypes.Air)) {
                             return;
                         }

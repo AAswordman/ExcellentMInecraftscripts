@@ -3,6 +3,7 @@ import Matrix4 from "../../utils/math/Matrix4.js";
 import Vector3, { IVector3 } from "../../utils/math/Vector3.js";
 import { Entity, EntityQueryOptions } from '@minecraft/server';
 import { falseIfError } from "../../utils/tool.js";
+import MathUtil from "../../utils/math/MathUtil.js";
 
 export default class ExEntityQuery {
     private entities: Set<Entity> = new Set();
@@ -21,17 +22,17 @@ export default class ExEntityQuery {
         return this;
     }
     facingByLTF(ltf: IVector3, dic: IVector3) {
-        this.position.add(ExEntityQuery.getFacingMatrix(ltf, dic).rmulVector(this.tmpV.set(ltf)));
+        this.position.add(ExEntityQuery.getFacingMatrix(dic).rmulVector(this.tmpV.set(ltf)));
         return this;
     }
-    static getFacingMatrix(ltf: IVector3, dic: IVector3) {
+    static getFacingMatrix(dic: IVector3) {
         let forz = new Vector3(dic).normalize();
         if (forz.y === 1 || forz.y === -1) {
             throw new SyntaxError("can find the matrix");
         }
         let x = Vector3.up.crs(dic).normalize();
         let z = forz;
-        let y = z.crs(x);
+        let y = z.crs(x).normalize();
         let mat = new Matrix4(
             x.x, y.x, z.x, 0,
             x.y, y.y, z.y, 0,
@@ -63,15 +64,18 @@ export default class ExEntityQuery {
         return this.queryBall(Math.sqrt(xyz.x ** 2 + xyz.y ** 2 + xyz.z ** 2) / 2, entityQueryOptions).filterBox(xyz);
     }
     queryBall(r: number, entityQueryOptions: EntityQueryOptions = {}) {
-        entityQueryOptions.farthest = r;
+        entityQueryOptions.maxDistance = r;
         return this.query(entityQueryOptions);
     }
     queryCircle(r: number, h: number, entityQueryOptions: EntityQueryOptions = {}) {
         return this.queryBall(Math.sqrt(r ** 2 + (h / 2) ** 2), entityQueryOptions).filterCircle(r, h);
     }
+    querySector(r: number, h: number, dic: Vector3, angleMax: number, angleMin: number = 0, entityQueryOptions: EntityQueryOptions = {}) {
+        return this.queryBall(Math.sqrt(r ** 2 + (h / 2) ** 2), entityQueryOptions).filterSector(r, h, dic, angleMax, angleMin);
+    }
     queryPolygon(points: [IVector3, IVector3, IVector3], h: number, entityQueryOptions: EntityQueryOptions = {}) {
-        return this.queryCircle(points.reduce((max, cur) => Math.max(max, Math.sqrt((cur.x - this.position.x) ** 2 + (cur.z - this.position.z) ** 2)),0), 
-        h,entityQueryOptions).filterPolygon(points, h);
+        return this.queryCircle(points.reduce((max, cur) => Math.max(max, Math.sqrt((cur.x - this.position.x) ** 2 + (cur.z - this.position.z) ** 2)), 0),
+            h, entityQueryOptions).filterPolygon(points, h);
     }
 
     clear() {
@@ -86,8 +90,8 @@ export default class ExEntityQuery {
         }
     }
 
-    
-    getEntities(){
+
+    getEntities() {
         return Array.from(this.entities.values());
     }
     static isPointInsidePolygon(x: number, z: number, points: [IVector3, IVector3, IVector3]): boolean {
@@ -104,11 +108,13 @@ export default class ExEntityQuery {
         return inside;
     }
 
-    filter(func: (e: Entity, loc: Vector3) => boolean) {
+    filter(func: (e: Entity, loc: IVector3) => boolean) {
         let remains = new Set(this.entities)
-        let fmat = this.matrix.invert();
+        let fmat = this.matrix.cpy().invert();
         remains.forEach(e => {
-            if (!falseIfError(() => e.isValid()) || !func(e, fmat.rmulVector(this.tmpV.set(e.location)))) this.except(e);
+            if (!falseIfError(() => e.isValid()) || !func(e, fmat.rmulVector(
+                new Vector3(e.location).sub(this.position)
+            ).add(this.position))) this.except(e);
         })
         return this;
     }
@@ -128,7 +134,16 @@ export default class ExEntityQuery {
     filterBall(r: number) {
         return this.filter((e, loc) => this.position.distance(loc) <= r);
     }
-
+    filterSector(r: number, h: number, dic: IVector3, angleMax: number, angleMin: number = 0) {
+        console.warn(this.matrix+"");
+        return this.filter((e, loc) => {
+            let angle = Math.abs(MathUtil.IEEEremainder(this.tmpV.set(dic).rotateAngleX() - this.tmpV.set(loc).sub(this.position).rotateAngleX(), 360));
+            return this.position.distance(loc) <= r
+                && Math.abs(loc.y - this.position.y) <= h
+                && angle >= angleMin
+                && angle <= angleMax
+        });
+    }
 
     diffrence(other: ExEntityQuery) {
         other.entities.forEach(e => {

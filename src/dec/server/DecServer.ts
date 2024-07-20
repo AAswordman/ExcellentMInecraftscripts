@@ -163,22 +163,14 @@ export default class DecServer extends ExGameServer {
                             for (let i of new IStructureDriver().save(mthis.getExDimension(MinecraftDimensionTypes.overworld), start, end)) {
                                 let res = i.toData();
                                 i.dispose();
-                                //console.warn(JSON.stringify(res));
                                 let com = GZIPUtil.zipString(JSON.stringify(res)) ?? "";
                                 data.push(com);
-                                //console.warn(com);
                                 yield true;
                             }
                         }).bind(this));
                         task.start(2, 1).then(() => {
                             this.compress = data;
-                            console.warn("over");
-                            // for(let i of data){
-                            //     console.warn(i);
-                            // }
-                            console.warn(JSON.stringify(data));
                         });
-                        // console.warn(GZIPUtil.unzipString(com));
                         break;
                     }
                     case "_load": {
@@ -318,7 +310,6 @@ export default class DecServer extends ExGameServer {
                 if (e.source.isSneaking) {
                     e.cancel = true
                 } else {
-                    // console.warn(block_except.has(e.block.typeId) || item_except.has(e.itemStack.typeId));
                     if ((block_except.has(e.block.typeId) || item_except.has(e.itemStack.typeId)) == false) {
                         e.cancel = true
                     }
@@ -327,7 +318,6 @@ export default class DecServer extends ExGameServer {
                 if (e.source.isSneaking) {
                     e.cancel = true
                 } else {
-                    // console.warn(block_except.has(e.block.typeId) || item_except.has(e.itemStack.typeId));
                     if ((block_exceptx.has(e.block.typeId) || item_except.has(e.itemStack.typeId)) == false) {
                         e.cancel = true
                     }

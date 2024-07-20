@@ -17,7 +17,6 @@ export default class ExDimension implements ExCommandNativeRunner {
         }
     }
     createExplosion(location: IVector3, radius: number, explosionOptions?: ExplosionOptions): void {
-        //console.warn(location, radius, explosionOptions);
         this._dimension.createExplosion(location, radius, explosionOptions);
     }
 

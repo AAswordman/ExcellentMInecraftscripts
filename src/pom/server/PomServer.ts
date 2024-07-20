@@ -132,8 +132,6 @@ export default class PomServer extends ExGameServer {
                 vars.setFloat("y", width.y);
                 vars.setFloat("z", width.z);
                 this.getExDimension(MinecraftDimensionTypes.overworld).spawnParticle("wb:territiry_barrier_par", area[0].start, vars);
-
-                // console.warn("show " + area)
             }
         });
         this.territoryParLooper.delay(1 * 20);
@@ -657,8 +655,6 @@ export default class PomServer extends ExGameServer {
                 }
             }
         }
-
-        // console.warn(JSON.stringify(this.data));
     }
 
     private clearEntity() {
