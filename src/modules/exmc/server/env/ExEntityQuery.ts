@@ -85,6 +85,8 @@ export default class ExEntityQuery {
             yield e;
         }
     }
+
+    
     getEntities(){
         return Array.from(this.entities.values());
     }
