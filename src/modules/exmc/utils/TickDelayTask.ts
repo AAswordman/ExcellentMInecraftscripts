@@ -5,7 +5,7 @@ export default interface TickDelayTask {
     getDelay():number;
     delay(time: number):this;
     isStarted(): boolean;
-    startOnce():void;
-    start():void;
-    stop():void;
+    startOnce():this;
+    start():this;
+    stop():this;
 }

@@ -605,7 +605,7 @@ export class PomGodOfGuardBossStates {
 }
 export class PomGodOfGuardBoss0 extends PomBossController {
     static typeId = "wb:god_of_guard_zero";
-    spawnTimer: void;
+    spawnTimer: TickDelayTask;
     health;
     tick = 1;
     constructor(e: Entity, server: PomServer) {
@@ -646,7 +646,7 @@ export class PomGodOfGuardBoss1 extends PomBossController {
     states: PomGodOfGuardBossStates;
     timer: TickDelayTask;
     passive: PomGodOfGuardBossPassive;
-    spawnTimer: void;
+    spawnTimer: TickDelayTask;
     times = 0;
     constructor(e: Entity, server: PomServer) {
         super(e, server);
@@ -747,9 +747,33 @@ export class PomGodOfGuardBoss1 extends PomBossController {
 
 }
 
+export enum PomGodOfGuard2State {
+    Melee,
+    Range
+}
+
 export class PomGodOfGuardShadow extends ExEntityController {
+    state = PomGodOfGuard2State.Range;
     constructor(public bossOri: PomGodOfGuardBoss2, e: Entity, server: PomServer) {
         super(e, server);
+    }
+    addMove() {
+        this.entity.triggerEvent("add_move");
+    }
+    removeMove() {
+        this.entity.triggerEvent("remove_move");
+    }
+    addMelee() {
+        this.entity.triggerEvent("add_melee");
+    }
+    removeMelee() {
+        this.entity.triggerEvent("remove_melee");
+    }
+    addRange() {
+        this.entity.triggerEvent("add_range");
+    }
+    removeRange() {
+        this.entity.triggerEvent("remove_range");
     }
     override dispose(): void {
         super.dispose();
@@ -758,10 +782,10 @@ export class PomGodOfGuardShadow extends ExEntityController {
         super.onKilled(e);
     }
     @registerEvent("afterOnHurt")
-    onHurt(e:EntityHurtAfterEvent){
-        this.bossOri.entity.applyDamage(e.damage,{
-            "cause":EntityDamageCause.entityAttack,
-            "damagingEntity":e.damageSource.damagingEntity
+    onHurt(e: EntityHurtAfterEvent) {
+        this.bossOri.entity.applyDamage(e.damage, {
+            "cause": EntityDamageCause.entityAttack,
+            "damagingEntity": e.damageSource.damagingEntity
         });
     }
 
@@ -770,11 +794,31 @@ export class PomGodOfGuardShadow extends ExEntityController {
 
 export class PomGodOfGuardBoss2 extends PomBossController {
     static typeId = "wb:god_of_guard_second";
-
     shadow!: PomGodOfGuardShadow;
+    timer!: TickDelayTask;
     constructor(e: Entity, server: PomServer) {
         super(e, server);
     }
+
+    addMove() {
+        this.entity.triggerEvent("add_move");
+    }
+    removeMove() {
+        this.entity.triggerEvent("remove_move");
+    }
+    addMelee() {
+        this.entity.triggerEvent("add_melee");
+    }
+    removeMelee() {
+        this.entity.triggerEvent("remove_melee");
+    }
+    addRange() {
+        this.entity.triggerEvent("add_range");
+    }
+    removeRange() {
+        this.entity.triggerEvent("remove_range");
+    }
+    state = PomGodOfGuard2State.Melee;
     override initBossEntity(): void {
         super.initBossEntity();
         let arr = new ExEntityQuery(this.entity.dimension).at(this.barrier.center).queryBox(this.barrier.area.calculateWidth(), {
@@ -786,7 +830,68 @@ export class PomGodOfGuardBoss2 extends PomBossController {
         if (!this.shadow) {
             this.shadow = new PomGodOfGuardShadow(this, arr[0], this.server as PomServer);
         }
+        this.timer = ExSystem.tickTask(() => {
+            this.entity.dimension.spawnParticle("epic:sunlight_sword_particle2", this.entity.location);
+            this.shadow.entity.dimension.spawnParticle("epic:sunlight_sword_particle2", this.shadow.entity.location);
+            this.setTimeout(() => {
+                this.attackTimer?.stop();
+
+                let pos1 = this.entity.location, pos2 = this.shadow.entity.location;
+                this.shadow.entity.teleport(pos1);
+                this.entity.teleport(pos2);
+
+                [this.state, this.shadow.state] = [this.shadow.state, this.state];
+                this.entity.triggerEvent("variant" + this.state);
+                this.shadow.entity.triggerEvent("variant" + this.shadow.state);
+
+                this.removeMelee(); this.removeMove(); this.removeRange();
+                this.shadow.removeMelee(); this.shadow.removeMove(); this.shadow.removeRange();
+
+                if (this.state == PomGodOfGuard2State.Melee) {
+                    this.tryMeleeAttack();
+                } else {
+                    this.tryRangeAttack();
+                }
+
+                if (this.shadow.state == PomGodOfGuard2State.Melee) {
+                    this.tryShadowMeleeAttack();
+                } else {
+                    this.tryShadowRangeAttack();
+                }
+
+                this.timer.delay(20 * MathUtil.randomInteger(8, 13));
+                this.timer.startOnce();
+            }, 2 * 1000);
+        }).delay(20 * 2);
+        this.timer.startOnce();
     }
+    attackTimer?: TickDelayTask;
+    tryMeleeAttack() {
+        this.addMelee();
+        this.addMove();
+        this.attackTimer = ExSystem.tickTask(() => {
+            if (this.entity.target && this.exEntity.position.distance(this.entity.target?.location)) {
+                this.removeMelee();
+                this.removeMove();
+                this.attackTimer = ExSystem.tickTask(() => {
+                    
+                }).delay(20 * 2).startOnce();
+            }
+        }).delay(5).start();
+    }
+    tryRangeAttack() {
+        this.addMove();
+        this.addRange();
+    }
+    tryShadowMeleeAttack() {
+        this.shadow.addMove();
+        this.shadow.addMelee();
+    }
+    tryShadowRangeAttack() {
+        this.shadow.addMove();
+        this.shadow.addRange();
+    }
+
     override onSpawn(): void {
         super.onSpawn();
     }
@@ -796,8 +901,13 @@ export class PomGodOfGuardBoss2 extends PomBossController {
     override onFail(): void {
         super.onFail();
     }
-    
 
+    override despawn(): void {
+        new ExEntityQuery(this.entity.dimension).at(this.barrier.center).queryBox(this.barrier.area.calculateWidth(), {
+            "type": "wb:god_of_guard_shadow"
+        }).getEntities().forEach(e => e.remove())
+        super.despawn();
+    }
 }
 
 export class PomGodOfGuardBoss3 extends PomBossController {
@@ -811,7 +921,7 @@ export class PomGodOfGuardBoss3 extends PomBossController {
             "type": "wb:god_of_guard_shadow"
         }).forEach((e) => e.remove());
     }
-    
+
     override onSpawn(): void {
         super.onSpawn();
     }

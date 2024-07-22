@@ -60,6 +60,8 @@ export default class PomServer extends ExGameServer {
 
     ruinCleaner!: TickDelayTask;
     ruinFuncLooper!: TickDelayTask;
+
+    protectTper!: TickDelayTask;
     //遗迹沙漠
     ruin_desertBoss!: PomDesertBossRuin;
     portal_desertBoss!: ExBlockStructure;
@@ -320,7 +322,26 @@ export default class PomServer extends ExGameServer {
 
             ruin_desert_count += 1;
         }).delay(1);
-
+        
+        this.protectTper = ExSystem.tickTask(() => {
+            let centersAndExc = [
+                [RuinsLoaction.STONE_RUIN_AREA, RuinsLoaction.STONE_RUIN_PROTECT_AREA],
+                [RuinsLoaction.MIND_RUIN_AREA, RuinsLoaction.MIND_RUIN_PROTECT_AREA],
+                [RuinsLoaction.DESERT_RUIN_AREA, RuinsLoaction.DESERT_RUIN_PROTECT_AREA],
+                [RuinsLoaction.ANCIENT_RUIN_AREA, RuinsLoaction.ANCIENT_RUIN_PROTECT_AREA],
+                [RuinsLoaction.CAVE_RUIN_AREA, RuinsLoaction.CAVE_RUIN_PROTECT_AREA]
+            ]
+            let pls = this.getDimension(MinecraftDimensionTypes.theEnd).getPlayers();
+            centersAndExc.forEach(([a, b]) => {
+                for (let p of pls) {
+                    if (b.contains(p.location) && !a.contains(p.location)) {
+                        console.warn(b)
+                        p.teleport(a.center());
+                    }
+                }
+            })
+        }).delay(20 * 4);
+        this.protectTper.start();
 
         //遗迹功能总监听
         this.ruinFuncLooper = ExSystem.tickTask(() => {

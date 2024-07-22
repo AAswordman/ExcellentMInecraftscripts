@@ -10,7 +10,7 @@ export default class RuinsLoaction {
     public static readonly DESERT_RUIN_AREA = new ExBlockArea(this.DESERT_RUIN_LOCATION_START, this.DESERT_RUIN_LOCATION_SIZE);
     public static readonly DESERT_RUIN_PROTECT_AREA = new ExBlockArea(
         this.DESERT_RUIN_LOCATION_START.cpy().sub(this.DESERT_RUIN_LOCATION_SIZE),
-        this.DESERT_RUIN_LOCATION_END.cpy().add(this.DESERT_RUIN_LOCATION_SIZE));
+        this.DESERT_RUIN_LOCATION_END.cpy().add(this.DESERT_RUIN_LOCATION_SIZE),true);
 
     public static readonly STONE_RUIN_NUM = 1;
     public static readonly STONE_RUIN_LOCATION_START = new Vector3(15360, 64, 15360);
@@ -20,7 +20,7 @@ export default class RuinsLoaction {
     public static readonly STONE_RUIN_AREA = new ExBlockArea(this.STONE_RUIN_LOCATION_START, this.STONE_RUIN_LOCATION_SIZE);
     public static readonly STONE_RUIN_PROTECT_AREA = new ExBlockArea(
         this.STONE_RUIN_LOCATION_START.cpy().sub(this.STONE_RUIN_LOCATION_SIZE),
-        this.STONE_RUIN_LOCATION_END.cpy().add(this.STONE_RUIN_LOCATION_SIZE));
+        this.STONE_RUIN_LOCATION_END.cpy().add(this.STONE_RUIN_LOCATION_SIZE),true);
 
     public static readonly CAVE_RUIN_NUM = 2;
     public static readonly CAVE_RUIN_LOCATION_START = new Vector3(17408, 64, 17408);
@@ -30,7 +30,7 @@ export default class RuinsLoaction {
     public static readonly CAVE_RUIN_AREA = new ExBlockArea(this.CAVE_RUIN_LOCATION_START, this.CAVE_RUIN_LOCATION_SIZE);
     public static readonly CAVE_RUIN_PROTECT_AREA = new ExBlockArea(
         this.CAVE_RUIN_LOCATION_START.cpy().sub(this.CAVE_RUIN_LOCATION_SIZE),
-        this.CAVE_RUIN_LOCATION_END.cpy().add(this.CAVE_RUIN_LOCATION_SIZE));
+        this.CAVE_RUIN_LOCATION_END.cpy().add(this.CAVE_RUIN_LOCATION_SIZE),true);
 
     public static readonly ANCIENT_RUIN_NUM = 3;
     public static readonly ANCIENT_RUIN_LOCATION_START = new Vector3(15360, 64, 16384);
@@ -40,7 +40,7 @@ export default class RuinsLoaction {
     public static readonly ANCIENT_RUIN_AREA = new ExBlockArea(this.ANCIENT_RUIN_LOCATION_START, this.ANCIENT_RUIN_LOCATION_SIZE);
     public static readonly ANCIENT_RUIN_PROTECT_AREA = new ExBlockArea(
         this.ANCIENT_RUIN_LOCATION_START.cpy().sub(this.ANCIENT_RUIN_LOCATION_SIZE),
-        this.ANCIENT_RUIN_LOCATION_END.cpy().add(this.ANCIENT_RUIN_LOCATION_SIZE));
+        this.ANCIENT_RUIN_LOCATION_END.cpy().add(this.ANCIENT_RUIN_LOCATION_SIZE),true);
 
     public static readonly MIND_RUIN_NUM = 4;
     public static readonly MIND_RUIN_LOCATION_START = new Vector3(15360, 64, 17408);
@@ -50,7 +50,7 @@ export default class RuinsLoaction {
     public static readonly MIND_RUIN_AREA = new ExBlockArea(this.MIND_RUIN_LOCATION_START, this.MIND_RUIN_LOCATION_SIZE);
     public static readonly MIND_RUIN_PROTECT_AREA = new ExBlockArea(
         this.MIND_RUIN_LOCATION_START.cpy().sub(this.MIND_RUIN_LOCATION_SIZE),
-        this.MIND_RUIN_LOCATION_END.cpy().add(this.MIND_RUIN_LOCATION_SIZE));
+        this.MIND_RUIN_LOCATION_END.cpy().add(this.MIND_RUIN_LOCATION_SIZE),true);
     public static isInProtectArea(v: IVector3) {
         return RuinsLoaction.DESERT_RUIN_PROTECT_AREA.contains(v)
             || RuinsLoaction.STONE_RUIN_PROTECT_AREA.contains(v)
