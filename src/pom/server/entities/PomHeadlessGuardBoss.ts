@@ -30,14 +30,8 @@ export default class PomHeadlessGuardBoss extends PomBossController {
     }
     override onKilled(e: EntityHurtAfterEvent): void {
         //设置奖励
-        for (let c of this.barrier.clientsByPlayer()) {
-            c.progressTaskFinish(this.entity.typeId, c.ruinsSystem.causeDamage);
-            c.ruinsSystem.causeDamageShow = false;
-        }
+        super.onWin();
         this.server.say({ rawtext: [{ translate: "text.wb:defeat_headless_guard.name" }] });
-
-        console.warn("onWin");
-        this.stopBarrier();
         this.music.stop();
         super.onKilled(e);
     }

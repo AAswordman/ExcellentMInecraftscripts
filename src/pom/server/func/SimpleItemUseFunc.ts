@@ -1,4 +1,4 @@
-import { EntityDamageCause, ItemType, ItemStack, ItemTypes, MinecraftDimensionTypes, BiomeType, BiomeTypes } from '@minecraft/server';
+import { EntityDamageCause, ItemType, ItemStack, ItemTypes, MinecraftDimensionTypes, BiomeType, BiomeTypes, Entity, MolangVariableMap } from '@minecraft/server';
 import { ModalFormData } from "@minecraft/server-ui";
 import Vector3 from '../../../modules/exmc/utils/math/Vector3.js';
 import ExDimension from '../../../modules/exmc/server/ExDimension.js';
@@ -15,9 +15,16 @@ import TickDelayTask from '../../../modules/exmc/utils/TickDelayTask.js';
 import { MinecraftEntityTypes } from '../../../modules/vanilla-data/lib/index.js';
 import { falseIfError } from '../../../modules/exmc/utils/tool.js';
 import ExEntityQuery from '../../../modules/exmc/server/env/ExEntityQuery.js';
+import MathUtil from '../../../modules/exmc/utils/math/MathUtil.js';
+import { TickEvent } from '../../../modules/exmc/server/events/events.js';
 
 export default class SimpleItemUseFunc extends GameController {
     worldExploreTimer?: TickDelayTask;
+    inkSwordsSkill = false;
+    inkSwordsSkillTask = ExSystem.tickTask(() => {
+        this.inkSwordsSkill = false;
+    }).delay(2 * 20);
+
     onJoin(): void {
         //连锁挖矿
 
@@ -149,6 +156,45 @@ export default class SimpleItemUseFunc extends GameController {
 
                     }
                 }, 0);
+            } else if (this.exPlayer.getBag().itemOnMainHand?.typeId === "wb:sword_ink_g" && !this.inkSwordsSkill) {
+                e.cancel = true;
+                this.setTimeout(() => {
+                    this.inkSwordsSkill = true;
+                    this.inkSwordsSkillTask.startOnce();
+                    let dic = this.player.getViewDirection();
+                    this.player.applyKnockback(dic.x, dic.z, 7, 0);
+                    let move = this.player.getComponent("minecraft:movement");
+                    move?.setCurrentValue(MathUtil.clamp(move.currentValue-0.1,0.1,0.7))
+                    this.player.addEffect(MinecraftEffectTypes.Resistance, 10, {
+                        "amplifier": 1,
+                        "showParticles": false
+                    })
+                    const damage = this.exPlayer.getVelocity().len() * 120;
+                    let func = (e: TickEvent) => {
+                        this.getDimension().spawnParticle("wb:sword_ink_skill_par", this.exPlayer.position.add(0, 0.6, 0));
+                        this.getDimension().spawnParticle("wb:blast_par_small_piece", this.exPlayer.position.add(0, 0.6, 0));
+                        let set = new WeakSet<Entity>();
+                        new ExEntityQuery(this.getDimension()).at(this.player.location)
+                            .queryBall(4, this.player.hasTag("wbmsyh") ? {
+                                "excludeTags": ["wbmsyh"]
+                            } : undefined)
+                            .except(this.player)
+                            .forEach(e => {
+                                if (!set.has(e)) {
+                                    set.add(e);
+                                    e.applyDamage(damage, {
+                                        "damagingEntity": this.player,
+                                        "cause": EntityDamageCause.entityAttack
+                                    });
+                                }
+                            });
+                    }
+                    this.getEvents().exEvents.tick.subscribe(func);
+                    this.setTimeout(() => {
+                        this.getEvents().exEvents.tick.unsubscribe(func);
+
+                    }, 500);
+                }, 0);
             }
         });
 
@@ -220,20 +266,34 @@ export default class SimpleItemUseFunc extends GameController {
 
 
         this.getEvents().exEvents.afterPlayerHitEntity.subscribe(e => {
-            if(e.damageSource.cause === EntityDamageCause.entityAttack && this.exPlayer.getBag().itemOnMainHand?.typeId === "wb:sword_intentions"){
+            if (e.damageSource.cause === EntityDamageCause.entityAttack && this.exPlayer.getBag().itemOnMainHand?.typeId === "wb:sword_intentions") {
                 new ExEntityQuery(this.getDimension()).at(this.player.location)
-                .setMatrix(ExEntityQuery.getFacingMatrix(this.player.getViewDirection()))
-                .queryBall(6,this.player.hasTag("wbmsyh")?{
-                    "excludeTags":["wbmsyh"]
-                }:undefined)
-                .except(this.player)
-                .filterSector(6,6,Vector3.forward,90)
-                .forEach(e => {
-                    e.applyDamage(20,{
-                        "damagingEntity":this.player,
-                        "cause":EntityDamageCause.contact
-                    })
+                    .queryBall(8, this.player.hasTag("wbmsyh") ? {
+                        "excludeTags": ["wbmsyh"]
+                    } : undefined)
+                    .except(this.player)
+                    .setMatrix(ExEntityQuery.getFacingMatrix(this.player.getViewDirection()))
+                    .filterSector(5, 3, Vector3.forward, 90)
+                    .forEach(e => {
+                        e.applyDamage(20, {
+                            "damagingEntity": this.player,
+                            "cause": EntityDamageCause.contact
+                        })
+                    });
+                let map = new MolangVariableMap();
+                map.setColorRGB("particle_color",{
+                    red: 0xA3,
+                    green:0x5B,
+                    blue:0xBD
                 });
+                this.getDimension().spawnParticle("wb:intension_sweep_a", new ExEntityQuery(this.getDimension()).at(this.player.location)
+                    .facingByLTF(new Vector3(0, 1, 3), this.player.getViewDirection()).position,
+                    map)
+            }
+        });
+        this.getEvents().exEvents.tick.subscribe(e => {
+            if (this.exPlayer.getBag().itemOnMainHand?.typeId === "wb:sword_ink_g" && !this.inkSwordsSkill) {
+                this.player.getComponent("minecraft:movement")?.setCurrentValue(MathUtil.clamp(0.48 * (new Vector3(this.player.getVelocity()).len()), 0.1, 0.7));
             }
         });
 

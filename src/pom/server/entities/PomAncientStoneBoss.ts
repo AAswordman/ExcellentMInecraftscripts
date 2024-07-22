@@ -70,14 +70,9 @@ export default class PomAncientStoneBoss extends PomBossController {
     override onKilled(e: EntityHurtAfterEvent): void {
         //设置奖励
         if (this.exEntity.hasComponent("minecraft:is_baby")) {
-            for (let c of this.barrier.clientsByPlayer()) {
-                c.progressTaskFinish(this.entity.typeId, c.ruinsSystem.causeDamage);
-                c.ruinsSystem.causeDamageShow = false;
-            }
+            super.onWin();
             this.server.say({ rawtext: [{ translate: "text.wb:defeat_ancient_stone.name" }] });
             this.exEntity.command.run(`camera @a[r=128] clear`);
-            console.warn("onWin");
-            this.stopBarrier();
             this.music.stop();
         }
         if (e.damageSource.cause === EntityDamageCause.suicide || e.damageSource.cause === EntityDamageCause.selfDestruct) {

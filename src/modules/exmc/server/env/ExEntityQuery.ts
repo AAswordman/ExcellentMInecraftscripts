@@ -22,7 +22,8 @@ export default class ExEntityQuery {
         return this;
     }
     facingByLTF(ltf: IVector3, dic: IVector3) {
-        this.position.add(ExEntityQuery.getFacingMatrix(dic).rmulVector(this.tmpV.set(ltf)));
+        let mat = ExEntityQuery.getFacingMatrix(dic);
+        this.position.add(mat.rmulVector(this.tmpV.set(ltf)));
         return this;
     }
     static getFacingMatrix(dic: IVector3) {
@@ -33,6 +34,7 @@ export default class ExEntityQuery {
         let x = Vector3.up.crs(dic).normalize();
         let z = forz;
         let y = z.crs(x).normalize();
+
         let mat = new Matrix4(
             x.x, y.x, z.x, 0,
             x.y, y.y, z.y, 0,
@@ -70,7 +72,7 @@ export default class ExEntityQuery {
     queryCircle(r: number, h: number, entityQueryOptions: EntityQueryOptions = {}) {
         return this.queryBall(Math.sqrt(r ** 2 + (h / 2) ** 2), entityQueryOptions).filterCircle(r, h);
     }
-    querySector(r: number, h: number, dic: Vector3, angleMax: number, angleMin: number = 0, entityQueryOptions: EntityQueryOptions = {}) {
+    querySector(r: number, h: number, dic: IVector3, angleMax: number, angleMin: number = 0, entityQueryOptions: EntityQueryOptions = {}) {
         return this.queryBall(Math.sqrt(r ** 2 + (h / 2) ** 2), entityQueryOptions).filterSector(r, h, dic, angleMax, angleMin);
     }
     queryPolygon(points: [IVector3, IVector3, IVector3], h: number, entityQueryOptions: EntityQueryOptions = {}) {
@@ -108,38 +110,37 @@ export default class ExEntityQuery {
         return inside;
     }
 
-    filter(func: (e: Entity, loc: IVector3) => boolean) {
+    filter(func: (e: Entity, relativePos: Vector3) => boolean) {
         let remains = new Set(this.entities)
         let fmat = this.matrix.cpy().invert();
         remains.forEach(e => {
-            if (!falseIfError(() => e.isValid()) || !func(e, fmat.rmulVector(
-                new Vector3(e.location).sub(this.position)
-            ).add(this.position))) this.except(e);
+            let v = new Vector3(e.location).sub(this.position);
+            fmat.rmulVector(v);
+            if (!falseIfError(() => e.isValid()) || !func(e, v)) this.except(e);
         })
         return this;
     }
     filterBox(xyz: IVector3) {
-        return this.filter((e, loc) => Math.abs(loc.x - this.position.x) <= xyz.x &&
-            Math.abs(loc.y - this.position.y) <= xyz.y &&
-            Math.abs(loc.z - this.position.z) <= xyz.z);
+        return this.filter((e, relativePos) => Math.abs(relativePos.x) <= xyz.x &&
+            Math.abs(relativePos.y) <= xyz.y &&
+            Math.abs(relativePos.z) <= xyz.z);
     }
     filterPolygon(points: [IVector3, IVector3, IVector3], h: number) {
-        return this.filter((e, loc) => ExEntityQuery.isPointInsidePolygon(loc.x, loc.z, points)
-            && Math.abs(loc.y - this.position.y) <= h);
+        return this.filter((e, relativePos) => ExEntityQuery.isPointInsidePolygon(relativePos.x, relativePos.z, points)
+            && Math.abs(relativePos.y) <= h);
     }
     filterCircle(r: number, h: number) {
-        return this.filter((e, loc) => ((loc.x - this.position.x) ** 2 + (loc.z - this.position.z) ** 2) ** 0.5 < r
-            && Math.abs(loc.y - this.position.y) <= h);
+        return this.filter((e, relativePos) => relativePos.len() < r
+            && Math.abs(relativePos.y) <= h);
     }
     filterBall(r: number) {
-        return this.filter((e, loc) => this.position.distance(loc) <= r);
+        return this.filter((e, relativePos) => (relativePos.len()) <= r);
     }
     filterSector(r: number, h: number, dic: IVector3, angleMax: number, angleMin: number = 0) {
-        console.warn(this.matrix+"");
-        return this.filter((e, loc) => {
-            let angle = Math.abs(MathUtil.IEEEremainder(this.tmpV.set(dic).rotateAngleX() - this.tmpV.set(loc).sub(this.position).rotateAngleX(), 360));
-            return this.position.distance(loc) <= r
-                && Math.abs(loc.y - this.position.y) <= h
+        return this.filter((e, relativePos) => {
+            let angle = Math.abs(MathUtil.IEEEremainder(this.tmpV.set(dic).rotateAngleX() - this.tmpV.set(relativePos).rotateAngleX(), 360));
+            return relativePos.len() <= r
+                && Math.abs(relativePos.y) <= h
                 && angle >= angleMin
                 && angle <= angleMax
         });

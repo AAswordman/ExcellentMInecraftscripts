@@ -321,6 +321,7 @@ export default class PomTalentSystem extends GameController {
                             }, 100);
                         }
                     } catch (e) { }
+                    
                     if (clnE.cause === EntityDamageCause.projectile) {
                         if (clnE.damagingEntity) {
                             this.player.applyDamage(99999999, {

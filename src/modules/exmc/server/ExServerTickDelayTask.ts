@@ -27,6 +27,7 @@ export default class ExServerTickDelayTask implements TickDelayTask {
         if (this.isStarted()) return;
         this.func = () => {
             this.looper();
+            this.func = undefined;
         }
         this.id = ExGame.runTimeout(this!.func, this.time);
     }

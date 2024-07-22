@@ -45,6 +45,16 @@ export default class PomBossController extends ExEntityController {
         this.server.say({ rawtext: [{ translate: "text.dec:killed_by_boss.name" }] });
         this.despawn();
     }
+    onWin(){
+        //设置奖励
+        for (let c of this.barrier.clientsByPlayer()) {
+            c.progressTaskFinish(this.entity.typeId, c.ruinsSystem.causeDamage);
+            c.ruinsSystem.causeDamageShow = false;
+        }
+        this.stopBarrier();
+        
+        console.warn("onWin");
+    }
 
     override onKilled(e: EntityHurtAfterEvent): void {
         this.destroyBossEntity();

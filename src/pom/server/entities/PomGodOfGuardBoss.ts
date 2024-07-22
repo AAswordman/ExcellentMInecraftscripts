@@ -15,6 +15,8 @@ import MathUtil from '../../../modules/exmc/utils/math/MathUtil.js';
 import DisposeAble from '../../../modules/exmc/interface/DisposeAble.js';
 import Queue from '../../../modules/exmc/utils/queue/Queue.js';
 import { falseIfError, undefIfError } from '../../../modules/exmc/utils/tool.js';
+import ExEntityController from '../../../modules/exmc/server/entity/ExEntityController.js';
+import ExEntityQuery from '../../../modules/exmc/server/env/ExEntityQuery.js';
 
 export class PomGodOfGuardBossState {
     constructor(public centers: PomGodOfGuardShootCenters, public ctrl: PomBossController, public defDamage: number, arg?: any) {
@@ -668,7 +670,7 @@ export class PomGodOfGuardBoss1 extends PomBossController {
                 PomGodOfGuardBossState8,
                 PomGodOfGuardBossState12
             ];
-            
+
             if (this.states.isAvailable()) {
                 let d = this.passive.getDamageWithoutConsume();
                 let choice = Random.choice(normal);
@@ -715,15 +717,13 @@ export class PomGodOfGuardBoss1 extends PomBossController {
     }
     override initBossEntity(): void {
         super.initBossEntity();
-        if (this.isFisrtCall) this.server.say({ rawtext: [{ translate: "text.wb:summon_intentions.name" }] });
+        if (this.isFisrtCall) this.server.say({ rawtext: [{ translate: "text.wb:summon_god_of_guard.name" }] });
     }
     override onSpawn(): void {
         super.onSpawn();
     }
     override onKilled(e: EntityHurtAfterEvent): void {
-        console.warn("onWin");
         this.passive.dispose();
-        this.stopBarrier();
         super.onKilled(e);
 
     }
@@ -747,13 +747,45 @@ export class PomGodOfGuardBoss1 extends PomBossController {
 
 }
 
+export class PomGodOfGuardShadow extends ExEntityController {
+    constructor(public bossOri: PomGodOfGuardBoss2, e: Entity, server: PomServer) {
+        super(e, server);
+    }
+    override dispose(): void {
+        super.dispose();
+    }
+    override onKilled(e: EntityHurtAfterEvent): void {
+        super.onKilled(e);
+    }
+    @registerEvent("afterOnHurt")
+    onHurt(e:EntityHurtAfterEvent){
+        this.bossOri.entity.applyDamage(e.damage,{
+            "cause":EntityDamageCause.entityAttack,
+            "damagingEntity":e.damageSource.damagingEntity
+        });
+    }
+
+
+}
+
 export class PomGodOfGuardBoss2 extends PomBossController {
     static typeId = "wb:god_of_guard_second";
+
+    shadow!: PomGodOfGuardShadow;
     constructor(e: Entity, server: PomServer) {
         super(e, server);
     }
     override initBossEntity(): void {
         super.initBossEntity();
+        let arr = new ExEntityQuery(this.entity.dimension).at(this.barrier.center).queryBox(this.barrier.area.calculateWidth(), {
+            "type": "wb:god_of_guard_shadow"
+        }).getEntities();
+        if (arr.length == 0) {
+            this.shadow = new PomGodOfGuardShadow(this, this.entity.dimension.spawnEntity("wb:god_of_guard_shadow", this.barrier.center), this.server as PomServer);
+        }
+        if (!this.shadow) {
+            this.shadow = new PomGodOfGuardShadow(this, arr[0], this.server as PomServer);
+        }
     }
     override onSpawn(): void {
         super.onSpawn();
@@ -764,20 +796,7 @@ export class PomGodOfGuardBoss2 extends PomBossController {
     override onFail(): void {
         super.onFail();
     }
-
-    @registerEvent("onLongTick")
-    onLongTick(e: TickEvent) {
-        try {
-            if (this.exEntity.hasComponent("minecraft:is_baby")) {
-                this.barrier.particle("wb:ruin_mind_boss_floor_par");
-                this.barrier.changeFog("wb:ruin_mind_3_boss");
-            } else {
-                this.barrier.changeFog("wb:ruin_mind_2_boss");
-            }
-        } catch (e) {
-            ExErrorQueue.throwError(e);
-        }
-    }
+    
 
 }
 
@@ -788,61 +807,17 @@ export class PomGodOfGuardBoss3 extends PomBossController {
     }
     override initBossEntity(): void {
         super.initBossEntity();
-        this.state = new VarOnChangeListener((n) => {
-            switch (n) {
-                case 9:
-                    this.exEntity.exDimension.spawnParticle("wb:ruin_mind_boss_third_par", this.exEntity.position);
-                    break;
-                case 1:
-                case 2:
-                case 3:
-                    this.exEntity.exDimension.spawnParticle("wb:ruin_mind_boss_second_par", this.exEntity.position);
-                    break;
-            }
-        }, 1);
-        this.changeFog = new VarOnChangeListener((n) => {
-            if (n === "wb:ruin_mind_5_boss") {
-                this.barrier.changeFog("wb:ruin_mind_4_boss");
-                this.setTimeout(() => {
-                    this.barrier.changeFog("wb:ruin_mind_5_boss");
-                }, 5000);
-            } else {
-                this.barrier.changeFog(n);
-            }
-        }, "");
-
-        this.changeFog.upDate("wb:ruin_mind_5_boss");
+        new ExEntityQuery(this.entity.dimension).at(this.barrier.center).queryBox(this.barrier.area.calculateWidth(), {
+            "type": "wb:god_of_guard_shadow"
+        }).forEach((e) => e.remove());
     }
-    changeFog!: VarOnChangeListener<string>;
-    state!: VarOnChangeListener<number>;
-    @registerEvent("onLongTick")
-    onLongTick(e: TickEvent) {
-        try {
-            if (this.exEntity.hasComponent("minecraft:is_baby")) {
-                this.barrier.particle("wb:ruin_mind_boss_floor_par");
-                this.changeFog.upDate("wb:ruin_mind_3_boss");
-
-            } else {
-                this.changeFog.upDate("wb:ruin_mind_5_boss");
-            }
-            this.state.upDate(this.exEntity.getVariant())
-        } catch (e) {
-            ExErrorQueue.throwError(e);
-        }
-    }
+    
     override onSpawn(): void {
         super.onSpawn();
     }
     override onKilled(e: EntityHurtAfterEvent): void {
-        //设置奖励
-        for (let c of this.barrier.clientsByPlayer()) {
-            c.progressTaskFinish(this.entity.typeId, c.ruinsSystem.causeDamage);
-            c.ruinsSystem.causeDamageShow = false;
-        }
+        super.onWin();
         this.server.say({ rawtext: [{ translate: "text.wb:defeat_intentions.name" }] });
-
-        console.warn("onWin");
-        this.stopBarrier();
         super.onKilled(e);
     }
     override onFail(): void {

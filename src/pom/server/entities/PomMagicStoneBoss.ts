@@ -29,14 +29,8 @@ export default class PomMagicStoneBoss extends PomBossController {
         }
 
         //设置奖励
-        for (let c of this.barrier.clientsByPlayer()) {
-            c.progressTaskFinish(this.entity.typeId, c.ruinsSystem.causeDamage);
-            c.ruinsSystem.causeDamageShow = false;
-        }
+        super.onWin();
         this.server.say({ rawtext: [{ translate: "text.wb:defeat_magic_stoneman.name" }] });
-
-        console.warn("onWin");
-        this.stopBarrier();
         super.onKilled(e);
     }
 }

@@ -319,7 +319,7 @@ export default class Vector3 {
      * @returns {number|Vector3} The result of the multiplication.
      */
     public mul(n: IVector3): number;
-    public mul(n: Matrix4): Vector3;
+    public mul(n: Matrix4): this;
     public mul(n: IVector3 | Matrix4) {
         if (n instanceof Matrix4) {
             return n.rmulVector(this);

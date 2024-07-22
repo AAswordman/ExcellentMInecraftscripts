@@ -1,4 +1,4 @@
-import Vector3 from "./Vector3.js";
+import { IVector3 } from "./Vector3.js";
 /**
  * Represents a 4x4 matrix.
  */
@@ -51,9 +51,9 @@ export default class Matrix4 {
         m20?: number, m21?: number, m22?: number, m23?: number,
         m30?: number, m31?: number, m32?: number, m33?: number) {
         if (val instanceof Matrix4) {
-            this.val = new Float32Array(val.val);
+            this.val = Float32Array.from(val.val);
         } else if (val instanceof Float32Array) {
-            this.val = new Float32Array(val);
+            this.val = Float32Array.from(val);
         } else if (!val) {
             this.val = new Float32Array(16);
             this.idt();
@@ -308,7 +308,7 @@ export default class Matrix4 {
       * @param {Vector3} vector - The vector to transform.
       * @returns {Vector3} The transformed vector.
       */
-    public rmulVector(vector: Vector3): Vector3 {
+    public rmulVector<T extends IVector3>(vector: T): T {
         const x = vector.x;
         const y = vector.y;
         const z = vector.z;
@@ -319,7 +319,10 @@ export default class Matrix4 {
         const newY = m[4] * x + m[5] * y + m[6] * z + m[7];
         const newZ = m[8] * x + m[9] * y + m[10] * z + m[11];
 
-        return vector.set(newX, newY, newZ);
+        vector.x = newX;
+        vector.y = newY;
+        vector.z = newZ;
+        return vector;
     }
     /**
        * Calculates the determinant of the matrix.
@@ -328,10 +331,10 @@ export default class Matrix4 {
     public determinant(): number {
         const a = this.val;
 
-        const a11 = a[0], a12 = a[4], a13 = a[8], a14 = a[12];
-        const a21 = a[1], a22 = a[5], a23 = a[9], a24 = a[13];
-        const a31 = a[2], a32 = a[6], a33 = a[10], a34 = a[14];
-        const a41 = a[3], a42 = a[7], a43 = a[11], a44 = a[15];
+        const a11 = a[0], a12 = a[1], a13 = a[2], a14 = a[3];
+        const a21 = a[4], a22 = a[5], a23 = a[6], a24 = a[7];
+        const a31 = a[8], a32 = a[9], a33 = a[10], a34 = a[11];
+        const a41 = a[12], a42 = a[13], a43 = a[14], a44 = a[15];
 
         const detA =
             a11 * a22 * a33 * a44 - a11 * a22 * a34 * a43 +
@@ -350,105 +353,6 @@ export default class Matrix4 {
         return detA;
     }
     /**
-       * Diagonalizes the matrix.
-       * @returns {Object} An object containing the eigenvalues and eigenvectors.
-       */
-    public diagonalize(): { eigenvalues: Vector3, eigenvectors: Matrix4 } {
-        const a = this.val;
-
-        const a11 = a[0], a12 = a[4], a13 = a[8], a14 = a[12];
-        const a21 = a[1], a22 = a[5], a23 = a[9], a24 = a[13];
-        const a31 = a[2], a32 = a[6], a33 = a[10], a34 = a[14];
-        const a41 = a[3], a42 = a[7], a43 = a[11], a44 = a[15];
-
-        const eigenvalues = new Vector3();
-        const eigenvectors = new Matrix4();
-
-        // 计算特征值
-        const detA = this.determinant();
-
-        const traceA = a11 + a22 + a33;
-        const p1 = Math.pow(a11, 2) + Math.pow(a12, 2) + Math.pow(a13, 2) + Math.pow(a14, 2);
-        const p2 = Math.pow(a21, 2) + Math.pow(a22, 2) + Math.pow(a23, 2) + Math.pow(a24, 2);
-        const p3 = Math.pow(a31, 2) + Math.pow(a32, 2) + Math.pow(a33, 2) + Math.pow(a34, 2);
-        const p4 = Math.pow(a41, 2) + Math.pow(a42, 2) + Math.pow(a43, 2) + Math.pow(a44, 2);
-
-        const q = (p1 + p2 + p3 - Math.pow(traceA, 2)) / 6;
-        const r = (traceA * (p1 * p2 + p1 * p3 + p2 * p3 - Math.pow(traceA, 2) - p4)) / 6 + (detA / 2);
-        const s = detA / 2;
-
-        const phi = Math.acos(r / Math.sqrt(Math.pow(q, 3)));
-
-        const eigenvalue1 = 2 * Math.sqrt(q) * Math.cos(phi / 3) - traceA / 3;
-        const eigenvalue2 = 2 * Math.sqrt(q) * Math.cos((phi + (2 * Math.PI)) / 3) - traceA / 3;
-        const eigenvalue3 = 2 * Math.sqrt(q) * Math.cos((phi + (4 * Math.PI)) / 3) - traceA / 3;
-
-        eigenvalues.x = eigenvalue1;
-        eigenvalues.y = eigenvalue2;
-        eigenvalues.z = eigenvalue3;
-
-        // 计算特征向量
-        const eps = 1e-6; // 迭代停止的阈值
-        const maxIterations = 100; // 最大迭代次数
-
-        const v1 = new Vector3(1, 0, 0);
-        const v2 = new Vector3(0, 1, 0);
-        const v3 = new Vector3(0, 0, 1);
-
-        const subtractVectors = (v1: Vector3, v2: Vector3) => {
-            return new Vector3(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
-        };
-
-        const normalizeVector = (v: Vector3) => {
-            const length = Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-            v.x /= length;
-            v.y /= length;
-            v.z /= length;
-        };
-
-        const eigenVectorIterations = (v: Vector3, eigenvalue: number) => {
-            let iteration = 0;
-            let prevV = new Vector3();
-
-            while (iteration < maxIterations) {
-                prevV.x = v.x;
-                prevV.y = v.y;
-                prevV.z = v.z;
-
-                v.x = a11 * prevV.x + a12 * prevV.y + a13 * prevV.z;
-                v.y = a21 * prevV.x + a22 * prevV.y + a23 * prevV.z;
-                v.z = a31 * prevV.x + a32 * prevV.y + a33 * prevV.z;
-
-                normalizeVector(v);
-
-                const diff = subtractVectors(v, prevV);
-                const diffLength = Math.sqrt(diff.x * diff.x + diff.y * diff.y + diff.z * diff.z);
-
-                if (diffLength < eps) {
-                    break;
-                }
-
-                iteration++;
-            }
-
-            return v;
-        };
-
-        const eigenvector1 = eigenVectorIterations(v1, eigenvalue1);
-        const eigenvector2 = eigenVectorIterations(v2, eigenvalue2);
-        const eigenvector3 = eigenVectorIterations(v3, eigenvalue3);
-
-        eigenvectors.val.set([
-            eigenvector1.x, eigenvector2.x, eigenvector3.x, 0,
-            eigenvector1.y, eigenvector2.y, eigenvector3.y, 0,
-            eigenvector1.z, eigenvector2.z, eigenvector3.z, 0,
-            0, 0, 0, 1,
-        ]);
-
-        return { eigenvalues, eigenvectors };
-    }
-
-    /**
        * Inverts the matrix.
        * @returns {Matrix4} The inverted matrix.
        * @throws {Error} If the matrix is not invertible.
@@ -458,25 +362,13 @@ export default class Matrix4 {
         const out = new Matrix4();
         const inv = out.val;
 
-        const a11 = a[0], a12 = a[4], a13 = a[8], a14 = a[12];
-        const a21 = a[1], a22 = a[5], a23 = a[9], a24 = a[13];
-        const a31 = a[2], a32 = a[6], a33 = a[10], a34 = a[14];
-        const a41 = a[3], a42 = a[7], a43 = a[11], a44 = a[15];
+        const a11 = a[0], a12 = a[1], a13 = a[2], a14 = a[3];
+        const a21 = a[4], a22 = a[5], a23 = a[6], a24 = a[7];
+        const a31 = a[8], a32 = a[9], a33 = a[10], a34 = a[11];
+        const a41 = a[12], a42 = a[13], a43 = a[14], a44 = a[15];
 
-        const det =
-            a11 * a22 * a33 * a44 - a11 * a22 * a34 * a43 +
-            a11 * a23 * a34 * a42 - a11 * a23 * a32 * a44 +
-            a11 * a24 * a32 * a43 - a11 * a24 * a33 * a42 -
-            a12 * a23 * a34 * a41 + a12 * a23 * a31 * a44 -
-            a12 * a24 * a31 * a43 + a12 * a24 * a33 * a41 -
-            a12 * a21 * a33 * a44 + a12 * a21 * a34 * a43 +
-            a13 * a24 * a31 * a42 - a13 * a24 * a32 * a41 +
-            a13 * a21 * a32 * a44 - a13 * a21 * a34 * a42 +
-            a13 * a22 * a34 * a41 - a13 * a22 * a31 * a44 -
-            a14 * a21 * a32 * a43 + a14 * a21 * a33 * a42 -
-            a14 * a22 * a33 * a41 + a14 * a22 * a31 * a43 -
-            a14 * a23 * a31 * a42 + a14 * a23 * a32 * a41;
-
+        
+        const det = this.determinant();
         if (det === 0) {
             throw new Error('Matrix is not invertible.');
         }
@@ -519,10 +411,10 @@ export default class Matrix4 {
         return this.val;
     }
 
-    [Symbol.toStringTag](){
+    [Symbol.toStringTag]() {
         return `Matrix4(${this.val.join(", ")})`;
     }
-    toString(){
+    toString() {
         return `Matrix4(${this.val.join(", ")})`;
     }
 }
