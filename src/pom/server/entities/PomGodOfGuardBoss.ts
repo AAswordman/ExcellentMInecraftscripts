@@ -17,6 +17,7 @@ import Queue from '../../../modules/exmc/utils/queue/Queue.js';
 import { falseIfError, undefIfError } from '../../../modules/exmc/utils/tool.js';
 import ExEntityController from '../../../modules/exmc/server/entity/ExEntityController.js';
 import ExEntityQuery from '../../../modules/exmc/server/env/ExEntityQuery.js';
+import Vector2 from '../../../modules/exmc/utils/math/Vector2.js';
 
 export class PomGodOfGuardBossState {
     constructor(public centers: PomGodOfGuardShootCenters, public ctrl: PomBossController, public defDamage: number, arg?: any) {
@@ -814,6 +815,7 @@ export class PomGodOfGuardBoss2 extends PomBossController {
     }
     addRange() {
         this.entity.triggerEvent("add_range");
+
     }
     removeRange() {
         this.entity.triggerEvent("remove_range");
@@ -870,18 +872,65 @@ export class PomGodOfGuardBoss2 extends PomBossController {
         this.addMelee();
         this.addMove();
         this.attackTimer = ExSystem.tickTask(() => {
-            if (this.entity.target && this.exEntity.position.distance(this.entity.target?.location)) {
-                this.removeMelee();
+            if (this.entity.target && this.exEntity.position.distance(this.entity.target?.location) < 3) {
                 this.removeMove();
+                this.attackTimer?.stop()
+                this.entity.playAnimation("animation.god_of_guard.melee_attack", {
+                    "blendOutTime": 0.2
+                });
                 this.attackTimer = ExSystem.tickTask(() => {
-                    
-                }).delay(20 * 2).startOnce();
+                    new ExEntityQuery(this.entity.dimension).at(this.entity.location).querySector(6, 4, this.entity.getViewDirection(), 90)
+                        .except(this.entity).forEach((e) => {
+                            e.applyDamage(20, {
+                                "cause": EntityDamageCause.entityAttack,
+                                "damagingEntity": this.entity
+                            })
+                        });
+                    this.exEntity.shootProj("epic:sunlight_arrow", {
+                        "speed": 0.6,
+                        "rotOffset":new Vector2(30,0)
+                    });
+                    this.exEntity.shootProj("epic:sunlight_arrow", {
+                        "speed": 0.6
+                    });
+                    this.exEntity.shootProj("epic:sunlight_arrow", {
+                        "speed": 0.6,
+                        "rotOffset":new Vector2(-30,0)
+                    });
+                    this.attackTimer = ExSystem.tickTask(() => {
+                        this.tryMeleeAttack();
+                    }).delay(20 * 0.75).startOnce();
+                }).delay(20 * 1.25).startOnce();
             }
-        }).delay(5).start();
+        }).delay(2).start();
     }
     tryRangeAttack() {
         this.addMove();
-        this.addRange();
+        this.attackTimer = ExSystem.tickTask(() => {
+            if (this.entity.target && this.exEntity.position.distance(this.entity.target?.location) < 32) {
+                this.attackTimer?.stop()
+                this.entity.playAnimation("animation.god_of_guard.staff_effect_only", {
+                    "blendOutTime": 0.2
+                });
+                this.attackTimer = ExSystem.tickTask(() => {
+                    this.addRange();
+                    this.removeMove();
+                    if (this.entity.target) {
+                        let startPos = new Vector3(this.entity.getHeadLocation()).add(0, 0, -1).add(this.exEntity.viewDirection.scl(1));
+                        this.exEntity.shootProj("epic:sunlight_arrow", {
+                            "speed": 1.3
+                        },
+                            new Vector3(this.entity.target.location).add(0, 0.6, 0).sub(startPos).normalize(),
+                            startPos
+                        );
+                    }
+                    this.attackTimer = ExSystem.tickTask(() => {
+                        this.removeRange();
+                        this.tryRangeAttack();
+                    }).delay(20 * 1).startOnce();
+                }).delay(20 * 1).startOnce();
+            }
+        }).delay(2).start();
     }
     tryShadowMeleeAttack() {
         this.shadow.addMove();
@@ -900,6 +949,10 @@ export class PomGodOfGuardBoss2 extends PomBossController {
     }
     override onFail(): void {
         super.onFail();
+    }
+    override dispose(): void {
+        this.attackTimer?.stop();
+        super.dispose();
     }
 
     override despawn(): void {

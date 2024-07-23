@@ -6,6 +6,7 @@ import DisposeAble from "../../interface/DisposeAble.js";
 import SetTimeOutSupport from "../../interface/SetTimeOutSupport.js";
 import { eventDecoratorFactory, registerEvent } from "../events/eventDecoratorFactory.js";
 import { ExEventNames, ExOtherEventNames, TickEvent } from "../events/events.js";
+import { falseIfError } from "../../utils/tool.js";
 /**
  * 控制实体的控制器类。
  * @implements {DisposeAble}
@@ -149,20 +150,19 @@ export default class ExEntityController implements DisposeAble, SetTimeOutSuppor
             return e.removedEntityId === ctrl.getId();
         }
     )
-    public destroyTrigger1() {
-        if (!this.isDestroyed) {
-            this.isDestroyed = true;
-            this.onDestroy();
-        }
-    }
-
     @registerEvent<ExEntityController>(
         ExEventNames.afterEntityDie,
         (ctrl, e: EntityDieAfterEvent) => {
             return e.deadEntity.id === ctrl.getId();
         }
     )
-    public destroyTrigger2() {
+    @registerEvent<ExEntityController>(
+        ExOtherEventNames.beforeTick,
+        (ctrl, e: TickEvent) => {
+            return !falseIfError(() => ctrl.entity.isValid());
+        }
+    )
+    public destroyTrigger() {
         if (!this.isDestroyed) {
             this.isDestroyed = true;
             this.onDestroy();
@@ -186,6 +186,7 @@ export default class ExEntityController implements DisposeAble, SetTimeOutSuppor
      * 释放资源。
      */
     dispose() {
+        console.warn("dispose " + this._entity.typeId);
         this.getEvents().cancelAll();
     }
 

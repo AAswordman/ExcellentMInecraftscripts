@@ -9,10 +9,11 @@ import ExCommand from '../env/ExCommand.js';
 import ExDimension from '../ExDimension.js';
 import Vector2, { IVector2 } from '../../utils/math/Vector2.js';
 import Matrix4 from '../../utils/math/Matrix4.js';
+import ExEntityQuery from '../env/ExEntityQuery.js';
 
 export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     public command = new ExCommand(this);
-    
+
 
     public damage(d: number, source?: EntityDamageSource) {
         this.entity.applyDamage(d, source)
@@ -211,11 +212,13 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         this.getComponent("minecraft:movement")?.setCurrentValue(num);
     }
 
-    shootProj(id: string, option: ExEntityShootOption, loc = this._entity.getHeadLocation(), shoot_dir = this.viewDirection) {
-        let locx = new Vector3(loc).add(0, 0, -1).add(this.viewDirection.scl(option.spawnDistance ?? 1.5));
+    shootProj(id: string, option: ExEntityShootOption, shoot_dir = this.viewDirection, loc =
+        new Vector3(this._entity.getHeadLocation()).add(0, 0, -1).add(this.viewDirection.scl(option.spawnDistance ?? 1.5))) {
         //这里z-1才是实际的head位置，可能是ojang的bug吧
+        let locx = loc;
+        let q = new ExEntityQuery(this.entity.dimension).at(locx);
         if (option.absPosOffset) locx.add(option.absPosOffset);
-        if (option.viewPosOffset) locx.add(this.getViewVector(option.viewPosOffset));
+        if (option.viewPosOffset) locx = q.facingByLTF(option.viewPosOffset, this.viewDirection).position;
 
         let proj = this.exDimension.spawnEntity(id, locx);
         if (!proj) return false;
@@ -226,7 +229,7 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         }
         let view = new Vector3(shoot_dir);
         if (option.rotOffset) {
-            view.add(this.relateRotate(option.rotOffset.x, option.rotOffset.y, false));
+            view.add(this.relateRotate(option.rotOffset.y, option.rotOffset.x, false));
         }
         let shootOpt: ProjectileShootOptions = {
             uncertainty: option.uncertainty ?? 0
@@ -255,32 +258,12 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         let phi_cur = - Math.atan(v_c.y / l_0) * 180 / Math.PI;
         let phi_ca = phi_cur + x;
         let phi = (phi_ca > 180 ? 180 : (phi_ca < -180 ? -180 : phi_ca)) * Math.PI / 180;
-
         v_c = new Vector3(v_c).mul(new Matrix4().rotateX(phi).rotateY(-y * Math.PI / 180));
 
         if (take_effect) {
             //这里有时间写个设置玩家视角
         }
         return v_c
-    }
-
-    protected getViewVectorBase() {
-        let c = this.viewDirection;
-        let b = new Vector3(0, 1, 0).crs(c);
-        let a = c.crs(b);
-        let base = [
-            a, b, c
-        ]
-        return base;
-    }
-
-    protected getViewVector(v: Vector3) {
-        let base = this.getViewVectorBase()
-        let x = base[0].x * v.x + base[0].y * v.y + base[0].z * v.z
-        let y = base[1].x * v.x + base[1].y * v.y + base[1].z * v.z
-        let z = base[2].x * v.x + base[2].y * v.y + base[2].z * v.z
-        let new_v = new Vector3(x, y, z);
-        return new_v
     }
 
     getBag() {

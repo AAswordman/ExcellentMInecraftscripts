@@ -39,7 +39,7 @@ export default class ExEntityEvents implements ExEventManager {
             pattern: ExEntityEvents.eventHandlers.registerToServerByServerEvent
         },
         [ExOtherEventNames.beforeTick]: {
-            pattern: ExEntityEvents.eventHandlers.registerToServerByServerEvent
+            pattern: ExEntityEvents.eventHandlers.registerToServerByServerEventCanErr
         },
         [ExEventNames.afterEntityHitBlock]: {
             pattern: ExEntityEvents.eventHandlers.registerToServerByEntity,
@@ -107,7 +107,7 @@ export default class ExEntityEvents implements ExEventManager {
         if (name in this.exEvents) {
             return (<any>this.exEvents)[name].subscribe(func);
         }
-
+        
         console.warn("No event registered for name " + name);
     }
 

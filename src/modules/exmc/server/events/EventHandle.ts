@@ -78,6 +78,13 @@ export default class EventHandle<T> {
             }
         });
     }
+    registerToServerByServerEventCanErr = (registerName: string, k: string) => {
+        this.server.getEvents().register(registerName, (e: any) => {
+            for (let [key, value] of this.monitorMap[k]) {
+                value.trigger(e);
+            }
+        });
+    }
 }
 
 
