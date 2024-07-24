@@ -17,6 +17,7 @@ import { TickEvent } from "./events/events.js";
 import ExGame from "./ExGame.js";
 import DynamicPropertyManager from "../interface/DynamicPropertyManager.js";
 import Vector3 from "../utils/math/Vector3.js";
+import { MinecraftDimensionTypes } from "../../vanilla-data/lib/index.js";
 
 export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingPool> implements SetTimeOutSupport {
     private _events: ExClientEvents;
@@ -45,6 +46,9 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
         new ExActionAlert().title("aaa").body("bbbb").button("alert", () => { })
             .button("alert", () => { })
             .show(this.player);
+    }
+    debug_remove() {
+        return this.getDimension(MinecraftDimensionTypes.Nether).getEntities().forEach(e=> e.remove());
     }
     debug_error() {
         return ExErrorQueue.getError();

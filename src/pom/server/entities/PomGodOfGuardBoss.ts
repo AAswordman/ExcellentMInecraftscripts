@@ -18,6 +18,7 @@ import { falseIfError, undefIfError } from '../../../modules/exmc/utils/tool.js'
 import ExEntityController from '../../../modules/exmc/server/entity/ExEntityController.js';
 import ExEntityQuery from '../../../modules/exmc/server/env/ExEntityQuery.js';
 import Vector2 from '../../../modules/exmc/utils/math/Vector2.js';
+import Matrix4 from '../../../modules/exmc/utils/math/Matrix4.js';
 
 export class PomGodOfGuardBossState {
     constructor(public centers: PomGodOfGuardShootCenters, public ctrl: PomBossController, public defDamage: number, arg?: any) {
@@ -755,6 +756,8 @@ export enum PomGodOfGuard2State {
 
 export class PomGodOfGuardShadow extends ExEntityController {
     state = PomGodOfGuard2State.Range;
+    timer!: TickDelayTask;
+
     constructor(public bossOri: PomGodOfGuardBoss2, e: Entity, server: PomServer) {
         super(e, server);
     }
@@ -784,10 +787,11 @@ export class PomGodOfGuardShadow extends ExEntityController {
     }
     @registerEvent("afterOnHurt")
     onHurt(e: EntityHurtAfterEvent) {
-        this.bossOri.entity.applyDamage(e.damage, {
-            "cause": EntityDamageCause.entityAttack,
-            "damagingEntity": e.damageSource.damagingEntity
-        });
+        if (e.damageSource.cause !== EntityDamageCause.selfDestruct && e.damageSource.cause !== EntityDamageCause.suicide)
+            this.bossOri.entity.applyDamage(e.damage, {
+                "cause": EntityDamageCause.entityAttack,
+                "damagingEntity": e.damageSource.damagingEntity
+            });
     }
 
 
@@ -835,35 +839,61 @@ export class PomGodOfGuardBoss2 extends PomBossController {
         this.timer = ExSystem.tickTask(() => {
             this.entity.dimension.spawnParticle("epic:sunlight_sword_particle2", this.entity.location);
             this.shadow.entity.dimension.spawnParticle("epic:sunlight_sword_particle2", this.shadow.entity.location);
-            this.setTimeout(() => {
-                this.attackTimer?.stop();
+            // this.setTimeout(() => {
+            //     let pos1 = this.entity.location, pos2 = this.shadow.entity.location;
+            //     this.shadow.entity.teleport(pos1);
+            //     this.entity.teleport(pos2);
 
-                let pos1 = this.entity.location, pos2 = this.shadow.entity.location;
-                this.shadow.entity.teleport(pos1);
-                this.entity.teleport(pos2);
+            //     [this.state, this.shadow.state] = [this.shadow.state, this.state];
+            //     this.entity.triggerEvent("variant" + this.state);
+            //     this.shadow.entity.triggerEvent("variant" + this.shadow.state);
 
-                [this.state, this.shadow.state] = [this.shadow.state, this.state];
-                this.entity.triggerEvent("variant" + this.state);
-                this.shadow.entity.triggerEvent("variant" + this.shadow.state);
+            //     this.removeMelee(); this.removeMove(); this.removeRange();
+            //     this.shadow.removeMelee(); this.shadow.removeMove(); this.shadow.removeRange();
 
-                this.removeMelee(); this.removeMove(); this.removeRange();
-                this.shadow.removeMelee(); this.shadow.removeMove(); this.shadow.removeRange();
+            //     if (this.state == PomGodOfGuard2State.Melee) {
+            //         this.tryMeleeAttack();
+            //     } else {
+            //         this.entity.playAnimation("animation.god_of_guard.staff_effect_only", {
+            //             "blendOutTime": 0.2
+            //         });
+            //         let tar = new Vector3(Random.choice(Array.from(this.barrier.getPlayers())).location).sub(this.entity.location);
+            //         tar.y = 0;
+            //         tar.normalize();
 
-                if (this.state == PomGodOfGuard2State.Melee) {
-                    this.tryMeleeAttack();
-                } else {
-                    this.tryRangeAttack();
-                }
+            //         let mat1 = new Matrix4().idt().rotateY(15 / 180 * Math.PI);
+            //         let mat2 = new Matrix4().idt().rotateY(-60 / 180 * Math.PI);
 
-                if (this.shadow.state == PomGodOfGuard2State.Melee) {
-                    this.tryShadowMeleeAttack();
-                } else {
-                    this.tryShadowRangeAttack();
-                }
+            //         mat2.rmulVector(tar);
 
-                this.timer.delay(20 * MathUtil.randomInteger(8, 13));
-                this.timer.startOnce();
-            }, 2 * 1000);
+            //         // for (let p = -4; p <= 4; p += 1) {
+            //         //     this.exEntity.shootProj("wb:god_of_guard_sword_p", {
+            //         //         "speed": 1.0
+            //         //     }, tar);
+            //         //     mat1.rmulVector(tar);
+            //         // }
+            //         for (let p = -4; p <= 4; p += 1) {
+            //             const n = p * 15;
+            //             this.setTimeout(() => {
+            //                 this.exEntity.shootProj("wb:god_of_guard_sword_p", {
+            //                     "speed": 0.9
+            //                 }, tar);
+            //                 mat1.rmulVector(tar);
+            //             }, p * 250);
+            //         }
+            //         this.tryRangeAttack();
+            //     }
+
+            //     if (this.shadow.state == PomGodOfGuard2State.Melee) {
+            //         this.tryShadowMeleeAttack();
+            //     } else {
+            //         this.tryShadowRangeAttack();
+            //     }
+
+            //     this.timer.delay(20 * MathUtil.randomInteger(8, 13));
+            //     this.timer.startOnce();
+            // }, 2 * 1000);
+            this.tryLazerAttack();
         }).delay(20 * 2);
         this.timer.startOnce();
     }
@@ -871,32 +901,34 @@ export class PomGodOfGuardBoss2 extends PomBossController {
     tryMeleeAttack() {
         this.addMelee();
         this.addMove();
+        this.attackTimer?.stop();
         this.attackTimer = ExSystem.tickTask(() => {
             if (this.entity.target && this.exEntity.position.distance(this.entity.target?.location) < 3) {
                 this.removeMove();
-                this.attackTimer?.stop()
                 this.entity.playAnimation("animation.god_of_guard.melee_attack", {
                     "blendOutTime": 0.2
                 });
+                this.attackTimer?.stop();
                 this.attackTimer = ExSystem.tickTask(() => {
-                    new ExEntityQuery(this.entity.dimension).at(this.entity.location).querySector(6, 4, this.entity.getViewDirection(), 90)
+                    new ExEntityQuery(this.entity.dimension).at(this.entity.location).querySector(5, 3, this.entity.getViewDirection(), 90)
                         .except(this.entity).forEach((e) => {
                             e.applyDamage(20, {
                                 "cause": EntityDamageCause.entityAttack,
                                 "damagingEntity": this.entity
                             })
                         });
-                    this.exEntity.shootProj("epic:sunlight_arrow", {
+                    this.exEntity.shootProj("wb:god_of_guard_sword_p", {
                         "speed": 0.6,
-                        "rotOffset":new Vector2(30,0)
+                        "rotOffset": new Vector2(0, -30)
                     });
-                    this.exEntity.shootProj("epic:sunlight_arrow", {
+                    this.exEntity.shootProj("wb:god_of_guard_sword_p", {
                         "speed": 0.6
                     });
-                    this.exEntity.shootProj("epic:sunlight_arrow", {
+                    this.exEntity.shootProj("wb:god_of_guard_sword_p", {
                         "speed": 0.6,
-                        "rotOffset":new Vector2(-30,0)
+                        "rotOffset": new Vector2(0, 30)
                     });
+                    this.attackTimer?.stop();
                     this.attackTimer = ExSystem.tickTask(() => {
                         this.tryMeleeAttack();
                     }).delay(20 * 0.75).startOnce();
@@ -906,12 +938,13 @@ export class PomGodOfGuardBoss2 extends PomBossController {
     }
     tryRangeAttack() {
         this.addMove();
+        this.attackTimer?.stop();
         this.attackTimer = ExSystem.tickTask(() => {
             if (this.entity.target && this.exEntity.position.distance(this.entity.target?.location) < 32) {
-                this.attackTimer?.stop()
                 this.entity.playAnimation("animation.god_of_guard.staff_effect_only", {
                     "blendOutTime": 0.2
                 });
+                this.attackTimer?.stop();
                 this.attackTimer = ExSystem.tickTask(() => {
                     this.addRange();
                     this.removeMove();
@@ -924,6 +957,7 @@ export class PomGodOfGuardBoss2 extends PomBossController {
                             startPos
                         );
                     }
+                    this.attackTimer?.stop();
                     this.attackTimer = ExSystem.tickTask(() => {
                         this.removeRange();
                         this.tryRangeAttack();
@@ -941,6 +975,77 @@ export class PomGodOfGuardBoss2 extends PomBossController {
         this.shadow.addRange();
     }
 
+    summonLazer(i: number) {
+        let map = new MolangVariableMap();
+        map.setFloat("dic_x", Math.sin(i / 180 * Math.PI));
+        map.setFloat("dic_z", Math.cos(i / 180 * Math.PI));
+        new ExEntityQuery(this.entity.dimension).at(this.entity.location)
+            .queryBall(64)
+            .except(this.entity)
+            .except(this.shadow.entity)
+            .facingByDirection(new Vector3(0, 0, 1), 32)
+            .setMatrix(new Matrix4().rotateY(-i))
+            .filterBox(new Vector3(1.5, 1.5, 32)).forEach((e) => {
+                e.applyDamage(20);
+            });
+        this.entity.dimension.spawnParticle("wb:god_of_guard_lazer_par", new Vector3(this.entity.location).add(0, 2, 0), map);
+        this.entity.dimension.spawnParticle("wb:ruin_desert_boss_lazer", new Vector3(this.entity.location).add(0, 2, 0), map);
+    }
+    tryLazerAttack() {
+        this.timer.stop();
+
+        this.entity.teleport(this.barrier.center);
+        this.removeMove();
+        this.removeRange();
+        this.addMelee();
+
+
+        this.attackTimer?.stop();
+        this.attackTimer = ExSystem.tickTask(() => {
+            this.entity.dimension.spawnParticle("wb:god_of_guard_lazer_pre_par", this.entity.location);
+            this.setTimeout(() => {
+                this.entity.playAnimation("animation.god_of_guard.staff_effect_only", {
+                    "blendOutTime": 0.2
+                });
+                this.attackTimer?.stop();
+                let angle = Math.floor(Math.random() * 120) * 3;
+                let numTotal = 360;
+                let num = numTotal;
+
+                this.attackTimer = ExSystem.tickTask(() => {
+                    if (num > numTotal / 2) {
+                        for (let i = angle; i < 360 + angle; i += 72) {
+                            this.summonLazer(i)
+                        }
+                    } else if (num > numTotal / 4) {
+                        for (let i = angle; i < 360 + angle; i += 60) {
+                            this.summonLazer(i);
+                        }
+                    } else if (num > numTotal / 4 / 3 * 2) {
+                        for (let i = angle + 45; i < 360 + angle + 45; i += 90) {
+                            this.summonLazer(i);
+                        }
+                    } else if (num > numTotal / 4 / 3) {
+                        for (let i = angle; i < 360 + angle; i += 180) {
+                            this.summonLazer(i);
+                        }
+                    } else {
+                        for (let i = angle + 45; i < 360 + angle + 45; i += 120) {
+                            this.summonLazer(i);
+                        }
+                    }
+                    angle += 1;
+                    num -= 1;
+                    if (num <= 0) {
+                        this.attackTimer?.stop();
+                        this.timer.delay(0).startOnce();
+                    }
+                }).delay(1).start();
+            }, 2 * 1000);
+        }).delay(2 * 20).startOnce();
+
+    }
+
     override onSpawn(): void {
         super.onSpawn();
     }
@@ -952,6 +1057,7 @@ export class PomGodOfGuardBoss2 extends PomBossController {
     }
     override dispose(): void {
         this.attackTimer?.stop();
+        this.timer.stop();
         super.dispose();
     }
 

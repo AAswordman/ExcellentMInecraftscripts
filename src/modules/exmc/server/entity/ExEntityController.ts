@@ -141,6 +141,8 @@ export default class ExEntityController implements DisposeAble, SetTimeOutSuppor
     onSpawn() {
     }
 
+    lastUsed = false;
+
     /**
      * 销毁触发器。
      */
@@ -159,7 +161,9 @@ export default class ExEntityController implements DisposeAble, SetTimeOutSuppor
     @registerEvent<ExEntityController>(
         ExOtherEventNames.beforeTick,
         (ctrl, e: TickEvent) => {
-            return !falseIfError(() => ctrl.entity.isValid());
+            let ret = ctrl.lastUsed;
+            ctrl.lastUsed = !falseIfError(() => ctrl.entity.isValid());
+            return ret;
         }
     )
     public destroyTrigger() {

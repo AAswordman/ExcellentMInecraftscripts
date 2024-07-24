@@ -229,7 +229,7 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         }
         let view = new Vector3(shoot_dir);
         if (option.rotOffset) {
-            view.add(this.relateRotate(option.rotOffset.y, option.rotOffset.x, false));
+            view.add(this.relateRotate(option.rotOffset.x, option.rotOffset.y, false));
         }
         let shootOpt: ProjectileShootOptions = {
             uncertainty: option.uncertainty ?? 0
@@ -360,4 +360,6 @@ export interface ExEntityShootOption {
      * 生成点相对视角直线位移
      */
     spawnDistance?: number;
+
+    facing?: boolean;
 }

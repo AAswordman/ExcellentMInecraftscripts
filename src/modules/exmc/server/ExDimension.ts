@@ -1,4 +1,4 @@
-import { Dimension, EntityQueryOptions, Block, ItemStack, Entity, BlockType, ExplosionOptions, MolangVariableMap, BlockTypes, BlockFillOptions } from '@minecraft/server';
+import { Dimension, EntityQueryOptions, Block, ItemStack, Entity, BlockType, ExplosionOptions, MolangVariableMap, BlockTypes, BlockFillOptions, SpawnEntityOptions } from '@minecraft/server';
 import { ExCommandNativeRunner } from '../interface/ExCommandRunner.js';
 import Vector3, { IVector3 } from "../utils/math/Vector3.js";
 import ExGameConfig from './ExGameConfig.js';
@@ -77,9 +77,9 @@ export default class ExDimension implements ExCommandNativeRunner {
         };
     }
 
-    spawnEntity(id: string, v: IVector3) {
+    spawnEntity(id: string, v: IVector3,options?: SpawnEntityOptions) {
         try {
-            return this._dimension.spawnEntity(id, v);
+            return this._dimension.spawnEntity(id, v,options);
         } catch (error) {
             ExGameConfig.console.warn(error);
             return undefined;
