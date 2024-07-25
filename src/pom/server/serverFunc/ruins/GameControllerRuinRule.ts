@@ -1,4 +1,4 @@
-import GameController from "../GameController.js";
+import GameController from "../../clientFunc/GameController.js";
 
 export default class GameControllerRuinRule{
     game: GameController;

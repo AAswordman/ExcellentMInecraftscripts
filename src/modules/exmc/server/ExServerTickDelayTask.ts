@@ -52,4 +52,7 @@ export default class ExServerTickDelayTask implements TickDelayTask {
         return this;
 
     }
+    dispose(): void {
+        this.stop();
+    }
 }

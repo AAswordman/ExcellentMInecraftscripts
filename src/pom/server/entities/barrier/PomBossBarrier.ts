@@ -7,7 +7,7 @@ import ExEventManager from '../../../../modules/exmc/interface/ExEventManager.js
 import PomServer from "../../PomServer.js";
 import { Player, Entity, GameMode } from '@minecraft/server';
 import PomClient from "../../PomClient.js";
-import PomBossController from "../../entities/PomBossController.js";
+import PomBossController from "../PomBossController.js";
 import { ignorn } from "../../../../modules/exmc/server/ExErrorQueue.js";
 import VarOnChangeListener from '../../../../modules/exmc/utils/VarOnChangeListener.js';
 import { MinecraftEffectTypes } from "../../../../modules/vanilla-data/lib/index.js";

@@ -1,6 +1,7 @@
+import DisposeAble from "../interface/DisposeAble.js";
 import { TickEvent } from "../server/events/events.js";
 
-export default interface TickDelayTask {
+export default interface TickDelayTask extends DisposeAble{
     func ?: (e: TickEvent) => void;
     getDelay():number;
     delay(time: number):this;
@@ -8,4 +9,5 @@ export default interface TickDelayTask {
     startOnce():this;
     start():this;
     stop():this;
+    
 }

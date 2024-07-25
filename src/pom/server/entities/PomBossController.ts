@@ -1,6 +1,6 @@
 import { Entity, EntityHurtAfterEvent, EntityDamageCause } from '@minecraft/server';
 import ExEntityController from '../../../modules/exmc/server/entity/ExEntityController.js';
-import PomBossBarrier from '../func/barrier/PomBossBarrier.js';
+import PomBossBarrier from './barrier/PomBossBarrier.js';
 import { ExBlockArea } from '../../../modules/exmc/server/block/ExBlockArea.js';
 import PomServer from '../PomServer.js';
 import Vector3 from '../../../modules/exmc/utils/math/Vector3.js';
@@ -37,10 +37,7 @@ export default class PomBossController extends ExEntityController {
     }
     onFail() {
         console.warn("onFail");
-        for (let c of this.barrier.clientsByPlayer()) {
-            c.ruinsSystem.causeDamageShow = false;
-        }
-        this.stopBarrier();
+        this.stopBattle();
         this.destroyBossEntity();
         this.server.say({ rawtext: [{ translate: "text.dec:killed_by_boss.name" }] });
         this.despawn();
@@ -59,7 +56,7 @@ export default class PomBossController extends ExEntityController {
     override onKilled(e: EntityHurtAfterEvent): void {
         this.destroyBossEntity();
         if (e.damageSource.cause === EntityDamageCause.suicide || e.damageSource.cause === EntityDamageCause.selfDestruct) {
-            this.stopBarrier();
+            this.stopBattle();
         }
         super.onKilled(e);
     }
@@ -71,6 +68,14 @@ export default class PomBossController extends ExEntityController {
     stopBarrier() {
         this.barrier.stop();
     }
+
+    stopBattle(){
+        for (let c of this.barrier.clientsByPlayer()) {
+            c.ruinsSystem.causeDamageShow = false;
+        }
+        this.stopBarrier();
+    }
+
     destroyBossEntity(){
 
     }

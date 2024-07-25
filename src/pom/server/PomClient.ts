@@ -14,14 +14,14 @@ import PomClientData from "./cache/PomClientData.js";
 import POMLICENSE from "./data/POMLICENSE.js";
 import lang from "./data/lang.js";
 import { langType } from "./data/langType.js";
-import GameController from "./func/GameController.js";
-import PomDimRuinsSystem from "./func/PomDimRuinsSystem.js";
-import PomEnchantSystem from "./func/PomEnchantSystem.js";
-import PomInteractSystem from "./func/PomInteractSystem.js";
-import PomMagicSystem from "./func/PomMagicSystem.js";
-import PomTalentSystem from "./func/PomTalentSystem.js";
-import PomTaskSystem from "./func/PomTaskSystem.js";
-import SimpleItemUseFunc from "./func/SimpleItemUseFunc.js";
+import GameController from "./clientFunc/GameController.js";
+import PomDimRuinsSystem from "./clientFunc/PomDimRuinsSystem.js";
+import PomEnchantSystem from "./clientFunc/PomEnchantSystem.js";
+import PomInteractSystem from "./clientFunc/PomInteractSystem.js";
+import PomMagicSystem from "./clientFunc/PomMagicSystem.js";
+import PomTalentSystem from "./clientFunc/PomTalentSystem.js";
+import PomTaskSystem from "./clientFunc/PomTaskSystem.js";
+import SimpleItemUseFunc from "./clientFunc/SimpleItemUseFunc.js";
 import WarningAlertUI from "./ui/WarningAlertUI.js";
 import TickDelayTask from "../../modules/exmc/utils/TickDelayTask.js";
 import ExPropCache from "../../modules/exmc/server/storage/cache/ExPropCache.js";
@@ -29,7 +29,7 @@ import { ArmorData } from "../../dec/server/items/ArmorData.js";
 import { GameDifficulty, pomDifficultyMap } from "./data/GameDifficulty.js";
 import Vector3 from "../../modules/exmc/utils/math/Vector3.js";
 import TalentData from "./cache/TalentData.js";
-import PomTerritorySystem from "./func/PomTerritorySystem.js";
+import PomTerritorySystem from "./clientFunc/PomTerritorySystem.js";
 
 
 

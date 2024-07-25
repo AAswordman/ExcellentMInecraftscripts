@@ -85,6 +85,7 @@ export default class ExEntityQuery {
     }
     forEach(callbackfn: (value: Entity) => void, thisArg?: any) {
         this.entities.forEach(callbackfn);
+        return this;
     }
     *[Symbol.iterator]() {
         for (let e of this.entities) {
@@ -120,10 +121,11 @@ export default class ExEntityQuery {
         })
         return this;
     }
-    filterBox(xyz: IVector3) {
-        return this.filter((e, relativePos) => Math.abs(relativePos.x) <= xyz.x &&
-            Math.abs(relativePos.y) <= xyz.y &&
-            Math.abs(relativePos.z) <= xyz.z);
+    filterBox(xyz: IVector3,relCenter = new Vector3(0,0,0)) {
+        return this.filter((e, relativePos) => 
+            Math.abs(relativePos.x-relCenter.x) <= xyz.x &&
+            Math.abs(relativePos.y-relCenter.y) <= xyz.y &&
+            Math.abs(relativePos.z-relCenter.z) <= xyz.z);
     }
     filterPolygon(points: [IVector3, IVector3, IVector3], h: number) {
         return this.filter((e, relativePos) => ExEntityQuery.isPointInsidePolygon(relativePos.x, relativePos.z, points)

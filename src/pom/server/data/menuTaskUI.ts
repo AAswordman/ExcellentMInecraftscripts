@@ -1,5 +1,5 @@
 import PomClient from "../PomClient.js";
-import GameController from "../func/GameController.js";
+import GameController from "../clientFunc/GameController.js";
 import { MenuUIAlertView, MenuUIJson, MenuUIPage } from "../ui/MenuUIAlert.js";
 import { langType } from "./langType.js";
 import taskDaily_a from "./tasks/daily_a.js";
