@@ -862,7 +862,7 @@ export class PomGodOfGuardBoss2 extends PomBossController {
                     this.attackTimer?.stop();
                     this.attackLiner?.stop();
                     let getSmooth = (time: number, timeAll: number, a: number, b: number) => {
-                        return a + (b - a) * (-Math.pow(((time / timeAll) - 1), 2) + 1);
+                        return MathUtil.clamp(a + (b - a) * (-Math.pow(((time / timeAll) - 1), 2) + 1), a, b);
                     }
                     let startPos = new Vector3(this.entity.location);
                     let tmpV = new Vector3();
@@ -1038,7 +1038,7 @@ export class PomGodOfGuardBoss2 extends PomBossController {
             this.passive.resetHealthReduce();
         }
     }
-    
+
     @registerEvent(ExOtherEventNames.onLongTick)
     flyerBurn() {
         this.passive.getSkipper()?.applyDamage(10, {
