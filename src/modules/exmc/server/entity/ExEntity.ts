@@ -1,4 +1,4 @@
-import { Entity, EntityHealthComponent, EntityInventoryComponent, Dimension, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent, EntityDamageSource, EntityDamageCause, EquipmentSlot, TeleportOptions, EffectType, EntityAttributeComponent, EntityEquippableComponent, EntityProjectileComponent, ProjectileShootOptions, EntityComponentTypeMap } from '@minecraft/server';
+import { Entity, EntityHealthComponent, EntityInventoryComponent, Dimension, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent, EntityDamageSource, EntityDamageCause, EquipmentSlot, TeleportOptions, EffectType, EntityAttributeComponent, EntityEquippableComponent, EntityProjectileComponent, ProjectileShootOptions, EntityComponentTypeMap, Player } from '@minecraft/server';
 import { ExCommandNativeRunner } from '../../interface/ExCommandRunner.js';
 import ExTagManager from '../../interface/ExTagManager.js';
 import ExScoresManager from './ExScoresManager.js';
@@ -216,7 +216,8 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     }
 
     shootProj(id: string, option: ExEntityShootOption, shoot_dir = this.viewDirection, loc =
-        new Vector3(this._entity.getHeadLocation()).add(0, 0, -1).add(this.viewDirection.scl(option.spawnDistance ?? 1.5))) {
+        new Vector3(this._entity.getHeadLocation()).add(0, 0, this._entity instanceof Player ? -1 : 0)
+            .add(this.viewDirection.scl(option.spawnDistance ?? 1.5))) {
         //这里z-1才是实际的head位置，可能是ojang的bug吧
         let locx = loc;
         let q = new ExEntityQuery(this.entity.dimension).at(locx);
@@ -228,11 +229,11 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
             // view.add(this.relateRotate(option.rotOffset.x, option.rotOffset.y, false));
             let mat = ExEntityQuery.getFacingMatrix(this.entity.getViewDirection());
             mat.cpy().invert().rmulVector(view);
-            new Matrix4().idt().rotateX(option.rotOffset.x/180*Math.PI).rotateY(option.rotOffset.y/180*Math.PI).rmulVector(view);
+            new Matrix4().idt().rotateX(option.rotOffset.x / 180 * Math.PI).rotateY(option.rotOffset.y / 180 * Math.PI).rmulVector(view);
             mat.rmulVector(view);
         }
 
-        let proj = this.exDimension.spawnEntity(id, locx);
+        const proj = this.exDimension.spawnEntity(id, locx);
 
         if (!proj) return false;
         const proj_comp = proj.getComponent('minecraft:projectile');
@@ -257,10 +258,11 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         proj_comp.owner = option.owner ?? this._entity;
         proj_comp.shouldBounceOnHit = option.shouldBounceOnHit ?? proj_comp.shouldBounceOnHit
         proj_comp.stopOnHit = option.stopOnHit ?? proj_comp.stopOnHit
+        let v = new Vector3(view)
         if (option.delay) {
-
+            proj_comp.shoot(view.normalize().scl(0.05), shootOpt);
             ExGame.runTimeout(() => {
-                if(falseIfError(() => proj_comp.isValid())) proj_comp.shoot(view.normalize().scl(option.speed), shootOpt);
+                if (falseIfError(() => proj.isValid())) proj_comp.shoot(view.normalize().scl(option.speed), shootOpt);
             }, option.delay * 20);
         } else {
             proj_comp.shoot(view.normalize().scl(option.speed), shootOpt);

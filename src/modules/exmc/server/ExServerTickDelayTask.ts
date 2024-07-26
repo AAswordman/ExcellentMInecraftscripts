@@ -29,7 +29,7 @@ export default class ExServerTickDelayTask implements TickDelayTask {
             this.looper();
             this.func = undefined;
         }
-        this.id = ExGame.runTimeout(this!.func, this.time);
+        this.id = ExGame.runTimeout(() => this?.func?.(), this.time);
         return this;
     }
     start() {
@@ -38,7 +38,7 @@ export default class ExServerTickDelayTask implements TickDelayTask {
             this.looper();
         }
 
-        this.id = ExGame.runInterval(this!.func, this.time);
+        this.id = ExGame.runInterval(() => this?.func?.(), this.time);
         return this;
 
     }
@@ -46,7 +46,7 @@ export default class ExServerTickDelayTask implements TickDelayTask {
     stop() {
         if (!this.func) return this;
         if (!this.id) throw new Error("error id is required");
-        
+
         ExGame.clearRun(this.id);
         this.func = undefined;
         return this;
