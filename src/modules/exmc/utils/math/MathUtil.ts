@@ -1,5 +1,8 @@
 export default class MathUtil {
     static clamp(num: number, low: number, high: number): number {
+        if (low > high) {
+            return MathUtil.clamp(num, high, low);
+        }
         return Math.max(low, Math.min(high, num));
     }
     static IEEEremainder(dividend: number, divisor: number) {
@@ -22,7 +25,7 @@ export default class MathUtil {
         let length = Math.floor(Math.random() * (max - min + 1));
         return min + length;
     }
-    static round(x:number,n:number){
-        return Math.round(x*(10**n))/(10**n);
+    static round(x: number, n: number) {
+        return Math.round(x * (10 ** n)) / (10 ** n);
     }
 }

@@ -10,6 +10,9 @@ import ExDimension from '../ExDimension.js';
 import Vector2, { IVector2 } from '../../utils/math/Vector2.js';
 import Matrix4 from '../../utils/math/Matrix4.js';
 import ExEntityQuery from '../env/ExEntityQuery.js';
+import ExSystem from '../../utils/ExSystem.js';
+import ExGame from '../ExGame.js';
+import { falseIfError } from '../../utils/tool.js';
 
 export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     public command = new ExCommand(this);
@@ -220,16 +223,22 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         if (option.absPosOffset) locx.add(option.absPosOffset);
         if (option.viewPosOffset) locx = q.facingByLTF(option.viewPosOffset, this.viewDirection).position;
 
+        let view = new Vector3(shoot_dir);
+        if (option.rotOffset) {
+            // view.add(this.relateRotate(option.rotOffset.x, option.rotOffset.y, false));
+            let mat = ExEntityQuery.getFacingMatrix(this.entity.getViewDirection());
+            mat.cpy().invert().rmulVector(view);
+            new Matrix4().idt().rotateX(option.rotOffset.x/180*Math.PI).rotateY(option.rotOffset.y/180*Math.PI).rmulVector(view);
+            mat.rmulVector(view);
+        }
+
         let proj = this.exDimension.spawnEntity(id, locx);
+
         if (!proj) return false;
-        let proj_comp = proj.getComponent('minecraft:projectile');
+        const proj_comp = proj.getComponent('minecraft:projectile');
         if (!proj_comp) {
             proj.remove();
             return false;
-        }
-        let view = new Vector3(shoot_dir);
-        if (option.rotOffset) {
-            view.add(this.relateRotate(option.rotOffset.x, option.rotOffset.y, false));
         }
         let shootOpt: ProjectileShootOptions = {
             uncertainty: option.uncertainty ?? 0
@@ -248,7 +257,14 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         proj_comp.owner = option.owner ?? this._entity;
         proj_comp.shouldBounceOnHit = option.shouldBounceOnHit ?? proj_comp.shouldBounceOnHit
         proj_comp.stopOnHit = option.stopOnHit ?? proj_comp.stopOnHit
-        proj_comp.shoot(view.normalize().scl(option.speed), shootOpt);
+        if (option.delay) {
+
+            ExGame.runTimeout(() => {
+                if(falseIfError(() => proj_comp.isValid())) proj_comp.shoot(view.normalize().scl(option.speed), shootOpt);
+            }, option.delay * 20);
+        } else {
+            proj_comp.shoot(view.normalize().scl(option.speed), shootOpt);
+        }
         return true
     }
 
@@ -362,4 +378,5 @@ export interface ExEntityShootOption {
     spawnDistance?: number;
 
     facing?: boolean;
+    delay?: number;
 }
