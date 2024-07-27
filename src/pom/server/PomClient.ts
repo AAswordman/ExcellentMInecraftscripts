@@ -59,6 +59,8 @@ export default class PomClient extends ExGameClient<PomTransmission> {
         this.looper = ExSystem.tickTask(() => {
             this.cache.save();
         });
+        
+
         this.looper.delay(10 * 20);
         this.looper.start();
         this.data = this.cache.get(new PomClientData());
