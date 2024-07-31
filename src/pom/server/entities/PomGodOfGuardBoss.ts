@@ -1,7 +1,7 @@
 import { Dimension, Entity, EntityHurtAfterEvent, MolangVariableMap, Direction, EntityDamageCause, Player, GameMode, world } from '@minecraft/server';
 import { registerEvent } from '../../../modules/exmc/server/events/eventDecoratorFactory.js';
 import { ExEventNames, ExOtherEventNames, TickEvent } from '../../../modules/exmc/server/events/events.js';
-import ExErrorQueue from '../../../modules/exmc/server/ExErrorQueue.js';
+import ExErrorQueue, { ignorn } from '../../../modules/exmc/server/ExErrorQueue.js';
 import Vector3, { IVector3 } from '../../../modules/exmc/utils/math/Vector3.js';
 import KDTree, { KDPoint } from '../../../modules/exmc/utils/tree/KDTree.js';
 import VarOnChangeListener from '../../../modules/exmc/utils/VarOnChangeListener.js';
@@ -756,6 +756,17 @@ export enum PomGodOfGuard2State {
 }
 
 export class PomGodOfGuardShadow extends ExEntityController {
+    isMeleeState() {
+        return this.state === PomGodOfGuard2State.Melee;
+    }
+    setMeleeState() {
+        this.state = PomGodOfGuard2State.Melee;
+        this.entity.triggerEvent("variant" + this.state);
+    }
+    setRangeState() {
+        this.state = PomGodOfGuard2State.Range;
+        this.entity.triggerEvent("variant" + this.state);
+    }
     tryStateSprint() {
         this.entity.playAnimation("animation.god_of_guard.shadow_melee_skill");
         let getSmooth = (time: number, timeAll: number, a: number, b: number) => {
@@ -765,7 +776,7 @@ export class PomGodOfGuardShadow extends ExEntityController {
         let tmpV = new Vector3();
         let target = new Vector3(this.entity.target?.location ?? Random.choice(Array.from(this.bossOri.barrier.getPlayers())).location);
 
-        target = target.cpy().sub(startPos).normalize().scl(7).add(target).add((Math.random() - 1) * 4, 0, (Math.random() - 1) * 4);
+        target = target.cpy().sub(startPos).normalize().scl(7).add(target).add((Math.random() - 1) * 2, 0, (Math.random() - 1) * 2);
 
         target.y = startPos.y;
 
@@ -804,9 +815,6 @@ export class PomGodOfGuardShadow extends ExEntityController {
             },
             "1.75": (time) => {
                 time.cancelTick("fly")
-            },
-            "2.5": () => {
-
             }
         }).start();
     }
@@ -889,8 +897,8 @@ export class PomGodOfGuardShadow extends ExEntityController {
             }
         }).delay(2).start();
     }
-    get damageAmount(){
-        return (30 + this.passive.getDamage()) * (1 + this.passive.defense[0] / 10)
+    get damageAmount() {
+        return (30 + this.passive.getDamageWithoutConsume()) * (1 + this.passive.defense[0] / 10)
     }
     attack(r: number, angle: number) {
         let view = new Vector3(this.entity.getViewDirection());
@@ -941,7 +949,7 @@ export class PomGodOfGuardShadow extends ExEntityController {
         //弹射加伤害
         this.getEvents().exEvents.afterEntityHitEntity.subscribe((e: EntityHurtAfterEvent) => {
             if (e.damageSource.cause == EntityDamageCause.projectile) {
-                e.hurtEntity.applyDamage((30 + this.passive.getDamage()) * (1 + this.passive.defense[0] / 10) - 30, {
+                e.hurtEntity.applyDamage((30 + this.passive.getDamageWithoutConsume()) * (1 + this.passive.defense[0] / 10) - 30, {
                     "cause": EntityDamageCause.entityAttack,
                     "damagingEntity": this.entity
                 });
@@ -972,7 +980,7 @@ export class PomGodOfGuardShadow extends ExEntityController {
     override onKilled(e: EntityHurtAfterEvent): void {
         super.onKilled(e);
     }
-    forwords() {
+    forwords(time = 0.25) {
         const nstate = this.state;
         this.setTimeout(() => {
             if (nstate !== this.state) return;
@@ -981,7 +989,7 @@ export class PomGodOfGuardShadow extends ExEntityController {
             view.y = 0; view.normalize();
             pos.add(view.scl(1.3))
             this.entity.teleport(pos);
-        }, 0.25 * 1000);
+        }, time * 1000);
     }
     @registerEvent("afterOnHurt")
     onHurt(e: EntityHurtAfterEvent) {
@@ -1008,7 +1016,17 @@ export class PomGodOfGuardBoss2 extends PomBossController {
         super(e, server);
         this.passive = new PomGodOfGuardBossPassive(this, 2);
     }
-
+    isMeleeState() {
+        return this.state === PomGodOfGuard2State.Melee;
+    }
+    setMeleeState() {
+        this.state = PomGodOfGuard2State.Melee;
+        this.entity.triggerEvent("variant" + this.state);
+    }
+    setRangeState() {
+        this.state = PomGodOfGuard2State.Range;
+        this.entity.triggerEvent("variant" + this.state);
+    }
 
     addMove() {
         this.entity.triggerEvent("add_move");
@@ -1065,9 +1083,13 @@ export class PomGodOfGuardBoss2 extends PomBossController {
                 this.shadow.entity.teleport(pos1);
                 this.entity.teleport(pos2);
 
-                [this.state, this.shadow.state] = [this.shadow.state, this.state];
-                this.entity.triggerEvent("variant" + this.state);
-                this.shadow.entity.triggerEvent("variant" + this.shadow.state);
+                if (this.isMeleeState()) {
+                    this.setRangeState();
+                    this.shadow.setMeleeState();
+                } else {
+                    this.setMeleeState();
+                    this.shadow.setRangeState();
+                }
 
                 this.removeMelee(); this.removeMove(); this.removeRange();
                 this.shadow.removeMelee(); this.shadow.removeMove(); this.shadow.removeRange();
@@ -1215,9 +1237,11 @@ export class PomGodOfGuardBoss2 extends PomBossController {
                 });
                 this.attackTimer?.stop();
                 this.attackTimer = ExSystem.tickTask(() => {
+                    const target = this.entity.target;
                     let listener = (e: EntityHurtAfterEvent) => {
                         if (e.damageSource.damagingEntity instanceof Player &&
-                            this.exEntity.position.distance(e.damageSource.damagingEntity.location) < 8) {
+                            this.exEntity.position.distance(e.damageSource.damagingEntity.location) < 5 &&
+                            target == e.damageSource.damagingEntity) {
                             this.getEvents().exEvents.afterOnHurt.unsubscribe(listener);
                             for (let i = 0; i < 5; i++) this.passive.getDamage();
                             this.entity.dimension.spawnParticle("wb:god_of_guard_attack_breakdef_par", this.entity.location);
@@ -1260,6 +1284,9 @@ export class PomGodOfGuardBoss2 extends PomBossController {
                 console.warn("Warn: undef state");
                 this.timer?.startOnce();
             }
+        }
+        if (ignorn(() => this.shadow.entity.location) && !this.barrier.area.contains(this.shadow.entity.location)) {
+            this.shadow.exEntity.setPosition(this.barrier.area.center());
         }
     }
 
@@ -1379,11 +1406,16 @@ export class PomGodOfGuardBoss2 extends PomBossController {
                     this.summonLazerPre(i)
                 }
             }).delay(4).start();
+            this.shadow.setMeleeState();
+            this.shadow.attackTimer = ExSystem.tickTask(() => {
+                this.shadow.tryStateSprint();
+            }).delay(2.5 * 20).start();
             this.setTimeout(() => {
                 this.passive.defense[0] = 20;
                 this.entity.playAnimation("animation.god_of_guard.staff_effect_only", {
                     "blendOutTime": 0.2
                 });
+
                 this.attackTimer?.stop();
 
                 this.attackTimer = ExSystem.tickTask(() => {
@@ -1422,6 +1454,7 @@ export class PomGodOfGuardBoss2 extends PomBossController {
                     num -= 1;
                     if (num <= 0) {
                         this.attackTimer?.stop();
+                        this.shadow.attackTimer?.stop();
                         this.timer?.stop();
                         this.timer?.delay(20).startOnce();
                         this.lazerState = false;

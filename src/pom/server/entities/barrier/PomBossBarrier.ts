@@ -148,6 +148,7 @@ export default class PomBossBarrier implements DisposeAble {
         if (ignorn(() => this.boss.entity.location) && !this.area.contains(this.boss.entity.location)) {
             this.boss.exEntity.setPosition(this.area.center());
         }
+        
 
         if (this.fog) this.dim.command.run(`fog @a[x=${this.center.x},y=${this.center.y},z=${this.center.z},r=128] push ${this.fog} "ruin_fog"`);
 
