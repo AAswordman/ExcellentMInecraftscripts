@@ -1,4 +1,4 @@
-import { Player } from "@minecraft/server";
+import { Player, world } from "@minecraft/server";
 import { receiveMessage } from "../../modules/exmc/server/ExGame.js";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import ExGameServer from "../../modules/exmc/server/ExGameServer.js";
@@ -116,7 +116,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
         if(!this.data.redemptionCode){
             this.data.redemptionCode = {};
         }
-        if (!this.data.uiCustomSetting) {
+        if (!this.data.uiCustomSetting||!this.data.uiCustomSetting.accuracyCustom) {
             this.data.uiCustomSetting = {
                 topLeftMessageBarStyle: 0,
                 topLeftMessageBarLayer1: 100,
@@ -124,6 +124,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
                 topLeftMessageBarLayer3: 100,
                 topLeftMessageBarLayer4: 100,
                 topLeftMessageBarLayer5: 100,
+                accuracyCustom: 60
             }
         }
         if (!this.data.gamePreferrence) {
@@ -226,7 +227,8 @@ export default class PomClient extends ExGameClient<PomTransmission> {
     }
 
     sayTo(str: string, p = this.player) {
-        p.runCommandAsync(`tellraw @s {"rawtext": [{"text": "${str}"}]}`);
+        p.sendMessage({"rawtext": [{"text": str}]});
+        // p.runCommandAsync(`tellraw @s {"rawtext": [{"text": "${str}"}]}`);
     }
 
     override getServer(): PomServer {

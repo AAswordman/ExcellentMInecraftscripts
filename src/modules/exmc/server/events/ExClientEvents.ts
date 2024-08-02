@@ -310,27 +310,31 @@ export default class ExClientEvents implements ExEventManager {
 }
 
 class Listener<T> {
-    subscribe: (callback: (arg: T) => void) => void;
-    unsubscribe: (callback: (arg: T) => void) => void;
+    subscribe: (callback: (arg: T) => void) => (((arg1: T) => void));
+    unsubscribe: (callback: (arg: T) => void) => (((arg1: T) => void));
     constructor(e: ExClientEvents, name: string) {
         this.subscribe = (callback: (arg: T) => void) => {
             e._subscribe(name, callback);
+            return callback;
         }
         this.unsubscribe = (callback: (arg: T) => void) => {
             e._unsubscribe(name, callback);
+            return callback;
         }
     }
 }
 
 class CallBackListener<T, V> {
-    subscribe: (callback: (arg1: T) => V) => void;
-    unsubscribe: (callback: (arg1: T) => V) => void;
+    subscribe: (callback: (arg1: T) => V) => ((arg1: T) => V);
+    unsubscribe: (callback: (arg1: T) => V) => ((arg1: T) => V);
     constructor(e: ExClientEvents, name: string) {
         this.subscribe = (callback: (arg1: T) => V) => {
             e._subscribe(name, callback);
+            return callback;
         }
         this.unsubscribe = (callback: (arg1: T) => V) => {
             e._unsubscribe(name, callback);
+            return callback;
         }
     }
 }

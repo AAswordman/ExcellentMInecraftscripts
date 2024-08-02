@@ -6,6 +6,7 @@ import { Talent } from "../cache/TalentData.js";
 import GameController from "./GameController.js";
 import { MinecraftEffectTypes } from '../../../modules/vanilla-data/lib/index.js';
 import ExGame from '../../../modules/exmc/server/ExGame.js';
+import ExGameConfig from '../../../modules/exmc/server/ExGameConfig.js';
 
 
 
@@ -20,7 +21,16 @@ export default class PomMagicSystem extends GameController {
     additionHealthShow = false;
     healthShow = true;
     additionHealth = 40;
-    gameHealth = 30;
+    addGameHealth = 0;
+    _gameHealth = 30;
+    get gameHealth(){
+        return this._gameHealth
+    }
+    set gameHealth(n:number){
+        n = MathUtil.clamp(n, -1, this.gameMaxHealth);
+        this._gameHealth = n;
+        this.client.talentSystem.calculateHealth = n;
+    }
     isDied = false;
     isProtected = false;
     gameMaxHealth = 30;
@@ -95,7 +105,8 @@ export default class PomMagicSystem extends GameController {
             [this.data.uiCustomSetting.topLeftMessageBarLayer3 / 100],
             [this.data.uiCustomSetting.topLeftMessageBarLayer4 / 100],
             [this.data.uiCustomSetting.topLeftMessageBarLayer5 / 100],
-            [this.data.uiCustomSetting.topLeftMessageBarStyle]
+            [this.data.uiCustomSetting.topLeftMessageBarStyle],
+            [this.data.uiCustomSetting.accuracyCustom /100]
         ];
         this.lastFromData = fromData;
 
@@ -159,24 +170,28 @@ export default class PomMagicSystem extends GameController {
             healthListener.value = 25000;
             health.setCurrentValue(25000);
             let change = n - (l ?? 0);
-            // if (change < 0 && this.hurtState) {
-            //     if (this.hurtMaxNum <= -change) return;//build-in method
-            //     ExGame.clearRun(hurtTimeId);
-            //     hurtTimeId = ExGame.runTimeout(() => {
-            //         this.hurtState = false;
-            //         this.hurtMaxNum = 0;
-            //     }, 9);
-            //     change += this.hurtMaxNum;
-            //     this.hurtMaxNum = -(n - (l ?? 0));
-            // }
-            // if (!this.hurtState && change < 0) {
-            //     hurtTimeId = ExGame.runTimeout(() => {
-            //         this.hurtState = false;
-            //         this.hurtMaxNum = 0;
-            //     }, 9);
-            //     this.hurtState = true;
-            //     this.hurtMaxNum = change;
-            // }
+            if (change < 0 && this.hurtState) {
+                if (this.hurtMaxNum <= change) return;//build-in method
+                ExGame.clearRun(hurtTimeId);
+                hurtTimeId = ExGame.runTimeout(() => {
+                    this.hurtState = false;
+                    this.hurtMaxNum = 0;
+                }, 1);
+                change -= this.hurtMaxNum;
+                this.hurtMaxNum = -(n - (l ?? 0));
+            }
+            if (!this.hurtState && change < 0) {
+                hurtTimeId = ExGame.runTimeout(() => {
+                    this.hurtState = false;
+                    this.hurtMaxNum = 0;
+                }, 1);
+                this.hurtState = true;
+                this.hurtMaxNum = change;
+            }
+            if(this.addGameHealth){
+                this.gameHealth += this.addGameHealth;
+                this.addGameHealth = 0;
+            }
             if (!this.isProtected) {
                 if (n === 1) {
                     //不死图腾
@@ -318,10 +333,10 @@ export default class PomMagicSystem extends GameController {
     upDateByTalent(talentRes: Map<number, number>) {
         let scores = this.exPlayer.getScoresManager();
         scores.setScore("wbwqlqjs", Math.round((this.client.getDifficulty().coolingFactor) * (100 + (talentRes.get(Talent.CHARGING) ?? 0))));
-        this.wbflLooper.stop();
         this.armorCoolingLooper.stop();
         this.experienceAddLooper.stop();
         this.experienceAddLooper.delay((12 * 20) / this.client.getDifficulty().LevelFactor);
+        this.wbflLooper.stop();
         this.wbflLooper.delay((1 / this.client.getDifficulty().wbflAddFactor) *
             (5 * 20 / ((1 + (talentRes.get(Talent.SOURCE) ?? 0) / 100) * (1 + this.data.gameGrade * 3 / 100))));
         this.armorCoolingLooper.delay((1 / this.client.getDifficulty().coolingFactor) *

@@ -71,7 +71,7 @@ export default class ExGame {
 
 
     static runInterval(callback: () => void, tickDelay?: number): number {
-        tickDelay = Math.max(1, tickDelay ?? 1);
+        tickDelay = Math.round(Math.max(1, tickDelay ?? 1));
 
         this.idRunSeq = (1 + this.idRunSeq) % this.tickDelayMax;
         const willId = this.idRunSeq;
@@ -86,7 +86,7 @@ export default class ExGame {
 
 
     static runTimeout(callback: () => void, tickDelay?: number): number {
-        tickDelay = Math.max(1, tickDelay ?? 1);
+        tickDelay = Math.round(Math.max(1, tickDelay ?? 1));
         this.idRunSeq = (1 + this.idRunSeq) % this.tickDelayMax;
         let tar = this.nowTick + tickDelay
         this.idToTrigger.set(this.idRunSeq, tar);

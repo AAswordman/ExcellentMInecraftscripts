@@ -51,6 +51,7 @@ export default class PomClientData {
     }
 
     uiCustomSetting!: {
+        accuracyCustom:number;
         topLeftMessageBarLayer1: number;
         topLeftMessageBarLayer2: number;
         topLeftMessageBarLayer3: number;

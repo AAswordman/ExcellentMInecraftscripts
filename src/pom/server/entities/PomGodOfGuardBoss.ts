@@ -20,6 +20,7 @@ import ExEntityQuery from '../../../modules/exmc/server/env/ExEntityQuery.js';
 import Vector2 from '../../../modules/exmc/utils/math/Vector2.js';
 import Matrix4 from '../../../modules/exmc/utils/math/Matrix4.js';
 import ExTimeLine from '../../../modules/exmc/utils/ExTimeLine.js';
+import { ExBlockArea } from '../../../modules/exmc/server/block/ExBlockArea.js';
 
 export class PomGodOfGuardBossState {
     constructor(public centers: PomGodOfGuardShootCenters, public ctrl: PomBossController, public defDamage: number, arg?: any) {
@@ -466,24 +467,23 @@ export class PomGodOfGuardBossState11 extends PomGodOfGuardBossState {
         this.pos2 = this.tmpV.set(this.pos).sub(c).scl(-1).add(c).cpy();
         this.pos2.y = this.pos.y;
         this.center2 = this.centers.addCenter(this.pos2);
-
         this.entity2 = this.ctrl.entity.dimension.spawnEntity("wb:god_of_guard_settle", this.pos);
     }
     tmpV = new Vector3();
     override onTick(e: TickEvent) {
         if (this.tickNum++ > 80) return true;
         if (this.tickNum > 20) {
-            for (let i = 0; i < 4; i++) {
-                const angle = i * Math.PI / 2 + this.tickNum * Math.PI / 18;
+            for (let i = 0; i < 24; i++) {
+                const angle = i * Math.PI * 2 / 24 + this.tickNum * Math.PI / 60;
                 this.center1.add(10, {
                     x: Math.cos(angle),
                     z: Math.sin(angle),
-                    y: 0
+                    y: Math.abs(Math.sin(angle * 3)) / 10
                 }, (5) * 1000, this.defDamage);
                 this.center2.add(10, {
                     x: Math.cos(angle),
                     z: Math.sin(angle),
-                    y: 0
+                    y: Math.abs(Math.sin(angle * 3)) / 10
                 }, (5) * 1000, this.defDamage);
             }
         } else {
@@ -565,7 +565,7 @@ export class PomGodOfGuardBossState12 extends PomGodOfGuardBossState {
             this.centers.remove(this.center1);
             this.centers.remove(this.center2);
 
-            this.entity2.remove();
+            ignorn(() => this.entity2.remove());
         }).delay(4 * 20).startOnce();
     }
 }
@@ -573,7 +573,215 @@ export class PomGodOfGuardBossState12 extends PomGodOfGuardBossState {
 
 
 
+//空袭
+export class PomGodOfGuardBossState13 extends PomGodOfGuardBossState {
+    tickNum = 0;
+    center1!: PomGodOfGuardShootCenter;
+    center2!: PomGodOfGuardShootCenter;
+    entity2!: Entity;
+    pos!: Vector3;
+    pos2!: Vector3;
 
+    override onEnter() {
+        this.pos = new Vector3(this.ctrl.entity.location);
+        this.center1 = this.centers.addCenter(this.pos);
+
+        let c = this.ctrl.barrier.center.cpy();
+        this.pos2 = this.tmpV.set(this.pos).sub(c).scl(-1).add(c).cpy();
+        this.pos2.y = this.pos.y + 30;
+        this.center2 = this.centers.addCenter(this.pos2);
+
+        this.entity2 = this.ctrl.entity.dimension.spawnEntity("wb:god_of_guard_settle", this.pos);
+    }
+    tmpV = new Vector3();
+    override onTick(e: TickEvent) {
+        if (this.tickNum++ > 80) return true;
+        if (this.tickNum > 20) {
+            for (let i = 0; i < 18; i++) {
+                const angle = i * Math.PI * 2 / 18 + this.tickNum * Math.PI / 30;
+                this.center1.add(10, {
+                    x: Math.cos(angle),
+                    z: Math.sin(angle),
+                    y: 0.02
+                }, (5) * 1000, this.defDamage);
+            }
+            for (let i = 0; i < 4; i++) {
+                const angle = i * Math.PI / 2 + this.tickNum * Math.PI / 18;
+                this.center2.add(15, {
+                    x: Math.cos(angle),
+                    z: Math.sin(angle),
+                    y: Math.random() * -2
+                }, (5) * 1000, this.defDamage, "3");
+            }
+        } else {
+            this.entity2.teleport(this.tmpV.set(this.pos2).sub(this.pos).scl(this.tickNum / 20).add(this.pos), {
+                "keepVelocity": true
+            })
+        }
+        return false;
+    }
+
+    override onExit() {
+        ExSystem.tickTask(() => {
+            this.centers.remove(this.center1);
+            this.centers.remove(this.center2);
+            ignorn(() => this.entity2.remove());
+
+        }).delay(5 * 20).startOnce();
+    }
+}
+
+// 交换浪潮
+
+export class PomGodOfGuardBossState14 extends PomGodOfGuardBossState {
+    tickNum = 0;
+    center1!: PomGodOfGuardShootCenter;
+    center2!: PomGodOfGuardShootCenter;
+    entity2!: Entity;
+    pos!: Vector3;
+    pos2!: Vector3;
+
+    override onEnter() {
+        this.pos = new Vector3(this.ctrl.entity.location);
+        this.center1 = this.centers.addCenter(this.pos);
+
+        let c = this.ctrl.barrier.center.cpy();
+        this.pos2 = this.tmpV.set(this.pos).sub(c).scl(-1).add(c).cpy();
+        this.pos2.y = this.pos.y;
+        this.center2 = this.centers.addCenter(this.pos2);
+
+        this.entity2 = this.ctrl.entity.dimension.spawnEntity("wb:god_of_guard_settle", this.pos);
+    }
+
+    tmpV = new Vector3();
+
+    override onTick(e: TickEvent) {
+        if (this.tickNum++ > 120) return true;
+        if (this.tickNum > 20) {
+            if (this.tickNum % 20 < 10) { // center1 发射弹幕
+                for (let i = 0; i < 36; i++) {
+                    const angle = i * Math.PI * 2 / 36 + this.tickNum * Math.PI / 60;
+                    this.center1.add(10, {
+                        x: Math.cos(angle),
+                        z: Math.sin(angle),
+                        y: Math.abs(Math.sin(angle * 3)) / 10
+                    }, (3.2) * 1000, this.defDamage);
+                }
+            } else { // center2 发射弹幕
+                for (let i = 0; i < 26; i++) {
+                    const angle = i * Math.PI * 2 / 26 + this.tickNum * Math.PI / 60;
+                    this.center2.add(15, {
+                        x: Math.cos(angle),
+                        z: Math.sin(angle),
+                        y: Math.abs(Math.sin(angle * 3)) / 20
+                    }, (2.5) * 1000, this.defDamage);
+                }
+            }
+            if (this.tickNum % 60 === 0) { // 每隔一段时间进行联合攻击
+                for (let i = 0; i < 360; i += 10) {
+                    this.center1.add(10, {
+                        x: Math.cos(i * Math.PI / 180),
+                        z: Math.sin(i * Math.PI / 180),
+                        y: 0
+                    }, 3.2 * 1000, this.defDamage);
+                    this.center2.add(15, {
+                        x: Math.cos(i * Math.PI / 180),
+                        z: Math.sin(i * Math.PI / 180),
+                        y: 0
+                    }, 2.5 * 1000, this.defDamage);
+                }
+            }
+        } else {
+            this.entity2.teleport(this.tmpV.set(this.pos2).sub(this.pos).scl(this.tickNum / 20).add(this.pos), {
+                "keepVelocity": true
+            })
+        }
+        return false;
+    }
+
+    override onExit() {
+        ExSystem.tickTask(() => {
+            this.centers.remove(this.center1);
+            this.centers.remove(this.center2);
+
+            ignorn(() => this.entity2.remove());
+        }).delay(5 * 20).startOnce();
+    }
+}
+// 多中心
+
+//链锁屏蔽
+export class PomGodOfGuardBossState15 extends PomGodOfGuardBossState {
+    tickNum = 0;
+    center1!: PomGodOfGuardShootCenter;
+    center2!: PomGodOfGuardShootCenter[];
+    entity2!: Entity[];
+    pos!: Vector3;
+    pos2!: Vector3[];
+    dic!: Vector3[];
+    dic2!: Vector3[];
+
+    override onEnter() {
+        this.pos = new Vector3(this.ctrl.entity.location);
+        this.center1 = this.centers.addCenter(this.pos);
+        this.center2 = [];
+        this.entity2 = [];
+        this.dic = [];
+        this.dic2 = [];
+        this.pos2 = new Array(10).fill(0).map(e => {
+            let c = ExBlockArea.randomPoint([this.ctrl.barrier.area]);
+            c.y = this.pos.y + 1;
+            this.center2.push(this.centers.addCenter(c));
+            this.entity2.push(this.ctrl.entity.dimension.spawnEntity("wb:god_of_guard_settle", this.pos));
+            this.dic.push(c.cpy().sub(this.pos));
+            this.dic2.push(c.cpy().sub(this.pos).scl(-1));
+            return c;
+        });
+
+
+    }
+    tmpV = new Vector3();
+    override onTick(e: TickEvent) {
+        if (this.tickNum++ > 80) return true;
+        if (this.tickNum > 60) {
+            for (let [i, c] of this.center2.entries()) {
+                for (let i = 0; i < 4; i++) {
+                    const angle = i * Math.PI / 2 + 6 * this.tickNum * Math.PI / 180;
+                    c.add(4, {
+                        x: Math.cos(angle),
+                        z: Math.sin(angle),
+                        y: 0
+                    }, (3) * 1000, this.defDamage);
+                }
+            }
+        } else if (this.tickNum > 20) {
+            if (this.tickNum % 4 === 0) {
+                for (let [i, c] of this.center2.entries()) {
+                    this.center1.add(10, this.dic[i], (8) * 1000, this.defDamage, "3", EntityDamageCause.magic);
+                    this.center2[i].add(10, this.dic2[i], (8) * 1000, this.defDamage, "3", EntityDamageCause.magic);
+
+                }
+            }
+        } else {
+            for (let [i, e] of this.entity2.entries()) {
+                e.teleport(this.tmpV.set(this.pos2[i]).sub(this.pos).scl(this.tickNum / 20).add(this.pos), {
+                    "keepVelocity": true
+                })
+            }
+        }
+        return false;
+    }
+
+    override onExit() {
+        ignorn(() => this.entity2.map((e) => e.remove()));
+
+        ExSystem.tickTask(() => {
+            this.centers.remove(this.center1);
+            this.center2.map((e) => this.centers.remove(e));
+
+        }).delay(14 * 20).startOnce();
+    }
+}
 
 export class PomGodOfGuardBossStates {
     state: { [x: number]: PomGodOfGuardBossState } = {};
@@ -1496,29 +1704,126 @@ export class PomGodOfGuardBoss2 extends PomBossController {
 
 export class PomGodOfGuardBoss3 extends PomBossController {
     static typeId = "wb:god_of_guard_third";
+    states: PomGodOfGuardBossStates;
+    timer: TickDelayTask;
+    passive: PomGodOfGuardBossPassive;
+    times = 0;
     constructor(e: Entity, server: PomServer) {
         super(e, server);
+        this.states = new PomGodOfGuardBossStates(this);
+        this.passive = new PomGodOfGuardBossPassive(this);
+        this.timer = ExSystem.tickTask(() => {
+            let normal = [
+                // PomGodOfGuardBossState1,
+                // PomGodOfGuardBossState2,
+                // PomGodOfGuardBossState3,
+                // PomGodOfGuardBossState5,
+                // PomGodOfGuardBossState6,
+                // PomGodOfGuardBossState7,
+                // PomGodOfGuardBossState9,
+                // PomGodOfGuardBossState10
+                PomGodOfGuardBossState11,
+                PomGodOfGuardBossState12,
+                PomGodOfGuardBossState13,
+                PomGodOfGuardBossState14,
+                PomGodOfGuardBossState15
+            ];
+
+            let hard = [
+                // PomGodOfGuardBossState4,
+                // PomGodOfGuardBossState8,
+                // PomGodOfGuardBossState12
+            ];
+
+            if (this.states.isAvailable()) {
+                // let d = this.passive.getDamageWithoutConsume();
+                let choice = Random.choice(normal);
+                // let maxTimes = 0;
+                // if (d < 20) {
+                //     maxTimes = MathUtil.randomInteger(3, 4);
+                // } else if (20 <= d && d <= 40) {
+                //     maxTimes = MathUtil.randomInteger(2, 3);
+                // } else if (40 <= d && d <= 60) {
+                //     maxTimes = MathUtil.randomInteger(1, 2);
+                // } else {
+                //     maxTimes = MathUtil.randomInteger(0, 1);
+                // }
+                // if (this.times >= maxTimes) {
+                //     choice = Random.choice(hard);
+                //     this.times = 0;
+                // } else {
+                //     this.times += 1;
+                // }
+                this.states.set(choice, this.passive.getDamage());
+                this.states.listenOnExit(() => {
+                    this.entity.playAnimation("animation.god_of_guard.staff_effect", {
+                        "blendOutTime": 0.2
+                    });
+                });
+            };
+            let p = this.passive.getSkipper();
+            if (p) {
+                if (this.states.isAvailable(-1)) {
+                    this.states.set(PomGodOfGuardBossStateWarn, 15, -1, p);
+                }
+            }
+        });
+
+        this.timer.delay(1.0 * 20);
+        this.timer.start();
     }
     override initBossEntity(): void {
         super.initBossEntity();
+        let loc;
         new ExEntityQuery(this.entity.dimension).at(this.barrier.center).queryBox(this.barrier.area.calculateWidth(), {
             "type": "wb:god_of_guard_shadow"
-        }).forEach((e) => e.remove());
-    }
+        }).forEach((e) => { loc = e.location; e.remove(); });
 
+        this.entity.dimension.createExplosion(this.entity.location, 10, {
+            "breaksBlocks": false,
+            "causesFire": false,
+            "source": this.entity
+        });
+        this.entity.dimension.spawnParticle("wb:blast_par_small", new Vector3(this.entity.location).add(0, 1, 0));
+        if (loc) {
+            this.entity.dimension.createExplosion(loc, 10, {
+                "breaksBlocks": false,
+                "causesFire": false,
+                "source": this.entity
+            });
+            this.entity.dimension.spawnParticle("wb:blast_par_small", new Vector3(loc).add(0, 1, 0));
+        }
+    }
     override onSpawn(): void {
         super.onSpawn();
     }
     override onKilled(e: EntityHurtAfterEvent): void {
+        this.passive.dispose();
         super.onWin();
         this.server.say({ rawtext: [{ translate: "text.wb:defeat_intentions.name" }] });
         super.onKilled(e);
+
     }
     override onFail(): void {
+        this.passive.dispose();
         super.onFail();
     }
 
+
+    @registerEvent("onLongTick")
+    onLongTick(e: TickEvent) {
+
+    }
+
+
+    @registerEvent("tick")
+    onTick(e: TickEvent) {
+        this.states.onTick(e);
+
+    }
+
 }
+
 
 
 export class PomGodOfGuardBossPassive implements DisposeAble {

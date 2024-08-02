@@ -1,4 +1,4 @@
-import { Entity, EntityDamageCause } from '@minecraft/server';
+import { Entity, EntityDamageCause, EntityHurtAfterEvent } from '@minecraft/server';
 import { ArmorData } from '../../../dec/server/items/ArmorData.js';
 import MathUtil from "../../../modules/exmc/utils/math/MathUtil.js";
 import ExDimension from '../../../modules/exmc/server/ExDimension.js';
@@ -20,6 +20,7 @@ import damageShow from "../helper/damageShow.js";
 import GameController from "./GameController.js";
 import Vector3 from '../../../modules/exmc/utils/math/Vector3.js';
 import { MinecraftItemTypes } from '../../../modules/vanilla-data/lib/index.js';
+import ExGameConfig from '../../../modules/exmc/server/ExGameConfig.js';
 
 export default class PomTalentSystem extends GameController {
     strikeSkill = true;
@@ -75,7 +76,7 @@ export default class PomTalentSystem extends GameController {
         EntityDamageCause.suffocation
     ]);
 
-
+    calculateHealth!:number;
 
     equiTotalTask: TickDelayTask | undefined;
 
@@ -123,6 +124,7 @@ export default class PomTalentSystem extends GameController {
         this.updatePlayerAttribute();
     }, "");
     skill_stateNum: number[] = [];
+    afterHurtListener?: (arg1: EntityHurtAfterEvent) => void;
 
     chooseArmor(a: ArmorData) {
 
@@ -262,7 +264,7 @@ export default class PomTalentSystem extends GameController {
 
         let lastResist = 0;
         //玩家减伤
-        this.getEvents().exEvents.afterPlayerHurt.subscribe((e) => {
+        this.afterHurtListener = this.getEvents().exEvents.afterPlayerHurt.subscribe((e) => {
             if (this.client.magicSystem.isDied) {
                 this.setTimeout(() => {
                     this.client.magicSystem.isDied = false;
@@ -271,6 +273,7 @@ export default class PomTalentSystem extends GameController {
             };
             if (this.client.magicSystem.isProtected) return;
             if (e.damage > 10000000 || e.damage < 0) return;
+
             let damage = (this.exPlayer.getPreRemoveHealth() ?? 0) + e.damage;
             let willdamage = damage;
             if (PomTalentSystem.physicalDamageType.has(e.damageSource.cause)) {
@@ -307,7 +310,8 @@ export default class PomTalentSystem extends GameController {
 
             add += anotherAdd;
 
-            if (this.client.magicSystem.gameHealth - damage + add <= 0) {
+            this.calculateHealth = this.calculateHealth - damage + add;
+            if (this.calculateHealth <= 0) {
                 const clnE = { ...e.damageSource };
                 ExGame.run(() => {
                     try {
@@ -321,7 +325,7 @@ export default class PomTalentSystem extends GameController {
                             }, 100);
                         }
                     } catch (e) { }
-                    
+
                     if (clnE.cause === EntityDamageCause.projectile) {
                         if (clnE.damagingEntity) {
                             this.player.applyDamage(99999999, {
@@ -343,7 +347,7 @@ export default class PomTalentSystem extends GameController {
                 return;
             }
 
-            this.client.magicSystem.gameHealth += add;
+            this.client.magicSystem.addGameHealth += add;
             // this.exPlayer.addHealth(this, add);
             this.hasBeenDamaged.trigger(e.damage - add, e.damageSource.damagingEntity);
         });
@@ -362,15 +366,15 @@ export default class PomTalentSystem extends GameController {
                     comp.setGroup(comp.dataGroupJudge(this.client));
                     let base: string[] = [];
                     if (comp.hasComponent("actual_level")) base.push(`§r§e基础属性` + "  §r§6LV." + comp.getComponentWithGroup("actual_level"));
-                    if (comp.hasComponent("armor_protection")) base.push("§r§7•护甲值§6+" + comp.getComponentWithGroup("armor_protection") + "§r§7 | 护甲韧性§6+" + comp.getComponentWithGroup("armor_resilience") ?? 0);
+                    if (comp.hasComponent("armor_protection")) base.push("§r§7•护甲值§6+" + comp.getComponentWithGroup("armor_protection") + "§r§7 | 护甲韧性§6+" + comp.getComponentWithGroup("armor_resilience"));
 
                     if (comp.hasComponent("armor_type")) {
                         //let typeMsg = comp.getComponentWithGroup("armor_type");
                         //lore.setValueUseDefault("盔甲类型", typeMsg.tagName + ": " + typeMsg.data);
                         // if (comp.hasComponent("armor_physical_protection")) base.push("§r§7•物理抗性§6+" + comp.getComponentWithGroup("armor_physical_protection") + "％§r§7 | 受到的物理伤害§6-" + comp.getComponentWithGroup("armor_physical_reduction") ?? 0);
                         // if (comp.hasComponent("armor_magic_protection")) base.push("§r§7•魔法抗性§6+" + comp.getComponentWithGroup("armor_magic_protection") + "％§r§7 | 受到的魔法伤害§6-" + comp.getComponentWithGroup("armor_magic_reduction") ?? 0);
-                        if (comp.hasComponent("armor_physical_protection")) base.push("§r§7•物理抗性§6+" + comp.getComponentWithGroup("armor_physical_protection") + "％§r§7 | 物理防御§6+" + comp.getComponentWithGroup("armor_physical_reduction") ?? 0);
-                        if (comp.hasComponent("armor_magic_protection")) base.push("§r§7•魔法抗性§6+" + comp.getComponentWithGroup("armor_magic_protection") + "％§r§7 | 魔法防御§6+" + comp.getComponentWithGroup("armor_magic_reduction") ?? 0);
+                        if (comp.hasComponent("armor_physical_protection")) base.push("§r§7•物理抗性§6+" + comp.getComponentWithGroup("armor_physical_protection") + "％§r§7 | 物理防御§6+" + comp.getComponentWithGroup("armor_physical_reduction"));
+                        if (comp.hasComponent("armor_magic_protection")) base.push("§r§7•魔法抗性§6+" + comp.getComponentWithGroup("armor_magic_protection") + "％§r§7 | 魔法防御§6+" + comp.getComponentWithGroup("armor_magic_reduction"));
                     }
                     let smove = comp.getComponentWithGroup("sneak_movement_addition") ?? 0;
                     if (comp.hasComponent("movement_addition")) {
