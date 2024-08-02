@@ -1,4 +1,4 @@
-import { Player, MinecraftDimensionTypes, world, Block, Direction, GameMode, Entity, ScriptEventSource, Dimension, DimensionType, DimensionTypes, system, ScriptEventCommandMessageAfterEvent, EntityQueryOptions, EntityApplyDamageOptions, EntityDamageCause, DisplaySlotId, ScoreboardObjectiveDisplayOptions, ScoreboardObjective, ItemStack } from '@minecraft/server';
+import { Player, MinecraftDimensionTypes, world, Block, Direction, GameMode, Entity, ScriptEventSource, Dimension, DimensionType, DimensionTypes, system, ScriptEventCommandMessageAfterEvent, EntityQueryOptions, EntityApplyDamageOptions, EntityDamageCause, DisplaySlotId, ScoreboardObjectiveDisplayOptions, ScoreboardObjective, ItemStack, RawMessage } from '@minecraft/server';
 import ExConfig from "../../modules/exmc/ExConfig.js";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import DecClient from "./DecClient.js";
@@ -75,9 +75,6 @@ export default class DecServer extends ExGameServer {
         this.globalscores.setNumber('two', 2)
         this.globalscores.setNumber('four', 4)
         this.globalscores.initNumber('FirstEnter', 0)
-        this.globalscores.initNumber('AlreadyDie', 0)
-        this.globalscores.initNumber('AlreadyGmCheat', 0)
-        this.globalscores.initNumber('DieMode', 0)
         this.globalscores.initNumber('MagicDisplay', 0);
 
         //new Objective("harmless").create("harmless");
@@ -102,6 +99,47 @@ export default class DecServer extends ExGameServer {
         // this.getEvents().events.beforePistonActivate.subscribe(e => {
         //     e.piston
         // });
+        let die_mode_test = (p:Player,open:boolean)=>{
+            if(open){
+                if(world.getDynamicProperty('DieMode')){
+                    if (world.getDynamicProperty('AlreadyDie')){
+                        p.sendMessage({ "rawtext" : [ { "translate" : "text.dec:diemode_cannot_close_already_die.name" } ] })
+                    } else {
+                        p.sendMessage({ "rawtext" : [ { "translate" : "text.dec:diemode_cannot_close.name" } ] })
+                    }
+                } else {
+                    if(p.hasTag('owner')){
+                        if(world.getDynamicProperty('AlreadyDie')){
+                            p.sendMessage({ "rawtext" : [ { "translate" : "text.dec:diemode_already_die.name" } ] })
+                        } else {
+                            if(world.getDynamicProperty('GmCheat')){
+                                p.sendMessage({ "rawtext" : [ { "translate" : "text.dec:diemode_gmcheat.name" } ] })
+                            } else {
+                                p.sendMessage({ "rawtext" : [ { "translate" : "text.dec:diemode_open.name" } ] })
+                                world.setDynamicProperty('DieMode', true)
+                            }
+                        }
+                    } else {
+                        p.sendMessage({ "rawtext" : [ { "translate" : "text.dec:diemode_not_owner.name" } ] })
+                    }
+                }
+            } else {
+                if(world.getDynamicProperty('DieMode')){
+                    p.sendMessage({ "rawtext" : [ { "translate" : "text.dec:diemode_test_open.name" } ] })
+                    p.runCommandAsync('tellraw @s ')
+                } else {
+                    if(world.getDynamicProperty('AlreadyDie')){
+                        p.sendMessage({ "rawtext" : [ { "translate" : "text.dec:diemode_test_close_cannot_open_die.name" } ] })
+                    } else {
+                        if(world.getDynamicProperty('GmCheat')){
+                            p.sendMessage({ "rawtext" : [ { "translate" : "text.dec:diemode_test_close_cannot_open_gmc.name" } ] })
+                        } else {
+                            p.sendMessage({ "rawtext" : [ { "translate" : "text.dec:diemode_test_close.name" } ] })
+                        }
+                    }
+                }
+            }
+        }
         this.getEvents().events.beforeChatSend.subscribe(e => {
             let cmdRunner = this.getExDimension(MinecraftDimensionTypes.overworld);
             let sender = ExPlayer.getInstance(e.sender);
@@ -123,9 +161,9 @@ export default class DecServer extends ExGameServer {
                     }
                     case "diemode": {
                         if (cmds[1] === "open") {
-                            sender.command.run("function diemode/open");
+                            die_mode_test(sender.entity,true)
                         } else if (cmds[1] === "test") {
-                            sender.command.run("function diemode/test");
+                            die_mode_test(sender.entity,false)
                         } else {
                             errMsg = "Invalid command " + cmds[1];
                         }
@@ -233,7 +271,7 @@ export default class DecServer extends ExGameServer {
                 'facing': true
             }
         }
-        
+
         this.getEvents().events.afterPlayerBreakBlock.subscribe(e => {
             const block_before_id = e.brokenBlockPermutation.type.id
             //种植架
@@ -414,6 +452,21 @@ export default class DecServer extends ExGameServer {
 
         });
         this.getEvents().exEvents.onLongTick.subscribe(e => {
+            //死亡模式
+            if (world.getDynamicProperty('DieMode')) {
+                world.gameRules.sendCommandFeedback = false
+                world.gameRules.keepInventory = false
+                world.getDimension('overworld').runCommandAsync('difficulty hard')
+                world.getAllPlayers().forEach(p=>{
+                    if(<boolean>p.getDynamicProperty('AlreadyDie')){
+                        p.setGameMode(GameMode.spectator)
+                        ExPlayer.getInstance(p).titleActionBar('{ "rawtext" : [ { "translate" : "text.dec:diemode_spectator.name" } ] }')
+                    } else if(<boolean>p.getDynamicProperty('GmCheat')) {
+                        p.setGameMode(GameMode.spectator)
+                        ExPlayer.getInstance(p).titleActionBar('{ "rawtext" : [ { "translate" : "text.dec:diemode_spectator_gmcheat.name" } ] }')
+                    }
+                })
+            }
             //Dec魔法显示
             if (DecGlobal.isDec() && this.globalscores.getNumber('MagicDisplay') === 1) {
                 try {
