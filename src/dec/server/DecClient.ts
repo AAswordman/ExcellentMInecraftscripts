@@ -1,4 +1,4 @@
-import { EntityDamageCause, GameMode, ItemStack, MinecraftDimensionTypes, Player, ItemDurabilityComponent } from '@minecraft/server';
+import { EntityDamageCause, GameMode, ItemStack, MinecraftDimensionTypes, Player, ItemDurabilityComponent, world } from '@minecraft/server';
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import ExGameServer from "../../modules/exmc/server/ExGameServer.js";
 import { ArmorData, ArmorPlayerDec, ArmorPlayerPom } from "./items/ArmorData.js";
@@ -116,6 +116,8 @@ export default class DecClient extends ExGameClient {
             if (this.exPlayer.health <= 0) {
                 if (this.bossBarrier) this.bossBarrier.notifyDeathAdd();
                 this.exPlayer.command.run('function die/normal');
+                world.setDynamicProperty('AlreadyDie',true)
+                this.exPlayer.entity.setDynamicProperty('AlreadyDie',true)
                 if (this.globalscores.getNumber('DieMode') === 1) {
                     //死亡模式
                     this.exPlayer.command.run('function die/die_mode');
@@ -332,15 +334,16 @@ export default class DecClient extends ExGameClient {
 
             //生存，冒险玩家添加gaming标签
             const gamemode = ep.gamemode;
-            if (!p.hasTag('gaming') && (gamemode == GameMode.adventure || gamemode == GameMode.survival)) {
-                p.addTag('gaming')
-                this.globalscores.setNumber("AlreadyGmCheat", 1);
-                if (this.globalscores.getNumber('DieMode')) {
-                    p.addTag('diemode_gmcheat')
-                    this.globalscores.setNumber("DieModeGmCheat", 1);
+            if ((gamemode == GameMode.adventure || gamemode == GameMode.survival)) {
+                if(!p.hasTag('gaming')){
+                    p.addTag('gaming')
                 }
-            } else if (p.hasTag('gaming')) {
-                p.removeTag('gaming')
+            } else {
+                if(p.hasTag('gaming')){
+                    p.removeTag('gaming')
+                }
+                p.setDynamicProperty('GmCheat',true)
+                world.setDynamicProperty('GmCheat',true)
             }
 
             //潜行获得tag is_sneaking
