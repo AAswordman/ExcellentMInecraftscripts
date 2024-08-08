@@ -17,9 +17,9 @@ export class PomGameFoolDifficulty implements GameDifficulty {
     physicalDefenseAddFactor = 0.4;
     magicDefenseAddFactor = 0.3;
     damageAddFactor = 1.7;
-    wbflAddFactor = 2.2;
+    wbflAddFactor = 3;
     coolingFactor = 1.8;
-    LevelFactor = 8;
+    LevelFactor = 4;
 }
 export class PomGameEasyDifficulty implements GameDifficulty {
     name = "Easy";
@@ -28,9 +28,9 @@ export class PomGameEasyDifficulty implements GameDifficulty {
     physicalDefenseAddFactor = 0.2;
     magicDefenseAddFactor = 0.1;
     damageAddFactor = 1.3;
-    wbflAddFactor = 1.5;
+    wbflAddFactor = 2.5;
     coolingFactor = 1.3;
-    LevelFactor = 4;
+    LevelFactor = 2;
 }
 export class PomGameNormalDifficulty implements GameDifficulty {
     name = "Normal(original)";
@@ -39,9 +39,9 @@ export class PomGameNormalDifficulty implements GameDifficulty {
     physicalDefenseAddFactor = 0;
     magicDefenseAddFactor = 0;
     damageAddFactor = 1;
-    wbflAddFactor = 1;
+    wbflAddFactor = 2;
     coolingFactor = 1;
-    LevelFactor = 2;
+    LevelFactor = 1;
 }
 export class PomGameHardDifficulty implements GameDifficulty {
     name = "Difficult";
@@ -50,9 +50,9 @@ export class PomGameHardDifficulty implements GameDifficulty {
     physicalDefenseAddFactor = 0;
     magicDefenseAddFactor = 0;
     damageAddFactor = 0.8;
-    wbflAddFactor = 0.8;
+    wbflAddFactor = 1.5;
     coolingFactor = 0.8;
-    LevelFactor = 1.5;
+    LevelFactor = 0.75;
 }
 export class PomGameHellDifficulty implements GameDifficulty {
     name = "Human play???";
@@ -61,9 +61,9 @@ export class PomGameHellDifficulty implements GameDifficulty {
     physicalDefenseAddFactor = -0.2;
     magicDefenseAddFactor = -0.2;
     damageAddFactor = 0.5;
-    wbflAddFactor = 0.6;
+    wbflAddFactor = 0.8;
     coolingFactor = 0.6;
-    LevelFactor = 1;
+    LevelFactor = 0.5;
 }
 const _pomDifficultyMap = new Map<string, GameDifficulty>();
 _pomDifficultyMap.set("1", new PomGameFoolDifficulty());

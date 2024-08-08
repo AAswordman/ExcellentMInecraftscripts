@@ -1,6 +1,6 @@
 export function zeroIfNaN(i: number | string) {
     const s = (typeof i === "string" ? parseFloat(i) : i);
-    return isNaN(s) ? s : 0;
+    return isNaN(s) ? 0 : s;
 }
 
 export function falseIfError<T>(func: () => T) {

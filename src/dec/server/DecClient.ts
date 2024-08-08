@@ -562,7 +562,6 @@ export default class DecClient extends ExGameClient {
                             ex_e.shootProj('dec:bullet_by_catapult_explode', shoot_opt)
                             p.getBag().clearItem('dec:exploding_pellets', 1);
                             break;
-
                         case 'dec:small_stone':
                             ex_e.shootProj('dec:bullet_by_catapult_normal', shoot_opt)
                             p.getBag().clearItem('dec:small_stone', 1);

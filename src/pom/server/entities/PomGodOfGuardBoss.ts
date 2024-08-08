@@ -728,9 +728,10 @@ export class PomGodOfGuardBossState15 extends PomGodOfGuardBossState {
         this.entity2 = [];
         this.dic = [];
         this.dic2 = [];
+        this.pos.y += 1;
         this.pos2 = new Array(10).fill(0).map(e => {
             let c = ExBlockArea.randomPoint([this.ctrl.barrier.area]);
-            c.y = this.pos.y + 1;
+            c.y = this.pos.y;
             this.center2.push(this.centers.addCenter(c));
             this.entity2.push(this.ctrl.entity.dimension.spawnEntity("wb:god_of_guard_settle", this.pos));
             this.dic.push(c.cpy().sub(this.pos));
@@ -742,7 +743,7 @@ export class PomGodOfGuardBossState15 extends PomGodOfGuardBossState {
     }
     tmpV = new Vector3();
     override onTick(e: TickEvent) {
-        if (this.tickNum++ > 80) return true;
+        if (this.tickNum++ > 100) return true;
         if (this.tickNum > 60) {
             for (let [i, c] of this.center2.entries()) {
                 for (let i = 0; i < 4; i++) {
@@ -757,8 +758,8 @@ export class PomGodOfGuardBossState15 extends PomGodOfGuardBossState {
         } else if (this.tickNum > 20) {
             if (this.tickNum % 4 === 0) {
                 for (let [i, c] of this.center2.entries()) {
-                    this.center1.add(10, this.dic[i], (8) * 1000, this.defDamage, "3", EntityDamageCause.magic);
-                    this.center2[i].add(10, this.dic2[i], (8) * 1000, this.defDamage, "3", EntityDamageCause.magic);
+                    this.center1.add(30, this.dic[i], (2) * 1000, this.defDamage, "3", EntityDamageCause.magic);
+                    this.center2[i].add(30, this.dic2[i], (2) * 1000, this.defDamage, "3", EntityDamageCause.magic);
 
                 }
             }
@@ -779,7 +780,7 @@ export class PomGodOfGuardBossState15 extends PomGodOfGuardBossState {
             this.centers.remove(this.center1);
             this.center2.map((e) => this.centers.remove(e));
 
-        }).delay(14 * 20).startOnce();
+        }).delay(3 * 20).startOnce();
     }
 }
 

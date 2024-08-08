@@ -16,19 +16,20 @@ import taskProgress from "./tasks/taskProgress.js";
 export default function menuTaskUI(ctrl: GameController): MenuUIJson<PomClient> {
     const lang = ctrl.getLang();
     let bagItems = ctrl.exPlayer.getBag().countAllItems();
-    const ta = taskDaily_a(lang),
-        tb = taskDaily_b(lang),
-        tc = taskDaily_c(lang),
-        tx = taskDaily_x(lang),
+    const ta = taskDaily_a(ctrl.client,lang),
+        tb = taskDaily_b(ctrl.client,lang),
+        tc = taskDaily_c(ctrl.client,lang),
+        tx = taskDaily_x(ctrl.client,lang),
         pro = taskProgress(lang);
     return {
         "dailyTask": {
             "text": "dailyTask",
-            "default": "0/" + ctrl.data.tasks!.daily.all[0][0].toString(),
+            "default": "0",
             "img": "textures/items/leaves_knife.png",
             "page": (client, ui) => {
                 let arr: MenuUIPage<PomClient> = {};
                 const daily = client.data.tasks!.daily;
+                let taskIndex = 0
                 let getTask = (index: number, taskJson: PomTaskJSON) => {
                     for (const i of daily.all[index]) {
                         let completed = daily.complete[index].includes(i);
@@ -116,10 +117,11 @@ export default function menuTaskUI(ctrl: GameController): MenuUIJson<PomClient> 
                                     }
                                 })
                         }
-                        arr[index + "/" + i] = {
+                        arr[taskIndex] = {
                             "text": (completed ? "§a" : (isOk ? "§e" : "§c")) + taskJson.tasks[i].name + ": " + (completed ? "已完成" : Math.round(prog * 100) + "％"),
                             "page": page
                         }
+                        taskIndex++;
                     }
                 }
                 getTask(0, ta);

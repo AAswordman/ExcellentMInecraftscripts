@@ -6,6 +6,8 @@ import "../../../modules/exmc/server/item/ExItem.js";
 import GameController from "./GameController.js";
 import { MinecraftBlockTypes } from "../../../modules/vanilla-data/lib/index.js";
 import { MinecraftItemTypes } from "../../../modules/vanilla-data/lib/index.js";
+import MathUtil from "../../../modules/exmc/utils/math/MathUtil.js";
+import Random from "../../../modules/exmc/utils/Random.js";
 
 export default class PomEnChantSystem extends GameController {
     static blockTranslateData: Map<string, ItemStack> = new Map<string, ItemStack>();
@@ -33,9 +35,8 @@ export default class PomEnChantSystem extends GameController {
                 }
             }
         });
-
         //附魔
-        this.getEvents().exEvents.beforeItemUseOn.subscribe((e) => {
+        this.getEvents().exEvents.beforeOncePlayerInteractWithBlock.subscribe((e) => {
             const pos = new Vector3(e.block);
             const block = this.getExDimension().getBlock(pos);
             if (!block || block.typeId === MinecraftBlockTypes.Air) return;
@@ -119,6 +120,39 @@ export default class PomEnChantSystem extends GameController {
                         }, 0);
                     }
                 }
+            } else if (e.block.typeId === "wb:waste_recovery") {
+                const item = e.itemStack;
+                let items = [
+                    ["wb:button_block"],
+                    ["wb:conveyor_belt"],
+                    ["wb:electric_light"],
+                    ["wb:lamp_senior"],
+                    ["wb:planks_oakx"],
+                    ["wb:quartz_blockx"],
+                    ["wb:quartz_blue"]
+                ]
+                if (item) {
+                    if (this.client.talentSystem.itemOnHandComp?.getComponent("equipment_type")) {
+                        this.client.sayTo("§b物品过于贵重")
+                    } else {
+                        this.setTimeout(() => {
+                            let m = new Map<string, number>();
+                            for (let i = (item.amount) ?? 0; i > 0; i--) {
+                                if (MathUtil.randomInteger(1, 8) === 1) {
+                                    let str = Random.choice(items)[0];
+                                    m.set(str, (m.get(str) ?? 0) + 1);
+                                }
+                            }
+                            for (let [k, v] of m.entries()) {
+                                this.getDimension().spawnItem(new ItemStack(<ItemType>ItemTypes.get(k), v), pos.cpy().add(0, 1, 0));
+                            }
+                            this.exPlayer.getBag().itemOnMainHand = undefined;
+                        }, 0);
+                    }
+                }else{
+                    this.client.sayTo("§b回收废物过大，处理失败")
+                }
+                e.cancel = true;
             }
         });
     }

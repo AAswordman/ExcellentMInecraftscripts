@@ -4,7 +4,7 @@ import PomClient from "../PomClient.js";
 import { Occupation } from "../cache/TalentData.js";
 
 
-export class ItemTagComponentGroup<T>{
+export class ItemTagComponentGroup<T> {
     constructor(public tagName: string, public data: T) { }
 }
 const itemTagComponentType = {
@@ -49,8 +49,10 @@ export default class ItemTagComponent {
                         let use: unknown = (itemTagComponentType as any)[msg[1]][0];
                         if (use instanceof ItemTagComponentGroup) {
                             this.components.set(msg[1], msg[2].split("::").map(e =>
-                                new ItemTagComponentGroup(e.substring(0, e.indexOf("_:")),
+                                e.includes("_:") ? new ItemTagComponentGroup(e.substring(0, e.indexOf("_:")),
                                     e.substring(e.indexOf("_:") + 2, e.indexOf(":_")))
+                                    : new ItemTagComponentGroup("",
+                                        e)
                             ));
                         } else if (typeof use === "string") {
                             this.components.set(msg[1], msg[2].split("::"));
@@ -67,10 +69,10 @@ export default class ItemTagComponent {
         }
 
     }
-    getComponent<T extends (keyof ItemTagComponentType)>(key: T): ItemTagComponentType[T] {
-        return this.components.get(key) as ItemTagComponentType[T];
+    getComponent<T extends (keyof ItemTagComponentType)>(key: T) {
+        return this.components.get(key) as (ItemTagComponentType[T] | undefined);
     }
-    isEmpty(){
+    isEmpty() {
         return this.components.size === 0;
     }
     getComponentWithGroup<T extends (keyof ItemTagComponentType)>(key: T, group = this.currentGroup): ItemTagComponentType[T][0] {

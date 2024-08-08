@@ -58,4 +58,3 @@ type GetIntegerUnion<N extends number, R extends number = 0, Arr extends any[] =
     : GetIntegerUnion<N, R | Arr['length'], [any, ...Arr]>
 
 export type IsInteger<T> = T extends number ? (T extends `${infer U}` ? `${U}` extends `-${string}` ? false : `${U}` extends `${infer V}.${string}` ? false : true : false) : false;
-

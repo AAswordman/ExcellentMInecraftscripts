@@ -5,56 +5,59 @@ import PomClient from '../PomClient.js';
 import ExGameConfig from "../../../modules/exmc/server/ExGameConfig.js";
 import { ExCommandNativeRunner } from "../../../modules/exmc/interface/ExCommandRunner.js";
 
-export default abstract class GameController implements ExCommandNativeRunner,SetTimeOutSupport{
+export default abstract class GameController implements ExCommandNativeRunner, SetTimeOutSupport {
     private _client: PomClient;
-    constructor(client:PomClient){
+    constructor(client: PomClient) {
         this._client = client;
     }
-    public get exPlayer(){
+    public get exPlayer() {
         return this._client.exPlayer;
     }
-    public get player(){
+    public get player() {
         return this._client.player;
     }
-    public get client(){
+    public get client() {
         return this._client;
     }
-    public get globalSettings(){
+    public get globalSettings() {
         return this._client.globalSettings;
     }
-    public get data(){
+    public get data() {
         return this._client.data;
     }
-    public get globalData(){
+    public get globalData() {
         return this._client.getServer().data;
     }
-    public get gameId(){
+    public get gameId() {
         return this._client.gameId;
     }
     runCommandAsync(str: string): Promise<any> {
         return ExGameConfig.runCommandAsync(str);
     }
     setTimeout(fun: () => void, timeout: number): void {
-        this._client.setTimeout(fun,timeout);
+        this._client.setTimeout(fun, timeout);
     }
-    getDimension(type: string | undefined = undefined){
+    stop(timeout: number) {
+        return this._client.stop(timeout);
+    }
+    getDimension(type: string | undefined = undefined) {
         return this._client.getDimension(type);
     }
-    getExDimension(type: string | undefined = undefined){
+    getExDimension(type: string | undefined = undefined) {
         return this._client.getExDimension(type);
     }
-	getPlayers(){
+    getPlayers() {
         return this._client.getPlayers();
     }
-	abstract onJoin():void;
-	abstract onLoad():void
-	abstract onLeave():void;
-	getEvents(){
+    abstract onJoin(): void;
+    abstract onLoad(): void
+    abstract onLeave(): void;
+    getEvents() {
         return this._client.getEvents();
     }
     sayTo(str: string, p = this.player) {
-		this._client.sayTo(str, p);
-	}
+        this._client.sayTo(str, p);
+    }
     getLang() {
         return this._client.getLang();
     }

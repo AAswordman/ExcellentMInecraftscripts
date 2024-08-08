@@ -192,5 +192,11 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
         };
         this.getEvents().exEvents.tick.subscribe(method);
     }
-
+    stop(timeout: number) {
+        return new Promise<void>((resolve, reject) => {
+            setTimeout(() => {
+                resolve();
+            }, timeout);
+        });
+    }
 }

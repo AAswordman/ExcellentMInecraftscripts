@@ -15,7 +15,8 @@ export default class TalentData {
             case Talent.DEFENSE: return format(lang.talentFangyuDesc, `§o§b${s}％§r`);
             case Talent.CHARGING: return format(lang.talentChongnengDesc, `§o§b${s}％§r`);
             case Talent.RELOAD: return format(lang.talentChongzhuangDesc, `§o§b${s}％§r`);
-            case Talent.SOURCE: return format(lang.talentYuanquanDesc, `§o§b${s}％§r`);
+            case Talent.CONVERGE: return format(lang.talentHuiliuDesc, `§o§b${s}％§r`);
+            case Talent.SOURCE: return format(lang.talentYuanquanDesc, `§o§e${s}§r`);
             case Talent.SUDDEN_STRIKE: return format(lang.talentTuxiDesc, `§o§b${s}％§r`);
             case Talent.REGENERATE: return format(lang.talentZaishengDesc, `§o§e${s}§r`);
             default: return "";
@@ -43,8 +44,7 @@ export default class TalentData {
             Talent.ARMOR_BREAKING,
             Talent.SANCTION,
             Talent.DEFENSE,
-            Talent.CHARGING,
-            Talent.RELOAD,
+            Talent.CONVERGE,
             Talent.SOURCE
         ]);
 
@@ -59,54 +59,29 @@ export default class TalentData {
         switch (talentId) {
             case Talent.VIENTIANE:
                 return level * (TalentData.isOccupationTalent(occupation, talentId) ? 30 : 15) / 40;
-                break;
             case Talent.CLOAD_PIERCING:
                 return level * (TalentData.isOccupationTalent(occupation, talentId) ? 100 : 50) / 40;
-                break;
             case Talent.ARMOR_BREAKING:
                 return level * (TalentData.isOccupationTalent(occupation, talentId) ? 25 : 10) / 40;
-                break;
             case Talent.SANCTION:
                 return level * (TalentData.isOccupationTalent(occupation, talentId) ? 50 : 25) / 40;
-                break;
             case Talent.DEFENSE:
                 return level * (TalentData.isOccupationTalent(occupation, talentId) ? 30 : 15) / 40;
-                break;
             case Talent.CHARGING:
                 return level * (TalentData.isOccupationTalent(occupation, talentId) ? 35 : 15) / 40;
-                break;
             case Talent.RELOAD:
                 return level * (TalentData.isOccupationTalent(occupation, talentId) ? 35 : 15) / 40;
-                break;
-            case Talent.SOURCE:
+            case Talent.CONVERGE:
                 return level * (TalentData.isOccupationTalent(occupation, talentId) ? 100 : 40) / 40;
-                break;
             case Talent.SUDDEN_STRIKE:
                 return level * (TalentData.isOccupationTalent(occupation, talentId) ? 80 : 0) / 40;
-                break;
             case Talent.REGENERATE:
                 return level * (TalentData.isOccupationTalent(occupation, talentId) ? 20 : 0) / 40;
-                break;
+            case Talent.SOURCE:
+                return level * (TalentData.isOccupationTalent(occupation, talentId) ? 80 : 40) / 40;
             default:
                 return 0;
-                break;
         }
-    }
-    static calculateTalentToLore(talents: Talent[], occupation: Occupation, manager: ExLoreManager, lang: langType) {
-        let lore = new ExColorLoreUtil(manager);
-        lore.delete("addition");
-        for (let t of talents) {
-            let add = 0;
-            let level = MathUtil.zeroIfNaN(lore.getValueUseMap("enchanting", Talent.getCharacter(lang, t.id))) + t.level;
-
-            add = TalentData.calculateTalent(occupation, t.id, level);
-
-            let a = MathUtil.zeroIfNaN(lore.getValueUseMap("enchanting", Talent.getCharacter(lang, t.id)));
-            let b = Math.round(a + add * 10) / 10;
-
-            if (b !== 0) lore.setValueUseMap("addition", Talent.getCharacter(lang, t.id), a + " -> " + b);
-        }
-
     }
     static isOccupationTalent(occupation: Occupation, id: number) {
         return occupation.talentId.indexOf(id) !== -1;
@@ -120,11 +95,14 @@ export class Talent {
     public static readonly ARMOR_BREAKING = 3;
     public static readonly SANCTION = 4;
     public static readonly DEFENSE = 5;
+    /** @deprecated */
     public static readonly CHARGING = 6;
+    /** @deprecated */
     public static readonly RELOAD = 7;
-    public static readonly SOURCE = 8;
+    public static readonly CONVERGE = 8;
     public static readonly SUDDEN_STRIKE = 9;
     public static readonly REGENERATE = 10;
+    public static readonly SOURCE = 11;
     id: number;
     level: number;
 
@@ -150,12 +128,14 @@ export class Talent {
                 return lang.talentChongneng;
             case Talent.RELOAD:
                 return lang.talentChongzhuang;
-            case Talent.SOURCE:
-                return lang.talentYuanquan;
+            case Talent.CONVERGE:
+                return lang.talentHuiliu;
             case Talent.SUDDEN_STRIKE:
                 return lang.talentTuxi;
             case Talent.REGENERATE:
                 return lang.talentZaisheng;
+            case Talent.SOURCE:
+                return lang.talentYuanquan;
             default:
                 return lang.talentWeizhi;
         }
@@ -169,8 +149,8 @@ export class Occupation {
     public static readonly WARRIOR = new Occupation(2, [Talent.SANCTION, Talent.DEFENSE]);
     public static readonly ASSASSIN = new Occupation(3, [Talent.SANCTION, Talent.SUDDEN_STRIKE]);
     public static readonly ARCHER = new Occupation(4, [Talent.CLOAD_PIERCING, Talent.ARMOR_BREAKING]);
-    public static readonly WARLOCK = new Occupation(5, [Talent.RELOAD, Talent.SOURCE, Talent.CHARGING]);
-    public static readonly PRIEST = new Occupation(6, [Talent.SOURCE, Talent.REGENERATE]);
+    public static readonly WARLOCK = new Occupation(5, [Talent.CONVERGE, Talent.SOURCE]);
+    public static readonly PRIEST = new Occupation(6, [Talent.CONVERGE, Talent.REGENERATE]);
 
     static keys = [Occupation.GUARD, Occupation.WARRIOR, Occupation.ASSASSIN, Occupation.ARCHER, Occupation.WARLOCK, Occupation.PRIEST];
 

@@ -167,6 +167,29 @@ export default class PomDimRuinsSystem extends GameController {
             }, 0);
         }
     }, false);
+    guardRuinBackJudge = new VarOnChangeListener((v) => {
+        if (v) {
+            this.setTimeout(() => {
+                new ExActionAlert().title("操作").body("选择你的操作")
+                    .button("召唤boss", () => {
+                        this.getExDimension().spawnEntity("wb:god_of_guard_zero",
+                            this.client.getServer().ruin_guardBoss.getBossSpawnArea()!.center()
+                        );
+                    })
+                    .button("返回主世界", () => {
+                        let v = this.data.dimBackPoint;
+                        if (!v) {
+                            v = new Vector3(0, 255, 0);
+                        }
+                        this.exPlayer.setPosition(v, this.getDimension(MinecraftDimensionTypes.overworld));
+                    })
+                    .button("取消", () => {
+
+                    })
+                    .show(this.player);
+            }, 0);
+        }
+    }, false);
 
     fogChange = new VarOnChangeListener((v, l) => {
         this.exPlayer.command.run(`fog @s remove "ruin_fog"`);
@@ -252,6 +275,19 @@ export default class PomDimRuinsSystem extends GameController {
                     this.client.getServer().ruin_mindBoss.generate();
                     this.globalSettings.ruinsExsitsData = this.globalSettings.ruinsExsitsData | (1 << (RuinsLoaction.MIND_RUIN_NUM));
                 }
+            } else if (block?.typeId === "wb:portal_guardboss") {
+                //守卫遗迹判断
+                this.data.dimBackPoint = new Vector3(this.player.location).add(3, 2, 3);
+                this.client.cache.save();
+                this.exPlayer.addEffect(MinecraftEffectTypes.Resistance, 20 * 10, 10, true);
+                this.exPlayer.setPosition(ExBlockArea.randomPoint(this.client.getServer().ruin_guardBoss.getPlayerSpawnArea(), 0),
+                    this.getDimension(MinecraftDimensionTypes.theEnd));
+                //未生成遗迹判断
+                if (((this.globalSettings.ruinsExsitsData >> RuinsLoaction.GUARD_RUIN_NUM) & 1) == 0) {
+                    //generate
+                    this.client.getServer().ruin_guardBoss.generate();
+                    this.globalSettings.ruinsExsitsData = this.globalSettings.ruinsExsitsData | (1 << (RuinsLoaction.GUARD_RUIN_NUM));
+                }
             }
             //所有遗迹返回判断
             if (!PomBossBarrier.isInBarrier(this.player)) {
@@ -275,7 +311,12 @@ export default class PomDimRuinsSystem extends GameController {
                     (this.client.getServer().ruin_mindBoss.getBossSpawnArea()?.contains(tmpV) ?? false)
                     && this.player.dimension.id === MinecraftDimensionTypes.theEnd
                 );
+                this.guardRuinBackJudge.upDate(
+                    (this.client.getServer().ruin_guardBoss.getBossSpawnArea()?.contains(tmpV) ?? false)
+                    && this.player.dimension.id === MinecraftDimensionTypes.theEnd
+                );
             }
+            let isInDesertRuin = false;
             let isInGuardRuin = false;
             let isInStoneRuin = false;
             let isInCaveRuin = false;
@@ -293,7 +334,7 @@ export default class PomDimRuinsSystem extends GameController {
 
                 if (3 <= tmpV.x % 16 && tmpV.x % 16 <= 13 && 3 <= tmpV.z % 16 && tmpV.z % 16 <= 13)
                     this.desertRuinRules.desertRuinScoreJudge.upDate(`${Math.floor((tmpV.x - RuinsLoaction.DESERT_RUIN_LOCATION_START.x) / 16)},${Math.floor((tmpV.y - RuinsLoaction.DESERT_RUIN_LOCATION_START.y) / 16)},${Math.floor((tmpV.z - RuinsLoaction.DESERT_RUIN_LOCATION_START.z) / 16)}`);
-                isInGuardRuin = true;
+                isInDesertRuin = true;
                 let show = [];
                 show = this.desertRuinRules.getShowMap();
                 this.client.magicSystem.setActionbarByPass("desertRuinMap", show);
@@ -302,8 +343,22 @@ export default class PomDimRuinsSystem extends GameController {
 
             }
 
-            this.desertRuinRules.inRuinsListener.upDate(isInGuardRuin);
+            this.desertRuinRules.inRuinsListener.upDate(isInDesertRuin);
 
+
+            //处于守卫遗迹
+            if (this.getDimension(MinecraftDimensionTypes.theEnd) === this.player.dimension
+                && tmpV.x >= RuinsLoaction.GUARD_RUIN_LOCATION_START.x && tmpV.x <= RuinsLoaction.GUARD_RUIN_LOCATION_END.x
+                && tmpV.z >= RuinsLoaction.GUARD_RUIN_LOCATION_START.z && tmpV.z <= RuinsLoaction.GUARD_RUIN_LOCATION_END.z) {
+                if (tmpV.y < RuinsLoaction.GUARD_RUIN_LOCATION_START.y - 2) {
+                    tmpV.y = RuinsLoaction.GUARD_RUIN_LOCATION_START.y + 6;
+                    this.exPlayer.setPosition(tmpV);
+                }
+
+                isInGuardRuin = true;
+                this.exPlayer.command.run(`fog @s push wb:ruin_guard_boss "ruin_fog"`);
+
+            }
 
             //处于石头遗迹
             if (this.getDimension(MinecraftDimensionTypes.theEnd) === this.player.dimension
@@ -354,12 +409,11 @@ export default class PomDimRuinsSystem extends GameController {
                 show.push(`玩家死亡: ${this.deathTimes} 次`);
                 show.push(`造成伤害: ${this.causeDamage} 点`);
             }
-            this.client.magicSystem.additionHealthShow = isInGuardRuin;
 
 
             //设置游戏模式
-            this.isInRuinJudge = isInGuardRuin || isInStoneRuin || isInCaveRuin || isInAncientRuin || isInMindRuin;
-            this.fogChange.upDate(`${isInGuardRuin}-${isInStoneRuin}-${isInCaveRuin}-${isInAncientRuin}-${isInMindRuin}`);
+            this.isInRuinJudge = isInDesertRuin || isInStoneRuin || isInCaveRuin || isInAncientRuin || isInMindRuin || isInGuardRuin;
+            this.fogChange.upDate(`${isInDesertRuin}-${isInStoneRuin}-${isInCaveRuin}-${isInAncientRuin}-${isInMindRuin}-${isInGuardRuin}`);
 
             //let mode = this.exPlayer.getGameMode();
             // if (this.isInRuinJudge && mode === GameMode.survival) {
@@ -386,14 +440,14 @@ export default class PomDimRuinsSystem extends GameController {
         // this.getEvents().exEvents.itemOnHandChange.subscribe((e) => {
         //     this.sayTo(e.afterItem?.typeId + "");
         // });
-        this.getEvents().exEvents.beforeItemUseOn.subscribe(e => {
+        this.getEvents().exEvents.beforeOnceItemUseOn.subscribe(e => {
             let block = e.block;
             if (e.itemStack.typeId === "wb:start_key") {
                 //遗迹传送门激活
                 if (block?.typeId === "wb:block_magic_equipment") {
                     let p = this.client.getServer().portal_desertBoss;
-                    const v2 = new Vector3(e.block).add(2, 2, 2);
-                    const v1 = new Vector3(e.block).sub(2, 0, 2);
+                    let v2 = new Vector3(e.block).add(2, 2, 2);
+                    let v1 = new Vector3(e.block).sub(2, 0, 2);
                     let m = p.setArea(new ExBlockArea(v1, v2, true))
                         .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
                         .find();
@@ -410,85 +464,102 @@ export default class PomDimRuinsSystem extends GameController {
                         const parLoc = new Vector3(e.block).add(0.5, 0.5, 0.5);
                         this.getExDimension().spawnParticle("wb:portal_desertboss_par1", parLoc);
                         this.getExDimension().spawnParticle("wb:portal_desertboss_par2", parLoc);
-                    }
-                } else
-                    if (block?.typeId === "wb:block_energy_seal") {
-                        const v2 = new Vector3(e.block).add(2, 1, 2);
-                        const v1 = new Vector3(e.block).sub(2, 0, 2);
-
-                        let p = this.client.getServer().portal_stoneBoss;
-                        let m = p.setArea(new ExBlockArea(v1, v2, true))
+                    } else {
+                        p = this.client.getServer().portal_guardBoss;
+                        v1 = new Vector3(e.block).sub(2, 0, 2);
+                        v2 = new Vector3(e.block).add(2, 2, 2);
+                        m = p.setArea(new ExBlockArea(v1, v2, true))
                             .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
                             .find();
                         if (m) {
                             p.clone().analysis({
                                 X: MinecraftBlockTypes.Sandstone,
-                                W: "wb:portal_stoneboss",
-                                Y: "wb:portal_stoneboss",
-                                S: MinecraftBlockTypes.CobblestoneWall,
+                                W: "wb:portal_guardboss",
+                                Y: "wb:portal_guardboss",
                                 A: MinecraftBlockTypes.Air,
-                                B: MinecraftBlockTypes.Stonebrick
+                                S: MinecraftBlockTypes.StoneBlockSlab2,
+                                C: MinecraftBlockTypes.Air
                             })
                                 .putStructure(m);
+                            const parLoc = new Vector3(e.block).add(0.5, 0.5, 0.5);
+                            this.getExDimension().spawnParticle("wb:portal_desertboss_par1", parLoc);
+                            this.getExDimension().spawnParticle("wb:portal_desertboss_par2", parLoc);
                         }
-                    } else
-                        if (block?.typeId === "wb:block_energy_boundary") {
-                            const v2 = new Vector3(e.block).add(2, 1, 2);
-                            const v1 = new Vector3(e.block).sub(2, 0, 2);
-                            let p = this.client.getServer().portal_caveBoss;
-                            let m = p.setArea(new ExBlockArea(v1, v2, true))
-                                .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
-                                .find();
-                            if (m) {
-                                p.clone().analysis({
-                                    X: MinecraftBlockTypes.DeepslateTiles,
-                                    W: "wb:portal_caveboss",
-                                    Y: "wb:portal_caveboss",
-                                    S: MinecraftBlockTypes.Lantern,
-                                    A: MinecraftBlockTypes.Air
-                                })
-                                    .putStructure(m);
-                            }
-                        } else
-                            if (block?.typeId === "wb:block_magic_ink") {
-                                const v2 = new Vector3(e.block).add(2, 1, 2);
-                                const v1 = new Vector3(e.block).sub(2, 0, 2);
-                                let p = this.client.getServer().portal_ancientBoss;
-                                let m = p.setArea(new ExBlockArea(v1, v2, true))
-                                    .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
-                                    .find();
-                                if (m) {
-                                    p.clone().analysis({
-                                        X: MinecraftBlockTypes.ChiseledDeepslate,
-                                        W: "wb:portal_ancientboss",
-                                        Y: "wb:portal_ancientboss",
-                                        S: MinecraftBlockTypes.VerdantFroglight,
-                                        A: MinecraftBlockTypes.Air,
-                                        B: MinecraftBlockTypes.MossyCobblestone
-                                    })
-                                        .putStructure(m);
-                                }
+                    }
+                } else if (block?.typeId === "wb:block_energy_seal") {
+                    const v2 = new Vector3(e.block).add(2, 1, 2);
+                    const v1 = new Vector3(e.block).sub(2, 0, 2);
 
-                            } else
-                                if (block?.typeId === "wb:block_senior_equipment") {
-                                    const v2 = new Vector3(e.block).add(2, 1, 2);
-                                    const v1 = new Vector3(e.block).sub(2, 0, 2);
-                                    let p = this.client.getServer().portal_mindBoss;
-                                    let m = p.setArea(new ExBlockArea(v1, v2, true))
-                                        .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
-                                        .find();
-                                    if (m) {
+                    let p = this.client.getServer().portal_stoneBoss;
+                    let m = p.setArea(new ExBlockArea(v1, v2, true))
+                        .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
+                        .find();
+                    if (m) {
+                        p.clone().analysis({
+                            X: MinecraftBlockTypes.Sandstone,
+                            W: "wb:portal_stoneboss",
+                            Y: "wb:portal_stoneboss",
+                            S: MinecraftBlockTypes.CobblestoneWall,
+                            A: MinecraftBlockTypes.Air,
+                            B: MinecraftBlockTypes.Stonebrick
+                        })
+                            .putStructure(m);
+                    }
+                } else if (block?.typeId === "wb:block_energy_boundary") {
+                    const v2 = new Vector3(e.block).add(2, 1, 2);
+                    const v1 = new Vector3(e.block).sub(2, 0, 2);
+                    let p = this.client.getServer().portal_caveBoss;
+                    let m = p.setArea(new ExBlockArea(v1, v2, true))
+                        .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
+                        .find();
+                    if (m) {
+                        p.clone().analysis({
+                            X: MinecraftBlockTypes.DeepslateTiles,
+                            W: "wb:portal_caveboss",
+                            Y: "wb:portal_caveboss",
+                            S: MinecraftBlockTypes.Lantern,
+                            A: MinecraftBlockTypes.Air
+                        })
+                            .putStructure(m);
+                    }
+                } else if (block?.typeId === "wb:block_magic_ink") {
+                    const v2 = new Vector3(e.block).add(2, 1, 2);
+                    const v1 = new Vector3(e.block).sub(2, 0, 2);
+                    let p = this.client.getServer().portal_ancientBoss;
+                    let m = p.setArea(new ExBlockArea(v1, v2, true))
+                        .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
+                        .find();
+                    if (m) {
+                        p.clone().analysis({
+                            X: MinecraftBlockTypes.ChiseledDeepslate,
+                            W: "wb:portal_ancientboss",
+                            Y: "wb:portal_ancientboss",
+                            S: MinecraftBlockTypes.VerdantFroglight,
+                            A: MinecraftBlockTypes.Air,
+                            B: MinecraftBlockTypes.MossyCobblestone
+                        })
+                            .putStructure(m);
+                    }
 
-                                        p.clone().analysis({
-                                            X: "wb:block_magic_equipment",
-                                            W: "wb:portal_mindboss",
-                                            Y: "wb:portal_mindboss",
-                                            S: "wb:block_magic_barrier",
-                                            A: MinecraftBlockTypes.Air
-                                        })
-                                            .putStructure(m);
-                                    }
-                                }
+                } else if (block?.typeId === "wb:block_senior_equipment") {
+                    const v2 = new Vector3(e.block).add(2, 1, 2);
+                    const v1 = new Vector3(e.block).sub(2, 0, 2);
+                    let p = this.client.getServer().portal_mindBoss;
+                    let m = p.setArea(new ExBlockArea(v1, v2, true))
+                        .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
+                        .find();
+                    if (m) {
+
+                        p.clone().analysis({
+                            X: "wb:block_magic_equipment",
+                            W: "wb:portal_mindboss",
+                            Y: "wb:portal_mindboss",
+                            S: "wb:block_magic_barrier",
+                            A: MinecraftBlockTypes.Air
+                        })
+                            .putStructure(m);
+                    }
+                }
             }
         });
 

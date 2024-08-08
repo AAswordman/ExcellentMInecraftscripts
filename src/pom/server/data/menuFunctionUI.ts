@@ -49,7 +49,18 @@ export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
                 "easeTime": 1
             }
         });
+        if (v.distance(client.player.location) > 16 * 10) {
+            client.player.camera.fade({
+                "fadeColor": ColorRGBA.BLACK.toGameRGBA(),
+                "fadeTime": {
+                    "fadeInTime": 1,
+                    "fadeOutTime": 1,
+                    "holdTime": 3
+                }
+            });
+        }
         client.setTimeout(() => {
+            
             client.exPlayer.setPosition(v, typeof dim === "string" ? client.getDimension(dim) : dim);
             client.player.camera.setCamera(MinecraftCameraPresetsTypes.Free, {
                 "location": client.exPlayer.position.add(off),
@@ -59,6 +70,7 @@ export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
                     "easeTime": 3
                 }
             });
+
             client.setTimeout(() => {
                 client.player.camera.setCamera(MinecraftCameraPresetsTypes.Free, {
                     "easeOptions": {

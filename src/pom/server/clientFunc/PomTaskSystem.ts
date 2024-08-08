@@ -7,6 +7,7 @@ import taskDaily_c from "../data/tasks/daily_c.js";
 import taskDaily_b from "../data/tasks/daily_b.js";
 import ExEntity from '../../../modules/exmc/server/entity/ExEntity.js';
 import ExGameConfig from "../../../modules/exmc/server/ExGameConfig.js";
+import MathUtil from "../../../modules/exmc/utils/math/MathUtil.js";
 
 export default class PomTaskSystem extends GameController {
     progressTaskFinish(name: string, damage: number) {
@@ -27,30 +28,28 @@ export default class PomTaskSystem extends GameController {
 
     onJoin(): void {
         let date = new Date();
-        let nDate = `${date.getFullYear()}-${date.getMonth()}-${date.getDay()}`;
+        let nDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
         console.warn(nDate);
 
         let getInt = (arr: any[]) => {
             return Math.floor(arr.length * Math.random());
         }
-        let ta = taskDaily_a(this.getLang()).tasks;
-        let tb = taskDaily_b(this.getLang()).tasks;
-        let tc = taskDaily_c(this.getLang()).tasks;
-        let tx = taskDaily_x(this.getLang()).tasks;
+        let ta = taskDaily_a(this.client, this.getLang()).tasks;
+        let tb = taskDaily_b(this.client, this.getLang()).tasks;
+        let tc = taskDaily_c(this.client, this.getLang()).tasks;
+        let tx = taskDaily_x(this.client, this.getLang()).tasks;
 
+        
         if (this.data.tasks.daily.date !== nDate) {
-            this.data.tasks.daily.all = [[
-                getInt(ta), getInt(ta), getInt(ta)
-            ],
-            [
-                getInt(tb), getInt(tb)
-            ],
-            [
-                getInt(tc)
-            ],
-            [
-                getInt(tx)
-            ]];
+            let g = this.client.magicSystem.getExperienceCanUpGradeTo();
+            this.data.tasks.daily.all = [
+                new Array(MathUtil.clamp(Math.round(-0.08 * g + 4), 0, 4)).fill(1).map(e => getInt(ta)),
+                new Array(MathUtil.clamp(Math.round(-Math.abs(0.05 * (g - 30)) + 3), 0, 4)).fill(1).map(e => getInt(tb)),
+                new Array(MathUtil.clamp(Math.round(-Math.abs(0.08 * (g - 60)) + 4), 0, 4)).fill(1).map(e => getInt(tc)),
+                new Array(MathUtil.clamp(Math.round(-Math.abs(0.08 * (g - 90)) + 4), 0, 4)).fill(1).map(e => getInt(tx))
+            ];
+
+            
             this.data.tasks.daily.complete = [[], [], [], []];
             this.data.tasks.daily.cache = {};
             this.data.tasks.daily.date = nDate;
@@ -74,7 +73,7 @@ export default class PomTaskSystem extends GameController {
             if (this.recordDailyArray.has(e.brokenBlockPermutation.type.id)) {
                 this.data.tasks.daily.cache[e.brokenBlockPermutation.type.id] = 1 + (this.data.tasks.daily.cache[e.brokenBlockPermutation.type.id] ?? 0);
             } else {
-                if(this.recordDailyArray.has("log") && e.brokenBlockPermutation.hasTag("log")){
+                if (this.recordDailyArray.has("log") && e.brokenBlockPermutation.hasTag("log")) {
                     this.data.tasks.daily.cache["log"] = 1 + (this.data.tasks.daily.cache["log"] ?? 0);
                 }
             }

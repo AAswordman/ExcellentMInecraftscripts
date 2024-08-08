@@ -45,6 +45,15 @@ export default class ColorRGBA {
         return this._a;
     }
 
+    toGameRGBA(){
+        return {
+            "red":this.r/255,
+            "green":this.g/255,
+            "blue":this.b/255,
+            "alpha":this.a/255
+        }
+    }
+
     toRgbaString(): string {
         return `rgba(${this._r}, ${this._g}, ${this._b}, ${this._a})`;
     }
