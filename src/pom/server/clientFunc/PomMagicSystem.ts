@@ -80,6 +80,7 @@ export default class PomMagicSystem extends GameController {
         wbkjlqcg: 0
     };
     dataCacheRefreshDelay = 0;
+    lastHealth = 0;
     actionbarShow = ExSystem.tickTask(() => {
         const oldData = this.lastFromData;
         this.dataCacheRefreshDelay += 1;
@@ -91,9 +92,10 @@ export default class PomMagicSystem extends GameController {
         }
         let grade = this.getNumberFont(MathUtil.clamp(this.data.gameGrade, 0, 99));
         if (grade.length === 1) grade = PomMagicSystem.numberFont[0] + grade;
+
         let fromData: (string | number | [number] | [string, number] | [number, boolean])[] = [
             this.gameHealth,
-            [this.gameHealth / this.gameMaxHealth, (((oldData?.[1] as any)?.[0] as number) ?? 0) > this.gameHealth / this.gameMaxHealth],
+            [this.gameHealth / this.gameMaxHealth, this.gameHealth < this.lastHealth],
             [this.dataCache.wbfl / this.wbflMax],
             this.dataCache.wbfl,
             [this.dataCache.wbwqlq / 20],
@@ -110,9 +112,12 @@ export default class PomMagicSystem extends GameController {
             [this.data.uiCustomSetting.topLeftMessageBarLayer5 / 100],
             [this.data.uiCustomSetting.topLeftMessageBarStyle],
             [this.data.uiCustomSetting.accuracyCustom / 100],
-            [this.gameHealth / this.gameMaxHealth > 0.3 ? 1 : 0]
+            [this.gameHealth / this.gameMaxHealth > 0.3 ? 1 : 0],
+            [this.gameHealth >= this.lastHealth ? 0 : this.gameHealth / this.gameMaxHealth],
+            [this.gameHealth / this.gameMaxHealth]
         ];
         this.lastFromData = fromData;
+        this.lastHealth = this.gameHealth;
 
         let arr1 = fromData.map((e, index) => {
             let v;
