@@ -10,6 +10,7 @@ import { TickEvent } from "./events/events.js";
 import ExErrorQueue from "./ExErrorQueue.js";
 
 export default class ExGame {
+    
     static idRunSeq = 0;
     static nowTick = 0;
     static tickDelayTriggers = new Map<number, [number, () => void][]>();
@@ -159,6 +160,9 @@ export default class ExGame {
     static createServer(serverCons: typeof ExGameServer, config: ExConfig) {
         let server = new serverCons(config);
         this.serverMap.set(serverCons, server);
+    }
+    static register(arg0: string, event: () => void) {
+        event();
     }
     static postMessageBetweenServer() {
 
