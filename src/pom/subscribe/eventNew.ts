@@ -160,7 +160,7 @@ function handleBlockEventUser(eventUser: EventUser, triggerBlock: Block, trigger
         handleBlockSequenceEventUser(eventUser.sequence, triggerBlock, triggerEntity);
     }
     if (eventUser.randomize) {
-        handleBlockSequenceEventUser(eventUser.randomize, triggerBlock, triggerEntity);
+        handleBlockRandomizeEventUser(eventUser.randomize, triggerBlock, triggerEntity);
     }
 
 }
@@ -171,7 +171,19 @@ function handleBlockSequenceEventUser(eventUser: SequenceEventUser, triggerBlock
     }
 }
 function handleBlockRandomizeEventUser(eventUser: RandomizeEventUser, triggerBlock: Block, triggerEntity: Entity | undefined) {
-
+    let pool: number[] = [];
+    let base = 0;
+    let sum = eventUser.reduce((a, b) => a + b.weight, 0);
+    let rand = Math.random();
+    for (let i of eventUser) {
+        pool.push(base + i.weight / sum);
+        base += i.weight / sum;
+    }
+    let index = 0;
+    while (rand > pool[index] && index < pool.length - 1) {
+        index++;
+    }
+    return eventUser[index];
 }
 
 const idMap = new Map<string, JSONObject>();
