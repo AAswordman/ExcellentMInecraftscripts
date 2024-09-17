@@ -2,6 +2,7 @@ import { world, BlockPermutation, Block, Player, Entity } from '@minecraft/serve
 import { MinecraftBlockTypes } from '@minecraft/vanilla-data';
 import { fileProvider, JSONObject } from '../../filepack/index.js';
 import ExPlayer from '../../modules/exmc/server/entity/ExPlayer.js';
+import Vector3 from '../../modules/exmc/utils/math/Vector3.js';
 
 
 const ex = (name: string) => "ex:" + name;
@@ -62,7 +63,6 @@ function molangCalculate(molang: string, triggerBlock: Block, triggerEntity: Ent
             }
         }
     }
-    console.warn(molang);
     let res = eval("(" + molang + ")");
     return res;
 }
@@ -92,18 +92,86 @@ function findTriggerComp(triggerBlock: Block, triggerEntity: Entity | undefined,
 type MinecraftUniformEvent = {
 
 }
+type EventUser = {
+    run_command?: {
+        command: string[];
+        target?: string;
+    };
+    play_sound?: {
+        target?: string;
+        sound: string;
+    };
+    condition?: string;
+    trigger?: {
+        event: string
+    }
+    set_block_state: {
+        [key: string]: string;
+    }
+    sequence?: SequenceEventUser;
+    randomize?: RandomizeEventUser;
+}
 
-function emitEvent(eventName: string, triggerBlock: Block, triggerEntity: Entity | undefined) {
+type RandomizeEventUser = (EventUser & { weight: number })[];
+type SequenceEventUser = EventUser[];
+
+
+function emitBlockEvent(eventName: string, triggerBlock: Block, triggerEntity: Entity | undefined) {
     if (idMap.has(triggerBlock.typeId)) {
         const block = idMap.get(triggerBlock.typeId)!["minecraft:block"] as JSONObject;
 
         const events = (block.events as JSONObject ?? {});
-        const event = events[eventName];
+        const event = events[eventName] as EventUser | undefined;
         if (event) {
-            console.warn("event:" + eventName)
+            handleBlockEventUser(event, triggerBlock, triggerEntity);
         }
     }
     return undefined;
+}
+
+function handleBlockEventUser(eventUser: EventUser, triggerBlock: Block, triggerEntity: Entity | undefined) {
+    if (eventUser.condition) {
+        if (!molangCalculate(eventUser.condition, triggerBlock, triggerEntity)) {
+            return;
+        }
+    }
+    if (eventUser.trigger) {
+        emitBlockEvent(eventUser.trigger.event, triggerBlock, triggerEntity);
+    }
+    let pos = new Vector3(triggerBlock.location);
+    let posStr = pos.toArray().join(" ")
+    if (eventUser.run_command) {
+        for (let cmd of eventUser.run_command.command) {
+            triggerBlock.dimension.runCommand(`execute positioned ${posStr} run ${cmd}`);
+
+        }
+    }
+    if (eventUser.play_sound) {
+        triggerBlock.dimension.playSound(eventUser.play_sound.sound, pos);
+    }
+    if (eventUser.set_block_state) {
+        let per = triggerBlock.permutation;
+        for (let i in eventUser.set_block_state) {
+            per = per.withState(i, molangCalculate(eventUser.set_block_state[i], triggerBlock, triggerEntity));
+        }
+        triggerBlock.setPermutation(per);
+    }
+    if (eventUser.sequence) {
+        handleBlockSequenceEventUser(eventUser.sequence, triggerBlock, triggerEntity);
+    }
+    if (eventUser.randomize) {
+        handleBlockSequenceEventUser(eventUser.randomize, triggerBlock, triggerEntity);
+    }
+
+}
+
+function handleBlockSequenceEventUser(eventUser: SequenceEventUser, triggerBlock: Block, triggerEntity: Entity | undefined) {
+    for (let i of eventUser) {
+        handleBlockEventUser(i, triggerBlock, triggerEntity);
+    }
+}
+function handleBlockRandomizeEventUser(eventUser: RandomizeEventUser, triggerBlock: Block, triggerEntity: Entity | undefined) {
+
 }
 
 const idMap = new Map<string, JSONObject>();
@@ -119,7 +187,7 @@ export default () => {
                 if (e.entity) {
                     const triggerComp = findTriggerComp(e.block, e.entity, onStepOnCompName) as onStepOnCompType | undefined;
                     if (triggerComp) {
-                        emitEvent(triggerComp.event, e.block, e.entity);
+                        emitBlockEvent(triggerComp.event, e.block, e.entity);
                     }
                 }
             }
@@ -129,7 +197,7 @@ export default () => {
                 if (e.player) {
                     const triggerComp = findTriggerComp(e.block, undefined, onInteractCompName) as onInteractCompType | undefined;
                     if (triggerComp && molangCalculate(triggerComp.condition, e.block, e.player)) {
-                        emitEvent(triggerComp.event, e.block, e.player);
+                        emitBlockEvent(triggerComp.event, e.block, e.player);
                     }
                 }
             }
@@ -139,7 +207,7 @@ export default () => {
                 if (e) {
                     const triggerComp = findTriggerComp(e.block, undefined, onPlayerPlacingCompName) as onPlayerPlacingCompType | undefined;
                     if (triggerComp) {
-                        emitEvent(triggerComp.event, e.block, undefined);
+                        emitBlockEvent(triggerComp.event, e.block, undefined);
                     }
                 }
             }
@@ -149,7 +217,7 @@ export default () => {
                 if (e) {
                     const triggerComp = findTriggerComp(e.block, e.player, onPlayerDestroyedCompName) as onPlayerDestroyedCompType | undefined;
                     if (triggerComp) {
-                        emitEvent(triggerComp.event, e.block, e.player);
+                        emitBlockEvent(triggerComp.event, e.block, e.player);
                     }
                 }
             }
@@ -159,7 +227,7 @@ export default () => {
                 if (e) {
                     const triggerComp = findTriggerComp(e.block, undefined, tickingCompName) as tickingCompType | undefined;
                     if (triggerComp) {
-                        emitEvent(triggerComp.on_tick.event, e.block, undefined);
+                        emitBlockEvent(triggerComp.on_tick.event, e.block, undefined);
                     }
                 }
             }
@@ -169,7 +237,7 @@ export default () => {
                 if (e) {
                     const triggerComp = findTriggerComp(e.block, undefined, randomTickingCompName) as randomTickingCompType | undefined;
                     if (triggerComp) {
-                        emitEvent(triggerComp.on_tick.event, e.block, undefined);
+                        emitBlockEvent(triggerComp.on_tick.event, e.block, undefined);
                     }
                 }
             }
