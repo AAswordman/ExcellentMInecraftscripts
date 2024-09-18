@@ -1,13 +1,33 @@
-import { world, BlockPermutation, Block, Player, Entity } from '@minecraft/server';
+import { world, BlockPermutation, Block, Player, Entity, ItemStack } from '@minecraft/server';
 import { MinecraftBlockTypes } from '@minecraft/vanilla-data';
 import { fileProvider, JSONObject } from '../../filepack/index.js';
 import ExPlayer from '../../modules/exmc/server/entity/ExPlayer.js';
 import Vector3 from '../../modules/exmc/utils/math/Vector3.js';
+import ExEntity from '../../modules/exmc/server/entity/ExEntity.js';
 
 
 const ex = (name: string) => "ex:" + name;
 const minecraft = (name: string) => "minecraft:" + name;
 const fnamespace = (name: string) => name.split(":").slice(1).join(":");
+
+type CompTriggerCommon = {
+    "event": string;
+    "target"?: string;
+}
+
+type onUseCompType = {
+    "on_use": CompTriggerCommon;
+}
+const onUseCompName = "on_use";
+
+type weaponCompType = {
+    "on_hit_block"?: CompTriggerCommon;
+    "on_hurt_entity"?: CompTriggerCommon;
+}
+const weaponCompName = "weapon";
+
+
+
 
 type onStepOnCompType = {
     "target": string,
@@ -42,25 +62,29 @@ const onPlayerPlacingCompName = "on_player_placing"
 type onPlayerDestroyedCompType = onStepOnCompType;
 const onPlayerDestroyedCompName = "on_player_destroyed"
 
-function molangCalculate(molang: string, triggerBlock: Block, triggerEntity: Entity | undefined) {
+function molangCalculate(molang: string, option: TriggerOption) {
     molang = molang.replace(/q\./g, "query.");
     const query = {
         "block_state": (name: string) => {
-            return triggerBlock.permutation.getState(name);
+            return option.triggerBlock?.permutation.getState(name);
         },
         "get_equipped_item_name": (pos: string) => {
-            if (triggerEntity && triggerEntity instanceof Player) {
+            if (option.triggerEntity && option.triggerEntity instanceof Player) {
                 switch (pos) {
                     case "main_hand":
-                        return fnamespace(ExPlayer.getInstance(triggerEntity).getBag().itemOnMainHand?.typeId ?? ":");
+                        return fnamespace(ExPlayer.getInstance(option.triggerEntity).getBag().itemOnMainHand?.typeId ?? ":");
                     case "off_hand":
-                        return fnamespace(ExPlayer.getInstance(triggerEntity).getBag().itemOnOffHand?.typeId ?? ":");
+                        return fnamespace(ExPlayer.getInstance(option.triggerEntity).getBag().itemOnOffHand?.typeId ?? ":");
                     default:
                         return "";
                 }
             } else {
                 return "";
             }
+        },
+        "scoreboard": (name: string) => {
+            if (!option.triggerEntity) return "";
+            return ExEntity.getInstance(option.triggerEntity).getScoresManager().getScore(name);
         }
     }
     let res = eval("(" + molang + ")");
@@ -68,23 +92,35 @@ function molangCalculate(molang: string, triggerBlock: Block, triggerEntity: Ent
 }
 
 
-function findTriggerComp(triggerBlock: Block, triggerEntity: Entity | undefined, triggerType: string) {
-    if (idMap.has(triggerBlock.typeId)) {
-        const block = idMap.get(triggerBlock.typeId)!["minecraft:block"] as JSONObject;
+function findTriggerComp(option: TriggerOption) {
+    if (option.triggerBlock) {
+        if (idMap.has(option.triggerBlock.typeId)) {
+            const block = idMap.get(option.triggerBlock.typeId)!["minecraft:block"] as JSONObject;
 
-        const comp = { ...(block.components as JSONObject ?? {}) }
-        if ("permutations" in block) {
-            for (let part of block.permutations as JSONObject[]) {
-                if (molangCalculate(part.condition as string, triggerBlock, triggerEntity)) {
-                    const partComp = part.components as JSONObject
-                    for (let key in partComp) {
-                        comp[key] = partComp[key]
+            const comp = { ...(block.components as JSONObject ?? {}) }
+            if ("permutations" in block) {
+                for (let part of block.permutations as JSONObject[]) {
+                    if (molangCalculate(part.condition as string, option)) {
+                        const partComp = part.components as JSONObject
+                        for (let key in partComp) {
+                            comp[key] = partComp[key]
+                        }
                     }
                 }
             }
+            if (!option.triggerType) return undefined;
+            const result = comp[minecraft(option.triggerType)];
+            return result as JSONObject | undefined;
         }
-        const result = comp[minecraft(triggerType)];
-        return result as JSONObject | undefined;
+    } else if (option.triggerItem && option.triggerEntity) {
+        if (idMap.has(option.triggerItem.typeId)) {
+            const block = idMap.get(option.triggerItem.typeId)!["minecraft:item"] as JSONObject;
+
+            const comp = block["components"] as JSONObject;
+            if (!option.triggerType) return undefined;
+            const result = comp[minecraft(option.triggerType)];
+            return result as JSONObject | undefined;
+        }
     }
     return undefined;
 }
@@ -108,69 +144,126 @@ type EventUser = {
     set_block_state: {
         [key: string]: string;
     }
+
     sequence?: SequenceEventUser;
     randomize?: RandomizeEventUser;
+
+    damage?: {
+        amount: number;
+        type: string;
+    }
+    shoot?: {
+        projectile: string;
+        launch_power: number;
+    }
 }
 
 type RandomizeEventUser = (EventUser & { weight: number })[];
 type SequenceEventUser = EventUser[];
+type TriggerOption = {
+    triggerBlock?: Block;
+    triggerEntity?: Entity;
+    triggerItem?: ItemStack;
+    triggerType?: string;
+}
 
+function emitEvent(eventName: string, option: TriggerOption) {
+    if (option.triggerBlock) {
+        if (idMap.has(option.triggerBlock.typeId)) {
+            const block = idMap.get(option.triggerBlock.typeId)!["minecraft:block"] as JSONObject;
 
-function emitBlockEvent(eventName: string, triggerBlock: Block, triggerEntity: Entity | undefined) {
-    if (idMap.has(triggerBlock.typeId)) {
-        const block = idMap.get(triggerBlock.typeId)!["minecraft:block"] as JSONObject;
-
-        const events = (block.events as JSONObject ?? {});
-        const event = events[eventName] as EventUser | undefined;
-        if (event) {
-            handleBlockEventUser(event, triggerBlock, triggerEntity);
+            const events = (block.events as JSONObject ?? {});
+            const event = events[eventName] as EventUser | undefined;
+            if (event) {
+                handleEventUser(event, option);
+            }
+        }
+    } else if (option.triggerItem && option.triggerEntity) {
+        if (idMap.has(option.triggerItem.typeId)) {
+            const item = idMap.get(option.triggerItem.typeId)!["minecraft:item"] as JSONObject;
+            const events = (item.events as JSONObject ?? {});
+            const event = events[eventName] as EventUser | undefined;
+            if (event) {
+                handleEventUser(event, option);
+            }
         }
     }
     return undefined;
 }
 
-function handleBlockEventUser(eventUser: EventUser, triggerBlock: Block, triggerEntity: Entity | undefined) {
-    if (eventUser.condition) {
-        if (!molangCalculate(eventUser.condition, triggerBlock, triggerEntity)) {
-            return;
+function handleEventUser(eventUser: EventUser, option: TriggerOption) {
+    if (option.triggerBlock) {
+        if (eventUser.condition) {
+            if (!molangCalculate(eventUser.condition, option)) {
+                return;
+            }
         }
-    }
-    if (eventUser.trigger) {
-        emitBlockEvent(eventUser.trigger.event, triggerBlock, triggerEntity);
-    }
-    let pos = new Vector3(triggerBlock.location);
-    let posStr = pos.toArray().join(" ")
-    if (eventUser.run_command) {
-        for (let cmd of eventUser.run_command.command) {
-            triggerBlock.dimension.runCommand(`execute positioned ${posStr} run ${cmd}`);
+        if (eventUser.trigger) {
+            emitEvent(eventUser.trigger.event, option);
+        }
+        let pos = new Vector3(option.triggerBlock.location);
+        let posStr = pos.toArray().join(" ")
+        if (eventUser.run_command) {
+            for (let cmd of eventUser.run_command.command) {
+                option.triggerBlock.dimension.runCommand(`execute positioned ${posStr} run ${cmd}`);
 
+            }
         }
-    }
-    if (eventUser.play_sound) {
-        triggerBlock.dimension.playSound(eventUser.play_sound.sound, pos);
-    }
-    if (eventUser.set_block_state) {
-        let per = triggerBlock.permutation;
-        for (let i in eventUser.set_block_state) {
-            per = per.withState(i, molangCalculate(eventUser.set_block_state[i], triggerBlock, triggerEntity));
+        if (eventUser.play_sound) {
+            option.triggerBlock.dimension.playSound(eventUser.play_sound.sound, pos);
         }
-        triggerBlock.setPermutation(per);
+        if (eventUser.set_block_state) {
+            let per = option.triggerBlock.permutation;
+            for (let i in eventUser.set_block_state) {
+                per = per.withState(i, molangCalculate(eventUser.set_block_state[i], option));
+            }
+            option.triggerBlock.setPermutation(per);
+        }
+    } else if (option.triggerItem && option.triggerEntity) {
+        if (eventUser.condition) {
+            if (!molangCalculate(eventUser.condition, option)) {
+                return;
+            }
+        }
+        if (eventUser.trigger) {
+            emitEvent(eventUser.trigger.event, option);
+        }
+        let pos = new Vector3(option.triggerEntity.location);
+        // let posStr = pos.toArray().join(" ")
+        if (eventUser.run_command) {
+            for (let cmd of eventUser.run_command.command) {
+                option.triggerEntity.dimension.runCommand(`${cmd}`);
+
+            }
+        }
+        if (eventUser.play_sound) {
+            option.triggerEntity.dimension.playSound(eventUser.play_sound.sound, pos);
+        }
+        if (eventUser.shoot) {
+            ExEntity.getInstance(option.triggerEntity).shootProj(eventUser.shoot.projectile, {
+                "speed": eventUser.shoot.launch_power
+            });
+        }
+        if (eventUser.damage) {
+            let damageComp = option.triggerItem.getComponent("durability");
+            if (damageComp) damageComp.damage += eventUser.damage.amount;
+            ExEntity.getInstance(option.triggerEntity).getBag().itemOnMainHand;
+        }
     }
     if (eventUser.sequence) {
-        handleBlockSequenceEventUser(eventUser.sequence, triggerBlock, triggerEntity);
+        handleSequenceEventUser(eventUser.sequence, option);
     }
     if (eventUser.randomize) {
-        handleBlockRandomizeEventUser(eventUser.randomize, triggerBlock, triggerEntity);
+        handleRandomizeEventUser(eventUser.randomize, option);
     }
-
 }
 
-function handleBlockSequenceEventUser(eventUser: SequenceEventUser, triggerBlock: Block, triggerEntity: Entity | undefined) {
+function handleSequenceEventUser(eventUser: SequenceEventUser, option: TriggerOption) {
     for (let i of eventUser) {
-        handleBlockEventUser(i, triggerBlock, triggerEntity);
+        handleEventUser(i, option);
     }
 }
-function handleBlockRandomizeEventUser(eventUser: RandomizeEventUser, triggerBlock: Block, triggerEntity: Entity | undefined) {
+function handleRandomizeEventUser(eventUser: RandomizeEventUser, option: TriggerOption) {
     let pool: number[] = [];
     let base = 0;
     let sum = eventUser.reduce((a, b) => a + b.weight, 0);
@@ -183,12 +276,16 @@ function handleBlockRandomizeEventUser(eventUser: RandomizeEventUser, triggerBlo
     while (rand > pool[index] && index < pool.length - 1) {
         index++;
     }
-    return eventUser[index];
+    handleEventUser(eventUser[index], option);
 }
 
 const idMap = new Map<string, JSONObject>();
 
 export default () => {
+    for (let fpath of fileProvider.listAll("ex_items")) {
+        let f = fileProvider.get(fpath)!;
+        idMap.set(((f["minecraft:item"] as JSONObject).description as JSONObject).identifier as string, f);
+    }
     for (let fpath of fileProvider.listAll("ex_blocks")) {
         let f = fileProvider.get(fpath)!;
         idMap.set(((f["minecraft:block"] as JSONObject).description as JSONObject).identifier as string, f);
@@ -197,9 +294,10 @@ export default () => {
         initEvent.blockComponentRegistry.registerCustomComponent(ex(onStepOnCompName), {
             onStepOn: e => {
                 if (e.entity) {
-                    const triggerComp = findTriggerComp(e.block, e.entity, onStepOnCompName) as onStepOnCompType | undefined;
+                    let option = { triggerBlock: e.block, triggerEntity: e.entity, triggerType: onStepOnCompName };
+                    const triggerComp = findTriggerComp(option) as onStepOnCompType | undefined;
                     if (triggerComp) {
-                        emitBlockEvent(triggerComp.event, e.block, e.entity);
+                        emitEvent(triggerComp.event, option);
                     }
                 }
             }
@@ -207,9 +305,10 @@ export default () => {
         initEvent.blockComponentRegistry.registerCustomComponent(ex(onInteractCompName), {
             onPlayerInteract: e => {
                 if (e.player) {
-                    const triggerComp = findTriggerComp(e.block, undefined, onInteractCompName) as onInteractCompType | undefined;
-                    if (triggerComp && molangCalculate(triggerComp.condition, e.block, e.player)) {
-                        emitBlockEvent(triggerComp.event, e.block, e.player);
+                    let option = { triggerBlock: e.block, triggerEntity: e.player, triggerType: onInteractCompName };
+                    const triggerComp = findTriggerComp(option) as onInteractCompType | undefined;
+                    if (triggerComp && molangCalculate(triggerComp.condition, option)) {
+                        emitEvent(triggerComp.event, option);
                     }
                 }
             }
@@ -217,9 +316,10 @@ export default () => {
         initEvent.blockComponentRegistry.registerCustomComponent(ex(onPlayerPlacingCompName), {
             onPlace: e => {
                 if (e) {
-                    const triggerComp = findTriggerComp(e.block, undefined, onPlayerPlacingCompName) as onPlayerPlacingCompType | undefined;
+                    let option = { triggerBlock: e.block, triggerType: onPlayerPlacingCompName };
+                    const triggerComp = findTriggerComp(option) as onPlayerPlacingCompType | undefined;
                     if (triggerComp) {
-                        emitBlockEvent(triggerComp.event, e.block, undefined);
+                        emitEvent(triggerComp.event, option);
                     }
                 }
             }
@@ -227,9 +327,10 @@ export default () => {
         initEvent.blockComponentRegistry.registerCustomComponent(ex(onPlayerDestroyedCompName), {
             onPlayerDestroy: e => {
                 if (e) {
-                    const triggerComp = findTriggerComp(e.block, e.player, onPlayerDestroyedCompName) as onPlayerDestroyedCompType | undefined;
+                    let option = { triggerBlock: e.block, triggerEntity: e.player, triggerType: onPlayerDestroyedCompName };
+                    const triggerComp = findTriggerComp(option) as onPlayerDestroyedCompType | undefined;
                     if (triggerComp) {
-                        emitBlockEvent(triggerComp.event, e.block, e.player);
+                        emitEvent(triggerComp.event, option);
                     }
                 }
             }
@@ -237,9 +338,10 @@ export default () => {
         initEvent.blockComponentRegistry.registerCustomComponent(ex(tickingCompName), {
             onTick: e => {
                 if (e) {
-                    const triggerComp = findTriggerComp(e.block, undefined, tickingCompName) as tickingCompType | undefined;
+                    let option = { triggerBlock: e.block, triggerType: tickingCompName };
+                    const triggerComp = findTriggerComp(option) as tickingCompType | undefined;
                     if (triggerComp) {
-                        emitBlockEvent(triggerComp.on_tick.event, e.block, undefined);
+                        emitEvent(triggerComp.on_tick.event, option);
                     }
                 }
             }
@@ -247,12 +349,44 @@ export default () => {
         initEvent.blockComponentRegistry.registerCustomComponent(ex(randomTickingCompName), {
             onRandomTick: e => {
                 if (e) {
-                    const triggerComp = findTriggerComp(e.block, undefined, randomTickingCompName) as randomTickingCompType | undefined;
+                    let option = { triggerBlock: e.block, triggerType: randomTickingCompName }
+                    const triggerComp = findTriggerComp(option) as randomTickingCompType | undefined;
                     if (triggerComp) {
-                        emitBlockEvent(triggerComp.on_tick.event, e.block, undefined);
+                        emitEvent(triggerComp.on_tick.event, option);
                     }
                 }
             }
         });
+
+        initEvent.itemComponentRegistry.registerCustomComponent(ex(onUseCompName), {
+            onUse: e => {
+                if (e.itemStack) {
+                    let option = { triggerItem: e.itemStack, triggerEntity: e.source, triggerType: onUseCompName }
+                    const triggerComp = findTriggerComp(option) as onUseCompType | undefined;
+                    if (triggerComp) {
+                        emitEvent(triggerComp.on_use.event, option);
+                    }
+                }
+            }
+        });
+
+    });
+    world.afterEvents.itemUse.subscribe(e => {
+        if (e) {
+            let option = { triggerItem: e.itemStack, triggerEntity: e.source, triggerType: onUseCompName }
+            const triggerComp = findTriggerComp(option) as onUseCompType | undefined;
+            if (triggerComp) {
+                emitEvent(triggerComp.on_use.event, option);
+            }
+        }
+    });
+    world.afterEvents.itemUse.subscribe(e => {
+        if (e) {
+            let option = { triggerItem: e.itemStack, triggerEntity: e.source, triggerType: onUseCompName }
+            const triggerComp = findTriggerComp(option) as onUseCompType | undefined;
+            if (triggerComp) {
+                emitEvent(triggerComp.on_use.event, option);
+            }
+        }
     });
 }
