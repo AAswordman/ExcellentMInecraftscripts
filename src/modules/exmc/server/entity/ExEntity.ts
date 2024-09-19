@@ -216,9 +216,8 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     }
 
     shootProj(id: string, option: ExEntityShootOption, shoot_dir = this.viewDirection, loc =
-        new Vector3(this._entity.getHeadLocation()).add(0, 0, this._entity instanceof Player ? -1 : 0)
+        new Vector3(this._entity.getHeadLocation())
             .add(this.viewDirection.scl(option.spawnDistance ?? 1.5))) {
-        //这里z-1才是实际的head位置，可能是ojang的bug吧
         let locx = loc;
         let q = new ExEntityQuery(this.entity.dimension).at(locx);
         if (option.absPosOffset) locx.add(option.absPosOffset);
