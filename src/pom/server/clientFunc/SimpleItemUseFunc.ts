@@ -342,7 +342,6 @@ export default class SimpleItemUseFunc extends GameController {
                 }
             }
         });
-
     }
     chainDigging(v: Vector3, idType: string, times: number, posData?: Set<string>) {
         let o = posData === undefined;

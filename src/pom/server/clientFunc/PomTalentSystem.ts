@@ -21,6 +21,7 @@ import GameController from "./GameController.js";
 import Vector3 from '../../../modules/exmc/utils/math/Vector3.js';
 import { MinecraftItemTypes } from '../../../modules/vanilla-data/lib/index.js';
 import ExGameConfig from '../../../modules/exmc/server/ExGameConfig.js';
+import Random from '../../../modules/exmc/utils/Random.js';
 
 export default class PomTalentSystem extends GameController {
     strikeSkill = true;
@@ -126,6 +127,25 @@ export default class PomTalentSystem extends GameController {
     skill_stateNum: number[] = [];
     afterHurtListener?: (arg1: EntityHurtAfterEvent) => void;
 
+    attackCooldown: number = 0;
+    maxAttackCooldown: number = 0;
+    attackCooldownLooper = ExSystem.tickTask(() => {
+        const maxFrame = 30;
+        if (this.attackCooldown < -10) {
+            this.attackCooldownLooper.stop();
+            this.player.setProperty("wb:attack_cooldown", -1);
+        } else {
+            this.attackCooldown--;
+            this.player.setProperty("wb:attack_cooldown", Math.floor(maxFrame * (1 - Math.max(0.001, this.attackCooldown / this.maxAttackCooldown))));
+        }
+    }).delay(1);
+    setCooldown(cooldown: number) {
+        this.attackCooldown = cooldown;
+        this.maxAttackCooldown = cooldown;
+        this.attackCooldownLooper.start();
+    }
+
+
     chooseArmor(a: ArmorData) {
 
     }
@@ -218,6 +238,12 @@ export default class PomTalentSystem extends GameController {
         this.getEvents().exEvents.afterPlayerHitEntity.subscribe((e) => {
             if (e.damage > 10000000) return;
             let item = this.exPlayer.getBag().itemOnMainHand;
+
+            if(this.attackCooldown <= 0){
+                this.getDimension().spawnParticle("wb:attack_heavy",e.hurtEntity.location)
+            }
+            this.setCooldown(14);
+
             let damageFac = 0;
             let extraDamage = 0;
             let target = ExEntity.getInstance(e.hurtEntity);
