@@ -22,6 +22,8 @@ import Vector3 from '../../../modules/exmc/utils/math/Vector3.js';
 import { MinecraftItemTypes } from '../../../modules/vanilla-data/lib/index.js';
 import ExGameConfig from '../../../modules/exmc/server/ExGameConfig.js';
 import Random from '../../../modules/exmc/utils/Random.js';
+import { MinecraftBlockTypes } from '../../../modules/vanilla-data/lib/index.js';
+import ExEntityQuery from '../../../modules/exmc/server/env/ExEntityQuery.js';
 
 export default class PomTalentSystem extends GameController {
     strikeSkill = true;
@@ -220,7 +222,14 @@ export default class PomTalentSystem extends GameController {
     }
 
 
+
     onJoin(): void {
+        ExGame.scriptEventReceive.addMonitor(e => {
+            if ( e.id == "wb:attack_send" && this.attackCooldown > 0) {
+                this.setCooldown(this.maxAttackCooldown);
+            }
+        });
+
         this.getEvents().exEvents.onLongTick.subscribe(e => {
             if (e.currentTick % 20 === 0) {
                 const bag = this.exPlayer.getBag();
@@ -239,14 +248,12 @@ export default class PomTalentSystem extends GameController {
             if (e.damage > 10000000) return;
             let item = this.exPlayer.getBag().itemOnMainHand;
 
-            if(this.attackCooldown <= 0){
-                this.getDimension().spawnParticle("wb:attack_heavy",e.hurtEntity.location)
-            }
-            this.setCooldown(14);
-
             let damageFac = 0;
             let extraDamage = 0;
             let target = ExEntity.getInstance(e.hurtEntity);
+
+            let targetHealth = target.health;
+
             let dis = target.position.distance(this.exPlayer.position);
             let CLOAD_PIERCING = this.talentRes.get(Talent.CLOAD_PIERCING) ?? 0;
 
@@ -280,6 +287,19 @@ export default class PomTalentSystem extends GameController {
                 this.strikeSkill = false;
                 damageFac += SUDDEN_STRIKE / 100;
             }
+            let skipPar = false;
+            if (this.attackCooldown <= 0) {
+                damageFac += 0.1;
+                if (this.getExDimension().getBlock(this.exPlayer.position.sub(0, 0.4, 0))?.typeId === MinecraftBlockTypes.Air) {
+                    skipPar = true;
+                    damageFac += 0.1;
+                } else {
+                    this.getDimension().spawnParticle("wb:attack_heavy", e.hurtEntity.location);
+                }
+            } else {
+                damageFac -= 0.4;
+            }
+
 
             damageFac += (this.client.getDifficulty().damageAddFactor - 1);
 
@@ -292,14 +312,32 @@ export default class PomTalentSystem extends GameController {
             this.hasCauseDamage.trigger(e.damage + damage, e.hurtEntity);
             usetarget = e.hurtEntity;
 
-            let g = target.health;
-            if (damage >= g && g > 0) {
+            if (damage >= targetHealth && targetHealth > 0) {
                 target.entity.applyDamage(99999999, {
                     "cause": EntityDamageCause.entityAttack,
                     "damagingEntity": this.player
-                })
+                });
             }
+            if (damage >= targetHealth) {
+                skipPar = false;
+                if (this.attackCooldown <= 0) {
+                    this.getDimension().spawnParticle("dec:the_blade_particle", target.position.sub(0, 0.8, 0));
+                    new ExEntityQuery(this.getDimension())
+                        .at(this.exPlayer.position)
+                        .querySector(5, 2, this.exPlayer.viewDirection, 45)
+                        .except(this.player)
+                        .except(target.entity)
+                        .forEach(en => {
+                            en.applyDamage(e.damage, {
+                                "cause": EntityDamageCause.entityAttack,
+                                "damagingEntity": this.player
+                            });
+                        });
+                }
+            }
+            if(skipPar) this.getDimension().spawnParticle("dec:iron_sickle_particle", e.hurtEntity.location);
             target.removeHealth(this, damage);
+            this.setCooldown(10);
         });
 
         let lastResist = 0;
