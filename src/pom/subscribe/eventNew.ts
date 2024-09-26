@@ -38,6 +38,7 @@ const diggerCompName = "digger";
 
 type foodCompType = {
     "on_consume": CompTriggerCommon;
+    "using_converts_to":string;
 }
 const foodCompName = "food";
 
@@ -413,10 +414,23 @@ export default () => {
     });
     world.afterEvents.itemUse.subscribe(e => {
         if (e) {
-            let option = { triggerItem: e.itemStack, triggerEntity: e.source, triggerType: onUseCompName }
-            const triggerComp = findTriggerComp(option) as onUseCompType | undefined;
-            if (triggerComp) {
-                emitEvent(triggerComp.on_use.event, option);
+            let flag = false;
+            let cooling = findTriggerComp({ triggerItem: e.itemStack, triggerEntity: e.source, triggerType: "cooldown" }) as JSONObject | undefined;
+            if (cooling) {
+                let cate = cooling.category as string;
+                let duration = cooling.duration as number;
+                if (duration * 20 - 1 == e.source.getItemCooldown(cate)) {
+                    flag = true;
+                }
+            } else {
+                flag = true;
+            }
+            if (flag) {
+                let option = { triggerItem: e.itemStack, triggerEntity: e.source, triggerType: onUseCompName }
+                const triggerComp = findTriggerComp(option) as onUseCompType | undefined;
+                if (triggerComp) {
+                    emitEvent(triggerComp.on_use.event, option);
+                }
             }
         }
     });
@@ -467,6 +481,9 @@ export default () => {
             const triggerComp = findTriggerComp(option) as foodCompType | undefined;
             if (triggerComp) {
                 emitEvent(triggerComp.on_consume.event, option);
+            }
+            if(triggerComp?.using_converts_to){
+                ExPlayer.getInstance(e.source).getBag().itemOnMainHand = new ItemStack(triggerComp.using_converts_to);
             }
         }
 

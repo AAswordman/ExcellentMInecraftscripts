@@ -231,13 +231,19 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
             new Matrix4().idt().rotateX(option.rotOffset.x / 180 * Math.PI).rotateY(option.rotOffset.y / 180 * Math.PI).rmulVector(view);
             mat.rmulVector(view);
         }
-
         const proj = this.exDimension.spawnEntity(id, locx);
-
+        let owner = (option.owner ?? this._entity);
+        if (owner instanceof Player) {
+            let tamemount = proj?.getComponent("tamemount")
+            if (tamemount)
+                tamemount.tameToPlayer(false, owner);
+            let tame = proj?.getComponent("tameable")
+            if (tame)
+                tame.tame(owner);
+        }
         if (!proj) return false;
         const proj_comp = proj.getComponent('minecraft:projectile');
         if (!proj_comp) {
-            proj.remove();
             return false;
         }
         let shootOpt: ProjectileShootOptions = {

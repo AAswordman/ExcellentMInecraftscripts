@@ -1,4 +1,4 @@
-import { MinecraftDimensionTypes, Block, EntityHurtAfterEvent, Entity } from '@minecraft/server';
+import { MinecraftDimensionTypes, Block, EntityHurtAfterEvent, Entity, RawMessage } from '@minecraft/server';
 import GameController from "./GameController.js";
 import RuinsLoaction from "../serverFunc/ruins/RuinsLoaction.js";
 import { ExBlockArea } from '../../../modules/exmc/server/block/ExBlockArea.js';
@@ -10,6 +10,7 @@ import ExActionAlert from '../../../modules/exmc/server/ui/ExActionAlert.js';
 import PomBossBarrier from '../entities/barrier/PomBossBarrier.js';
 import { Objective } from '../../../modules/exmc/server/entity/ExScoresManager.js';
 import { MinecraftBlockTypes, MinecraftEffectTypes } from '../../../modules/vanilla-data/lib/index.js';
+import PomRuinCommon from '../serverFunc/ruins/PomRuinCommon.js';
 
 export default class PomDimRuinsSystem extends GameController {
 
@@ -29,6 +30,8 @@ export default class PomDimRuinsSystem extends GameController {
         this.causeDamageListenner.upDate(value);
     }
     causeDamageType: Set<string> = new Set();
+
+
     causeDamageListenner = new VarOnChangeListener((n, last) => {
         if (n) {
             this.causeDamageMonitor = this.client.talentSystem.hasCauseDamage.addMonitor((d, e) => {
@@ -59,6 +62,73 @@ export default class PomDimRuinsSystem extends GameController {
     }, false);
 
 
+    backJudgeGenerate = (id: string, ruin: PomRuinCommon) => {
+        return new VarOnChangeListener((v) => {
+            if (v) {
+                this.setTimeout(() => {
+                    new ExActionAlert().title("操作").body("选择你的操作")
+                        .button("召唤boss", () => {
+                            let bag = this.exPlayer.getBag();
+                            let itemMap = bag.countAllItems();
+                            let useMap = {
+                                "dec:blue_gem": 5,
+                                "dec:red_gem": 5,
+                                "dec:heart_egg": 1,
+                                "dec:spurt_egg": 1,
+                                "dec:ender_egg": 1,
+                                "dec:magic_crystal": 1
+                            }
+                            if (Array.from(Object.keys(useMap)).every(k => (useMap as any)[k] as number <= (itemMap.get(k) ?? 0))) {
+                                this.getExDimension().spawnEntity(id,
+                                    ruin.getBossSpawnArea()!.center()
+                                );
+                                for (let k of Object.keys(useMap)) {
+                                    bag.clearItem(k, (useMap as any)[k]);
+                                }
+                            } else {
+                                let msg: RawMessage[] = [];
+                                for (let k of Object.keys(useMap)) {
+                                    let item = itemMap.get(k) ?? 0;
+                                    let s = 'item.' + k + '.name';
+
+                                    if ((useMap as any)[k] > item) {
+                                        msg.push({
+                                            text: "§c",
+                                        })
+                                    } else {
+                                        msg.push({
+                                            text: "§a",
+                                        })
+                                    }
+                                    msg.push({
+                                        translate: s,
+                                    }, {
+                                        text: ": " + item + "/" + (useMap as any)[k] + "\n"
+                                    });
+                                }
+                                this.client.sayTo({
+                                    rawtext: ([
+                                        { text: "§b你没有足够的材料: " },
+                                        { text: "§r\n" }
+                                    ] as RawMessage[]).concat(msg)
+                                })
+                            }
+                        })
+                        .button("返回主世界", () => {
+                            let v = this.data.dimBackPoint;
+                            if (!v) {
+                                v = new Vector3(0, 255, 0);
+                            }
+                            this.exPlayer.setPosition(v, this.getDimension(MinecraftDimensionTypes.overworld));
+                        })
+                        .button("取消", () => {
+
+                        })
+                        .show(this.player);
+                }, 0);
+            }
+        }, false);
+    }
     desertRuinBackJudge = new VarOnChangeListener((v) => {
         if (v) {
             new ExMessageAlert().title("返回").body("是否返回主世界?")
@@ -75,121 +145,11 @@ export default class PomDimRuinsSystem extends GameController {
                 .show(this.player);
         }
     }, false);
-    stoneRuinBackJudge = new VarOnChangeListener((v) => {
-        if (v) {
-            this.setTimeout(() => {
-                new ExActionAlert().title("操作").body("选择你的操作")
-                    .button("召唤boss", () => {
-                        this.getExDimension().spawnEntity("wb:magic_stoneman",
-                            this.client.getServer().ruin_stoneBoss.getBossSpawnArea()!.center()
-                        );
-                    })
-                    .button("返回主世界", () => {
-                        let v = this.data.dimBackPoint;
-                        if (!v) {
-                            v = new Vector3(0, 255, 0);
-                        }
-                        this.exPlayer.setPosition(v, this.getDimension(MinecraftDimensionTypes.overworld));
-                    })
-                    .button("取消", () => {
-
-                    })
-                    .show(this.player);
-            }, 0);
-        }
-    }, false);
-    caveRuinBackJudge = new VarOnChangeListener((v) => {
-        if (v) {
-            this.setTimeout(() => {
-                new ExActionAlert().title("操作").body("选择你的操作")
-                    .button("召唤boss", () => {
-                        this.getExDimension().spawnEntity("wb:headless_guard",
-                            this.client.getServer().ruin_caveBoss.getBossSpawnArea()!.center()
-                        );
-                    })
-                    .button("返回主世界", () => {
-                        let v = this.data.dimBackPoint;
-                        if (!v) {
-                            v = new Vector3(0, 255, 0);
-                        }
-                        this.exPlayer.setPosition(v, this.getDimension(MinecraftDimensionTypes.overworld));
-                    })
-                    .button("取消", () => {
-
-                    })
-                    .show(this.player);
-            }, 0);
-        }
-    }, false);
-    ancientRuinBackJudge = new VarOnChangeListener((v) => {
-        if (v) {
-            this.setTimeout(() => {
-                new ExActionAlert().title("操作").body("选择你的操作")
-                    .button("召唤boss", () => {
-                        this.getExDimension().spawnEntity("wb:ancient_stone",
-                            this.client.getServer().ruin_ancientBoss.getBossSpawnArea()!.center()
-                        );
-                    })
-                    .button("返回主世界", () => {
-                        let v = this.data.dimBackPoint;
-                        if (!v) {
-                            v = new Vector3(0, 255, 0);
-                        }
-                        this.exPlayer.setPosition(v, this.getDimension(MinecraftDimensionTypes.overworld));
-                    })
-                    .button("取消", () => {
-
-                    })
-                    .show(this.player);
-            }, 0);
-        }
-    }, false);
-    mindRuinBackJudge = new VarOnChangeListener((v) => {
-        if (v) {
-            this.setTimeout(() => {
-                new ExActionAlert().title("操作").body("选择你的操作")
-                    .button("召唤boss", () => {
-                        this.getExDimension().spawnEntity("wb:intentions_first",
-                            this.client.getServer().ruin_mindBoss.getBossSpawnArea()!.center()
-                        );
-                    })
-                    .button("返回主世界", () => {
-                        let v = this.data.dimBackPoint;
-                        if (!v) {
-                            v = new Vector3(0, 255, 0);
-                        }
-                        this.exPlayer.setPosition(v, this.getDimension(MinecraftDimensionTypes.overworld));
-                    })
-                    .button("取消", () => {
-
-                    })
-                    .show(this.player);
-            }, 0);
-        }
-    }, false);
-    guardRuinBackJudge = new VarOnChangeListener((v) => {
-        if (v) {
-            this.setTimeout(() => {
-                new ExActionAlert().title("操作").body("选择你的操作")
-                    .button("召唤boss", () => {
-                        this.getExDimension().spawnEntity("wb:god_of_guard_zero",
-                            this.client.getServer().ruin_guardBoss.getBossSpawnArea()!.center()
-                        );
-                    })
-                    .button("返回主世界", () => {
-                        let v = this.data.dimBackPoint;
-                        if (!v) {
-                            v = new Vector3(0, 255, 0);
-                        }
-                        this.exPlayer.setPosition(v, this.getDimension(MinecraftDimensionTypes.overworld));
-                    })
-                    .button("取消", () => {
-
-                    })
-                    .show(this.player);
-            }, 0);
-        }
-    }, false);
+    stoneRuinBackJudge = this.backJudgeGenerate("wb:magic_stoneman", this.client.getServer().ruin_stoneBoss);
+    caveRuinBackJudge = this.backJudgeGenerate("wb:headless_guard", this.client.getServer().ruin_caveBoss);
+    ancientRuinBackJudge = this.backJudgeGenerate("wb:ancient_stone", this.client.getServer().ruin_ancientBoss);
+    mindRuinBackJudge = this.backJudgeGenerate("wb:intentions_first", this.client.getServer().ruin_mindBoss);
+    guardRuinBackJudge = this.backJudgeGenerate("wb:god_of_guard_zero", this.client.getServer().ruin_guardBoss);
 
     fogChange = new VarOnChangeListener((v, l) => {
         this.exPlayer.command.run(`fog @s remove "ruin_fog"`);

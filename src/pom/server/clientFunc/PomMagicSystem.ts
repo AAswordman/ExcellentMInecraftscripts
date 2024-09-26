@@ -79,6 +79,7 @@ export default class PomMagicSystem extends GameController {
         wbwqlq: 0,
         wbkjlqcg: 0
     };
+    
     dataCacheRefreshDelay = 0;
     lastHealth = 0;
     actionbarShow = ExSystem.tickTask(() => {
@@ -230,7 +231,7 @@ export default class PomMagicSystem extends GameController {
         this.getEvents().exEvents.afterPlayerSpawn.subscribe(e => {
             this.exPlayer.triggerEvent("hp:50000");
             //设置默认游戏血量
-
+            
             //绕开常规逻辑设置血量
             this.isDied = false;
             this.isProtected = true;

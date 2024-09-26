@@ -22,3 +22,7 @@ export default function isEquipment(id: string) {
     }
     return false;
 }
+
+export function canSweep(id: string){
+    return id.includes("sword") ||  id.includes("katana");
+}

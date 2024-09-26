@@ -25,6 +25,8 @@ import ExGame from '../../modules/exmc/server/ExGame.js';
 import { MinecraftEffectTypes } from '../../modules/vanilla-data/lib/index.js';
 import { DecLeavesGolemBoss } from './entities/DecLeavesGolemBoss.js';
 import { DecEscapeSoulBoss3, DecEscapeSoulBoss4, DecEscapeSoulBoss5 } from './entities/DecEscapeSoulBoss.js';
+import DecBossController from './entities/DecBossController.js';
+import DecBossBarrier from './entities/DecBossBarrier.js';
 
 
 export default class DecServer extends ExGameServer {
@@ -99,42 +101,42 @@ export default class DecServer extends ExGameServer {
         // this.getEvents().events.beforePistonActivate.subscribe(e => {
         //     e.piston
         // });
-        let die_mode_test = (p:Player,open:boolean)=>{
-            if(open){
-                if(world.getDynamicProperty('DieMode')){
-                    if (world.getDynamicProperty('AlreadyDie')){
-                        p.sendMessage({ "rawtext" : [ { "translate" : "text.dec:diemode_cannot_close_already_die.name" } ] })
+        let die_mode_test = (p: Player, open: boolean) => {
+            if (open) {
+                if (world.getDynamicProperty('DieMode')) {
+                    if (world.getDynamicProperty('AlreadyDie')) {
+                        p.sendMessage({ "rawtext": [{ "translate": "text.dec:diemode_cannot_close_already_die.name" }] })
                     } else {
-                        p.sendMessage({ "rawtext" : [ { "translate" : "text.dec:diemode_cannot_close.name" } ] })
+                        p.sendMessage({ "rawtext": [{ "translate": "text.dec:diemode_cannot_close.name" }] })
                     }
                 } else {
-                    if(p.hasTag('owner')){
-                        if(world.getDynamicProperty('AlreadyDie')){
-                            p.sendMessage({ "rawtext" : [ { "translate" : "text.dec:diemode_already_die.name" } ] })
+                    if (p.hasTag('owner')) {
+                        if (world.getDynamicProperty('AlreadyDie')) {
+                            p.sendMessage({ "rawtext": [{ "translate": "text.dec:diemode_already_die.name" }] })
                         } else {
-                            if(world.getDynamicProperty('GmCheat')){
-                                p.sendMessage({ "rawtext" : [ { "translate" : "text.dec:diemode_gmcheat.name" } ] })
+                            if (world.getDynamicProperty('GmCheat')) {
+                                p.sendMessage({ "rawtext": [{ "translate": "text.dec:diemode_gmcheat.name" }] })
                             } else {
-                                p.sendMessage({ "rawtext" : [ { "translate" : "text.dec:diemode_open.name" } ] })
+                                p.sendMessage({ "rawtext": [{ "translate": "text.dec:diemode_open.name" }] })
                                 world.setDynamicProperty('DieMode', true)
                             }
                         }
                     } else {
-                        p.sendMessage({ "rawtext" : [ { "translate" : "text.dec:diemode_not_owner.name" } ] })
+                        p.sendMessage({ "rawtext": [{ "translate": "text.dec:diemode_not_owner.name" }] })
                     }
                 }
             } else {
-                if(world.getDynamicProperty('DieMode')){
-                    p.sendMessage({ "rawtext" : [ { "translate" : "text.dec:diemode_test_open.name" } ] })
+                if (world.getDynamicProperty('DieMode')) {
+                    p.sendMessage({ "rawtext": [{ "translate": "text.dec:diemode_test_open.name" }] })
                     p.runCommandAsync('tellraw @s ')
                 } else {
-                    if(world.getDynamicProperty('AlreadyDie')){
-                        p.sendMessage({ "rawtext" : [ { "translate" : "text.dec:diemode_test_close_cannot_open_die.name" } ] })
+                    if (world.getDynamicProperty('AlreadyDie')) {
+                        p.sendMessage({ "rawtext": [{ "translate": "text.dec:diemode_test_close_cannot_open_die.name" }] })
                     } else {
-                        if(world.getDynamicProperty('GmCheat')){
-                            p.sendMessage({ "rawtext" : [ { "translate" : "text.dec:diemode_test_close_cannot_open_gmc.name" } ] })
+                        if (world.getDynamicProperty('GmCheat')) {
+                            p.sendMessage({ "rawtext": [{ "translate": "text.dec:diemode_test_close_cannot_open_gmc.name" }] })
                         } else {
-                            p.sendMessage({ "rawtext" : [ { "translate" : "text.dec:diemode_test_close.name" } ] })
+                            p.sendMessage({ "rawtext": [{ "translate": "text.dec:diemode_test_close.name" }] })
                         }
                     }
                 }
@@ -161,9 +163,9 @@ export default class DecServer extends ExGameServer {
                     }
                     case "diemode": {
                         if (cmds[1] === "open") {
-                            die_mode_test(sender.entity,true)
+                            die_mode_test(sender.entity, true)
                         } else if (cmds[1] === "test") {
-                            die_mode_test(sender.entity,false)
+                            die_mode_test(sender.entity, false)
                         } else {
                             errMsg = "Invalid command " + cmds[1];
                         }
@@ -319,11 +321,13 @@ export default class DecServer extends ExGameServer {
         });
         this.getEvents().events.beforeExplosion.subscribe(e => {
             if (e.source) {
+                //防爆 i_inviolable计分板控制 和 boss领地默认保护
                 const entity = ExEntity.getInstance(e.source);
                 //防爆 i_inviolable计分板控制
-                if (entity.getScoresManager().getScore(this.i_damp) > 0) {
+                if (entity.getScoresManager().getScore(this.i_damp) > 0 || DecBossBarrier.find(e.source.location)) {
                     const s = e.source.location;
-                    ExGame.run(() => entity.exDimension.spawnParticle("dec:damp_explosion_particle", s));;
+                    const dim = entity.dimension
+                    ExGame.run(() => dim.spawnParticle("dec:damp_explosion_particle", s));;
                     e.cancel = true;
                 }
             }
@@ -457,11 +461,11 @@ export default class DecServer extends ExGameServer {
                 world.gameRules.sendCommandFeedback = false
                 world.gameRules.keepInventory = false
                 world.getDimension('overworld').runCommandAsync('difficulty hard')
-                world.getAllPlayers().forEach(p=>{
-                    if(<boolean>p.getDynamicProperty('AlreadyDie')){
+                world.getAllPlayers().forEach(p => {
+                    if (<boolean>p.getDynamicProperty('AlreadyDie')) {
                         p.setGameMode(GameMode.spectator)
                         ExPlayer.getInstance(p).titleActionBar('{ "rawtext" : [ { "translate" : "text.dec:diemode_spectator.name" } ] }')
-                    } else if(<boolean>p.getDynamicProperty('GmCheat')) {
+                    } else if (<boolean>p.getDynamicProperty('GmCheat')) {
                         p.setGameMode(GameMode.spectator)
                         ExPlayer.getInstance(p).titleActionBar('{ "rawtext" : [ { "translate" : "text.dec:diemode_spectator_gmcheat.name" } ] }')
                     }
@@ -541,7 +545,10 @@ export default class DecServer extends ExGameServer {
         this.addEntityController("dec:king_of_pillager", DecCommonBossLastStage);
         this.addEntityController("dec:abyssal_controller", DecCommonBossLastStage);
         this.addEntityController("dec:predators", DecCommonBossLastStage);
+        this.addEntityController("dec:enchant_illager", DecBossController);
+        this.addEntityController("dec:enchant_illager_1", DecBossController);
         this.addEntityController("dec:enchant_illager_2", DecCommonBossLastStage);
+        this.addEntityController("dec:escaped_soul", DecBossController);
         this.addEntityController("dec:escaped_soul_1", DecEscapeSoulBoss3);
         this.addEntityController("dec:escaped_soul_2", DecEscapeSoulBoss4);
         this.addEntityController("dec:escaped_soul_entity", DecEscapeSoulBoss5);

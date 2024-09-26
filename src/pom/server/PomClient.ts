@@ -1,4 +1,4 @@
-import { Player, world } from "@minecraft/server";
+import { Player, RawMessage, world } from "@minecraft/server";
 import { receiveMessage } from "../../modules/exmc/server/ExGame.js";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import ExGameServer from "../../modules/exmc/server/ExGameServer.js";
@@ -59,8 +59,8 @@ export default class PomClient extends ExGameClient<PomTransmission> {
         this.looper = ExSystem.tickTask(() => {
             this.cache.save();
         });
-        
-        
+
+
 
         this.looper.delay(10 * 20);
         this.looper.start();
@@ -113,10 +113,10 @@ export default class PomClient extends ExGameClient<PomTransmission> {
                 ]
             }
         }
-        if(!this.data.redemptionCode){
+        if (!this.data.redemptionCode) {
             this.data.redemptionCode = {};
         }
-        if (!this.data.uiCustomSetting||!this.data.uiCustomSetting.accuracyCustom) {
+        if (!this.data.uiCustomSetting || !this.data.uiCustomSetting.accuracyCustom) {
             this.data.uiCustomSetting = {
                 topLeftMessageBarStyle: 0,
                 topLeftMessageBarLayer1: 100,
@@ -162,7 +162,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
             scores.setScore("wbldid", this.gameId);
         }
 
-        if(this.data.socialList.acceptList.filter(e => e[0] === this.gameId).length === 0){
+        if (this.data.socialList.acceptList.filter(e => e[0] === this.gameId).length === 0) {
             this.data.socialList.acceptList.push([this.gameId, this.playerName])
         }
         this.territorySystem.updateGlobalList();
@@ -226,8 +226,12 @@ export default class PomClient extends ExGameClient<PomTransmission> {
         return arr;
     }
 
-    sayTo(str: string, p = this.player) {
-        p.sendMessage({"rawtext": [{"text": str}]});
+    sayTo(str: string | RawMessage, p = this.player) {
+        if (typeof str === "string") {
+            p.sendMessage({ "rawtext": [{ "text": str }] });
+        } else {
+            p.sendMessage(str);
+        }
         // p.runCommandAsync(`tellraw @s {"rawtext": [{"text": "${str}"}]}`);
     }
 

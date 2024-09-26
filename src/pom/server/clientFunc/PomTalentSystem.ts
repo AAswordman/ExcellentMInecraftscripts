@@ -24,6 +24,7 @@ import ExGameConfig from '../../../modules/exmc/server/ExGameConfig.js';
 import Random from '../../../modules/exmc/utils/Random.js';
 import { MinecraftBlockTypes } from '../../../modules/vanilla-data/lib/index.js';
 import ExEntityQuery from '../../../modules/exmc/server/env/ExEntityQuery.js';
+import { canSweep } from '../items/isEquipment.js';
 
 export default class PomTalentSystem extends GameController {
     strikeSkill = true;
@@ -224,10 +225,12 @@ export default class PomTalentSystem extends GameController {
 
 
     onJoin(): void {
+        let ignornAttackSend = false;
         ExGame.scriptEventReceive.addMonitor(e => {
-            if ( e.id == "wb:attack_send" && this.attackCooldown > 0) {
+            if (e.sourceEntity == this.player && e.id == "wb:attack_send" && this.attackCooldown > 0 && !ignornAttackSend) {
                 this.setCooldown(this.maxAttackCooldown);
             }
+            if (ignornAttackSend) ignornAttackSend = false;
         });
 
         this.getEvents().exEvents.onLongTick.subscribe(e => {
@@ -258,7 +261,7 @@ export default class PomTalentSystem extends GameController {
             let CLOAD_PIERCING = this.talentRes.get(Talent.CLOAD_PIERCING) ?? 0;
 
             damageFac += MathUtil.clamp(dis, 28, 64) / 64 * CLOAD_PIERCING / 100;
-            if (this.data.talent.occupation.id === Occupation.WARLOCK.id && this.itemOnHandComp?.getComponentWithGroup("equipment_type").data === "magic_weapon" && e.damageSource.cause !== EntityDamageCause.magic) {
+            if (this.data.talent.occupation.id === Occupation.WARLOCK.id && this.itemOnHandComp?.getComponentWithGroup("equipment_type").tagName === "magic_weapon" && e.damageSource.cause !== EntityDamageCause.magic) {
                 let scores = this.exPlayer.getScoresManager();
                 let extraFl = scores.getScore("wbfl") - 100
                 if (extraFl > 0) {
@@ -290,7 +293,12 @@ export default class PomTalentSystem extends GameController {
             let skipPar = false;
             if (this.attackCooldown <= 0) {
                 damageFac += 0.1;
-                if (this.getExDimension().getBlock(this.exPlayer.position.sub(0, 0.4, 0))?.typeId === MinecraftBlockTypes.Air) {
+                if ((canSweep(item?.typeId ?? "") ||
+                    this.itemOnHandComp?.getComponentWithGroup("equipment_type").match("melee_weapon", "sword") ||
+                    this.itemOnHandComp?.getComponentWithGroup("equipment_type").match("melee_weapon", "dagger") ||
+                    this.itemOnHandComp?.getComponentWithGroup("equipment_type").match("melee_weapon", "katana")
+                )
+                    && this.getExDimension().getBlock(this.exPlayer.position.sub(0, 0.4, 0))?.typeId === MinecraftBlockTypes.Air) {
                     skipPar = true;
                     damageFac += 0.1;
                 } else {
@@ -318,7 +326,11 @@ export default class PomTalentSystem extends GameController {
                     "damagingEntity": this.player
                 });
             }
-            if (damage >= targetHealth) {
+            if (damage >= targetHealth && (canSweep(item?.typeId ?? "") ||
+                this.itemOnHandComp?.getComponentWithGroup("equipment_type").match("melee_weapon", "sword") ||
+                this.itemOnHandComp?.getComponentWithGroup("equipment_type").match("melee_weapon", "dagger") ||
+                this.itemOnHandComp?.getComponentWithGroup("equipment_type").match("melee_weapon", "katana")
+            )) {
                 skipPar = false;
                 if (this.attackCooldown <= 0) {
                     this.getDimension().spawnParticle("dec:the_blade_particle", target.position.sub(0, 0.8, 0));
@@ -335,8 +347,9 @@ export default class PomTalentSystem extends GameController {
                         });
                 }
             }
-            if(skipPar) this.getDimension().spawnParticle("dec:iron_sickle_particle", e.hurtEntity.location);
+            if (skipPar) this.getDimension().spawnParticle("dec:iron_sickle_particle", e.hurtEntity.location);
             target.removeHealth(this, damage);
+            ignornAttackSend = true;
             this.setCooldown(10);
         });
 
@@ -608,7 +621,7 @@ export default class PomTalentSystem extends GameController {
                 } else {
                     testBeDamaged = 0;
                     testCauseDamage = 0;
-                    testRoundDamage = 0;
+                    testRoundDamage = 0;56
                     delay = 0;
                 }
             }

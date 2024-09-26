@@ -6,6 +6,9 @@ import { Occupation } from "../cache/TalentData.js";
 
 export class ItemTagComponentGroup<T> {
     constructor(public tagName: string, public data: T) { }
+    match(tagName:string,data: T){
+        return tagName===this.tagName&&data===this.data;
+    }
 }
 const itemTagComponentType = {
     use_data_group: [new ItemTagComponentGroup<string[]>("", [])],
@@ -51,8 +54,7 @@ export default class ItemTagComponent {
                             this.components.set(msg[1], msg[2].split("::").map(e =>
                                 e.includes("_:") ? new ItemTagComponentGroup(e.substring(0, e.indexOf("_:")),
                                     e.substring(e.indexOf("_:") + 2, e.indexOf(":_")))
-                                    : new ItemTagComponentGroup("",
-                                        e)
+                                    : new ItemTagComponentGroup(e, "")
                             ));
                         } else if (typeof use === "string") {
                             this.components.set(msg[1], msg[2].split("::"));
