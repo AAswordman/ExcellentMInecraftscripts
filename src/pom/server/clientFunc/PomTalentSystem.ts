@@ -303,6 +303,7 @@ export default class PomTalentSystem extends GameController {
                     damageFac += 0.1;
                 } else {
                     this.getDimension().spawnParticle("wb:attack_heavy", e.hurtEntity.location);
+
                 }
             } else {
                 damageFac -= 0.4;
@@ -345,9 +346,19 @@ export default class PomTalentSystem extends GameController {
                                 "damagingEntity": this.player
                             });
                         });
+                    this.player.playSound("attack.sword.sweep", {
+                        "pitch": Random.random.randDouble(0.8, 1.2),
+                        "volume": 0.35
+                    });
                 }
             }
-            if (skipPar) this.getDimension().spawnParticle("dec:iron_sickle_particle", e.hurtEntity.location);
+            if (skipPar) {
+                this.player.playSound("attack.sword.heavy_hit", {
+                    "pitch": Random.random.randDouble(0.8, 1.2),
+                    "volume": 0.6
+                });
+                this.getDimension().spawnParticle("dec:iron_sickle_particle", e.hurtEntity.location);
+            }
             target.removeHealth(this, damage);
             ignornAttackSend = true;
             this.setCooldown(10);
@@ -621,7 +632,7 @@ export default class PomTalentSystem extends GameController {
                 } else {
                     testBeDamaged = 0;
                     testCauseDamage = 0;
-                    testRoundDamage = 0;56
+                    testRoundDamage = 0; 56
                     delay = 0;
                 }
             }

@@ -1,5 +1,6 @@
 export default class Random {
     seed: number;
+    static random = new Random();
     static MAX_VALUE = ~(1 << 31);
     static MIN_VALUE = (1 << 31);
     constructor(seed?: number) {
@@ -35,5 +36,8 @@ export default class Random {
             }
             return o[Random.choice(arr)];
         }
+    }
+    randDouble(min:number,max:number){
+        return min + this.nextDouble() * (max - min);
     }
 }
