@@ -1,5 +1,4 @@
 import { world, BlockPermutation, Block, Player, Entity, ItemStack } from '@minecraft/server';
-import { MinecraftBlockTypes } from '@minecraft/vanilla-data';
 import { fileProvider, JSONObject } from '../../filepack/index.js';
 import ExPlayer from '../../modules/exmc/server/entity/ExPlayer.js';
 import Vector3 from '../../modules/exmc/utils/math/Vector3.js';

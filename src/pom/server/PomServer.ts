@@ -432,7 +432,7 @@ export default class PomServer extends ExGameServer {
                 W: MinecraftBlockTypes.Water,
                 Y: "wb:block_magic_equipment",
                 A: MinecraftBlockTypes.Air,
-                S: MinecraftBlockTypes.StoneBlockSlab2,
+                S: MinecraftBlockTypes.SandstoneSlab,
                 C: MinecraftBlockTypes.CobblestoneWall
             });
         //守卫遗迹
@@ -466,7 +466,7 @@ export default class PomServer extends ExGameServer {
                 W: MinecraftBlockTypes.Water,
                 Y: "wb:block_magic_equipment",
                 A: MinecraftBlockTypes.Air,
-                S: MinecraftBlockTypes.StoneBlockSlab2,
+                S: MinecraftBlockTypes.SandstoneSlab,
                 C: MinecraftBlockTypes.Air
             });
 
@@ -495,7 +495,7 @@ export default class PomServer extends ExGameServer {
                 Y: "wb:block_energy_seal",
                 S: MinecraftBlockTypes.CobblestoneWall,
                 A: MinecraftBlockTypes.Air,
-                B: MinecraftBlockTypes.Stonebrick
+                B: MinecraftBlockTypes.StoneBricks
             });
 
         //洞穴遗迹
@@ -754,7 +754,7 @@ export default class PomServer extends ExGameServer {
             entities.forEach(e => {
                 if (!e || !e.typeId || e.typeId !== max[1]) return;
                 if (e.typeId === "minecraft:item" && e.getViewDirection().y !== 0) return;
-                if (e.typeId === "minecraft:item" && e.getComponent("minecraft:item")?.itemStack.typeId === MinecraftItemTypes.ShulkerBox) return;
+                if (e.typeId === "minecraft:item" && e.getComponent("minecraft:item")?.itemStack.typeId.includes("shulker_box")) return;
                 // if (e.typeId === "minecraft:item" && e.getViewDirection().y === 0){
                 //     e.runCommand('tag @s[name="Shulker Box"] add ShulkerBox')
                 //     if (e.hasTag('ShulkerBox')) {
