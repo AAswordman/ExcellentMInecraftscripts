@@ -60,8 +60,13 @@ export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
             });
         }
         client.setTimeout(() => {
-            
+            client.player.playSound("menu.tp.common",{
+                "volume": 1.4
+            });
             client.exPlayer.setPosition(v, typeof dim === "string" ? client.getDimension(dim) : dim);
+            client.player.playSound("menu.tp.common",{
+                "volume": 1.4
+            });
             client.player.camera.setCamera(MinecraftCameraPresetsTypes.Free, {
                 "location": client.exPlayer.position.add(off),
                 "facingLocation": client.exPlayer.position.add(0, 1, 0),
@@ -960,7 +965,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                                 if (/^-?\d+$/.test(award.toString())) {
                                                     client.data.gameExperience += Math.floor(parseInt(award))
                                                 } else {
-                                                    client.exPlayer.command.run(`${award}`)
+                                                    client.exPlayer.command.runAsync(`${award}`)
                                                 }
                                             } else {
                                                 client.sayTo(`该兑换码已经用过了`);

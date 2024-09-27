@@ -106,7 +106,7 @@ export default class PomServer extends ExGameServer {
 
 
     sayTo(str: string) {
-        this.getExDimension(MinecraftDimensionTypes.theEnd).command.run(`tellraw @a {"rawtext": [{"text": "${str}"}]}`);
+        this.getExDimension(MinecraftDimensionTypes.theEnd).command.runAsync(`tellraw @a {"rawtext": [{"text": "${str}"}]}`);
     }
 
     constructor(config: ExConfig) {
@@ -158,7 +158,7 @@ export default class PomServer extends ExGameServer {
                     ex.addEffect(MinecraftEffectTypes.MiningFatigue, 600, 2, true);
                     ex.addEffect(MinecraftEffectTypes.Hunger, 600, 1, true);
                     ex.addEffect(MinecraftEffectTypes.Blindness, 200, 0, true);
-                    ex.command.run("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }");
+                    ex.command.runAsync("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }");
                 });
                 e.cancel = true;
             }
@@ -249,7 +249,7 @@ export default class PomServer extends ExGameServer {
                     ex.addEffect(MinecraftEffectTypes.MiningFatigue, 600, 4, true);
                     // ex.addEffect(MinecraftEffectTypes.Hunger, 600, 1, true);
                     // ex.addEffect(MinecraftEffectTypes.Blindness, 200, 0, true);
-                    ex.command.run("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }");
+                    ex.command.runAsync("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }");
                 });
                 e.cancel = true;
             }

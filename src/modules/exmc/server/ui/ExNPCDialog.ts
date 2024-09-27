@@ -46,7 +46,7 @@ export default class ExNPCDialog {
                 } else {
                     cmd = cmd.replace(/initiator/g, "s");
                     if(cmd.startsWith("/")) cmd = cmd.substring(1);
-                    ExPlayer.getInstance(this.currentPlayer).command.run(cmd);
+                    ExPlayer.getInstance(this.currentPlayer).command.runAsync(cmd);
                 }
             }
         }

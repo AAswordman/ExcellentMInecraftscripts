@@ -152,7 +152,7 @@ export default class PomDimRuinsSystem extends GameController {
     guardRuinBackJudge = this.backJudgeGenerate("wb:god_of_guard_zero", this.client.getServer().ruin_guardBoss);
 
     fogChange = new VarOnChangeListener((v, l) => {
-        this.exPlayer.command.run(`fog @s remove "ruin_fog"`);
+        this.exPlayer.command.runAsync(`fog @s remove "ruin_fog"`);
     }, "");
 
     onJoin(): void {
@@ -316,7 +316,7 @@ export default class PomDimRuinsSystem extends GameController {
                 }
 
                 isInGuardRuin = true;
-                this.exPlayer.command.run(`fog @s push wb:ruin_guard_boss "ruin_fog"`);
+                this.exPlayer.command.runAsync(`fog @s push wb:ruin_guard_boss "ruin_fog"`);
 
             }
 
@@ -330,7 +330,7 @@ export default class PomDimRuinsSystem extends GameController {
                 }
 
                 isInStoneRuin = true;
-                this.exPlayer.command.run(`fog @s push wb:ruin_stone_boss "ruin_fog"`);
+                this.exPlayer.command.runAsync(`fog @s push wb:ruin_stone_boss "ruin_fog"`);
 
             }
 
@@ -341,7 +341,7 @@ export default class PomDimRuinsSystem extends GameController {
 
 
                 isInCaveRuin = true;
-                this.exPlayer.command.run(`fog @s push wb:ruin_cave_boss "ruin_fog"`);
+                this.exPlayer.command.runAsync(`fog @s push wb:ruin_cave_boss "ruin_fog"`);
 
             }
             //处于远古遗迹
@@ -351,7 +351,7 @@ export default class PomDimRuinsSystem extends GameController {
 
 
                 isInAncientRuin = true;
-                this.exPlayer.command.run(`fog @s push wb:ruin_ancient_boss "ruin_fog"`);
+                this.exPlayer.command.runAsync(`fog @s push wb:ruin_ancient_boss "ruin_fog"`);
 
             }
             //处于内心遗迹
@@ -412,6 +412,9 @@ export default class PomDimRuinsSystem extends GameController {
                         .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
                         .find();
                     if (m) {
+                        this.getDimension().playSound("game.portal.active",e.block,{
+                            "volume":1.2
+                        });
                         p.clone().analysis({
                             X: MinecraftBlockTypes.Sandstone,
                             W: "wb:portal_desertboss",
@@ -432,6 +435,9 @@ export default class PomDimRuinsSystem extends GameController {
                             .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
                             .find();
                         if (m) {
+                            this.getDimension().playSound("game.portal.active",e.block,{
+                                "volume":1.2
+                            });
                             p.clone().analysis({
                                 X: MinecraftBlockTypes.Sandstone,
                                 W: "wb:portal_guardboss",
@@ -454,7 +460,13 @@ export default class PomDimRuinsSystem extends GameController {
                     let m = p.setArea(new ExBlockArea(v1, v2, true))
                         .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
                         .find();
+                        console.warn("111")
                     if (m) {
+                        console.warn("222")
+
+                        this.getDimension().playSound("game.portal.active",e.block,{
+                            "volume":1.2
+                        });
                         p.clone().analysis({
                             X: MinecraftBlockTypes.Sandstone,
                             W: "wb:portal_stoneboss",
@@ -473,6 +485,9 @@ export default class PomDimRuinsSystem extends GameController {
                         .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
                         .find();
                     if (m) {
+                        this.getDimension().playSound("game.portal.active",e.block,{
+                            "volume":1.2
+                        });
                         p.clone().analysis({
                             X: MinecraftBlockTypes.DeepslateTiles,
                             W: "wb:portal_caveboss",
@@ -490,6 +505,9 @@ export default class PomDimRuinsSystem extends GameController {
                         .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
                         .find();
                     if (m) {
+                        this.getDimension().playSound("game.portal.active",e.block,{
+                            "volume":1.2
+                        });
                         p.clone().analysis({
                             X: MinecraftBlockTypes.ChiseledDeepslate,
                             W: "wb:portal_ancientboss",
@@ -509,7 +527,9 @@ export default class PomDimRuinsSystem extends GameController {
                         .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
                         .find();
                     if (m) {
-
+                        this.getDimension().playSound("game.portal.active",e.block,{
+                            "volume":1.2
+                        });
                         p.clone().analysis({
                             X: "wb:block_magic_equipment",
                             W: "wb:portal_mindboss",

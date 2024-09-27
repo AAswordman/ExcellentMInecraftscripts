@@ -254,7 +254,7 @@ export default class SimpleItemUseFunc extends GameController {
                         catch (e) { }
                     }
                     if (use_time > 0.5) {
-                        this.exPlayer.command.run("/function EPIC/weapon/sunlight_sword");
+                        this.exPlayer.command.runAsync("/function EPIC/weapon/sunlight_sword");
                         this.player.startItemCooldown("sword", 2 * 20)
                     }
                     this.exPlayer.removeTag("skill_user");
@@ -312,7 +312,7 @@ export default class SimpleItemUseFunc extends GameController {
                     let dam = 2.4 * Math.round(base_atk) + 15
                     this.setTimeout(() => {
                         this.exPlayer.addTag("skill_user");
-                        this.exPlayer.command.run("/function EPIC/weapon/echoing_scream_saber");
+                        this.exPlayer.command.runAsync("/function EPIC/weapon/echoing_scream_saber");
                     }, 0);
                     this.setTimeout(() => {
                         for (let e of this.getExDimension().getEntities({

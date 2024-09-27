@@ -141,7 +141,7 @@ export default class DecBossBarrier implements DisposeAble {
             this.boss.exEntity.setPosition(this.area.center());
         }
 
-        if (this.fog) this.dim.command.run(`fog @a[x=${this.center.x},y=${this.center.y},z=${this.center.z},r=128] push ${this.fog} "ruin_fog"`);
+        if (this.fog) this.dim.command.runAsync(`fog @a[x=${this.center.x},y=${this.center.y},z=${this.center.z},r=128] push ${this.fog} "ruin_fog"`);
 
     }
     stop() {
@@ -149,7 +149,7 @@ export default class DecBossBarrier implements DisposeAble {
         this.dispose();
     }
     clearFog() {
-        this.dim.command.run(`fog @a[x=${this.center.x},y=${this.center.y},z=${this.center.z},r=128] remove "ruin_fog"`);
+        this.dim.command.runAsync(`fog @a[x=${this.center.x},y=${this.center.y},z=${this.center.z},r=128] remove "ruin_fog"`);
     }
     changeFog(name: string) {
         this.fogListener.upDate(name);

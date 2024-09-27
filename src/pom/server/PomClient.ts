@@ -195,7 +195,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
             this.player.nameTag = "§c" + this.player.nameTag;
         }
 
-        this.exPlayer.command.run([
+        this.exPlayer.command.runAsync([
             "execute as @s[tag=!wbyzc] at @s run scoreboard players set @s wbdj 0",
             "execute as @s[tag=!wbyzc] at @s run give @s wb:power 1 0 {\"minecraft:keep_on_death\":{}}",
             "execute as @s[tag=!wbyzc] at @s run scoreboard players set @s wbcsjs -1",

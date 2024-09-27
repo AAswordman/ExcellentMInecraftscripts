@@ -348,14 +348,14 @@ export default class PomTalentSystem extends GameController {
                         });
                     this.player.playSound("attack.sword.sweep", {
                         "pitch": Random.random.randDouble(0.8, 1.2),
-                        "volume": 0.35
+                        "volume": 0.55
                     });
                 }
             }
             if (skipPar) {
                 this.player.playSound("attack.sword.heavy_hit", {
                     "pitch": Random.random.randDouble(0.8, 1.2),
-                    "volume": 0.6
+                    "volume": 0.55
                 });
                 this.getDimension().spawnParticle("dec:iron_sickle_particle", e.hurtEntity.location);
             }
@@ -411,6 +411,16 @@ export default class PomTalentSystem extends GameController {
             }
 
             add += anotherAdd;
+            
+            if (!this.client.magicSystem.healthHeavyHitShower.isStarted() && damage - add > this.client.magicSystem.gameMaxHealth / 2) {
+                this.client.magicSystem.healthHeavyHit = this.calculateHealth;
+                this.client.magicSystem.healthHeavyHitShower.startOnce();
+                this.exPlayer.cameraShake(0.1,0.2,"rotational");
+                this.player.playSound("hurted.heavily.boom",{
+                    "volume": 0.8,
+                    "pitch":Random.random.randDouble(0.8,1.2)
+                })
+            }
 
             this.calculateHealth = this.calculateHealth - damage + add;
             if (this.calculateHealth <= 0) {

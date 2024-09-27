@@ -42,7 +42,7 @@ export default class PomAncientStoneBoss extends PomBossController {
             for (let e of this.barrier.getPlayers()) {
                 const c = this.server.findClientByPlayer(e);
                 c?.setTimeout(() => {
-                    c.exPlayer.command.run(`camera @s clear`);
+                    c.exPlayer.command.runAsync(`camera @s clear`);
                 }, 5200);
             }
         } else {
@@ -59,6 +59,9 @@ export default class PomAncientStoneBoss extends PomBossController {
         if (!this.exEntity.hasComponent("minecraft:is_baby") && this.isFisrtCall) {
             this.server.say({ rawtext: [{ translate: "text.wb:summon_ancient_stone.name" }] });
             this.music.loop();
+            this.entity.dimension.playSound("game.boss.summon",this.entity.location,{
+                "volume":1.0
+            });
         }
         this.getEvents().exEvents.onLongTick.subscribe(e => {
             this.cannonView.upDate(this.exEntity.hasTag("cannon"));
@@ -72,7 +75,7 @@ export default class PomAncientStoneBoss extends PomBossController {
         if (this.exEntity.hasComponent("minecraft:is_baby")) {
             super.onWin();
             this.server.say({ rawtext: [{ translate: "text.wb:defeat_ancient_stone.name" }] });
-            this.exEntity.command.run(`camera @a[r=128] clear`);
+            this.exEntity.command.runAsync(`camera @a[r=128] clear`);
             this.music.stop();
         }
         if (e.damageSource.cause === EntityDamageCause.suicide || e.damageSource.cause === EntityDamageCause.selfDestruct) {
@@ -83,7 +86,7 @@ export default class PomAncientStoneBoss extends PomBossController {
     override onFail(): void {
         this.music.stop();
         let pos = this.entity.location;
-        this.exEntity.command.run(`camera @a[r=128] clear`);
+        this.exEntity.command.runAsync(`camera @a[r=128] clear`);
         super.onFail();
     }
 

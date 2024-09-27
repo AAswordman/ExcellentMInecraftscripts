@@ -47,6 +47,9 @@ export default class PomMagicSystem extends GameController {
     armorCoolingLooper = ExSystem.tickTask(() => {
         if (this.scoresManager.getScore("wbkjlq") > 0) this.scoresManager.removeScore("wbkjlq", 1);
     }).delay(1 * 20);
+    healthHeavyHit = 0;
+    healthHeavyHitShower = ExSystem.tickTask(() => {
+    }).delay(1 * 20);
 
     private _anotherShow: string[] = [];
     private _mapShow = new Map<string, string[]>();
@@ -79,7 +82,7 @@ export default class PomMagicSystem extends GameController {
         wbwqlq: 0,
         wbkjlqcg: 0
     };
-    
+
     dataCacheRefreshDelay = 0;
     lastHealth = 0;
     actionbarShow = ExSystem.tickTask(() => {
@@ -93,6 +96,13 @@ export default class PomMagicSystem extends GameController {
         }
         let grade = this.getNumberFont(MathUtil.clamp(this.data.gameGrade, 0, 99));
         if (grade.length === 1) grade = PomMagicSystem.numberFont[0] + grade;
+        let nowHurtedSignBar = 0;
+        if (this.healthHeavyHitShower.isStarted()) {
+            nowHurtedSignBar = this.healthHeavyHit / this.gameMaxHealth;
+        } else if (this.healthHeavyHit) {
+            this.healthHeavyHit = 0;
+            nowHurtedSignBar = this.gameHealth / this.gameMaxHealth
+        }
 
         let fromData: (string | number | [number] | [string, number] | [number, boolean])[] = [
             this.gameHealth,
@@ -114,8 +124,9 @@ export default class PomMagicSystem extends GameController {
             [this.data.uiCustomSetting.topLeftMessageBarStyle],
             [this.data.uiCustomSetting.accuracyCustom / 100],
             [this.gameHealth / this.gameMaxHealth > 0.3 ? 1 : 0],
-            [this.gameHealth >= this.lastHealth ? 0 : this.gameHealth / this.gameMaxHealth],
-            [this.gameHealth / this.gameMaxHealth]
+            [this.gameHealth >= this.lastHealth ? 0 : this.gameHealth / this.gameMaxHealth,true],
+            [this.gameHealth / this.gameMaxHealth],
+            [nowHurtedSignBar,this.healthHeavyHitShower.isStarted()]
         ];
         this.lastFromData = fromData;
         this.lastHealth = this.gameHealth;
@@ -226,12 +237,14 @@ export default class PomMagicSystem extends GameController {
             healthListener.upDate(e.newValue);
         });
         this.healthSaver.start();
-        let n: number
+        let n: number;
+
+
 
         this.getEvents().exEvents.afterPlayerSpawn.subscribe(e => {
             this.exPlayer.triggerEvent("hp:50000");
             //设置默认游戏血量
-            
+
             //绕开常规逻辑设置血量
             this.isDied = false;
             this.isProtected = true;

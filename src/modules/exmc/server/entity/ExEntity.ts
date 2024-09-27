@@ -113,6 +113,9 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     runCommandAsync(str: string) {
         return this._entity.runCommandAsync(str);
     }
+    runCommand(str: string) {
+        return this._entity.runCommand(str);
+    }
 
     detectAllArmor(head?: string, chest?: string, legs?: string, boots?: string) {
         const bag = this.getBag();
@@ -158,6 +161,7 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
             "rotation": ivec
         });
     }
+
 
     teleport(location: Vector3, teleportOptions?: TeleportOptions) {
         this.entity.teleport(location, teleportOptions);

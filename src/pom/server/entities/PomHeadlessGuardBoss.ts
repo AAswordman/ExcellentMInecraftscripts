@@ -23,6 +23,9 @@ export default class PomHeadlessGuardBoss extends PomBossController {
         if(this.isFisrtCall) {
             this.server.say({ rawtext: [{ translate: "text.wb:summon_headless_guard.name" }] });
             this.music.loop();
+            this.entity.dimension.playSound("game.boss.summon",this.entity.location,{
+                "volume":1.0
+            });
         }
     }
     override onSpawn(): void {

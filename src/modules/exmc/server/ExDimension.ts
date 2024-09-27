@@ -62,7 +62,7 @@ export default class ExDimension implements ExCommandNativeRunner {
     }
     digBlock(vec: IVector3) {
         try {
-            this.command.run(`setBlock ${vec.x} ${vec.y} ${vec.z} air [] destroy`);
+            this.command.runAsync(`setBlock ${vec.x} ${vec.y} ${vec.z} air [] destroy`);
             return true;
         } catch (e) {
             return false;
@@ -88,6 +88,9 @@ export default class ExDimension implements ExCommandNativeRunner {
 
     runCommandAsync(str: string) {
         return this._dimension.runCommandAsync(str);
+    }
+    runCommand(str: string) {
+        return this._dimension.runCommand(str);
     }
     static propertyNameCache = "exCache";
     static getInstance(source: Dimension): ExDimension {

@@ -92,7 +92,7 @@ export default class DecServer extends ExGameServer {
                 this.globalscores.setNumber("NightRandom", 0);
                 this.globalscores.setNumber("IsDay", 1);
                 this.globalscores.setNumber("IsNight", 0);
-                this.getExDimension(MinecraftDimensionTypes.overworld).command.run([
+                this.getExDimension(MinecraftDimensionTypes.overworld).command.runAsync([
                     "fog @a remove \"night_event\""
                 ]);
             }
@@ -152,12 +152,12 @@ export default class DecServer extends ExGameServer {
 
                 switch (cmds[0]) {
                     case "help": {
-                        sender.command.run("function help");
+                        sender.command.runAsync("function help");
                         break;
                     }
                     case "creators": {
                         if (DecGlobal.isDec()) {
-                            sender.command.run("function test/creator_list");
+                            sender.command.runAsync("function test/creator_list");
                         }
                         break;
                     }
@@ -176,14 +176,14 @@ export default class DecServer extends ExGameServer {
                             if (cmds[1] === "display") {
                                 if (e.sender.isOp()) {
                                     if (cmds[2] === "true") {
-                                        cmdRunner.command.run("function magic/display_on");
+                                        cmdRunner.command.runAsync("function magic/display_on");
                                     } else if (cmds[2] === "false") {
-                                        cmdRunner.command.run("function magic/display_off");
+                                        cmdRunner.command.runAsync("function magic/display_off");
                                     } else {
                                         errMsg = "Invalid command " + cmds[2];
                                     }
                                 } else {
-                                    sender.command.run("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:command_fail.name\" } ] }");
+                                    sender.command.runAsync("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:command_fail.name\" } ] }");
                                 }
                             } else {
                                 errMsg = "Invalid command " + cmds[1];
@@ -249,7 +249,7 @@ export default class DecServer extends ExGameServer {
                     }
                 }
                 if (errMsg.length !== 0) {
-                    sender.command.run(`tellraw @s { "rawtext" : [ { "text" : "Command Error: ${errMsg}" } ] }`);
+                    sender.command.runAsync(`tellraw @s { "rawtext" : [ { "text" : "Command Error: ${errMsg}" } ] }`);
                 }
                 e.cancel = true;
             }
@@ -314,7 +314,7 @@ export default class DecServer extends ExGameServer {
                     ep.addEffect(MinecraftEffectTypes.MiningFatigue, 600, 2, true);
                     ep.addEffect(MinecraftEffectTypes.Hunger, 600, 1, true);
                     ep.addEffect(MinecraftEffectTypes.Nausea, 200, 0, true);
-                    entity.command.run("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }");
+                    entity.command.runAsync("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }");
                 });
                 e.cancel = true;
             };
@@ -446,7 +446,7 @@ export default class DecServer extends ExGameServer {
 
         this.getEvents().exEvents.tick.subscribe(e => {
             //诅咒时间减少
-            this.getExDimension(MinecraftDimensionTypes.overworld).command.run([
+            this.getExDimension(MinecraftDimensionTypes.overworld).command.runAsync([
                 "scoreboard players remove @e[scores={i_inviolable=1..}] i_inviolable 1",
                 "scoreboard players remove @e[scores={i_damp=1..}] i_damp 1",
                 "scoreboard players remove @e[scores={i_soft=1..}] i_soft 1",
@@ -493,7 +493,7 @@ export default class DecServer extends ExGameServer {
             }
             let night_event = this.globalscores.getNumber("NightRandom");
             const nightEvent = (fog: string, eventEntity: string, maxSpawn: number) => {
-                this.getExDimension(MinecraftDimensionTypes.overworld).command.run(['fog @a[tag=dOverworld] push ' + fog + ' "night_event"']);
+                this.getExDimension(MinecraftDimensionTypes.overworld).command.runAsync(['fog @a[tag=dOverworld] push ' + fog + ' "night_event"']);
                 let i = 0;
                 for (let p of this.getExDimension(MinecraftDimensionTypes.overworld).getPlayers()) {
                     if (i >= maxSpawn) break;
@@ -590,7 +590,7 @@ export default class DecServer extends ExGameServer {
             states_string = states_string.slice(0, states_string.length - 1)
             states_string += ']'
 
-            this.getExDimension(block.dimension).command.run('setblock ' + (block.location.x) + ' ' + (block.location.y) + ' ' + (block.location.z) + ' ' + block.typeId + ' ' + states_string);
+            this.getExDimension(block.dimension).command.runAsync('setblock ' + (block.location.x) + ' ' + (block.location.y) + ' ' + (block.location.z) + ' ' + block.typeId + ' ' + states_string);
         }
         const trellis_cover_wither_spread = (block: Block) => {
             if (block.typeId == 'dec:trellis_cover' && block.permutation.getAllStates()['dec:crop_type'] != 'empty') {

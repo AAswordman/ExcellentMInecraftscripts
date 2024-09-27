@@ -2,7 +2,7 @@ import { world, MinecraftDimensionTypes } from '@minecraft/server';
 import ExConfig from '../ExConfig.js';
 import GameConsole from '../interface/GameConsole.js';
 
-export default class ExGameConfig {
+export default class ExGameConfig{
     static config: ExConfig;
     static console: GameConsole;
 
@@ -12,5 +12,8 @@ export default class ExGameConfig {
         } catch (e) {
             console.warn("Console error:", e);
         }
+    }
+    static runCommand(str: string) {
+        return world.getDimension(MinecraftDimensionTypes.overworld).runCommand(str);
     }
 }

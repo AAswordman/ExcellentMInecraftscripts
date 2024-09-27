@@ -117,4 +117,12 @@ export default class ExPlayer extends ExEntity {
     override getScoresManager(): ExScoresManager {
         return this.scoresManager;
     }
+
+    cameraShake(inf: number, time: number, mode: "rotational" | "positional") {
+        this.command.run(`camerashake add @s ${inf} ${time} ${mode}`);
+    }
+    stopCameraShake() {
+        this.command.run(`camerashake stop`);
+    }
+
 }

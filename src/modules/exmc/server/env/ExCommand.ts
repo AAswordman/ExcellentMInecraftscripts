@@ -2,13 +2,13 @@ import { CommandResult, Entity } from '@minecraft/server';
 import ExEntity from '../entity/ExEntity.js';
 import format from '../../utils/format.js';
 import UUID from '../../utils/UUID.js';
-import { ExCommandRunner, ExCommandNativeRunner } from '../../interface/ExCommandRunner.js';
+import {ExCommandNativeRunner } from '../../interface/ExCommandRunner.js';
 import ExGameServer from '../ExGameServer.js';
 import TickDelayTask from '../../utils/TickDelayTask.js';
 import ExErrorQueue from '../ExErrorQueue.js';
 import Queue from '../../utils/queue/Queue.js';
 import ExSystem from '../../utils/ExSystem.js';
-export default class ExCommand {
+export default class ExCommand{
     runner: ExCommandNativeRunner;
     static delay: TickDelayTask;
     static queue: Queue<(undefined | [ExCommandNativeRunner, string, ((Entity | ExEntity)[]), (e: CommandResult) => void, (e: any) => void])>;
@@ -16,9 +16,9 @@ export default class ExCommand {
         this.runner = runner;
     }
 
-    run(str: string, ...entities: (Entity | ExEntity)[]): Promise<CommandResult>
-    run(str: string[], ...entities: (Entity | ExEntity)[]): Promise<CommandResult>[]
-    run(str: string | string[], ...entities: (Entity | ExEntity)[]) {
+    runAsync(str: string, ...entities: (Entity | ExEntity)[]): Promise<CommandResult>
+    runAsync(str: string[], ...entities: (Entity | ExEntity)[]): Promise<CommandResult>[]
+    runAsync(str: string | string[], ...entities: (Entity | ExEntity)[]) {
         if (typeof str === "string") {
             const p = new Promise<CommandResult>((resolve, reject) => {
                 ExCommand.queue.push([this.runner, str, entities, resolve, reject]);
@@ -27,7 +27,7 @@ export default class ExCommand {
         } else {
             let arr: Promise<CommandResult>[] = [];
             for (let i of str) {
-                this.run(i, ...entities);
+                this.runAsync(i, ...entities);
             }
             return arr;
         }
@@ -42,7 +42,7 @@ export default class ExCommand {
                 const a = ExCommand.queue.shift();
                 i++;
                 if (a === undefined) continue;
-                ExCommand.run(a[0], a[1], ...a[2]).then(e => {
+                ExCommand.runAsync(a[0], a[1], ...a[2]).then(e => {
                     a[3](e);
                 }).catch(e => {
                     a[4](e);
@@ -52,7 +52,7 @@ export default class ExCommand {
         this.delay.start();
     }
 
-    public static async run(runner: ExCommandNativeRunner, cmd: string, ...entities: (Entity | ExEntity)[]) {
+    public static async runAsync(runner: ExCommandNativeRunner, cmd: string, ...entities: (Entity | ExEntity)[]) {
         const arr: [Entity, string][] = [];
         let p: CommandResult = await runner.runCommandAsync(
             entities.length === 0 ? cmd : (format(cmd, entities.map(e => {
@@ -70,5 +70,14 @@ export default class ExCommand {
             e[0].removeTag(e[1]);
         }
         return p;
+    }
+    public run(str: string | string[]) {
+        if (str instanceof Array) {
+            for (let i of str) {
+                this.run(i);
+            }
+        } else {
+            return this.runner.runCommand(str);
+        }
     }
 }

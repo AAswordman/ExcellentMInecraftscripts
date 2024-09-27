@@ -69,7 +69,7 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
         }
         notUtillTask(this, async () => {
             try {
-                let res = await this.exPlayer.command.run(`testfor @s`);
+                let res = await this.exPlayer.command.runAsync(`testfor @s`);
                 return true;
             } catch (e) {
                 return false;

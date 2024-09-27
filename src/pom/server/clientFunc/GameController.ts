@@ -1,4 +1,4 @@
-import { Dimension, PlayerIterator } from "@minecraft/server";
+import { CommandResult, Dimension, PlayerIterator } from "@minecraft/server";
 import ExGameServer from "../../../modules/exmc/server/ExGameServer.js";
 import SetTimeOutSupport from "../../../modules/exmc/interface/SetTimeOutSupport.js";
 import PomClient from '../PomClient.js';
@@ -33,6 +33,9 @@ export default abstract class GameController implements ExCommandNativeRunner, S
     }
     runCommandAsync(str: string): Promise<any> {
         return ExGameConfig.runCommandAsync(str);
+    }
+    runCommand(str: string): CommandResult {
+        return ExGameConfig.runCommand(str);
     }
     setTimeout(fun: () => void, timeout: number): void {
         this._client.setTimeout(fun, timeout);
