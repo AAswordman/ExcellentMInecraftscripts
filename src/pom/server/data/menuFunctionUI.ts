@@ -132,13 +132,6 @@ export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
                                 "msg": ExGameConfig.config.addonVersion
                             },
                             {
-
-                            },
-                            {
-                                "type": "text",
-                                "msg": "https://aaswordman.github.io/ThePoetryOfWinter/"
-                            },
-                            {
                                 "type": "padding"
                             },
                             {
@@ -150,7 +143,11 @@ export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
                             },
                             {
                                 "type": "text",
-                                "msg": lang.menuUIMsgBanben5
+                                "msg": "bug反馈和意见提交可以访问：https://github.com/AAswordman/ThePoetryOfWinter/issues。二维码如下："
+                            },
+                            {
+                                "type":"img_50x50",
+                                "msg":"textures/pom_ui/github_issue.png"
                             },
                             {
                                 "type": "padding"
