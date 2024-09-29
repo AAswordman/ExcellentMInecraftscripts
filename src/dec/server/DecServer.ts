@@ -308,13 +308,13 @@ export default class DecServer extends ExGameServer {
             if (entity.getScoresManager().getScore(this.i_inviolable) > 1) {
                 let ep = ExPlayer.getInstance(e.player);
                 ExGame.run(() => {
-                    ep.addEffect(MinecraftEffectTypes.Blindness, 200, 0, true);
-                    ep.addEffect(MinecraftEffectTypes.Darkness, 400, 0, true);
-                    ep.addEffect(MinecraftEffectTypes.Wither, 100, 0, true);
+                    // ep.addEffect(MinecraftEffectTypes.Blindness, 200, 0, true);
+                    // ep.addEffect(MinecraftEffectTypes.Darkness, 400, 0, true);
+                    // ep.addEffect(MinecraftEffectTypes.Wither, 100, 0, true);
                     ep.addEffect(MinecraftEffectTypes.MiningFatigue, 600, 2, true);
-                    ep.addEffect(MinecraftEffectTypes.Hunger, 600, 1, true);
-                    ep.addEffect(MinecraftEffectTypes.Nausea, 200, 0, true);
-                    entity.command.runAsync("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }");
+                    // ep.addEffect(MinecraftEffectTypes.Hunger, 600, 1, true);
+                    // ep.addEffect(MinecraftEffectTypes.Nausea, 200, 0, true);
+                    // entity.command.runAsync("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }");
                 });
                 e.cancel = true;
             };

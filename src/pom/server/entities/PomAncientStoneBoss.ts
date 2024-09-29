@@ -59,9 +59,6 @@ export default class PomAncientStoneBoss extends PomBossController {
         if (!this.exEntity.hasComponent("minecraft:is_baby") && this.isFisrtCall) {
             this.server.say({ rawtext: [{ translate: "text.wb:summon_ancient_stone.name" }] });
             this.music.loop();
-            this.entity.dimension.playSound("game.boss.summon",this.entity.location,{
-                "volume":1.0
-            });
         }
         this.getEvents().exEvents.onLongTick.subscribe(e => {
             this.cannonView.upDate(this.exEntity.hasTag("cannon"));

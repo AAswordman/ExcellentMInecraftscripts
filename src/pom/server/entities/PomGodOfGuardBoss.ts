@@ -832,9 +832,6 @@ export class PomGodOfGuardBoss0 extends PomBossController {
         super.initBossEntity();
         if (this.isFisrtCall) {
             this.server.say({ rawtext: [{ translate: "text.wb:summon_god_of_guard.name" }] });
-            this.entity.dimension.playSound("game.boss.summon", this.entity.location, {
-                "volume": 1.0
-            });
         }
     }
     override onSpawn(): void {

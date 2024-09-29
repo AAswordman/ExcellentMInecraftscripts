@@ -80,9 +80,13 @@ export default class PomDimRuinsSystem extends GameController {
                                 "dec:magic_crystal": 1
                             }
                             if (Array.from(Object.keys(useMap)).every(k => (useMap as any)[k] as number <= (itemMap.get(k) ?? 0))) {
-                                this.getExDimension().spawnEntity(id,
+                                let ent = this.getExDimension().spawnEntity(id,
                                     ruin.getBossSpawnArea()!.center()
                                 );
+
+                                ent?.dimension.playSound("game.boss.summon", ent.location, {
+                                    "volume": 2
+                                });
                                 for (let k of Object.keys(useMap)) {
                                     bag.clearItem(k, (useMap as any)[k]);
                                 }
@@ -160,6 +164,9 @@ export default class PomDimRuinsSystem extends GameController {
         const tmpV = new Vector3();
         const tmpA = new Vector3();
         const tmpB = new Vector3();
+
+
+        let warningRuinTimes = 0;
 
         this.getEvents().exEvents.onLongTick.subscribe(event => {
             if (event.currentTick % 4 !== 0) return;
@@ -365,6 +372,7 @@ export default class PomDimRuinsSystem extends GameController {
                 //this.exPlayer.command.run(`fog @s push wb:ruin_mind_1_boss "ruin_fog"`);
 
             }
+
             if (this.causeDamageShow) {
                 let show: string[] = this.client.magicSystem.registActionbarPass("hasCauseDamage");
                 show.push(`玩家死亡: ${this.deathTimes} 次`);
@@ -373,7 +381,20 @@ export default class PomDimRuinsSystem extends GameController {
 
 
             //设置游戏模式
-            this.isInRuinJudge = isInDesertRuin || isInStoneRuin || isInCaveRuin || isInAncientRuin || isInMindRuin || isInGuardRuin;
+            this.isInRuinJudge = isInDesertRuin || isInStoneRuin || isInCaveRuin || isInAncientRuin || isInMindRuin || isInGuardRuin
+            if (this.getDimension().id === MinecraftDimensionTypes.theEnd) {
+                let loc = this.player.location;
+                if ((!this.isInRuinJudge) && (15000 <= loc.x && loc.x <= 20000 && loc.z >= 15000 && loc.z <= 20000)) {
+                    if (warningRuinTimes == 5) {
+                        this.sayTo("§b你已经进入未保护区域，请尽快离开");
+                        warningRuinTimes = 0;
+                    }
+                    warningRuinTimes += 1;
+                } else {
+                    warningRuinTimes = 0;
+                }
+            }
+
             this.fogChange.upDate(`${isInDesertRuin}-${isInStoneRuin}-${isInCaveRuin}-${isInAncientRuin}-${isInMindRuin}-${isInGuardRuin}`);
 
             //let mode = this.exPlayer.getGameMode();
@@ -461,10 +482,7 @@ export default class PomDimRuinsSystem extends GameController {
                         let m = p.setArea(new ExBlockArea(v1, v2, true))
                             .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
                             .find();
-                        console.warn("111")
                         if (m) {
-                            console.warn("222")
-
                             this.getDimension().playSound("game.portal.active", e.block, {
                                 "volume": 1.2
                             });

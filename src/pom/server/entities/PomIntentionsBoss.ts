@@ -15,9 +15,6 @@ export class PomIntentionsBoss1 extends PomBossController {
     override initBossEntity(): void {
         super.initBossEntity();
         if (this.isFisrtCall) {
-            this.entity.dimension.playSound("game.boss.summon",this.entity.location,{
-                "volume":1.0
-            });
             this.server.say({ rawtext: [{ translate: "text.wb:summon_intentions.name" }] });
         }
         this.barrier.changeFog("wb:ruin_mind_1_boss");

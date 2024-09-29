@@ -241,16 +241,16 @@ export default class PomServer extends ExGameServer {
         //遗迹保护
         this.getEvents().events.beforePlayerBreakBlock.subscribe(e => {
             if (e.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && (RuinsLoaction.isInProtectArea(e.block))) {
-                let ex = ExPlayer.getInstance(e.player);
-                ExGame.run(() => {
-                    // ex.addEffect(MinecraftEffectTypes.Nausea, 200, 0, true);
-                    // ex.addEffect(MinecraftEffectTypes.Darkness, 400, 0, true);
-                    // ex.addEffect(MinecraftEffectTypes.Wither, 100, 0, true);
-                    ex.addEffect(MinecraftEffectTypes.MiningFatigue, 600, 4, true);
-                    // ex.addEffect(MinecraftEffectTypes.Hunger, 600, 1, true);
-                    // ex.addEffect(MinecraftEffectTypes.Blindness, 200, 0, true);
-                    ex.command.runAsync("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }");
-                });
+                // let ex = ExPlayer.getInstance(e.player);
+                // ExGame.run(() => {
+                //     // ex.addEffect(MinecraftEffectTypes.Nausea, 200, 0, true);
+                //     // ex.addEffect(MinecraftEffectTypes.Darkness, 400, 0, true);
+                //     // ex.addEffect(MinecraftEffectTypes.Wither, 100, 0, true);
+                //     ex.addEffect(MinecraftEffectTypes.MiningFatigue, 600, 4, true);
+                //     // ex.addEffect(MinecraftEffectTypes.Hunger, 600, 1, true);
+                //     // ex.addEffect(MinecraftEffectTypes.Blindness, 200, 0, true);
+                //     ex.command.runAsync("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }");
+                // });
                 e.cancel = true;
             }
         });
@@ -328,7 +328,7 @@ export default class PomServer extends ExGameServer {
 
             ruin_desert_count += 1;
         }).delay(1);
-        
+
         this.protectTper = ExSystem.tickTask(() => {
             let centersAndExc = [
                 [RuinsLoaction.STONE_RUIN_AREA, RuinsLoaction.STONE_RUIN_PROTECT_AREA],
@@ -342,11 +342,11 @@ export default class PomServer extends ExGameServer {
             centersAndExc.forEach(([a, b]) => {
                 for (let p of pls) {
                     if (b.contains(p.location) && !a.contains(p.location)) {
-                        console.warn(b)
                         p.teleport(a.center());
                     }
                 }
-            })
+            });
+            
         }).delay(20 * 4);
         this.protectTper.start();
 
@@ -495,7 +495,7 @@ export default class PomServer extends ExGameServer {
                 Y: "wb:block_energy_seal",
                 S: MinecraftBlockTypes.CobblestoneWall,
                 A: MinecraftBlockTypes.Air,
-                B: MinecraftBlockTypes.StoneBricks
+                B: MinecraftBlockTypes.ChiseledStoneBricks
             });
 
         //洞穴遗迹
