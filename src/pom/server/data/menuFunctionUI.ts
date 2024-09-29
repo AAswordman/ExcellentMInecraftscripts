@@ -132,8 +132,7 @@ export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
                                 "msg": ExGameConfig.config.addonVersion
                             },
                             {
-                                "type": "text",
-                                "msg": lang.menuUIMsgBanben3
+
                             },
                             {
                                 "type": "text",
