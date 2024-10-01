@@ -111,7 +111,6 @@ export default class DecClient extends ExGameClient {
         });
 
         this.getEvents().exEvents.afterPlayerHurt.subscribe(e => {
-
             //这里写死亡事件
             if (this.exPlayer.health <= 0) {
                 if (this.bossBarrier) this.bossBarrier.notifyDeathAdd();
@@ -379,10 +378,10 @@ export default class DecClient extends ExGameClient {
                 //紫水晶套装效果
                 if (this.useArmor === ArmorPlayerDec.amethyst) {
                     if (DecGlobal.isDec()) {
-                        let mg = scores.getScore("wbfl");
+                        let mg = scores.getScore("magicpoint");
                         if (11 <= mg && mg <= 29) {
                             this.getExDimension().spawnParticle("dec:amethyst_armor_magic_increase_particle", p.location);
-                            scores.addScore("wbfl", 1);
+                            scores.addScore("magicpoint", 1);
                         }
                     } else {
                         let mg = scores.getScore("wbfl");
@@ -415,10 +414,10 @@ export default class DecClient extends ExGameClient {
                 //木叶套装效果
                 if (this.useArmor === ArmorPlayerDec.wood) {
                     if (DecGlobal.isDec()) {
-                        let mg = scores.getScore("wbfl");
+                        let mg = scores.getScore("magicpoint");
                         if (mg <= 15) {
                             this.getExDimension().spawnParticle("dec:wood_armor_magic_increase_particle", p.location);
-                            scores.addScore("wbfl", 5);
+                            scores.addScore("magicpoint", 5);
                         }
                     } else {
                         let mg = scores.getScore("wbfl");

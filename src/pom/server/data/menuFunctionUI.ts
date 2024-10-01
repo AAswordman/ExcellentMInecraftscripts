@@ -60,11 +60,11 @@ export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
             });
         }
         client.setTimeout(() => {
-            client.player.playSound("menu.tp.common",{
+            client.player.playSound("menu.tp.common", {
                 "volume": 1.4
             });
             client.exPlayer.setPosition(v, typeof dim === "string" ? client.getDimension(dim) : dim);
-            client.player.playSound("menu.tp.common",{
+            client.player.playSound("menu.tp.common", {
                 "volume": 1.4
             });
             client.player.camera.setCamera(MinecraftCameraPresetsTypes.Free, {
@@ -146,8 +146,19 @@ export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
                                 "msg": "bug反馈和意见提交可以访问：https://github.com/AAswordman/ThePoetryOfWinter/issues。二维码如下："
                             },
                             {
-                                "type":"img_50x50",
-                                "msg":"textures/pom_ui/github_issue.png"
+                                "type": "img_50x50",
+                                "msg": "textures/pom_ui/github_issue.png"
+                            },
+                            {
+                                "type": "padding"
+                            },
+                            {
+                                "type": "text",
+                                "msg": "你可以在这里找到我们的网页/公告和最新内容，以及我们的团队和开发者：https://github.com/AAswordman/ThePoetryOfWinter。二维码如下："
+                            },
+                            {
+                                "type": "img_50x50",
+                                "msg": "textures/pom_ui/github.png"
                             },
                             {
                                 "type": "padding"
@@ -668,87 +679,52 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                             }
                         ]
 
-                        // if (client.globalSettings.tpPointRecord && !client.ruinsSystem.isInRuinJudge && client.territorySystem.inTerritotyLevel !== 0) {
-                        //     for (let j = 0; j < client.data.pointRecord.point.length; j++) {
-                        //         const i = client.data.pointRecord.point[j];
-                        //         const v = new Vector3(i[2]);
-                        //         arr.push(
-                        //             {
-                        //                 "type": "textWithBg",
-                        //                 "msg": lang.menuUIMsgBailan34 + (i[0] + v.toString()) + "\n" + i[1]
-                        //             },
-                        //             {
-                        //                 "type": "buttonList3",
-                        //                 "msgs": [
-                        //                     lang.menuUIMsgBailan35,
-                        //                     lang.menuUIMsgBailan38,
-                        //                     lang.menuUIMsgBailan40
-                        //                 ],
-                        //                 "buttons": [(client, ui) => {
-                        //                     let bag = client.exPlayer.getBag();
-                        //                     if (!bag.hasItem("wb:conveyor_issue") && client.globalSettings.tpNeedItem) {
-                        //                         client.sayTo(lang.menuUIMsgBailan36);
-                        //                         return false;
-                        //                     }
-                        //                     if (client.globalSettings.tpNeedItem) {
-                        //                         bag.clearItem("wb:conveyor_issue", 1);
-                        //                     }
-                        //                     client.exPlayer.setPosition(v, client.getDimension(i[0]));
-                        //                     client.sayTo(lang.menuUIMsgBailan37);
-                        //                     return false;
-                        //                 },
-                        //                 (client, ui) => {
-                        //                     new ModalFormData().textField(lang.menuUIMsgBailan39, (i[0] + v.toString()))
-                        //                         .show(client.player)
-                        //                         .then(e => {
-                        //                             if (e.canceled) return;
-                        //                             i[1] = String(e?.formValues?.[0] || "");
-                        //                         }).catch(e => {
-                        //                             ExErrorQueue.throwError(e);
-                        //                         })
-                        //                     return false;
-                        //                 },
-                        //                 (client, ui) => {
-                        //                     new ExMessageAlert().title("确认")
-                        //                         .body(`是否删除传送点 ${client.data.pointRecord.point[j].map(e => e.toString()).join(" / ")}`)
-                        //                         .button1(lang.menuUIMsgBailan15, () => {
-                        //                             client.data.pointRecord.point.splice(j, 1);
-                        //                         })
-                        //                         .button2(lang.menuUIMsgBailan16, () => {
-                        //                         })
-                        //                         .show(client.player);
-                        //                     return false;
-                        //                 }
-                        //                 ]
-                        //             },
+                        if (client.globalSettings.deathBackRcord && !client.ruinsSystem.isInRuinJudge && client.territorySystem.inTerritotyLevel !== 0) {
+                            for (let j = 0; j < client.data.pointRecord.point.length; j++) {
+                                const i = client.data.pointRecord.deathPoint[j];
+                                const v = new Vector3(i[1]);
+                                arr.push(
+                                    {
+                                        "type": "textWithBg",
+                                        "msg": lang.menuUIMsgBailan34 + (i[0] + v.toString()) + "\n" + i[1]
+                                    },
+                                    {
+                                        "type": "button",
+                                        "msg": lang.menuUIMsgBailan35,
+                                        "function": (client:PomClient, ui: MenuUIAlert<PomClient>) => {
+                                            let bag = client.exPlayer.getBag();
+                                            if (!bag.hasItem("wb:conveyor_issue") && client.globalSettings.tpNeedItem) {
+                                                client.sayTo(lang.menuUIMsgBailan36);
+                                                return false;
+                                            }
+                                            if (client.globalSettings.tpNeedItem) {
+                                                bag.clearItem("wb:conveyor_issue", 1);
+                                            }
+                                            client.exPlayer.setPosition(v, client.getDimension(i[0]));
+                                            client.sayTo(lang.menuUIMsgBailan37);
+                                            return false;
+                                        }
+                                    },
 
-                        //             {
-                        //                 "type": "padding"
-                        //             }
-                        //         );
-                        //     }
-                        //     arr.push({
-                        //         "msg": lang.menuUIMsgBailan41 + client.exPlayer.position.floor().toString(),
-                        //         "type": "button",
-                        //         "function": (client, ui) => {
-                        //             if ((client.data.pointRecord.point.length ?? 0) <= 10) {
-                        //                 client.data.pointRecord.point.push([client.exPlayer.dimension.id, "", client.exPlayer.position.floor()]);
-                        //                 return true;
-                        //             } else {
-                        //                 client.sayTo("§b传送点不得超过10个");
-                        //                 return false;
-                        //             }
-                        //         }
-                        //     });
-
-                        // } else {
-                        //     arr.push(
-                        //         {
-                        //             "type": "text",
-                        //             "msg": "禁止记录死亡点"
-                        //         }
-                        //     )
-                        // }
+                                    {
+                                        "type": "padding"
+                                    }
+                                );
+                            }
+                            arr.push(
+                                {
+                                    "type": "text",
+                                    "msg": "tips:回溯点最多只能有5个"
+                                }
+                            )
+                        } else {
+                            arr.push(
+                                {
+                                    "type": "text",
+                                    "msg": "禁止记录死亡点"
+                                }
+                            )
+                        }
                         return arr;
                     }
                 },

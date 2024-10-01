@@ -3,6 +3,7 @@ import { fileProvider, JSONObject } from '../../filepack/index.js';
 import ExPlayer from '../../modules/exmc/server/entity/ExPlayer.js';
 import Vector3 from '../../modules/exmc/utils/math/Vector3.js';
 import ExEntity from '../../modules/exmc/server/entity/ExEntity.js';
+import { idBlockMap, idItemMap, idEntityMap } from '../common/idMap.js';
 
 
 const ex = (name: string) => "ex:" + name;
@@ -37,7 +38,7 @@ const diggerCompName = "digger";
 
 type foodCompType = {
     "on_consume": CompTriggerCommon;
-    "using_converts_to":string;
+    "using_converts_to": string;
 }
 const foodCompName = "food";
 
@@ -178,7 +179,7 @@ type EventUser = {
     }
     shoot?: {
         projectile: string;
-        launch_power: number;
+        launch_power?: number;
     }
 
 }
@@ -281,8 +282,16 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
             option.triggerEntity.dimension.playSound(eventUser.play_sound.sound, pos);
         }
         if (eventUser.shoot) {
+            console.warn((eventUser.shoot.launch_power ?? 1) *
+                ((idEntityMap.get(eventUser.shoot.projectile) as any)?.["minecraft:entity"]?.["components"]?.['minecraft:projectile']?.['power']
+                    ?? 1))
+            let proj = (idEntityMap.get(eventUser.shoot.projectile) as any)?.["minecraft:entity"]?.["components"]?.['minecraft:projectile'];
+            let power = proj?.['power']
+            let uncertaintyBase = proj?.['uncertaintyBase']
             ExEntity.getInstance(option.triggerEntity).shootProj(eventUser.shoot.projectile, {
-                "speed": eventUser.shoot.launch_power
+                "speed": (eventUser.shoot.launch_power ?? 1) *
+                    (power ?? 1),
+                "uncertainty": uncertaintyBase ?? 0
             });
         }
         if (eventUser.damage) {
@@ -331,8 +340,7 @@ function handleRandomizeEventUser(eventUser: RandomizeEventUser, option: Trigger
     handleEventUser(eventUser[index], option);
 }
 
-const idBlockMap = new Map<string, JSONObject>();
-const idItemMap = new Map<string, JSONObject>();
+
 
 export default () => {
     for (let fpath of fileProvider.listAll("ex_items")) {
@@ -342,6 +350,14 @@ export default () => {
     for (let fpath of fileProvider.listAll("ex_blocks")) {
         let f = fileProvider.get(fpath)!;
         idBlockMap.set(((f["minecraft:block"] as JSONObject).description as JSONObject).identifier as string, f);
+    }
+    for (let fpath of fileProvider.listAll("entities")) {
+        let f = fileProvider.get(fpath)!;
+        if (f) {
+            idEntityMap.set(((f["minecraft:entity"] as JSONObject).description as JSONObject).identifier as string, f);
+        } else {
+            console.warn(fpath);
+        }
     }
     world.beforeEvents.worldInitialize.subscribe(initEvent => {
         initEvent.blockComponentRegistry.registerCustomComponent(ex(onStepOnCompName), {
@@ -481,7 +497,7 @@ export default () => {
             if (triggerComp) {
                 emitEvent(triggerComp.on_consume.event, option);
             }
-            if(triggerComp?.using_converts_to){
+            if (triggerComp?.using_converts_to) {
                 ExPlayer.getInstance(e.source).getBag().itemOnMainHand = new ItemStack(triggerComp.using_converts_to);
             }
         }

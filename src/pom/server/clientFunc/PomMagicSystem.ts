@@ -8,6 +8,8 @@ import { MinecraftEffectTypes } from '../../../modules/vanilla-data/lib/index.js
 import ExGame from '../../../modules/exmc/server/ExGame.js';
 import ExGameConfig from '../../../modules/exmc/server/ExGameConfig.js';
 import { zeroIfNaN } from '../../../modules/exmc/utils/tool.js';
+import { fileProvider, JSONObject } from '../../../filepack/index.js';
+import { idItemMap } from '../../common/idMap.js';
 
 
 
@@ -103,13 +105,27 @@ export default class PomMagicSystem extends GameController {
             this.healthHeavyHit = 0;
             nowHurtedSignBar = this.gameHealth / this.gameMaxHealth
         }
+        let wbCoonling = this.dataCache.wbwqlq / 20;
+        if (wbCoonling == 0) {
+            let data = idItemMap.get(this.exPlayer.getBag().itemOnMainHand?.typeId ?? "") as undefined | JSONObject;
+            if (data) {
+                let cooldown = (data as any)["minecraft:item"]?.["components"]?.['minecraft:cooldown'] as undefined | JSONObject;
+                if (cooldown) {
+                    let category = cooldown["category"];
+                    let maxColddown = cooldown["duration"];
+                    if (category && maxColddown) {
+                        wbCoonling = this.player.getItemCooldown(category as string) / ((maxColddown as number) * 20);
+                    }
+                }
+            }
+        }
 
         let fromData: (string | number | [number] | [string, number] | [number, boolean])[] = [
             this.gameHealth,
             [this.gameHealth / this.gameMaxHealth, this.gameHealth < this.lastHealth],
             [this.dataCache.wbfl / this.wbflMax],
             this.dataCache.wbfl,
-            [this.dataCache.wbwqlq / 20],
+            [wbCoonling],
             [this.dataCache.wbkjlqcg / 20],
             [this.damageAbsorbed / this.gameMaxHealth + this.magicReduce / this.gameMaxHealth],
             this.data.gameGrade,
@@ -124,9 +140,9 @@ export default class PomMagicSystem extends GameController {
             [this.data.uiCustomSetting.topLeftMessageBarStyle],
             [this.data.uiCustomSetting.accuracyCustom / 100],
             [this.gameHealth / this.gameMaxHealth > 0.3 ? 1 : 0],
-            [this.gameHealth >= this.lastHealth ? 0 : this.gameHealth / this.gameMaxHealth,true],
+            [this.gameHealth >= this.lastHealth ? 0 : this.gameHealth / this.gameMaxHealth, true],
             [this.gameHealth / this.gameMaxHealth],
-            [nowHurtedSignBar,this.healthHeavyHitShower.isStarted()]
+            [nowHurtedSignBar, this.healthHeavyHitShower.isStarted()]
         ];
         this.lastFromData = fromData;
         this.lastHealth = this.gameHealth;
@@ -262,6 +278,8 @@ export default class PomMagicSystem extends GameController {
                 this.gameHealth = this.gameMaxHealth;
             }
         });
+
+        
 
 
         this.magicReduce = this.player.getDynamicProperty("magicReduce") as number ?? 0;

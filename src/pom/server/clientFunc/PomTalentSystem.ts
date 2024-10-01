@@ -337,7 +337,9 @@ export default class PomTalentSystem extends GameController {
                     this.getDimension().spawnParticle("dec:the_blade_particle", target.position.sub(0, 0.8, 0));
                     new ExEntityQuery(this.getDimension())
                         .at(this.exPlayer.position)
-                        .querySector(5, 2, this.exPlayer.viewDirection, 45)
+                        .querySector(5, 2, this.exPlayer.viewDirection, 45,0,{
+                            excludeTypes:["minecraft:item"]
+                        })
                         .except(this.player)
                         .except(target.entity)
                         .forEach(en => {
