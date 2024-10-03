@@ -108,6 +108,10 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
         }
     }
 
+    getScreen(){
+        return this.player.onScreenDisplay;
+    }
+
     setInterworkingPool(pool: T) {
         this._pool = pool;
         this._poolCache = {};
@@ -192,7 +196,7 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
         };
         this.getEvents().exEvents.tick.subscribe(method);
     }
-    stop(timeout: number) {
+    sleep(timeout: number) {
         return new Promise<void>((resolve, reject) => {
             setTimeout(() => {
                 resolve();

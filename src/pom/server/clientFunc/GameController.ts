@@ -40,8 +40,8 @@ export default abstract class GameController implements ExCommandNativeRunner, S
     setTimeout(fun: () => void, timeout: number): void {
         this._client.setTimeout(fun, timeout);
     }
-    stop(timeout: number) {
-        return this._client.stop(timeout);
+    sleep(timeout: number) {
+        return this._client.sleep(timeout);
     }
     getDimension(type: string | undefined = undefined) {
         return this._client.getDimension(type);

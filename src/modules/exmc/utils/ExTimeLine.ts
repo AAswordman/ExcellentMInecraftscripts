@@ -3,9 +3,9 @@ import ExSystem from "./ExSystem.js";
 import TickDelayTask from "./TickDelayTask.js";
 
 export default class ExTimeLine implements DisposeAble {
-    timer: TickDelayTask;
-    arr: [number, (line:ExTimeLine) => void][] = [];
-    startTime?: number;
+    protected timer: TickDelayTask;
+    protected arr: [number, (line:ExTimeLine) => void][] = [];
+    protected startTime?: number;
     constructor(tasks: ExTimeLineTask) {
         for (let k in tasks) {
             this.arr.push([parseFloat(k), tasks[k]])
@@ -24,7 +24,7 @@ export default class ExTimeLine implements DisposeAble {
             });
         }).delay(1);
     }
-    tickMap: Map<string, [number,(nowTime:number,pastTime:number) => void]> = new Map();
+    protected tickMap: Map<string, [number,(nowTime:number,pastTime:number) => void]> = new Map();
     registerTick(path: string, task: (nowTime:number,pastTime:number) => void) {
         this.tickMap.set(path,[this.getTime(),task]);
     }
@@ -45,8 +45,6 @@ export default class ExTimeLine implements DisposeAble {
     stop() {
         this.timer.stop();
     }
-
-
 }
 export interface ExTimeLineTask {
     [key: string]: (line:ExTimeLine) => void;

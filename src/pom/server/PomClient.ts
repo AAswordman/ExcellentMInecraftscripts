@@ -1,4 +1,4 @@
-import { Player, RawMessage, world } from "@minecraft/server";
+import { HudElement, Player, RawMessage, world } from "@minecraft/server";
 import { receiveMessage } from "../../modules/exmc/server/ExGame.js";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import ExGameServer from "../../modules/exmc/server/ExGameServer.js";
@@ -136,7 +136,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
             eventDecoratorFactory(this.getEvents(), controller);
             controller.onJoin();
         });
-        // this.net = new NeuralNetwork<{a:number,b:number},{c:number}>();
+        
     }
 
     override onJoin(): void {

@@ -457,6 +457,10 @@ export default class PomTalentSystem extends GameController {
                         });
                     }
                     this.client.magicSystem.isDied = true;
+                    this.data.pointRecord.deathPoint.push([this.getDimension().id, this.exPlayer.position.round()]);
+                    if(this.data.pointRecord.deathPoint.length > 5){
+                        this.data.pointRecord.deathPoint.shift();
+                    }
                 });
                 return;
             }

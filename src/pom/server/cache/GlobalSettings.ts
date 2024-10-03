@@ -56,11 +56,11 @@ export default class GlobalSettings extends GlobalScoreBoardCache {
     public set deathRecord(value: boolean) {
         this.setBoolean("deathRecord", value);
     }
-    public get deathBackRcord() {
-        return this.getBoolean("deathBackRcord");
+    public get deathBackRecord() {
+        return this.getBoolean("deathBackRecord");
     }
-    public set deathBackRcord(value: boolean) {
-        this.setBoolean("deathBackRcord", value);
+    public set deathBackRecord(value: boolean) {
+        this.setBoolean("deathBackRecord", value);
     }
     public get tpPointRecord() {
         return this.getBoolean("tpPointRecord");

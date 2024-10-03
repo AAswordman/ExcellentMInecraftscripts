@@ -4,6 +4,9 @@ import ExPlayer from '../../modules/exmc/server/entity/ExPlayer.js';
 import Vector3 from '../../modules/exmc/utils/math/Vector3.js';
 import ExEntity from '../../modules/exmc/server/entity/ExEntity.js';
 import { idBlockMap, idItemMap, idEntityMap } from '../common/idMap.js';
+import TickDelayTask from '../../modules/exmc/utils/TickDelayTask.js';
+import ExGame from '../../modules/exmc/server/ExGame.js';
+import ExSystem from '../../modules/exmc/utils/ExSystem.js';
 
 
 const ex = (name: string) => "ex:" + name;
@@ -79,8 +82,8 @@ const onPlayerPlacingCompName = "on_player_placing"
 type onPlayerDestroyedCompType = onStepOnCompType;
 const onPlayerDestroyedCompName = "on_player_destroyed"
 
-function molangCalculate(molang: string, option: TriggerOption) {
-    molang = molang.replace(/q\./g, "query.");
+function molangCalculate(molang: string | number, option: TriggerOption) {
+    molang = (molang + "").replace(/q\./g, "query.");
     const query = {
         "block_state": (name: string) => {
             return option.triggerBlock?.permutation.getState(name);
@@ -245,7 +248,7 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
         if (eventUser.set_block_state) {
             let per = option.triggerBlock.permutation;
             for (let i in eventUser.set_block_state) {
-                per = per.withState(i, molangCalculate(eventUser.set_block_state[i], option));
+                per = per.withState(i, molangCalculate((eventUser.set_block_state[i]), option));
             }
             option.triggerBlock.setPermutation(per);
         }
@@ -269,7 +272,6 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
         let pos = new Vector3(option.triggerEntity.location);
         // let posStr = pos.toArray().join(" ")
         if (eventUser.run_command) {
-
             for (let cmd of eventUser.run_command.command) {
                 if (eventUser.run_command.target == "other" && option.hurtedEntity) {
                     option.hurtedEntity.runCommand(`${cmd}`);
@@ -281,10 +283,8 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
         if (eventUser.play_sound) {
             option.triggerEntity.dimension.playSound(eventUser.play_sound.sound, pos);
         }
+
         if (eventUser.shoot) {
-            console.warn((eventUser.shoot.launch_power ?? 1) *
-                ((idEntityMap.get(eventUser.shoot.projectile) as any)?.["minecraft:entity"]?.["components"]?.['minecraft:projectile']?.['power']
-                    ?? 1))
             let proj = (idEntityMap.get(eventUser.shoot.projectile) as any)?.["minecraft:entity"]?.["components"]?.['minecraft:projectile'];
             let power = proj?.['power']
             let uncertaintyBase = proj?.['uncertaintyBase']
@@ -295,9 +295,12 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
             });
         }
         if (eventUser.damage) {
+
             let damageComp = option.triggerItem.getComponent("durability");
-            if (damageComp) damageComp.damage += eventUser.damage.amount;
-            ExEntity.getInstance(option.triggerEntity).getBag().itemOnMainHand;
+            if (damageComp) {
+                damageComp.damage += eventUser.damage.amount;
+            }
+            ExEntity.getInstance(option.triggerEntity).getBag().itemOnMainHand = option.triggerItem;
         }
         if (eventUser.add_mob_effect) {
             if (eventUser.add_mob_effect.target == "other" && option.hurtedEntity) {
@@ -427,28 +430,55 @@ export default () => {
             }
         });
     });
-    world.afterEvents.itemUse.subscribe(e => {
+
+    let useMap = new WeakMap<Player, TickDelayTask>();
+
+    world.afterEvents.itemStopUse.subscribe(e => {
+        if (useMap.has(e.source)) {
+            useMap.get(e.source)!.stop();
+            useMap.delete(e.source);
+        }
+    });
+    world.afterEvents.entityDie.subscribe(e => {
+        if (e.deadEntity instanceof Player) {
+            useMap.get(e.deadEntity)?.stop();
+            useMap.delete(e.deadEntity);
+        }
+    });
+    world.afterEvents.itemStartUse.subscribe(e => {
+        const player = e.source;
+        const item = e.itemStack;
         if (e) {
-            let flag = false;
-            let cooling = findTriggerComp({ triggerItem: e.itemStack, triggerEntity: e.source, triggerType: "cooldown" }) as JSONObject | undefined;
-            if (cooling) {
-                let cate = cooling.category as string;
-                let duration = cooling.duration as number;
-                if (duration * 20 - 1 == e.source.getItemCooldown(cate)) {
-                    flag = true;
-                }
-            } else {
-                flag = true;
-            }
-            if (flag) {
-                let option = { triggerItem: e.itemStack, triggerEntity: e.source, triggerType: onUseCompName }
+            let tryUse = (category?: string, cooldown?: number) => {
+                let option = { triggerItem: item, triggerEntity: player, triggerType: onUseCompName }
                 const triggerComp = findTriggerComp(option) as onUseCompType | undefined;
                 if (triggerComp) {
                     emitEvent(triggerComp.on_use.event, option);
                 }
+                if (category && cooldown) {
+                    player.startItemCooldown(category, cooldown);
+                }
+            }
+            let cooling = findTriggerComp({ triggerItem: e.itemStack, triggerEntity: e.source, triggerType: "cooldown" }) as JSONObject | undefined;
+            if (cooling) {
+                let cate = cooling.category as string;
+                let duration = cooling.duration as number;
+                if (duration * 20 - 1 == player.getItemCooldown(cate)) {
+                    tryUse();
+                    useMap.set(player, ExSystem.tickTask(() => {
+                        useMap.get(player)?.startOnce();
+                        tryUse(cate, Math.floor(duration * 20));
+                    }).delay(Math.ceil(duration * 20)).startOnce());
+                }
+            } else {
+                tryUse();
+                useMap.set(player, ExSystem.tickTask(() => {
+                    tryUse();
+                }).delay(1).start());
             }
         }
     });
+
     world.afterEvents.entityHitEntity.subscribe(e => {
         if (!(e.damagingEntity instanceof Player)) return;
         let item = ExPlayer.getInstance(e.damagingEntity).getBag().itemOnMainHand;
@@ -501,6 +531,5 @@ export default () => {
                 ExPlayer.getInstance(e.source).getBag().itemOnMainHand = new ItemStack(triggerComp.using_converts_to);
             }
         }
-
     });
 }

@@ -43,8 +43,6 @@ export default class PomDimRuinsSystem extends GameController {
             this.deathTimesListener = (e: EntityHurtAfterEvent) => {
                 if (this.exPlayer.health <= 0) {
                     this.barrier?.notifyDeathAdd();
-
-                    this.data.pointRecord.deathPoint.push([this.getDimension().id, this.exPlayer.position])
                 }
             }
             this.getEvents().exEvents.afterPlayerHurt.subscribe(this.deathTimesListener);
@@ -566,12 +564,11 @@ export default class PomDimRuinsSystem extends GameController {
 
             }
         });
-
     }
 
 
     onLoad(): void {
-
+        
     }
 
     onLeave(): void {

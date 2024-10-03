@@ -80,7 +80,7 @@ export default class PomMagicSystem extends GameController {
     private lastFromData?: (string | number | [number] | [string, number] | [number, boolean])[];
 
     dataCache = {
-        wbfl: 200,
+        wbfl: 120,
         wbwqlq: 0,
         wbkjlqcg: 0
     };

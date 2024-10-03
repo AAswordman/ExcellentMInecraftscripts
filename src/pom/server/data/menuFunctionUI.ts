@@ -1,7 +1,7 @@
 import PomClient from "../PomClient.js";
 import MenuUIAlert, { MenuUIAlertView, MenuUIJson } from '../ui/MenuUIAlert.js';
 import ExMessageAlert from "../../../modules/exmc/server/ui/ExMessageAlert.js";
-import { Dimension, EasingType, ItemStack, world } from '@minecraft/server';
+import { Dimension, EasingType, HudElement, ItemStack, world } from '@minecraft/server';
 import TalentData, { Occupation, Talent } from "../cache/TalentData.js";
 import PomServer from '../PomServer.js';
 import { ModalFormData } from "@minecraft/server-ui";
@@ -33,50 +33,54 @@ import WorldCache from "../../../modules/exmc/server/storage/cache/WorldCache.js
 import ExEntity from "../../../modules/exmc/server/entity/ExEntity.js";
 import { MinecraftCameraPresetsTypes } from "../../../modules/vanilla-data/lib/index.js";
 import { MinecraftEffectTypes } from "../../../modules/vanilla-data/lib/index.js";
+import ExTimeLine from "../../../modules/exmc/utils/ExTimeLine.js";
 // import { http } from '@minecraft/server-net';
 
 export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
     function tpPlayer(client: PomClient, v: Vector3, dim: string | Dimension) {
         const off = new Vector3().add(0, 5, 0).add(client.exPlayer.viewDirection.scl(-5));
-        client.player.addEffect(MinecraftEffectTypes.Resistance, 20 * 6, {
-            "amplifier": 3
-        });
-        client.player.camera.setCamera(MinecraftCameraPresetsTypes.Free, {
-            "location": client.exPlayer.position.add(off),
-            "facingLocation": client.exPlayer.position.add(0, 1, 0),
-            "easeOptions": {
-                "easeType": EasingType.InOutSine,
-                "easeTime": 1
-            }
-        });
-        if (v.distance(client.player.location) > 16 * 10) {
-            client.player.camera.fade({
-                "fadeColor": ColorRGBA.BLACK.toGameRGBA(),
-                "fadeTime": {
-                    "fadeInTime": 1,
-                    "fadeOutTime": 1,
-                    "holdTime": 3
+        new ExTimeLine({
+            "0.0": () => {
+                client.player.addEffect(MinecraftEffectTypes.Resistance, 20 * 6, {
+                    "amplifier": 3
+                });
+                client.player.camera.setCamera(MinecraftCameraPresetsTypes.Free, {
+                    "location": client.exPlayer.position.add(off),
+                    "facingLocation": client.exPlayer.position.add(0, 1, 0),
+                    "easeOptions": {
+                        "easeType": EasingType.InOutSine,
+                        "easeTime": 1
+                    }
+                });
+                if (v.distance(client.player.location) > 16 * 10) {
+                    client.player.camera.fade({
+                        "fadeColor": ColorRGBA.BLACK.toGameRGBA(),
+                        "fadeTime": {
+                            "fadeInTime": 1,
+                            "fadeOutTime": 1,
+                            "holdTime": 3
+                        }
+                    });
                 }
-            });
-        }
-        client.setTimeout(() => {
-            client.player.playSound("menu.tp.common", {
-                "volume": 1.4
-            });
-            client.exPlayer.setPosition(v, typeof dim === "string" ? client.getDimension(dim) : dim);
-            client.player.playSound("menu.tp.common", {
-                "volume": 1.4
-            });
-            client.player.camera.setCamera(MinecraftCameraPresetsTypes.Free, {
-                "location": client.exPlayer.position.add(off),
-                "facingLocation": client.exPlayer.position.add(0, 1, 0),
-                "easeOptions": {
-                    "easeType": EasingType.InOutSine,
-                    "easeTime": 3
-                }
-            });
-
-            client.setTimeout(() => {
+            },
+            "1.0": () => {
+                client.player.playSound("menu.tp.common", {
+                    "volume": 1.4
+                });
+                client.exPlayer.setPosition(v, typeof dim === "string" ? client.getDimension(dim) : dim);
+                client.player.playSound("menu.tp.common", {
+                    "volume": 1.4
+                });
+                client.player.camera.setCamera(MinecraftCameraPresetsTypes.Free, {
+                    "location": client.exPlayer.position.add(off),
+                    "facingLocation": client.exPlayer.position.add(0, 1, 0),
+                    "easeOptions": {
+                        "easeType": EasingType.InOutSine,
+                        "easeTime": 3
+                    }
+                });
+            },
+            "4.0": () => {
                 client.player.camera.setCamera(MinecraftCameraPresetsTypes.Free, {
                     "easeOptions": {
                         "easeType": EasingType.InCirc,
@@ -85,13 +89,12 @@ export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
                     "facingLocation": client.exPlayer.viewDirection.add(client.exPlayer.position.add(0, 1.2, 0)),
                     "location": client.exPlayer.position.add(0, 1.2, 0)
                 });
-                client.setTimeout(() => {
-                    client.sayTo(lang.menuUIMsgBailan37);
-                    client.player.camera.clear();
-
-                }, 2 * 1000);
-            }, 3 * 1000);
-        }, 1 * 1000);
+            },
+            "6.0": () => {
+                client.sayTo(lang.menuUIMsgBailan37);
+                client.player.camera.clear();
+            }
+        }).start();
     }
     return {
         "main": {
@@ -221,9 +224,12 @@ ALiFang ZHE - 提供部分模型、贴图
 幻想贝壳 - 提供方块贴图、建筑
 驼贰 - 部分配乐
 基岩 - 灰烬塔建筑、建议
+吃色可餐 - 部分贴图
+ander - 部分贴图
 
 Our Team
 无上蓝痕(BlueMark Studio)
+冬之纪行诗诗开发组(DEC-Development)
 
 Special Thanks
 BunBun不是笨笨    在矿里的小金呀
@@ -678,20 +684,19 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 "type": "padding"
                             }
                         ]
-
-                        if (client.globalSettings.deathBackRcord && !client.ruinsSystem.isInRuinJudge && client.territorySystem.inTerritotyLevel !== 0) {
-                            for (let j = 0; j < client.data.pointRecord.point.length; j++) {
+                        if (client.globalSettings.deathBackRecord && !client.ruinsSystem.isInRuinJudge && client.territorySystem.inTerritotyLevel !== 0) {
+                            for (let j = 0; j < client.data.pointRecord.deathPoint.length; j++) {
                                 const i = client.data.pointRecord.deathPoint[j];
                                 const v = new Vector3(i[1]);
                                 arr.push(
                                     {
                                         "type": "textWithBg",
-                                        "msg": lang.menuUIMsgBailan34 + (i[0] + v.toString()) + "\n" + i[1]
+                                        "msg": lang.menuUIMsgBailan34 + (i[0] + v.toString())
                                     },
                                     {
                                         "type": "button",
                                         "msg": lang.menuUIMsgBailan35,
-                                        "function": (client:PomClient, ui: MenuUIAlert<PomClient>) => {
+                                        "function": (client: PomClient, ui: MenuUIAlert<PomClient>) => {
                                             let bag = client.exPlayer.getBag();
                                             if (!bag.hasItem("wb:conveyor_issue") && client.globalSettings.tpNeedItem) {
                                                 client.sayTo(lang.menuUIMsgBailan36);
@@ -700,8 +705,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                             if (client.globalSettings.tpNeedItem) {
                                                 bag.clearItem("wb:conveyor_issue", 1);
                                             }
-                                            client.exPlayer.setPosition(v, client.getDimension(i[0]));
-                                            client.sayTo(lang.menuUIMsgBailan37);
+                                            tpPlayer(client, v, client.getDimension(i[0]));
                                             return false;
                                         }
                                     },
@@ -1325,16 +1329,15 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                         return true;
                                     }
                                 },
-                                //,
-                                // {
-                                // 	"type": "toggle",
-                                // 	"msg": lang.menuUIMsgBailan81,
-                                // 	"state": (client, ui) => client.globalSettings.deathRecord,
-                                // 	"function": (client, ui) => {
-                                // 		client.globalSettings.deathRecord = !client.globalSettings.deathRecord;
-                                // 		return true;
-                                // 	}
-                                // },
+                                {
+                                    "type": "toggle",
+                                    "msg": lang.menuUIMsgBailan81,
+                                    "state": (client, ui) => client.globalSettings.deathBackRecord,
+                                    "function": (client, ui) => {
+                                        client.globalSettings.deathBackRecord = !client.globalSettings.deathBackRecord;
+                                        return true;
+                                    }
+                                },
                                 {
                                     "type": "toggle",
                                     "msg": lang.menuUIMsgBailan82,

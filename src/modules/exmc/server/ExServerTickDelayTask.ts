@@ -1,6 +1,3 @@
-
-import ExEventManager from "../interface/ExEventManager.js";
-import SetTimeOutSupport from "../interface/SetTimeOutSupport.js";
 import TickDelayTask from '../utils/TickDelayTask.js';
 import ExGame from "./ExGame.js";
 
@@ -26,8 +23,8 @@ export default class ExServerTickDelayTask implements TickDelayTask {
     startOnce() {
         if (this.isStarted()) return this;
         this.func = () => {
-            this.looper();
             this.func = undefined;
+            this.looper();
         }
         this.id = ExGame.runTimeout(() => this?.func?.(), this.time);
         return this;
