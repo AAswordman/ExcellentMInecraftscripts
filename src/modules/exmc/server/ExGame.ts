@@ -2,7 +2,7 @@ import ExConfig from '../ExConfig.js';
 import ExGameClient from "./ExGameClient.js";
 import ExGameServer from "./ExGameServer.js";
 
-import { ScriptEventCommandMessageAfterEvent, system } from "@minecraft/server";
+import { Player, ScriptEventCommandMessageAfterEvent, system } from "@minecraft/server";
 import "../../reflect-metadata/Reflect.js";
 import ExSystem from "../utils/ExSystem.js";
 import MonitorManager from "../utils/MonitorManager.js";
@@ -167,11 +167,11 @@ export default class ExGame {
     static postMessageBetweenServer() {
 
     }
-    static postMessageBetweenClient<T extends ExGameClient>(client: T, s: typeof ExGameServer, exportName: string, args: any[]) {
+    static postMessageBetweenClient<T extends ExGameClient>(client: T|Player, s: typeof ExGameServer, exportName: string, args: any[]) {
         ExGame.run(() => {
             let server = this.serverMap.get(s);
             if (!server) return;
-            let finder = server.findClientByPlayer(client.player);
+            let finder = server.findClientByPlayer(client instanceof Player ? client : client.player);
             if (!finder) return;
             for (let k of ExSystem.keys(finder)) {
                 let data = Reflect.getMetadata("exportName", finder, k);

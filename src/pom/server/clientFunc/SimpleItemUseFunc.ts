@@ -80,13 +80,6 @@ export default class SimpleItemUseFunc extends GameController {
                 } else {
                     new MenuUIAlert(this.client, menuFunctionUI(this.getLang())).showPage("main", "notice");
                 }
-            } else if (item.typeId === "wb:jet_pack") {
-                //jet pack
-                this.setTimeout(() => {
-                    this.exPlayer.addEffect(MinecraftEffectTypes.Levitation, 2, 100, false);
-                    this.exPlayer.addEffect(MinecraftEffectTypes.SlowFalling, 10, 3, false);
-                    this.exPlayer.dimension.spawnEntity("wb:ball_jet_pack", this.exPlayer.position.sub(this.exPlayer.viewDirection.scl(2)));
-                }, 0);
             } else if (e.itemStack.typeId === "wb:technology_world_explorer") {
                 e.cancel = true;
                 const itemDim = e.source.dimension;
@@ -164,7 +157,7 @@ export default class SimpleItemUseFunc extends GameController {
                     let dic = this.player.getViewDirection();
                     this.player.applyKnockback(dic.x, dic.z, 7, 0);
                     let move = this.player.getComponent("minecraft:movement");
-                    move?.setCurrentValue(MathUtil.clamp(move.currentValue-0.1,0.1,0.7))
+                    move?.setCurrentValue(MathUtil.clamp(move.currentValue - 0.1, 0.1, 0.7))
                     this.player.addEffect(MinecraftEffectTypes.Resistance, 10, {
                         "amplifier": 1,
                         "showParticles": false
@@ -280,10 +273,10 @@ export default class SimpleItemUseFunc extends GameController {
                         })
                     });
                 let map = new MolangVariableMap();
-                map.setColorRGB("particle_color",{
+                map.setColorRGB("particle_color", {
                     red: 0xA3,
-                    green:0x5B,
-                    blue:0xBD
+                    green: 0x5B,
+                    blue: 0xBD
                 });
                 this.getDimension().spawnParticle("wb:intension_sweep_a", new ExEntityQuery(this.getDimension()).at(this.player.location)
                     .facingByLTF(new Vector3(0, 1, 3), this.player.getViewDirection()).position,
@@ -394,6 +387,11 @@ export default class SimpleItemUseFunc extends GameController {
                 this.data.initialMagicPickaxe = true;
             }
         }
+    }
+    jetPackSkill() {
+        this.exPlayer.addEffect(MinecraftEffectTypes.Levitation, 2, 100, false);
+        this.exPlayer.addEffect(MinecraftEffectTypes.SlowFalling, 10, 3, false);
+        this.exPlayer.dimension.spawnEntity("wb:ball_jet_pack", this.exPlayer.position.sub(this.exPlayer.viewDirection.scl(2)));
     }
 
 }

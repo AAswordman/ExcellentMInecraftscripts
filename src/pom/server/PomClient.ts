@@ -136,7 +136,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
             eventDecoratorFactory(this.getEvents(), controller);
             controller.onJoin();
         });
-        
+
     }
 
     override onJoin(): void {
@@ -259,5 +259,10 @@ export default class PomClient extends ExGameClient<PomTransmission> {
     @receiveMessage("chooseArmor")
     chooseArmor(a: ArmorData) {
         this.talentSystem.chooseArmor(a);
+    }
+
+    @receiveMessage("item:jet_pack_skill")
+    jetPackSkill() {
+        this.itemUseFunc.jetPackSkill();
     }
 }

@@ -1,4 +1,4 @@
-import { EnchantmentTypes, ItemDurabilityComponent, ItemStack, ItemType, ItemTypes } from "@minecraft/server";
+import { EnchantmentType, EnchantmentTypes, ItemDurabilityComponent, ItemStack, ItemType, ItemTypes } from "@minecraft/server";
 import Vector3 from "../../../modules/exmc/utils/math/Vector3.js";
 import "../../../modules/exmc/server/block/ExBlock.js";
 import ExColorLoreUtil from "../../../modules/exmc/server/item/ExColorLoreUtil.js";
@@ -21,6 +21,7 @@ export default class PomEnChantSystem extends GameController {
                     if (item !== undefined) {
                         lore = new ExColorLoreUtil(item);
 
+                        new EnchantmentType("")
                         if (item.hasComponentById("minecraft:enchantable")) {
                             const comp = item.getComponentById("minecraft:enchantable")!;
                             for (let i of lore.entries("enchants")) {
