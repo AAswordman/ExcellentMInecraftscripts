@@ -268,8 +268,8 @@ export default class PomMagicSystem extends GameController {
                 this.isProtected = false;
             }, 3000);
             this.gameHealth = this.gameMaxHealth;
-            healthListener.value = 25000;
-            health.setCurrentValue(25000);
+            healthListener.value = 120;
+            health.setCurrentValue(120);
             if (e.initialSpawn) {
                 this.gameHealth = MathUtil.clamp(
                     this.player.getDynamicProperty("health") as number ?? this.gameMaxHealth,

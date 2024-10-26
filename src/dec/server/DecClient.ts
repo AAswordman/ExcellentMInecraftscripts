@@ -728,6 +728,8 @@ export default class DecClient extends ExGameClient {
 
     override onLoad(): void {
         super.onLoad();
+        this.exPlayer.addTag("load_ok");
+
         if (this.globalscores.getNumber('FirstEnter') === 0) {
             this.exPlayer.addTag('owner')
             this.globalscores.setNumber('FirstEnter', 1)

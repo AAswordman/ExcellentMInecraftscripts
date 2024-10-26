@@ -1,4 +1,4 @@
-import { EntityDamageCause, ItemType, ItemStack, ItemTypes, MinecraftDimensionTypes, BiomeType, BiomeTypes, Entity, MolangVariableMap } from '@minecraft/server';
+import { EntityDamageCause, ItemType, ItemStack, ItemTypes, MinecraftDimensionTypes, BiomeType, BiomeTypes, Entity, MolangVariableMap, world } from '@minecraft/server';
 import { ModalFormData } from "@minecraft/server-ui";
 import Vector3 from '../../../modules/exmc/utils/math/Vector3.js';
 import ExDimension from '../../../modules/exmc/server/ExDimension.js';
@@ -127,6 +127,7 @@ export default class SimpleItemUseFunc extends GameController {
                                 itemDim.spawnItem(item, pPos);
                                 ball.entity.remove();
                             }, 5000)
+                            
                         }
                     } else {
                         new ModalFormData()
