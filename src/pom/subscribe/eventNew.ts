@@ -1,4 +1,4 @@
-import { world, BlockPermutation, Block, Player, Entity, ItemStack } from '@minecraft/server';
+import { world, BlockPermutation, Block, Player, Entity, ItemStack, EquipmentSlot } from '@minecraft/server';
 import { fileProvider, JSONObject } from '../../filepack/index.js';
 import ExPlayer from '../../modules/exmc/server/entity/ExPlayer.js';
 import Vector3 from '../../modules/exmc/utils/math/Vector3.js';
@@ -107,8 +107,8 @@ function molangCalculate(molang: string | number, option: TriggerOption) {
             if (!option.triggerEntity) return "";
             return ExEntity.getInstance(option.triggerEntity).getScoresManager().getScore(name);
         },
-        get time_of_day(){
-            return world.getTimeOfDay()/24000;
+        get time_of_day() {
+            return world.getTimeOfDay() / 24000;
         },
 
         //custom
@@ -207,6 +207,7 @@ type EventUser = {
         output: string;
         args: unknown[];
     }
+    decrement_stack?: {}
 
 }
 
@@ -286,7 +287,7 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
             option.triggerBlock.transTo(eventUser.set_block.block_type);
         }
         if (eventUser.spawn_loot) {
-            
+
             option.triggerBlock.dimension.runCommand(`loot spawn ${new Vector3(option.triggerBlock).add(0.5).toArray().join(' ')} loot "${eventUser.spawn_loot.table.split('/')
                 .slice(1).join('/').slice(0, -5)
                 }"`);
@@ -295,6 +296,9 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
             option.triggerEntity.addEffect(eventUser.add_mob_effect.effect, eventUser.add_mob_effect.duration * 20, {
                 "amplifier": eventUser.add_mob_effect.amplifier
             });
+        }
+        if (eventUser.decrement_stack && option.triggerEntity instanceof Player) {
+            ExPlayer.getInstance(option.triggerEntity).getBag().clearItem(option.triggerEntity.selectedSlotIndex, 1);
         }
     } else if (option.triggerItem && option.triggerEntity) {
         if (eventUser.condition) {

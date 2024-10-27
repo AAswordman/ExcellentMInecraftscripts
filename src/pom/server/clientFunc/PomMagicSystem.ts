@@ -207,8 +207,8 @@ export default class PomMagicSystem extends GameController {
 
         let hurtTimeId = 0;
         let healthListener = new VarOnChangeListener((n, l) => {
-            healthListener.value = 25000;
-            health.setCurrentValue(25000);
+            healthListener.value = 120;
+            health.setCurrentValue(120);
             let change = n - (l ?? 0);
             if (change < 0 && this.hurtState) {
                 if (this.hurtMaxNum <= change) return;//build-in method
