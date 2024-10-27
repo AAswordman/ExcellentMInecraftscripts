@@ -272,7 +272,7 @@ export default {
     "menuUISubtitleBanben": "Version",
     "menuUIMsgBanben1": "Version Information",
     "menuUIMsgBanben2": "Basic information",
-    "menuUIMsgBanben3": "Addon's version: 1.9.1B2, more info about the addon: ",
+    "menuUIMsgBanben3": "Addon's version: 1.9.1B3, more info about the addon: ",
     "menuUIMsgBanben4": "Contact us",
     "menuUIMsgBanben6": "Thanks list",
     "menuUIMsgBailan1": "Homepage",
