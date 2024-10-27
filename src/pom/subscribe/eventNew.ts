@@ -298,7 +298,17 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
             });
         }
         if (eventUser.decrement_stack && option.triggerEntity instanceof Player) {
-            ExPlayer.getInstance(option.triggerEntity).getBag().clearItem(option.triggerEntity.selectedSlotIndex, 1);
+            let bag = ExPlayer.getInstance(option.triggerEntity).getBag();
+            let item = bag.itemOnMainHand;
+            if (item) {
+                let damageComp = item.getComponent("durability");
+                if (damageComp) {
+                    damageComp.damage += 1;
+                } else {
+                    bag.clearItem(item.typeId, 1);
+                }
+            }
+
         }
     } else if (option.triggerItem && option.triggerEntity) {
         if (eventUser.condition) {
