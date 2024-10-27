@@ -31,20 +31,34 @@ export default class DecNukeController extends ExEntityController {
             this.setTimeout(() => {
                 const dim = this.exEntity.exDimension;
                 const pos = this.entity.location;
+
+                const blockMap = new Map<number, Vector3[]>();
                 ExGame.runJob(function* () {
                     console.warn("start");
                     for (let x = -i; x <= i; x++) {
                         for (let y = -i; y <= i; y++) {
                             for (let z = -i; z <= i; z++) {
                                 tmpV.set(x, y, z);
-                                if (tmpV.len() <= i) {
-                                    dim.setBlock(tmpV.add(pos), MinecraftBlockTypes.Air)
+                                let len = Math.floor(tmpV.len());
+                                if (blockMap.has(len)) {
+                                    blockMap.get(len)!.push(tmpV.cpy());
+                                } else {
+                                    blockMap.set(len, (<Vector3[]>[tmpV.cpy()]));
                                 }
                             }
                             dim.spawnParticle("dec:nuke_blast", pos);
                             yield void 0;
                         }
                     }
+                    for (let x = 0; x <= i; x++) {
+                        for (let v of blockMap.get(i) ?? []) {
+                            dim.setBlock(tmpV.add(pos), MinecraftBlockTypes.Air)
+                        }
+                        yield void 0;
+                        dim.spawnParticle("dec:nuke_blast", pos);
+                    }
+
+
                 });
             }, 3000);
             // }
