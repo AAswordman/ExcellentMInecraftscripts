@@ -24,3 +24,11 @@ export type ExTend<T> = Menu extends (infer I)[] ?
     never
 export type AlsoInstanceType<T extends { prototype: any }> =
     T["prototype"];
+
+export function minecraft(str: string) {
+    if (str.startsWith("minecraft:")) {
+        return str;
+    } else {
+        return "minecraft:" + str;
+    }
+}

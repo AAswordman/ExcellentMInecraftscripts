@@ -198,7 +198,7 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
     }
     sleep(timeout: number) {
         return new Promise<void>((resolve, reject) => {
-            setTimeout(() => {
+            this.setTimeout(() => {
                 resolve();
             }, timeout);
         });

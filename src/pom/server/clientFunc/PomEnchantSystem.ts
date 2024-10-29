@@ -8,6 +8,8 @@ import { MinecraftBlockTypes } from "../../../modules/vanilla-data/lib/index.js"
 import { MinecraftItemTypes } from "../../../modules/vanilla-data/lib/index.js";
 import MathUtil from "../../../modules/exmc/utils/math/MathUtil.js";
 import Random from "../../../modules/exmc/utils/Random.js";
+import { MinecraftEnchantmentTypes } from "../../../modules/vanilla-data/lib/index.js";
+import { minecraft } from "../../../modules/exmc/utils/tool.js";
 
 export default class PomEnChantSystem extends GameController {
     static blockTranslateData: Map<string, ItemStack> = new Map<string, ItemStack>();
@@ -20,13 +22,12 @@ export default class PomEnChantSystem extends GameController {
                     let item = e.afterItem;
                     if (item !== undefined) {
                         lore = new ExColorLoreUtil(item);
-
-                        new EnchantmentType("")
+                        
                         if (item.hasComponentById("minecraft:enchantable")) {
                             const comp = item.getComponentById("minecraft:enchantable")!;
                             for (let i of lore.entries("enchants")) {
-                                if (comp.canAddEnchantment({ "level": parseInt(i[1]), "type": EnchantmentTypes.get(i[0])! })) {
-                                    comp.addEnchantment({ "level": parseInt(i[1]), "type": EnchantmentTypes.get(i[0])! });
+                                if (comp.canAddEnchantment({ "level": parseInt(i[1]), "type": EnchantmentTypes.get(minecraft(i[0]))! })) {
+                                    comp.addEnchantment({ "level": parseInt(i[1]), "type": EnchantmentTypes.get(minecraft(i[0]))! });
                                 }
                             }
                         }
@@ -150,7 +151,7 @@ export default class PomEnChantSystem extends GameController {
                             this.exPlayer.getBag().itemOnMainHand = undefined;
                         }, 0);
                     }
-                }else{
+                } else {
                     this.client.sayTo("§b回收废物过大，处理失败")
                 }
                 e.cancel = true;

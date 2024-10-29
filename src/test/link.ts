@@ -589,54 +589,54 @@ console.log(list.getSize()); // 输出: 2
 list.clear();
 console.log(list.getSize()); // 输出: 0
 
-// 使用字符串的示例
-const stringList = new LinkedList<string>();
-stringList.append("banana");
-stringList.append("apple");
-stringList.append("cherry");
+// // 使用字符串的示例
+// const stringList = new LinkedList<string>();
+// stringList.append("banana");
+// stringList.append("apple");
+// stringList.append("cherry");
 
-const compareStrings = (a: string, b: string) => a.localeCompare(b);
-stringList.sort(compareStrings);
-stringList.print(); // 输出: apple -> banana -> cherry
-let queue: LinkedList<[Vector3, number]> = new LinkedList();
-let nextQueue: LinkedList<[Vector3, number]> = new LinkedList();
+// const compareStrings = (a: string, b: string) => a.localeCompare(b);
+// stringList.sort(compareStrings);
+// stringList.print(); // 输出: apple -> banana -> cherry
+// let queue: LinkedList<[Vector3, number]> = new LinkedList();
+// let nextQueue: LinkedList<[Vector3, number]> = new LinkedList();
 
-// 初始化队列，从中心点开始
-nextQueue.append([new Vector3().cpy().set(0, 0, 0), 0]);
+// // 初始化队列，从中心点开始
+// nextQueue.append([new Vector3().cpy().set(0, 0, 0), 0]);
 
-let currentLen = 0;
-let num = 0;
-while (currentLen < 10) {
-    console.warn(currentLen)
-    while (queue.size > 0) {
-        const current = queue.deleteHead()!;
-        let len = current[1];
-        if (len > currentLen) {
-            currentLen = len;
-        }
-        // 处理当前点
-        // 获取当前点的所有邻居
-        const neighbors = [
-            current[0].cpy().add(1, 0, 0),
-            current[0].cpy().add(-1, 0, 0),
-            current[0].cpy().add(0, 1, 0),
-            current[0].cpy().add(0, -1, 0),
-            current[0].cpy().add(0, 0, 1),
-            current[0].cpy().add(0, 0, -1)
-        ];
+// let currentLen = 0;
+// let num = 0;
+// while (currentLen < 10) {
+//     console.warn(currentLen)
+//     while (queue.size > 0) {
+//         const current = queue.deleteHead()!;
+//         let len = current[1];
+//         if (len > currentLen) {
+//             currentLen = len;
+//         }
+//         // 处理当前点
+//         // 获取当前点的所有邻居
+//         const neighbors = [
+//             current[0].cpy().add(1, 0, 0),
+//             current[0].cpy().add(-1, 0, 0),
+//             current[0].cpy().add(0, 1, 0),
+//             current[0].cpy().add(0, -1, 0),
+//             current[0].cpy().add(0, 0, 1),
+//             current[0].cpy().add(0, 0, -1)
+//         ];
 
-        // 将未访问过的邻居加入队列
-        for (const neighbor of neighbors) {
-            let len = neighbor.len();
-            if (currentLen < len && len <= 50) {
-                nextQueue.insertSorted([neighbor, len], (a, b) => a[1] - b[1]);
-            }
-        }
+//         // 将未访问过的邻居加入队列
+//         for (const neighbor of neighbors) {
+//             let len = neighbor.len();
+//             if (currentLen < len && len <= 50) {
+//                 nextQueue.insertSorted([neighbor, len], (a, b) => a[1] - b[1]);
+//             }
+//         }
 
-    }
-    if (currentLen == null) break;
-    queue = nextQueue;
-    nextQueue = new LinkedList();
-    currentLen = queue.getTail()!.value[1];
-    console.log(currentLen)
-}
+//     }
+//     if (currentLen == null) break;
+//     queue = nextQueue;
+//     nextQueue = new LinkedList();
+//     currentLen = queue.getTail()!.value[1];
+//     console.log(currentLen)
+// }

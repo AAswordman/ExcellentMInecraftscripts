@@ -115,7 +115,7 @@ function molangCalculate(molang: string | number, option: TriggerOption) {
         "consume_scoreboard": (name: string, num: number) => {
             if (option.triggerEntity) {
                 let obj = new Objective(name);
-                if (obj.getScore(option.triggerEntity) ?? 0 >= num) {
+                if ((obj.getScore(option.triggerEntity) ?? 0) >= num) {
                     obj.addScore(option.triggerEntity, -num);
                     return true
                 }
