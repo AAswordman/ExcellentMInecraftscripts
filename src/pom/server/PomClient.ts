@@ -153,6 +153,9 @@ export default class PomClient extends ExGameClient<PomTransmission> {
     getLang(): langType {
         return lang[this.data.lang ?? "en"];
     }
+    get lang() {
+        return this.getLang();
+    }
 
     override onLoad(): void {
         let scores = ExPlayer.getInstance(this.player).getScoresManager();
@@ -180,7 +183,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
         }
         if (!this.data.licenseRead) {
             this.licenseLooper = ExSystem.tickTask(() => {
-                new WarningAlertUI(this, POMLICENSE, [["同意并继续", (c, ui) => {
+                new WarningAlertUI(this, POMLICENSE, [[this.getLang().agreeAndContinue, (c, ui) => {
                     this.data.licenseRead = true;
                     this.licenseLooper?.stop();
                 }]]).showPage();

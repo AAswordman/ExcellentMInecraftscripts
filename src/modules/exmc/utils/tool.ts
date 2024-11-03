@@ -10,15 +10,6 @@ export function falseIfError<T>(func: () => T) {
         return false;
     }
 }
-export function undefIfError<T>(func: () => T) {
-    try {
-        return func();
-    } catch (err) {
-        return undefined;
-    }
-}
-
-
 export type ExTend<T> = Menu extends (infer I)[] ?
     (I extends object ? I & { active: boolean } : I)[] :
     never

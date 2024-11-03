@@ -14,7 +14,7 @@ import Random from '../../../modules/exmc/utils/Random.js';
 import MathUtil from '../../../modules/exmc/utils/math/MathUtil.js';
 import DisposeAble from '../../../modules/exmc/interface/DisposeAble.js';
 import Queue from '../../../modules/exmc/utils/queue/Queue.js';
-import { falseIfError, undefIfError } from '../../../modules/exmc/utils/tool.js';
+import { falseIfError } from '../../../modules/exmc/utils/tool.js';
 import ExEntityController from '../../../modules/exmc/server/entity/ExEntityController.js';
 import ExEntityQuery from '../../../modules/exmc/server/env/ExEntityQuery.js';
 import Vector2 from '../../../modules/exmc/utils/math/Vector2.js';
@@ -1332,7 +1332,7 @@ export class PomGodOfGuardBoss2 extends PomBossController {
                             });
                         },
                         "2.4": (time) => {
-                            targetFacing = new Vector3(undefIfError(() => (this.entity.target?.location))
+                            targetFacing = new Vector3(ignorn(() => (this.entity.target?.location))
                                 ?? Random.choice(Array.from(this.barrier.getPlayers())).location);
                             tmpV.set(startPos).sub(target).normalize().scl(2);
                             tmpV.y = 0.1;
@@ -1875,15 +1875,15 @@ export class PomGodOfGuardBossPassive implements DisposeAble {
             if (e.currentTick % 4 === 0) {
                 for (let p of ctrl.barrier.getPlayers()) {
                     let loc = new Vector3(p.location);
-                    let under = undefIfError(() => ctrl.entity.dimension.getBlock(loc.sub(0, 1, 0)));
+                    let under = ignorn(() => ctrl.entity.dimension.getBlock(loc.sub(0, 1, 0)));
                     let getter = this.playerSkipperData.get(p)!;
                     if (p.getGameMode() === GameMode.creative) continue;
                     getter[1] -= getter[0].shift()!;
                     getter[0].push(
                         (under?.typeId === "minecraft:air" ? 1 : 0) +
-                        ((under = undefIfError(() => under?.below(1)))?.typeId === "minecraft:air" ? 1 : 0) +
-                        ((under = undefIfError(() => under?.below(1)))?.typeId === "minecraft:air" ? 1 : 0) +
-                        ((under = undefIfError(() => under?.below(1)))?.typeId === "minecraft:air" ? 1 : 0)
+                        ((under = ignorn(() => under?.below(1)))?.typeId === "minecraft:air" ? 1 : 0) +
+                        ((under = ignorn(() => under?.below(1)))?.typeId === "minecraft:air" ? 1 : 0) +
+                        ((under = ignorn(() => under?.below(1)))?.typeId === "minecraft:air" ? 1 : 0)
                     );
                     getter[1] += getter[0][14]
                 }

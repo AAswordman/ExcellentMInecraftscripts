@@ -135,7 +135,7 @@ export default class PomEnChantSystem extends GameController {
                 ]
                 if (item) {
                     if (this.client.talentSystem.itemOnHandComp?.getComponent("equipment_type")) {
-                        this.client.sayTo("§b物品过于贵重")
+                        this.client.sayTo(this.lang.itemIsTooValuable)
                     } else {
                         this.setTimeout(() => {
                             let m = new Map<string, number>();
@@ -152,7 +152,7 @@ export default class PomEnChantSystem extends GameController {
                         }, 0);
                     }
                 } else {
-                    this.client.sayTo("§b回收废物过大，处理失败")
+                    this.client.sayTo(this.lang.itemIsTooBig)
                 }
                 e.cancel = true;
             }

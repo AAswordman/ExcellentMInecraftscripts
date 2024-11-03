@@ -483,30 +483,26 @@ export default class PomTalentSystem extends GameController {
                 if (!comp.isEmpty()) {
                     comp.setGroup(comp.dataGroupJudge(this.client));
                     let base: string[] = [];
-                    if (comp.hasComponent("actual_level")) base.push(`§r§e基础属性` + "  §r§6LV." + comp.getComponentWithGroup("actual_level"));
-                    if (comp.hasComponent("armor_protection")) base.push("§r§7•护甲值§6+" + comp.getComponentWithGroup("armor_protection") + "§r§7 | 护甲韧性§6+" + comp.getComponentWithGroup("armor_resilience"));
+                    if (comp.hasComponent("actual_level")) base.push(`§r§e`+this.lang.armorProperty + "  §r§6LV." + comp.getComponentWithGroup("actual_level"));
+                    if (comp.hasComponent("armor_protection")) base.push("§r§7•"+this.lang.armorProtection+"§6+" + comp.getComponentWithGroup("armor_protection") + "§r§7 | "+this.lang.armorResilience+"§6+" + comp.getComponentWithGroup("armor_resilience"));
 
                     if (comp.hasComponent("armor_type")) {
-                        //let typeMsg = comp.getComponentWithGroup("armor_type");
-                        //lore.setValueUseDefault("盔甲类型", typeMsg.tagName + ": " + typeMsg.data);
-                        // if (comp.hasComponent("armor_physical_protection")) base.push("§r§7•物理抗性§6+" + comp.getComponentWithGroup("armor_physical_protection") + "％§r§7 | 受到的物理伤害§6-" + comp.getComponentWithGroup("armor_physical_reduction") ?? 0);
-                        // if (comp.hasComponent("armor_magic_protection")) base.push("§r§7•魔法抗性§6+" + comp.getComponentWithGroup("armor_magic_protection") + "％§r§7 | 受到的魔法伤害§6-" + comp.getComponentWithGroup("armor_magic_reduction") ?? 0);
-                        if (comp.hasComponent("armor_physical_protection")) base.push("§r§7•物理抗性§6+" + comp.getComponentWithGroup("armor_physical_protection") + "％§r§7 | 物理防御§6+" + comp.getComponentWithGroup("armor_physical_reduction"));
-                        if (comp.hasComponent("armor_magic_protection")) base.push("§r§7•魔法抗性§6+" + comp.getComponentWithGroup("armor_magic_protection") + "％§r§7 | 魔法防御§6+" + comp.getComponentWithGroup("armor_magic_reduction"));
+                        if (comp.hasComponent("armor_physical_protection")) base.push("§r§7•"+this.lang.physicalProtection+"§6+" + comp.getComponentWithGroup("armor_physical_protection") + "％§r§7 | "+this.lang.physicalReduction+"§6+" + comp.getComponentWithGroup("armor_physical_reduction"));
+                        if (comp.hasComponent("armor_magic_protection")) base.push("§r§7•"+this.lang.magicalProtection+"§6+" + comp.getComponentWithGroup("armor_magic_protection") + "％§r§7 | "+this.lang.magicalReduction+"§6+" + comp.getComponentWithGroup("armor_magic_reduction"));
                     }
                     let smove = comp.getComponentWithGroup("sneak_movement_addition") ?? 0;
                     if (comp.hasComponent("movement_addition")) {
-                        base.push("§r§7•移动速度§6+" + comp.getComponentWithGroup("movement_addition"));
+                        base.push("§r§7•"+this.lang.movement+"§6+" + comp.getComponentWithGroup("movement_addition"));
 
                         if (comp.hasComponent("sneak_movement_addition"))
-                            base[base.length - 1] += ("§r§7 | 潜行移速" + (smove < 0 ? "§c" + smove : "§6+" + smove));
-                    } else if (comp.hasComponent("sneak_movement_addition")) base.push("§r§7•潜行移速" + (smove < 0 ? "§c" + smove : "§6+" + smove));
+                            base[base.length - 1] += ("§r§7 | "+this.lang.sneakingMovement + (smove < 0 ? "§c" + smove : "§6+" + smove));
+                    } else if (comp.hasComponent("sneak_movement_addition")) base.push("§r§7•"+this.lang.sneakingMovement + (smove < 0 ? "§c" + smove : "§6+" + smove));
                     if (comp.hasComponent("attack_addition")) {
-                        base.push("§r§7•攻击伤害§6+" + comp.getComponentWithGroup("attack_addition"));
+                        base.push("§r§7•"+this.lang.attackDamage+"§6+" + comp.getComponentWithGroup("attack_addition"));
                     }
                     if (comp.hasComponent("equipment_type")) {
                         if (e.afterItem.typeId.startsWith("dec:")) {
-                            base.push("§r§7•在主手时: +20％§7攻击伤害");
+                            base.push("§r§7•"+this.lang.onTheMainHand+": +20％§7"+this.lang.attackDamage);
                         }
                         // let typeMsg = comp.getComponentWithGroup("equipment_type");
                         // lore.setValueUseDefault("武器类型", typeMsg.tagName + ": " + typeMsg.data);
@@ -673,7 +669,7 @@ export default class PomTalentSystem extends GameController {
 
         //职业重选
         if (TalentData.hasOccupation(this.data.talent) && !this.player.hasTag("_talentUpdate")) {
-            this.sayTo("§b[注意]本次更新后需重新选职业和加点");
+            this.sayTo(this.lang.updaterechooseNotice);
             this.data.talent.occupation = Occupation.EMPTY;
             this.data.talent.talents = [];
             this.data.talent.pointUsed = 0;

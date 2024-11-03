@@ -9,6 +9,7 @@ import { MinecraftDimensionTypes } from "../../../modules/vanilla-data/lib/index
 import TerritoryData from "../data/TerritoryData.js";
 import BlockPartitioning from "../map/BlockPartitioning.js";
 import GameController from "./GameController.js";
+import format from "../../../modules/exmc/utils/format.js";
 
 
 export default class PomTerritorySystem extends GameController {
@@ -17,9 +18,9 @@ export default class PomTerritorySystem extends GameController {
     inTerritotyLevel: number = -1//-1/0/1/2;
     territoryTip = new VarOnChangeListener((b, a) => {
         if (b === "") {
-            this.sayTo("§b你离开了 " + a!.split("|")[0] + " §b的领地");
+            this.sayTo(format(this.lang.youLeaveSbTerritory, a!.split("|")[0]));
         } else {
-            this.sayTo("§b你进入了 " + b!.split("|")[0] + " §b的" + (parseInt(b!.split("|")[1]) === 1 ? "§a" : "§c") + "领地");
+            this.sayTo(format(this.lang.youEnterSbTerritory, b!.split("|")[0], (parseInt(b!.split("|")[1]) === 1 ? "§a" : "§c")));
         }
     }, "")
     onJoin(): void {

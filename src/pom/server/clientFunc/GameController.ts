@@ -64,4 +64,7 @@ export default abstract class GameController implements ExCommandNativeRunner, S
     getLang() {
         return this._client.getLang();
     }
+    get lang() {
+        return this._client.getLang();
+    }
 }

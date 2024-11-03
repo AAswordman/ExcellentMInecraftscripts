@@ -67,8 +67,8 @@ export default class PomDimRuinsSystem extends GameController {
         return new VarOnChangeListener((v) => {
             if (v) {
                 this.setTimeout(() => {
-                    new ExActionAlert().title("操作").body("选择你的操作")
-                        .button("召唤boss", () => {
+                    new ExActionAlert().title(this.lang.operation).body(this.lang.chooseYourOper)
+                        .button(this.lang.summonBoss, () => {
                             let bag = this.exPlayer.getBag();
                             let itemMap = bag.countAllItems();
                             let useMap = {
@@ -113,20 +113,20 @@ export default class PomDimRuinsSystem extends GameController {
                                 }
                                 this.client.sayTo({
                                     rawtext: ([
-                                        { text: "§b你没有足够的材料: " },
+                                        { text: this.lang.haveNoEnoughMaterial },
                                         { text: "§r\n" }
                                     ] as RawMessage[]).concat(msg)
                                 })
                             }
                         })
-                        .button("返回主世界", () => {
+                        .button(this.lang.backToOverworld, () => {
                             let v = this.data.dimBackPoint;
                             if (!v) {
                                 v = new Vector3(0, 255, 0);
                             }
                             this.exPlayer.setPosition(v, this.getDimension(MinecraftDimensionTypes.overworld));
                         })
-                        .button("取消", () => {
+                        .button(this.lang.cancel, () => {
 
                         })
                         .show(this.player);
@@ -136,11 +136,11 @@ export default class PomDimRuinsSystem extends GameController {
     }
     desertRuinBackJudge = new VarOnChangeListener((v) => {
         if (v) {
-            new ExMessageAlert().title("返回").body("是否返回主世界?")
-                .button1("否", () => {
+            new ExMessageAlert().title(this.lang.back).body(this.lang.whetherBackToOverworld)
+                .button1(this.lang.no, () => {
 
                 })
-                .button2("是", () => {
+                .button2(this.lang.yes, () => {
                     let v = this.data.dimBackPoint;
                     if (!v) {
                         v = new Vector3(0, 255, 0);
@@ -375,8 +375,8 @@ export default class PomDimRuinsSystem extends GameController {
 
             if (this.causeDamageShow) {
                 let show: string[] = this.client.magicSystem.registActionbarPass("hasCauseDamage");
-                show.push(`玩家死亡: ${this.deathTimes} 次`);
-                show.push(`造成伤害: ${this.causeDamage} 点`);
+                show.push(`${this.lang.hasDied} ${this.deathTimes} ${this.lang.times}`);
+                show.push(`${this.lang.causeDamage} ${this.causeDamage} ${this.lang.points}`);
             }
 
 
@@ -386,7 +386,7 @@ export default class PomDimRuinsSystem extends GameController {
                 let loc = this.player.location;
                 if ((!this.isInRuinJudge) && (15000 <= loc.x && loc.x <= 20000 && loc.z >= 15000 && loc.z <= 20000)) {
                     if (warningRuinTimes == 5) {
-                        this.sayTo("§b你已经进入未保护区域，请尽快离开");
+                        this.sayTo(this.lang.unProtectedAreaWarning);
                         warningRuinTimes = 0;
                     }
                     warningRuinTimes += 1;

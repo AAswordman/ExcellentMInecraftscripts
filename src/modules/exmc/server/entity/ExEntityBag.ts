@@ -1,3 +1,4 @@
+import { ignorn } from '../ExErrorQueue.js';
 import ExEntity from './ExEntity.js';
 import {
     Container,
@@ -23,10 +24,10 @@ export default class ExEntityBag {
     getItem(slot: number): ItemStack | undefined;
     getItem(arg: string | number) {
         if (typeof (arg) === "number") {
-            return (<Container>this.bagComponent.container).getItem(arg);
+            return ignorn(() => (<Container>this.bagComponent.container).getItem(arg));
         }
         if (arg in EquipmentSlot) {
-            return this.getEquipment(arg as EquipmentSlot);
+            return ignorn(() => this.getEquipment(arg as EquipmentSlot));
         }
         let search = this.searchItem(arg);
         if (!search) {

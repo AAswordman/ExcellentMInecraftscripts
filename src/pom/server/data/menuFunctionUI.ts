@@ -34,6 +34,7 @@ import ExEntity from "../../../modules/exmc/server/entity/ExEntity.js";
 import { MinecraftCameraPresetsTypes } from "../../../modules/vanilla-data/lib/index.js";
 import { MinecraftEffectTypes } from "../../../modules/vanilla-data/lib/index.js";
 import ExTimeLine from "../../../modules/exmc/utils/ExTimeLine.js";
+import format from "../../../modules/exmc/utils/format.js";
 // import { http } from '@minecraft/server-net';
 
 export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
@@ -146,7 +147,7 @@ export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
                             },
                             {
                                 "type": "text",
-                                "msg": "bug反馈和意见提交可以访问：https://github.com/AAswordman/ThePoetryOfWinter/issues。二维码如下："
+                                "msg": lang.bugAndIssueLink
                             },
                             {
                                 "type": "img_50x50",
@@ -157,7 +158,7 @@ export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
                             },
                             {
                                 "type": "text",
-                                "msg": "你可以在这里找到我们的网页/公告和最新内容，以及我们的团队和开发者：https://github.com/AAswordman/ThePoetryOfWinter。二维码如下："
+                                "msg": lang.noticeLink
                             },
                             {
                                 "type": "img_50x50",
@@ -174,66 +175,7 @@ export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
                             {
                                 "type": "padding"
                             }
-                        ]).concat(MenuUIAlert.getLabelViews(`
-名字排序为随机排序
-
-Main creator:   - LiLeyi   AAswordsman
-
-Creator:  Him1025(kALE) - 部分贴图、logo、icon、剧情、建筑、模型动画、加农炮战车、ui贴图、弩弓、合并工作
-
-Assistants:  -  
-EnderghostScale  - 人造肉、部分怪物、投掷炸药和技术支持
-haveyouwantto(Maple-Kaede) - 技术支持
-huo鱼一只 - 技术支持
-AR_UnryAllenCN - 技术支持
-世心 - 狼人，暗狼人
-論娘 - 幻术师
-荷叶 - 提供灵感，新手指南
-Q儿 - 贴图、提供灵感
-SpiffyTerror - 模型、生物动画
-悸动天使 - 指令支持
-晴风 - 霸体核心
-画盒豆腐 - 提供灵感
-兔块子 - 部分实体
-传说中阿库西斯教教徒 - 提供灵感、剧情、建筑
-枫雪白霜 - 提供灵感和贴图
-碧月狐DADA - 技术支持
-Fulank彡North cat - 提供贴图、灵感
-一只朴实无华的蒜头王八 - 提供贴图、灵感和测试
-KirisamePPSH - 提供建筑、贴图
-Miku4962 - 提供贴图和测试
-Mr.龙灵 - 提供结构和贴图
-Hanyi寒翼 - 灵感、建筑和贴图
-鸥吃鱼 - 部分翻译
-KucerLuo - 建筑
-Repforce2 - 建筑
-一只有疑问的猪 - 建筑
-枨触 - 建筑
-LZN - 提供建筑、贴图
-豆沙 - 部分怪物
-某不知名的琦玉 - 灵感
-夜长生 - 提供建筑
-默笙 - 提供建筑
-StereoRoom411 - 提供建筑
-岚天 - 提供建筑
-WINDes - 提供任务清单、测试、灵感、部分
-文海求生 - 提供任务清单、测试反馈
-ALiFang ZHE - 提供部分模型、贴图
-屑屑猹 - 提供部分翻译
-小小尽喵 - 提供贴图
-幻想贝壳 - 提供方块贴图、建筑
-驼贰 - 部分配乐
-基岩 - 灰烬塔建筑、建议
-吃色可餐 - 部分贴图
-ander - 部分贴图
-
-Our Team
-无上蓝痕(BlueMark Studio)
-冬之纪行诗诗开发组(DEC-Development)
-
-Special Thanks
-BunBun不是笨笨    在矿里的小金呀
-`.split("\n")));
+                        ]).concat(MenuUIAlert.getLabelViews(lang.creatorList.split("\n")));
                     }
                 },
                 "imp": {
@@ -339,19 +281,19 @@ BunBun不是笨笨    在矿里的小金呀
 
                         let msg = [`   ${lang.menuUIMsgBailan94}: ${client.gameId}`,
                         `   ${lang.menuUIMsgBailan96}: ${scores.getScore("wbfl")}`,
-                        `   ${`盔甲值`}: ${armorData}`,
-                        `   ${`物理防御`}: ${MathUtil.round(1 - (1 - client.getDifficulty().physicalDefenseAddFactor) * (1 - client.talentSystem.armor_protection[1] / 100), 3) * 100}％ + ${Math.round(client.talentSystem.armor_protection[3])}`,
-                        `   ${`魔法防御`}: ${MathUtil.round(1 - (1 - client.getDifficulty().magicDefenseAddFactor) * (1 - client.talentSystem.armor_protection[0] / 100), 3) * 100}％ + ${Math.round(client.talentSystem.armor_protection[2])}`,
+                        `   ${lang.armorProtection}: ${armorData}`,
+                        `   ${lang.physicalReduction}: ${MathUtil.round(1 - (1 - client.getDifficulty().physicalDefenseAddFactor) * (1 - client.talentSystem.armor_protection[1] / 100), 3) * 100}％ + ${Math.round(client.talentSystem.armor_protection[3])}`,
+                        `   ${lang.magicalReduction}: ${MathUtil.round(1 - (1 - client.getDifficulty().magicDefenseAddFactor) * (1 - client.talentSystem.armor_protection[0] / 100), 3) * 100}％ + ${Math.round(client.talentSystem.armor_protection[2])}`,
                         `   ${lang.menuUIMsgBailan97}: ${scores.getScore("wbwqlq")}`,
                         `   ${lang.menuUIMsgBailan98}: ${scores.getScore("wbkjlqcg")}`,
-                        `   ${lang.menuUIMsgBailan99}: ${source.hasTag("wbmsyh") ? lang.menuUIMsgBailan15 : lang.menuUIMsgBailan16}`,
-                        `   ${lang.menuUIMsgBailan100}: ${source.hasTag("wbdjeff") ? lang.menuUIMsgBailan15 : lang.menuUIMsgBailan16}`,
-                        `   ${`游戏难度`}: ${client.getDifficulty().name}`
+                        `   ${lang.menuUIMsgBailan99}: ${source.hasTag("wbmsyh") ? lang.yes : lang.no}`,
+                        `   ${lang.menuUIMsgBailan100}: ${source.hasTag("wbdjeff") ? lang.yes : lang.no}`,
+                        `   ${lang.gameDifficulty}: ${client.getDifficulty().name}`
                         ];
                         let arr: MenuUIAlertView<PomClient>[] = MenuUIAlert.getLabelViews(msg);
                         arr.unshift({
                             "type": "text_title",
-                            "msg": "个人信息"
+                            "msg": lang.personalInformation
                         });
                         let g = client.data.gameGrade;
 
@@ -365,7 +307,7 @@ BunBun不是笨笨    在矿里的小金呀
                         };
                         arr.push({
                             "type": "textWithBg",
-                            "msg": `${lang.menuUIMsgBailan95}: ${g} 当前等级积分: ${client.magicSystem.getGradeNeedExperience(g) + client.data.gameExperience}/${client.magicSystem.getGradeNeedExperience(g + 1)}
+                            "msg": `${lang.menuUIMsgBailan95}: ${g} ${lang.nowExpeiencePoints}: ${client.magicSystem.getGradeNeedExperience(g) + client.data.gameExperience}/${client.magicSystem.getGradeNeedExperience(g + 1)}
 ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExperience(g + 1) - client.magicSystem.getGradeNeedExperience(g)), 10, PROGRESS_CHAR)}`
                         },
                             {
@@ -507,7 +449,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                             if (client.data.gameGrade > (client.data.occupationChooseNum ?? 0) + 1) {
                                 arr.push({
                                     "type": "button",
-                                    "msg": "清空职业",
+                                    "msg": lang.clearOccupation,
                                     "function": (client, ui) => {
                                         client.data.occupationChooseNum = (client.data.occupationChooseNum ?? 0) + 1;
                                         client.data.gameGrade -= client.data.occupationChooseNum ?? 0;
@@ -602,12 +544,12 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                             return false;
                                         },
                                         (client, ui) => {
-                                            new ExMessageAlert().title("确认")
-                                                .body(`是否删除传送点 ${client.data.pointRecord.point[j].map(e => e.toString()).join(" / ")}`)
-                                                .button1(lang.menuUIMsgBailan15, () => {
+                                            new ExMessageAlert().title(lang.ensure)
+                                                .body(`${lang.whetherToDeletePoint} ${client.data.pointRecord.point[j].map(e => e.toString()).join(" / ")}`)
+                                                .button1(lang.yes, () => {
                                                     client.data.pointRecord.point.splice(j, 1);
                                                 })
-                                                .button2(lang.menuUIMsgBailan16, () => {
+                                                .button2(lang.no, () => {
                                                 })
                                                 .show(client.player);
                                             return false;
@@ -628,7 +570,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                         client.data.pointRecord.point.push([client.exPlayer.dimension.id, "", client.exPlayer.position.floor()]);
                                         return true;
                                     } else {
-                                        client.sayTo("§b传送点不得超过10个");
+                                        client.sayTo(lang.menuUIMsgBailan106);
                                         return false;
                                     }
                                 }
@@ -673,12 +615,12 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                     }
                 },
                 "deathBack": {
-                    "text": "死亡点回溯",
+                    "text": lang.menuUIMsgBailan107,
                     "page": (client, ui): MenuUIAlertView<PomClient>[] => {
                         let arr = <MenuUIAlertView<PomClient>[]>[
                             {
                                 "type": "text_title",
-                                "msg": "死亡点记录"
+                                "msg": lang.menuUIMsgBailan108
                             },
                             {
                                 "type": "padding"
@@ -718,14 +660,14 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                             arr.push(
                                 {
                                     "type": "text",
-                                    "msg": "tips:回溯点最多只能有5个"
+                                    "msg": lang.menuUIMsgBailan109
                                 }
                             )
                         } else {
                             arr.push(
                                 {
                                     "type": "text",
-                                    "msg": "禁止记录死亡点"
+                                    "msg": lang.menuUIMsgBailan110
                                 }
                             )
                         }
@@ -733,7 +675,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                     }
                 },
                 "territory": {
-                    "text": "领地",
+                    "text": lang.menuUIMsgBailan111,
                     "page": (client, ui) => {
                         let arr: MenuUIAlertView<PomClient>[] = [];
                         //领地参数设置
@@ -745,27 +687,27 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
 
                         arr.push({
                             "type": "text_title",
-                            "msg": "领地管理"
+                            "msg": lang.menuUIMsgBailan112
                         });
                         client.data.territory.data = client.data.territory.data.filter(e => !(e.isRemoved && e.coolingTime === 0));
                         for (const d of client.data.territory.data) {
                             const areaMsg = client.territorySystem.territoryData?.getAreaIn(new Vector3(d.position), 2);
                             arr.push({
                                 "type": "textWithBigBg",
-                                "msg": `状态: ${(d.isUnderBuilding ?
-                                    `建设中(${d.coolingTime}s)` : (d.isRemoved ? `拆除中(${d.coolingTime}s)` : (areaMsg ? "正常使用" : "异常")))}
-位置: ${new Vector3(d.position).toString()}
-大小: ${areaMsg?.[0].getWidth().toString()}
+                                "msg": `${lang.state}: ${(d.isUnderBuilding ?
+                                    `${lang.isBuilding}(${d.coolingTime}s)` : (d.isRemoved ? `${lang.isDestroying}(${d.coolingTime}s)` : (areaMsg ? lang.menuUIMsgBailan113 : lang.menuUIMsgBailan114)))}
+${lang.position}: ${new Vector3(d.position).toString()}
+${lang.size}: ${areaMsg?.[0].getWidth().toString()}
 `
                             });
                             if (areaMsg && !d.isRemoved) {
                                 arr.push({
                                     "type": "buttonList3",
-                                    "msgs": ["移除", "锁定", "管理"],
+                                    "msgs": [lang.menuUIMsgBailan115, lang.menuUIMsgBailan116, lang.menuUIMsgBailan117],
                                     "buttons": [() => {
-                                        new ExMessageAlert().title("确认")
-                                            .body(`是否删除领地 ${areaMsg[0].center()}`)
-                                            .button1(lang.menuUIMsgBailan15, () => {
+                                        new ExMessageAlert().title(lang.ensure)
+                                            .body(`${lang.whetherDeleteTerritory} ${areaMsg[0].center()}`)
+                                            .button1(lang.yes, () => {
                                                 //删除服务器缓存领地，删除玩家缓存
                                                 client.territorySystem.territoryData?.removeArea(areaMsg[0]);
                                                 d.isRemoved = true;
@@ -774,20 +716,20 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                                 client.getServer().cache.save();
                                                 client.cache.save();
                                             })
-                                            .button2(lang.menuUIMsgBailan16, () => {
+                                            .button2(lang.no, () => {
                                             })
                                             .show(client.player);
                                         return false;
                                     }, () => {
-                                        client.sayTo("§b暂未开放");
+                                        client.sayTo(lang.menuUIMsgBailan118);
                                         return false;
                                     }, () => {
                                         const data = new ModalFormData()
-                                            .title("领地管理")
-                                            .dropdown("选择领地粒子", ["雪花粒子"])
+                                            .title(lang.menuUIMsgBailan119)
+                                            .dropdown(lang.menuUIMsgBailan120, [lang.menuUIMsgBailan121])
                                             .show(client.player).then(e => {
                                                 if (e.canceled || !e.formValues) {
-                                                    client.sayTo("§b领地创建取消");
+                                                    client.sayTo(lang.menuUIMsgBailan122);
                                                     return;
                                                 }
                                                 areaMsg[1].parIndex = e.formValues[0] as number;
@@ -803,7 +745,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                             },
                                 {
                                     "type": "text",
-                                    "msg": "每25级才能拥有1个领地"
+                                    "msg": lang.menuUIMsgBailan123
                                 });
                         }
                         if (client.data.territory.data.length < num) {
@@ -812,18 +754,18 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                             },
                                 {
                                     "type": "button",
-                                    "msg": "创建领地",
+                                    "msg": lang.menuUIMsgBailan124,
                                     "function": (client, ui) => {
                                         to((async () => {
                                             if (client.getDimension().id !== MinecraftDimensionTypes.Overworld) {
-                                                client.sayTo("§b只能在主世界创建领地");
+                                                client.sayTo(lang.menuUIMsgBailan125);
                                                 return;
                                             }
                                             if (client.getDefaultSpawnLocation().distance(new Vector3(client.player.location)) <= 128) {
-                                                client.sayTo("§b请至少离开出生地128单位距离");
+                                                client.sayTo(lang.menuUIMsgBailan126);
                                                 return;
                                             }
-                                            client.sayTo("§b请使用木棍点击选择点1");
+                                            client.sayTo(lang.menuUIMsgBailan127);
                                             const p1 = new Vector3((await eventGetter(client.getEvents().exEvents.beforeItemUseOn,
                                                 (e) => e.itemStack.typeId === MinecraftItemTypes.Stick)).block);
                                             const actions = client.magicSystem.registActionbarPass("facingBlockGetter");
@@ -837,17 +779,17 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                                 })?.block ?? { x: 0, y: 0, z: 0 }).floor();
                                                 const area = new ExBlockArea(p1, vec, true);
                                                 const width = area.getWidth();
-                                                actions[0] = "面向方块坐标: " + vec.toString();
-                                                actions[1] = "领域大小(以面向方块为顶点2): " + (sizeJedge(width) ? "§c无效| " : "§a有效| ") + width.toString();
+                                                actions[0] = lang.menuUIMsgBailan128 + vec.toString();
+                                                actions[1] = lang.menuUIMsgBailan129 + (sizeJedge(width) ? lang.menuUIMsgBailan130 : lang.menuUIMsgBailan131) + width.toString();
                                             }
                                             if (client.getDefaultSpawnLocation())
                                                 client.getEvents().exEvents.onLongTick.subscribe(facingBlockGetter);
-                                            client.sayTo(`§b请使用木棍点击选择点2(长宽高在 ${minSize.toString()}-${maxSize.toString()})`);
+                                            client.sayTo(format(lang.choosePoint2,`${minSize.toString()}-${maxSize.toString()}`));
                                             const p2 = new Vector3((await eventGetter(client.getEvents().exEvents.beforeItemUseOn,
                                                 (e) => e.itemStack.typeId === MinecraftItemTypes.Stick)).block);
                                             //二次判断防止转空子
                                             if (client.getDimension().id !== MinecraftDimensionTypes.Overworld) {
-                                                client.sayTo("§b只能在主世界创建领地");
+                                                client.sayTo(lang.menuUIMsgBailan132);
                                                 return;
                                             }
                                             client.getEvents().exEvents.onLongTick.unsubscribe(facingBlockGetter);
@@ -855,26 +797,26 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
 
                                             const area = new ExBlockArea(p1, p2, true);
                                             if (client.getDefaultSpawnLocation().distance(area.center()) <= 196) {
-                                                client.sayTo("§b领地中心应距离出生地196单位距离之外");
+                                                client.sayTo(lang.menuUIMsgBailan133);
                                                 return;
                                             }
                                             const width = area.getWidth();
                                             if ((client.territorySystem.territoryData!.getAreasByNearby(area.center(), 3).some(e => e[0].contains(area)))) {
-                                                client.sayTo("§b领地重叠，请换个位置")
+                                                client.sayTo(lang.menuUIMsgBailan134)
                                                 return;
                                             }
                                             if (sizeJedge(width)) {
-                                                client.sayTo("§b领地大小不符合要求，请重新选择")
+                                                client.sayTo(lang.menuUIMsgBailan135)
                                                 return;
                                             }
 
                                             //成功创建，选择粒子
                                             const data = await new ModalFormData()
-                                                .title("确认创建")
-                                                .dropdown("选择领地粒子", ["雪花粒子"])
+                                                .title(lang.menuUIMsgBailan136)
+                                                .dropdown(lang.menuUIMsgBailan137, [lang.menuUIMsgBailan138])
                                                 .show(client.player);
                                             if (data.canceled || !data.formValues) {
-                                                client.sayTo("§b领地创建取消");
+                                                client.sayTo(lang.menuUIMsgBailan139);
                                                 return;
                                             }
                                             client.territorySystem.territoryData?.addArea(area, {
@@ -893,7 +835,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                             client.getServer().cache.save();
                                             client.cache.save();
 
-                                            client.sayTo("§b领地创建成功");
+                                            client.sayTo(lang.menuUIMsgBailan140);
                                         })());
                                         return false;
                                     }
@@ -904,11 +846,11 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                     }
                 },
                 "other": {
-                    "text": "其他",
+                    "text": lang.menuUIMsgBailan141,
                     "page": [
                         {
                             "type": "button",
-                            "msg": "任务界面",
+                            "msg": lang.menuUIMsgBailan142,
                             "function": (client, ui) => {
                                 client.taskUI();
                                 return false;
@@ -916,7 +858,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                         },
                         {
                             "type": "button",
-                            "msg": "剧情线",
+                            "msg": lang.menuUIMsgBailan143,
                             "function": (client, ui) => {
                                 client.taskUI();
                                 return false;
@@ -924,9 +866,9 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                         },
                         {
                             "type": "button",
-                            "msg": "兑换",
+                            "msg": lang.menuUIMsgBailan144,
                             "function": (client, ui) => {
-                                new ModalFormData().textField("输入你的兑换码", "input")
+                                new ModalFormData().textField(lang.menuUIMsgBailan145, "input")
                                     .show(client.player)
                                     .then(e => {
                                         if (e.canceled)
@@ -936,7 +878,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                         let award = cache[cdk];
                                         if (award != undefined) {
                                             if (!client.data.redemptionCode[cdk]) {
-                                                client.sayTo(`兑换成功`);
+                                                client.sayTo(lang.exchangeSuccess);
                                                 client.data.redemptionCode[cdk] = 1
                                                 if (/^-?\d+$/.test(award.toString())) {
                                                     client.data.gameExperience += Math.floor(parseInt(award))
@@ -944,10 +886,10 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                                     client.exPlayer.command.runAsync(`${award}`)
                                                 }
                                             } else {
-                                                client.sayTo(`该兑换码已经用过了`);
+                                                client.sayTo(lang.exchangeCodeHasBeenUsed);
                                             }
                                         } else {
-                                            client.sayTo(`兑换码错误`);
+                                            client.sayTo(lang.exchangeFailed);
                                         }
                                     }).catch(e => {
                                         ExErrorQueue.throwError(e);
@@ -1048,13 +990,13 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                     client.setTimeout(() => {
                                         if ((<PomClient>client.getClient(i[0])).data
                                             .socialList.refuseList.filter(e => e[0] === client.gameId).length > 0) return;
-                                        new ExMessageAlert().title(lang.menuUIMsgBailan58).body(`玩家 ${client.player.nameTag} §r想要传送到你的位置，是否接受？`)
-                                            .button1(lang.menuUIMsgBailan15, () => {
+                                        new ExMessageAlert().title(lang.menuUIMsgBailan58).body(format(lang.playerWantToTpYou,client.player.nameTag))
+                                            .button1(lang.yes, () => {
                                                 client.sayTo(lang.menuUIMsgBailan37);
                                                 client.sayTo(lang.menuUIMsgBailan37, i[0]);
                                                 tpPlayer(client, p.position, p.dimension);
                                             })
-                                            .button2(lang.menuUIMsgBailan16, () => {
+                                            .button2(lang.no, () => {
                                                 client.sayTo(lang.menuUIMsgBailan63);
                                                 client.sayTo(lang.menuUIMsgBailan64, i[0]);
                                             })
@@ -1084,7 +1026,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                     }
 
                                     if ((<PomClient>client.getServer().findClientByPlayer(i[0])).ruinsSystem.isInRuinJudge) {
-                                        client.sayTo("§b对方在遗迹中，申请失败");
+                                        client.sayTo(lang.menuUIMsgBailan146);
                                         return false;
                                     }
 
@@ -1095,8 +1037,8 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                     client.setTimeout(() => {
                                         if ((<PomClient>client.getClient(i[0])).data
                                             .socialList.refuseList.filter(e => e[0] === client.gameId).length > 0) return;
-                                        new ExMessageAlert().title(lang.menuUIMsgBailan58).body(`玩家 ${client.player.nameTag} §r邀请你传送到 pos:${client.exPlayer.position.floor()} ，是否接受？`)
-                                            .button1(lang.menuUIMsgBailan15, () => {
+                                        new ExMessageAlert().title(lang.menuUIMsgBailan58).body(format(lang.playerInviteYouToPos,client.player.nameTag,client.exPlayer.position.floor()))
+                                            .button1(lang.yes, () => {
                                                 client.sayTo(lang.menuUIMsgBailan37);
                                                 client.sayTo(lang.menuUIMsgBailan37, i[0]);
                                                 p.setPosition(client.exPlayer.position, client.exPlayer.dimension);
@@ -1105,7 +1047,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                                     tpPlayer(c as PomClient, client.exPlayer.position, client.exPlayer.dimension);
                                                 }
                                             })
-                                            .button2(lang.menuUIMsgBailan16, () => {
+                                            .button2(lang.no, () => {
                                                 client.sayTo(lang.menuUIMsgBailan73);
                                                 client.sayTo(lang.menuUIMsgBailan74, i[0]);
                                             })
@@ -1119,12 +1061,12 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                     }
                 },
                 "refusedlist": {
-                    "text": "交往名单",
+                    "text": lang.menuUIMsgBailan147,
                     "page": function (client, ui) {
                         let arr: MenuUIAlertView<PomClient>[] = [
                             {
                                 "type": "text_title",
-                                "msg": "拒绝名单列表(点击移除)"
+                                "msg": lang.menuUIMsgBailan148
                             }];
 
                         for (let a of client.data.socialList.refuseList) {
@@ -1141,7 +1083,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
 
                         arr.push({
                             "type": "text_title",
-                            "msg": "加入拒绝名单(点击添加)"
+                            "msg": lang.menuUIMsgBailan149
                         })
                         for (let a of client.getPlayersAndIds()) {
                             arr.push({
@@ -1156,7 +1098,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                         }
                         arr.push({
                             "type": "text_title",
-                            "msg": "允许名单列表(点击移除)"
+                            "msg": lang.menuUIMsgBailan150
                         })
                         for (let a of client.data.socialList.acceptList) {
                             arr.push({
@@ -1172,7 +1114,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
 
                         arr.push({
                             "type": "text_title",
-                            "msg": "加入允许名单(点击添加)"
+                            "msg": lang.menuUIMsgBailan151
                         })
 
                         for (let a of client.getPlayersAndIds()) {
@@ -1190,12 +1132,12 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                     }
                 },
                 "gradeList": {
-                    "text": "排行榜",
+                    "text": lang.menuUIMsgBailan152,
                     "page": (client, ui) => {
                         let arr = <MenuUIAlertView<PomClient>[]>[
                             {
                                 "type": "text_title",
-                                "msg": "等级排行榜"
+                                "msg": lang.menuUIMsgBailan153
                             },
                             {
                                 "type": "padding"
@@ -1224,7 +1166,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                     "page": [
                         {
                             "type": "toggle",
-                            "msg": "连锁挖矿(特定镐子可使用)",
+                            "msg": lang.menuUIMsgBailan154,
                             "state": (client, ui) => client.data.gamePreferrence.chainMining,
                             "function": (client, ui) => {
                                 client.data.gamePreferrence.chainMining = !client.data.gamePreferrence.chainMining;
@@ -1251,17 +1193,17 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                         },
                         {
                             "type": "button",
-                            "msg": "玩家状态UI个性化设置",
+                            "msg": lang.menuUIMsgBailan156,
                             "function": (client, ui): boolean => {
                                 new ModalFormData()
-                                    .title("UI显示设置")
-                                    .dropdown("左上面板样式", ["标准", "简约(未开放)", "新春(未开放）"], client.data.uiCustomSetting.topLeftMessageBarStyle)
-                                    .slider("主要UI底板", 0, 100, 1, client.data.uiCustomSetting.topLeftMessageBarLayer1)
-                                    .slider("下方装饰底板", 0, 100, 1, client.data.uiCustomSetting.topLeftMessageBarLayer2)
-                                    .slider("右侧装饰纹样框", 0, 100, 1, client.data.uiCustomSetting.topLeftMessageBarLayer3)
-                                    .slider("左侧装饰纹样框", 0, 100, 1, client.data.uiCustomSetting.topLeftMessageBarLayer4)
-                                    .slider("背景层", 0, 100, 1, client.data.uiCustomSetting.topLeftMessageBarLayer5)
-                                    .slider("中心准心", 0, 100, 1, client.data.uiCustomSetting.accuracyCustom)
+                                    .title(lang.menuUIMsgBailan157)
+                                    .dropdown(lang.menuUIMsgBailan158, [lang.menuUIMsgBailan159, lang.menuUIMsgBailan160, lang.menuUIMsgBailan161], client.data.uiCustomSetting.topLeftMessageBarStyle)
+                                    .slider(lang.menuUIMsgBailan162, 0, 100, 1, client.data.uiCustomSetting.topLeftMessageBarLayer1)
+                                    .slider(lang.menuUIMsgBailan163, 0, 100, 1, client.data.uiCustomSetting.topLeftMessageBarLayer2)
+                                    .slider(lang.menuUIMsgBailan164, 0, 100, 1, client.data.uiCustomSetting.topLeftMessageBarLayer3)
+                                    .slider(lang.menuUIMsgBailan165, 0, 100, 1, client.data.uiCustomSetting.topLeftMessageBarLayer4)
+                                    .slider(lang.menuUIMsgBailan166, 0, 100, 1, client.data.uiCustomSetting.topLeftMessageBarLayer5)
+                                    .slider(lang.menuUIMsgBailan167, 0, 100, 1, client.data.uiCustomSetting.accuracyCustom)
                                     .show(client.player).then((e) => {
                                         if (!e.canceled && e.formValues) {
                                             client.data.uiCustomSetting.topLeftMessageBarStyle = e.formValues[0] as number;
@@ -1301,7 +1243,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 },
                                 {
                                     "type": "toggle",
-                                    "msg": "玩家传送列表显示坐标",
+                                    "msg": lang.menuUIMsgBailan168,
                                     "state": (client, ui) => client.globalSettings.playerTpListShowPos,
                                     "function": (client, ui) => {
                                         client.globalSettings.playerTpListShowPos = !client.globalSettings.playerTpListShowPos;
@@ -1349,7 +1291,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 },
                                 {
                                     "type": "toggle",
-                                    "msg": "伤害显示",
+                                    "msg": lang.menuUIMsgBailan169,
                                     "state": (client, ui) => client.globalSettings.damageShow,
                                     "function": (client, ui) => {
                                         client.globalSettings.damageShow = !client.globalSettings.damageShow;
@@ -1359,7 +1301,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
 
                                 {
                                     "type": "toggle",
-                                    "msg": "初始魔能镐",
+                                    "msg": lang.menuUIMsgBailan170,
                                     "state": (client, ui) => client.globalSettings.initialMagicPickaxe,
                                     "function": (client, ui) => {
                                         client.globalSettings.initialMagicPickaxe = !client.globalSettings.initialMagicPickaxe;
@@ -1370,7 +1312,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 },
                                 {
                                     "type": "toggle",
-                                    "msg": "连锁挖矿总开关",
+                                    "msg": lang.menuUIMsgBailan171,
                                     "state": (client, ui) => client.globalSettings.chainMining,
                                     "function": (client, ui) => {
                                         client.globalSettings.chainMining = !client.globalSettings.chainMining;
@@ -1379,7 +1321,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 },
                                 {
                                     "type": "toggle",
-                                    "msg": "允许核弹爆炸",
+                                    "msg": lang.menuUIMsgBailan172,
                                     "state": (client, ui) => client.globalSettings.nuclearBomb,
                                     "function": (client, ui) => {
                                         client.globalSettings.nuclearBomb = !client.globalSettings.nuclearBomb;
@@ -1388,7 +1330,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 },
                                 {
                                     "type": "toggle",
-                                    "msg": "服务器内耗模式(你猜这是啥)",
+                                    "msg": lang.menuUIMsgBailan173,
                                     "state": (client, ui) => client.globalSettings.smallMapMode,
                                     "function": (client, ui) => {
                                         client.globalSettings.smallMapMode = !client.globalSettings.smallMapMode;
@@ -1398,12 +1340,12 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 },
                                 {
                                     "type": "button",
-                                    "msg": "冬诗难度选择",
+                                    "msg": lang.menuUIMsgBailan174,
                                     "function": (client, ui): boolean => {
                                         let map = pomDifficultyMap;
                                         new ModalFormData()
-                                            .title("Choose a mode")
-                                            .dropdown("Difficulty List",
+                                            .title(lang.chooseDiffycultyMode)
+                                            .dropdown(lang.diffycultyList,
                                                 [
                                                     map.get("1")!.name,
                                                     map.get("2")!.name,
@@ -1429,48 +1371,48 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 },
                                 {
                                     "type": "button",
-                                    "msg": "重置遗迹（特指4个BOSS的传送门遗迹）",
+                                    "msg": lang.menuUIMsgBailan175,
                                     "function": (client, ui) => {
-                                        new ExMessageAlert().title("确认").body(`是否重置遗迹？`)
-                                            .button1("是", () => {
+                                        new ExMessageAlert().title(lang.ensure).body(lang.menuUIMsgBailan215)
+                                            .button1(lang.yes, () => {
                                                 client.globalSettings.ruinsExsitsData = 0;
                                             })
-                                            .button2("否", () => { })
+                                            .button2(lang.no, () => { })
                                             .show(client.player);
                                         return false;
                                     }
                                 },
                                 {
                                     "type": "button",
-                                    "msg": "手动触发实体清理",
+                                    "msg": lang.menuUIMsgBailan176,
                                     "function": (client, ui) => {
-                                        new ExMessageAlert().title("确认").body(`是否触发实体清理？`)
-                                            .button1("是", () => {
+                                        new ExMessageAlert().title(lang.ensure).body(lang.menuUIMsgBailan214)
+                                            .button1(lang.yes, () => {
                                                 (client.getServer() as PomServer).cleanTimes = 11;
                                                 (client.getServer() as PomServer).entityCleanerLooper.start();
                                             })
-                                            .button2("否", () => { })
+                                            .button2(lang.no, () => { })
                                             .show(client.player);
                                         return false;
                                     }
                                 },
                                 {
                                     "type": "button",
-                                    "msg": "兑换奖励设置",
+                                    "msg": lang.menuUIMsgBailan177,
                                     "function": (client, ui) => {
                                         let cache = client.getGlobalData().redemptionCode;
                                         new ModalFormData()
-                                            .title("兑换码设置")
-                                            .textField("输入需要设置的兑换码", "建议输入英文数字混合")
-                                            .dropdown("兑换类型选择", [
-                                                "模组经验",
-                                                "指令"
+                                            .title(lang.menuUIMsgBailan178)
+                                            .textField(lang.menuUIMsgBailan179, lang.menuUIMsgBailan180)
+                                            .dropdown(lang.menuUIMsgBailan181, [
+                                                lang.menuUIMsgBailan182,
+                                                lang.menuUIMsgBailan183
                                             ], 1)
-                                            .textField("如在此输入指令或模组经验值", "指令不用打/,经验直接输数值")
+                                            .textField(lang.menuUIMsgBailan184, lang.menuUIMsgBailan185)
                                             .show(client.player).then((e) => {
                                                 if (!e.canceled && e.formValues) {
-                                                    client.sayTo(`兑换码：${e.formValues[0]}`);
-                                                    client.sayTo(`奖励：${e.formValues[2]}`);
+                                                    client.sayTo(`${lang.exchangeCode}：${e.formValues[0]}`);
+                                                    client.sayTo(`${lang.rewards}：${e.formValues[2]}`);
                                                     cache[e.formValues[0] as string] = e.formValues[2] as string;
                                                 }
                                             })
@@ -1496,7 +1438,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                             return [
                                 {
                                     "type": "text_title",
-                                    "msg": "杂项"
+                                    "msg": lang.menuUIMsgBailan186
                                 },
                                 {
                                     "type": "button",
@@ -1507,10 +1449,10 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                             .slider(lang.menuUIMsgBailan91, 40, 1000, 20, client.globalSettings.entityCleanerLeastNum)
                                             .slider(lang.menuUIMsgBailan92, 2, 10, 1, client.globalSettings.entityCleanerStrength)
                                             .slider(lang.menuUIMsgBailan93, 1, 60, 1, client.globalSettings.entityCleanerDelay)
-                                            .toggle("清理信息显示", client.globalSettings.entityShowMsg)
+                                            .toggle(lang.menuUIMsgBailan187, client.globalSettings.entityShowMsg)
 
-                                            .textField("实体TypeId白名单", `{"xxx":1}`, JSON.stringify(client.getGlobalData().entityCleanerSetting.acceptListByTypeId))
-                                            .textField("实体Id白名单", `{"134":1}`, JSON.stringify(client.getGlobalData().entityCleanerSetting.acceptListById))
+                                            .textField(lang.menuUIMsgBailan188, `{"xxx":1}`, JSON.stringify(client.getGlobalData().entityCleanerSetting.acceptListByTypeId))
+                                            .textField(lang.menuUIMsgBailan189, `{"134":1}`, JSON.stringify(client.getGlobalData().entityCleanerSetting.acceptListById))
                                             .show(client.player).then((e) => {
                                                 if (e.canceled || !e.formValues) return;
                                                 client.globalSettings.entityCleaner = Boolean(e.formValues?.[0] ?? false);
@@ -1524,15 +1466,15 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                                     try {
                                                         client.getGlobalData().entityCleanerSetting.acceptListById = JSON.parse(input2);
                                                     } catch (e) {
-                                                        client.sayTo("输入格式错误，设置失败")
+                                                        client.sayTo(lang.menuUIMsgBailan190)
                                                     }
                                                 if (input1 !== "")
                                                     try {
                                                         client.getGlobalData().entityCleanerSetting.acceptListByTypeId = JSON.parse(input1);
                                                     } catch (e) {
-                                                        client.sayTo("输入格式错误，设置失败")
+                                                        client.sayTo(lang.menuUIMsgBailan191)
                                                     }
-                                                client.sayTo("设置成功")
+                                                client.sayTo(lang.menuUIMsgBailan192)
                                             })
                                             .catch((e) => {
                                                 ExErrorQueue.throwError(e);
@@ -1542,16 +1484,16 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 },
                                 {
                                     "type": "button",
-                                    "msg": "添加实体清理白名单(个体)",
+                                    "msg": lang.menuUIMsgBailan193,
                                     "function": (client, ui) => {
                                         to((async () => {
 
-                                            client.sayTo("§b请使用木棍点击实体。(小tips:还可以把实体命名为protect来避免清理)");
+                                            client.sayTo(lang.menuUIMsgBailan194);
                                             const e = (await eventGetter(client.getEvents().exEvents.afterPlayerHitEntity,
                                                 (e) => e.hurtEntity.isValid() && client.exPlayer.getBag().itemOnMainHand?.typeId === MinecraftItemTypes.Stick));
                                             ExEntity.getInstance(e.hurtEntity).addHealth(client, e.damage);
                                             client.getGlobalData().entityCleanerSetting.acceptListById[e.hurtEntity.id] = 1
-                                            client.sayTo("§b成功添加: " + e.hurtEntity.id);
+                                            client.sayTo(lang.menuUIMsgBailan195 + e.hurtEntity.id);
 
 
                                         })());
@@ -1560,16 +1502,16 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 },
                                 {
                                     "type": "button",
-                                    "msg": "添加实体清理白名单(同类)",
+                                    "msg": lang.menuUIMsgBailan196,
                                     "function": (client, ui) => {
                                         to((async () => {
 
-                                            client.sayTo("§b请使用木棍点击实体。");
+                                            client.sayTo(lang.menuUIMsgBailan197);
                                             const e = (await eventGetter(client.getEvents().exEvents.afterPlayerHitEntity,
                                                 (e) => e.hurtEntity.isValid() && client.exPlayer.getBag().itemOnMainHand?.typeId === MinecraftItemTypes.Stick));
                                             ExEntity.getInstance(e.hurtEntity).addHealth(client, e.damage);
                                             client.getGlobalData().entityCleanerSetting.acceptListByTypeId[e.hurtEntity.typeId] = 1
-                                            client.sayTo("§b成功添加: " + e.hurtEntity.typeId);
+                                            client.sayTo(lang.menuUIMsgBailan198 + e.hurtEntity.typeId);
 
                                         })());
                                         return false;
@@ -1577,13 +1519,13 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 },
                                 {
                                     "type": "button",
-                                    "msg": "ui刷新间隔",
+                                    "msg": lang.menuUIMsgBailan199,
                                     "function": (client, ui): boolean => {
                                         let map = pomDifficultyMap;
                                         new ModalFormData()
-                                            .title("ui刷新间隔")
-                                            .slider("界面刷新间隔(tick)", 4, 20, 1, 4)
-                                            .slider("数据刷新间隔(每刷新n次界面刷新1次数据)", 1, 5, 1, 2)
+                                            .title(lang.menuUIMsgBailan200)
+                                            .slider(lang.menuUIMsgBailan201, 4, 20, 1, 4)
+                                            .slider(lang.menuUIMsgBailan202, 1, 5, 1, 2)
                                             .show(client.player).then((e) => {
                                                 if (!e.canceled) {
                                                     let v = (e.formValues?.[0]);
@@ -1603,13 +1545,13 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 {
 
                                     "type": "button",
-                                    "msg": "作弊",
+                                    "msg": lang.menuUIMsgBailan203,
                                     "function": (client, ui): boolean => {
                                         let map = pomDifficultyMap;
                                         new ModalFormData()
-                                            .title("作弊面板")
-                                            .slider("设置等级", 0, 99, 1, client.data.gameGrade)
-                                            .slider("设置经验", 0, 990000, 10000, client.data.gameExperience)
+                                            .title(lang.menuUIMsgBailan204)
+                                            .slider(lang.menuUIMsgBailan205, 0, 99, 1, client.data.gameGrade)
+                                            .slider(lang.menuUIMsgBailan206, 0, 990000, 10000, client.data.gameExperience)
                                             .show(client.player).then((e) => {
                                                 if (!e.canceled && e.formValues) {
                                                     client.data.gameGrade = Number(e.formValues?.[0] ?? 0);
@@ -1636,12 +1578,12 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                     }
                 },
                 "gradeOrg": {
-                    "text": "等级管理",
+                    "text": lang.menuUIMsgBailan207,
                     "page": (client, ui): MenuUIAlertView<PomClient>[] => {
                         if (client.player.hasTag("owner")) {
                             let arr = <MenuUIAlertView<PomClient>[]>[
                                 {
-                                    "msg": "在线玩家等级列表",
+                                    "msg": lang.menuUIMsgBailan208,
                                     "type": "text_title"
                                 },
                                 {
@@ -1657,8 +1599,8 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                     "function": (client, ui): boolean => {
                                         client.setTimeout(() => {
                                             new ModalFormData()
-                                                .title("等级修改面板")
-                                                .slider("设置等级", 0, 99, 1, (<PomClient>client.getClient(i[0])).data.gameGrade)
+                                                .title(lang.menuUIMsgBailan209)
+                                                .slider(lang.menuUIMsgBailan210, 0, 99, 1, (<PomClient>client.getClient(i[0])).data.gameGrade)
                                                 .show(client.player).then((e) => {
                                                     if (e.canceled)
                                                         return;
@@ -1683,13 +1625,13 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                     }
                 },
                 "general": {
-                    "text": "通用",
+                    "text": lang.menuUIMsgBailan211,
                     "page": [
                         {
                             "type": "button",
-                            "msg": "报错日志",
+                            "msg": lang.menuUIMsgBailan212,
                             "function": (client, ui) => {
-                                new WarningAlertUI(client, ExErrorQueue.getError(), [["我知道了", (client, ui) => {
+                                new WarningAlertUI(client, ExErrorQueue.getError(), [[lang.menuUIMsgBailan213, (client, ui) => {
                                 }]]).showPage();
                                 return false;
                             }

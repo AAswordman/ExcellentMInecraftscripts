@@ -6,19 +6,19 @@ import { PomTaskJSON } from './PomTask.js';
 
 export default function taskDaily_a(client:PomClient,lang: langType):PomTaskJSON {
     return {
-        "name": "每日任务-普通级",
+        "name": lang.menuUIMsgBailan265,
         "tasks": [
             {
-                "name": "粮食提交 I",
+                "name": lang.menuUIMsgBailan266,
                 "conditions": [
                     {
-                        "name": "小麦",
+                        "name": lang.menuUIMsgBailan267,
                         "typeId": MinecraftItemTypes.Wheat,
                         "count": 6,
                         "type": "item"
                     },
                     {
-                        "name": "胡萝卜",
+                        "name": lang.menuUIMsgBailan268,
                         "typeId": MinecraftItemTypes.Carrot,
                         "count": 6,
                         "type": "item"
@@ -26,24 +26,24 @@ export default function taskDaily_a(client:PomClient,lang: langType):PomTaskJSON
                 ],
                 "rewards": [
                     {
-                        "name": "模组经验",
+                        "name": lang.modExperience,
                         "count": 500,
-                        "unit": "点",
+                        "unit": lang.points,
                         "type": "integral"
                     }
                 ]
             },
             {
-                "name": "粮食提交 II",
+                "name": lang.menuUIMsgBailan269,
                 "conditions": [
                     {
-                        "name": "马铃薯",
+                        "name": lang.menuUIMsgBailan270,
                         "typeId": MinecraftItemTypes.Potato,
                         "count": 6,
                         "type": "item"
                     },
                     {
-                        "name": "胡萝卜",
+                        "name": lang.menuUIMsgBailan271,
                         "typeId": MinecraftItemTypes.Carrot,
                         "count": 6,
                         "type": "item"
@@ -51,18 +51,18 @@ export default function taskDaily_a(client:PomClient,lang: langType):PomTaskJSON
                 ],
                 "rewards": [
                     {
-                        "name": "模组经验",
+                        "name": lang.modExperience,
                         "count": 500,
-                        "unit": "点",
+                        "unit": lang.points,
                         "type": "integral"
                     }
                 ]
             },
             {
-                "name": "水果提交 I",
+                "name": lang.menuUIMsgBailan272,
                 "conditions": [
                     {
-                        "name": "西瓜",
+                        "name": lang.menuUIMsgBailan273,
                         "typeId": MinecraftItemTypes.MelonBlock,
                         "count": 12,
                         "type": "item"
@@ -70,18 +70,18 @@ export default function taskDaily_a(client:PomClient,lang: langType):PomTaskJSON
                 ],
                 "rewards": [
                     {
-                        "name": "模组经验",
+                        "name": lang.modExperience,
                         "count": 500,
-                        "unit": "点",
+                        "unit": lang.points,
                         "type": "integral"
                     }
                 ]
             },
             {
-                "name": "水果提交 II",
+                "name": lang.menuUIMsgBailan274,
                 "conditions": [
                     {
-                        "name": "熟鸡肉",
+                        "name": lang.menuUIMsgBailan275,
                         "typeId": MinecraftItemTypes.Pumpkin,
                         "count": 6,
                         "type": "item"
@@ -89,25 +89,25 @@ export default function taskDaily_a(client:PomClient,lang: langType):PomTaskJSON
                 ],
                 "rewards": [
                     {
-                        "name": "模组经验",
+                        "name": lang.modExperience,
                         "count": 500,
-                        "unit": "点",
+                        "unit": lang.points,
                         "type": "integral"
                     }
                 ]
             },
             
             {
-                "name": "清理怪物 I",
+                "name": lang.menuUIMsgBailan276,
                 "conditions": [
                     {
-                        "name": "僵尸",
+                        "name": lang.menuUIMsgBailan277,
                         "typeId": "minecraft:zombie",
                         "count": 8,
                         "type": "kill"
                     },
                     {
-                        "name": "苦力怕",
+                        "name": lang.menuUIMsgBailan278,
                         "typeId": "minecraft:creeper",
                         "count": 2,
                         "type": "kill"
@@ -115,18 +115,18 @@ export default function taskDaily_a(client:PomClient,lang: langType):PomTaskJSON
                 ],
                 "rewards": [
                     {
-                        "name": "模组经验",
+                        "name": lang.modExperience,
                         "count": 500,
-                        "unit": "点",
+                        "unit": lang.points,
                         "type": "integral"
                     }
                 ]
             },
             {
-                "name": "清理怪物 II",
+                "name": lang.menuUIMsgBailan279,
                 "conditions": [
                     {
-                        "name": "烈焰人",
+                        "name": lang.menuUIMsgBailan280,
                         "typeId": MinecraftEntityTypes.Blaze,
                         "count": 8,
                         "type": "kill"
@@ -134,30 +134,30 @@ export default function taskDaily_a(client:PomClient,lang: langType):PomTaskJSON
                 ],
                 "rewards": [
                     {
-                        "name": "模组经验",
+                        "name": lang.modExperience,
                         "count": 500,
-                        "unit": "点",
+                        "unit": lang.points,
                         "type": "integral"
                     }
                 ]
             },
             {
-                "name": "狩猎愉快",
+                "name": lang.menuUIMsgBailan281,
                 "conditions": [
                     {
-                        "name": "猪",
+                        "name": lang.menuUIMsgBailan282,
                         "typeId": "minecraft:pig",
                         "count": 3,
                         "type": "kill"
                     },
                     {
-                        "name": "牛",
+                        "name": lang.menuUIMsgBailan283,
                         "typeId": "minecraft:cow",
                         "count": 3,
                         "type": "kill"
                     },
                     {
-                        "name": "羊",
+                        "name": lang.menuUIMsgBailan284,
                         "typeId": "minecraft:sheep",
                         "count": 3,
                         "type": "kill"
@@ -165,18 +165,18 @@ export default function taskDaily_a(client:PomClient,lang: langType):PomTaskJSON
                 ],
                 "rewards": [
                     {
-                        "name": "模组经验",
+                        "name": lang.modExperience,
                         "count": 500,
-                        "unit": "点",
+                        "unit": lang.points,
                         "type": "integral"
                     }
                 ]
             },
             {
-                "name": "砍树",
+                "name": lang.menuUIMsgBailan285,
                 "conditions": [
                     {
-                        "name": "木头",
+                        "name": lang.menuUIMsgBailan286,
                         "typeId": "log",
                         "count": 16,
                         "type": "break"
@@ -184,18 +184,18 @@ export default function taskDaily_a(client:PomClient,lang: langType):PomTaskJSON
                 ],
                 "rewards": [
                     {
-                        "name": "模组经验",
+                        "name": lang.modExperience,
                         "count": 500,
-                        "unit": "点",
+                        "unit": lang.points,
                         "type": "integral"
                     }
                 ]
             },
             {
-                "name": "挖矿",
+                "name": lang.menuUIMsgBailan287,
                 "conditions": [
                     {
-                        "name": "石头",
+                        "name": lang.menuUIMsgBailan288,
                         "typeId": MinecraftItemTypes.Stone,
                         "count": 32,
                         "type": "break"
@@ -203,18 +203,18 @@ export default function taskDaily_a(client:PomClient,lang: langType):PomTaskJSON
                 ],
                 "rewards": [
                     {
-                        "name": "模组经验",
+                        "name": lang.modExperience,
                         "count": 500,
-                        "unit": "点",
+                        "unit": lang.points,
                         "type": "integral"
                     }
                 ]
             },
             {
-                "name": "采苹果",
+                "name": lang.menuUIMsgBailan289,
                 "conditions": [
                     {
-                        "name": "苹果",
+                        "name": lang.menuUIMsgBailan290,
                         "typeId": MinecraftItemTypes.Apple,
                         "count": 3,
                         "aux": 0,
@@ -223,18 +223,18 @@ export default function taskDaily_a(client:PomClient,lang: langType):PomTaskJSON
                 ],
                 "rewards": [
                     {
-                        "name": "模组经验",
+                        "name": lang.modExperience,
                         "count": 500,
-                        "unit": "点",
+                        "unit": lang.points,
                         "type": "integral"
                     }
                 ]
             },
             {
-                "name": "采毒马铃薯",
+                "name": lang.menuUIMsgBailan291,
                 "conditions": [
                     {
-                        "name": "毒马铃薯",
+                        "name": lang.menuUIMsgBailan292,
                         "typeId": MinecraftItemTypes.PoisonousPotato,
                         "count": 2,
                         "aux": 0,
@@ -243,18 +243,18 @@ export default function taskDaily_a(client:PomClient,lang: langType):PomTaskJSON
                 ],
                 "rewards": [
                     {
-                        "name": "模组经验",
+                        "name": lang.modExperience,
                         "count": 500,
-                        "unit": "点",
+                        "unit": lang.points,
                         "type": "integral"
                     }
                 ]
             },
             {
-                "name": "改善伙食",
+                "name": lang.menuUIMsgBailan293,
                 "conditions": [
                     {
-                        "name": "兔肉煲",
+                        "name": lang.menuUIMsgBailan294,
                         "typeId": MinecraftItemTypes.RabbitStew,
                         "count": 3,
                         "type": "item"
@@ -262,18 +262,18 @@ export default function taskDaily_a(client:PomClient,lang: langType):PomTaskJSON
                 ],
                 "rewards": [
                     {
-                        "name": "模组经验",
+                        "name": lang.modExperience,
                         "count": 500,
-                        "unit": "点",
+                        "unit": lang.points,
                         "type": "integral"
                     }
                 ]
             },
             {
-                "name": "腐肉回收",
+                "name": lang.menuUIMsgBailan295,
                 "conditions": [
                     {
-                        "name": "腐肉",
+                        "name": lang.menuUIMsgBailan296,
                         "typeId": MinecraftItemTypes.RottenFlesh,
                         "count": 32,
                         "type": "item"
@@ -281,18 +281,18 @@ export default function taskDaily_a(client:PomClient,lang: langType):PomTaskJSON
                 ],
                 "rewards": [
                     {
-                        "name": "模组经验",
+                        "name": lang.modExperience,
                         "count": 500,
-                        "unit": "点",
+                        "unit": lang.points,
                         "type": "integral"
                     }
                 ]
             },
             {
-                "name": "好吃的南瓜派",
+                "name": lang.menuUIMsgBailan297,
                 "conditions": [
                     {
-                        "name": "南瓜派",
+                        "name": lang.menuUIMsgBailan298,
                         "typeId": MinecraftItemTypes.PumpkinPie,
                         "count": 4,
                         "type": "item"
@@ -300,18 +300,18 @@ export default function taskDaily_a(client:PomClient,lang: langType):PomTaskJSON
                 ],
                 "rewards": [
                     {
-                        "name": "模组经验",
+                        "name": lang.modExperience,
                         "count": 500,
-                        "unit": "点",
+                        "unit": lang.points,
                         "type": "integral"
                     }
                 ]
             },
             {
-                "name": "你对附魔一无所知",
+                "name": lang.menuUIMsgBailan299,
                 "conditions": [
                     {
-                        "name": "转移附魔书",
+                        "name": lang.menuUIMsgBailan300,
                         "typeId": "wb:book_cache",
                         "count": 1,
                         "type": "item"
@@ -319,18 +319,18 @@ export default function taskDaily_a(client:PomClient,lang: langType):PomTaskJSON
                 ],
                 "rewards": [
                     {
-                        "name": "模组经验",
+                        "name": lang.modExperience,
                         "count": 500,
-                        "unit": "点",
+                        "unit": lang.points,
                         "type": "integral"
                     }
                 ]
             },
             {
-                "name": "来点灵魂",
+                "name": lang.menuUIMsgBailan301,
                 "conditions": [
                     {
-                        "name": "灵魂",
+                        "name": lang.menuUIMsgBailan302,
                         "typeId": "dec:soul",
                         "count": 2,
                         "type": "item"
@@ -338,9 +338,9 @@ export default function taskDaily_a(client:PomClient,lang: langType):PomTaskJSON
                 ],
                 "rewards": [
                     {
-                        "name": "模组经验",
+                        "name": lang.modExperience,
                         "count": 500,
-                        "unit": "点",
+                        "unit": lang.points,
                         "type": "integral"
                     }
                 ]

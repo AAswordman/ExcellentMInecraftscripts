@@ -45,7 +45,7 @@ export default function menuTaskUI(ctrl: GameController): MenuUIJson<PomClient> 
                             },
                             {
                                 "type": "text",
-                                "msg": "奖励："
+                                "msg": lang.menuUIMsgBailan216
                             }
                         ]
 
@@ -67,12 +67,12 @@ export default function menuTaskUI(ctrl: GameController): MenuUIJson<PomClient> 
                             let textShow = "";
                             if (v.type === "break") {
                                 haveNum = (daily.cache[v.typeId] ?? 0);
-                                conn = "破坏";
+                                conn = lang.menuUIMsgBailan217;
                             } else if (v.type === "kill") {
                                 haveNum = (daily.cache[v.typeId] ?? 0);
-                                conn = "击杀";
+                                conn = lang.menuUIMsgBailan218;
                             } else if (v.type === "item") {
-                                conn = "物品";
+                                conn = lang.menuUIMsgBailan219;
                                 haveNum = (bagItems.get(v.typeId) ?? 0);
                             }
                             if (haveNum < v.count) {
@@ -80,7 +80,7 @@ export default function menuTaskUI(ctrl: GameController): MenuUIJson<PomClient> 
                             }
                             let mprog = completed ? 1 : Math.min(1, haveNum / v.count);
                             prog += mprog / taskJson.tasks[i].conditions.length;
-                            textShow = (haveNum >= v.count || completed ? "§a" : "§c") + ("需求: " + conn + " " + v.name + " " + (completed ? v.count : haveNum) + "/" + v.count + "个\n");
+                            textShow = (haveNum >= v.count || completed ? "§a" : "§c") + (lang.menuUIMsgBailan220 + conn + " " + v.name + " " + (completed ? v.count : haveNum) + "/" + v.count + lang.menuUIMsgBailan221);
                             textShow += getCharByNum(mprog, 10, PROGRESS_CHAR);
 
                             page.push({
@@ -96,7 +96,7 @@ export default function menuTaskUI(ctrl: GameController): MenuUIJson<PomClient> 
                                 },
                                 {
                                     "type": "button",
-                                    "msg": "完成任务",
+                                    "msg": lang.menuUIMsgBailan222,
                                     "function": (client, ui) => {
                                         for (let v of taskJson.tasks[i].rewards) {
                                             if (v.type === "integral") {
@@ -118,7 +118,7 @@ export default function menuTaskUI(ctrl: GameController): MenuUIJson<PomClient> 
                                 })
                         }
                         arr[taskIndex] = {
-                            "text": (completed ? "§a" : (isOk ? "§e" : "§c")) + taskJson.tasks[i].name + ": " + (completed ? "已完成" : Math.round(prog * 100) + "％"),
+                            "text": (completed ? "§a" : (isOk ? "§e" : "§c")) + taskJson.tasks[i].name + ": " + (completed ? lang.menuUIMsgBailan223 : Math.round(prog * 100) + "％"),
                             "page": page
                         }
                         taskIndex++;
@@ -144,11 +144,11 @@ export default function menuTaskUI(ctrl: GameController): MenuUIJson<PomClient> 
                 if (!item || item.getLore().length === 0) {
                     return {
                         "1": {
-                            "text": "空",
+                            "text": lang.menuUIMsgBailan224,
                             "page": [
                                 {
                                     "type": "text",
-                                    "msg": "你的手上未持有蓝魔法卷轴"
+                                    "msg": lang.menuUIMsgBailan225
                                 }
                             ]
                         }
@@ -217,7 +217,7 @@ export default function menuTaskUI(ctrl: GameController): MenuUIJson<PomClient> 
                         },
                         {
                             "type": "text",
-                            "msg": "奖励："
+                            "msg": lang.menuUIMsgBailan226
                         }
                     ]
 
@@ -240,26 +240,26 @@ export default function menuTaskUI(ctrl: GameController): MenuUIJson<PomClient> 
                         if (v.type === "boss") {
                             v.damage = v.damage ?? 1;
                             haveNum = (taskList.data[v.typeId] ?? 0);
-                            conn = "击杀并造成伤害";
+                            conn = lang.menuUIMsgBailan227;
 
                             if (haveNum < v.damage) {
                                 isOk = false;
                             }
                             let mprog = completed ? 1 : Math.min(1, haveNum / v.damage);
                             prog += mprog / task.conditions.length;
-                            textShow = (haveNum >= v.damage || completed ? "§a" : "§c") + ("需求: " + conn + " " + v.name + " " + (completed ? v.damage : haveNum) + "/" + v.damage + "点\n");
+                            textShow = (haveNum >= v.damage || completed ? "§a" : "§c") + (lang.menuUIMsgBailan228 + conn + " " + v.name + " " + (completed ? v.damage : haveNum) + "/" + v.damage + lang.menuUIMsgBailan229);
                             textShow += getCharByNum(mprog, 10, PROGRESS_CHAR);
                         } else if (v.type === "boss_tag") {
                             v.tagName = v.tagName ?? "undefined";
                             haveNum = client.player.hasTag(v.tagName) ? 1 : 0;
-                            conn = "击杀";
+                            conn = lang.menuUIMsgBailan230;
 
                             if (haveNum < 1) {
                                 isOk = false;
                             }
                             let mprog = completed ? 1 : Math.min(1, haveNum / 1);
                             prog += mprog / task.conditions.length;
-                            textShow = (haveNum >= 1 || completed ? "§a" : "§c") + ("需求: " + conn + " " + v.name + " " + (completed ? 1 : haveNum) + "/" + 1 + "个\n");
+                            textShow = (haveNum >= 1 || completed ? "§a" : "§c") + (lang.menuUIMsgBailan231 + conn + " " + v.name + " " + (completed ? 1 : haveNum) + "/" + 1 + lang.menuUIMsgBailan232);
                             textShow += getCharByNum(mprog, 10, PROGRESS_CHAR);
                         }
                         page.push({
@@ -276,7 +276,7 @@ export default function menuTaskUI(ctrl: GameController): MenuUIJson<PomClient> 
                             },
                             {
                                 "type": "button",
-                                "msg": "完成任务",
+                                "msg": lang.menuUIMsgBailan233,
                                 "function": (client, ui) => {
                                     for (let v of task.rewards) {
                                         if (v.type === "integral") {
@@ -298,7 +298,7 @@ export default function menuTaskUI(ctrl: GameController): MenuUIJson<PomClient> 
                             })
                     }
                     arr[i] = {
-                        "text": (completed ? "§a" : (isOk ? "§e" : "§c")) + task.name + ": " + (completed ? "已完成" : Math.round(prog * 100) + "％"),
+                        "text": (completed ? "§a" : (isOk ? "§e" : "§c")) + task.name + ": " + (completed ? lang.menuUIMsgBailan234 : Math.round(prog * 100) + "％"),
                         "page": page
 
                     }

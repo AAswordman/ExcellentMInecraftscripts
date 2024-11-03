@@ -729,8 +729,7 @@ export default class PomServer extends ExGameServer {
         let entities: Entity[] = Array.from(ExDimension.getInstance(this.getDimension(MinecraftDimensionTypes.overworld)).getEntities())
             .concat(Array.from(ExDimension.getInstance(this.getDimension(MinecraftDimensionTypes.theEnd)).getEntities()))
             .concat(Array.from(ExDimension.getInstance(this.getDimension(MinecraftDimensionTypes.nether)).getEntities()));
-
-        //ExGameConfig.console.log("当前实体数：" + entities.length);
+            
         let map = new Map<MinecraftEntityTypes, number>();
         entities.forEach(e => {
             if (e?.typeId == undefined) return;

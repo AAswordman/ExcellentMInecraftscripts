@@ -8,10 +8,10 @@ import { PomTaskJSON, PomTaskProgressJSON } from "./PomTask.js";
 export default function taskProgress(lang: langType): { [x: string]: PomTaskProgressJSON } {
     return {
         "main_dec_leavesgolem": {
-            "name": "自然的愤怒",
+            "name": lang.menuUIMsgBailan236,
             "conditions": [
                 {
-                    "name": "绿叶精华BOSS",
+                    "name": lang.menuUIMsgBailan237,
                     "typeId": "dec:leaves_golem",
                     "damage": 1,
                     "type": "boss"
@@ -19,18 +19,18 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             ],
             "rewards": [
                 {
-                    "name": "模组经验",
+                    "name": lang.modExperience,
                     "count": 2000,
-                    "unit": "点",
+                    "unit": lang.points,
                     "type": "integral"
                 }
             ]
         },
         "main_dec_king_of_pillager": {
-            "name": "战胜掠夺！",
+            "name": lang.menuUIMsgBailan238,
             "conditions": [
                 {
-                    "name": "掠夺者之王BOSS",
+                    "name": lang.menuUIMsgBailan239,
                     "typeId": "dec:king_of_pillager",
                     "damage": 1,
                     "type": "boss"
@@ -38,18 +38,18 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             ],
             "rewards": [
                 {
-                    "name": "模组经验",
+                    "name": lang.modExperience,
                     "count": 2500,
-                    "unit": "点",
+                    "unit": lang.points,
                     "type": "integral"
                 }
             ]
         },
         "main_dec_abyssal_controller": {
-            "name": "海中牢笼",
+            "name": lang.menuUIMsgBailan240,
             "conditions": [
                 {
-                    "name": "深海牢笼BOSS",
+                    "name": lang.menuUIMsgBailan241,
                     "typeId": "dec:abyssal_controller",
                     "damage": 1,
                     "type": "boss"
@@ -57,18 +57,18 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             ],
             "rewards": [
                 {
-                    "name": "模组经验",
+                    "name": lang.modExperience,
                     "count": 3000,
-                    "unit": "点",
+                    "unit": lang.points,
                     "type": "integral"
                 }
             ]
         },
         "main_dec_predators": {
-            "name": "蝙蝠之王",
+            "name": lang.menuUIMsgBailan242,
             "conditions": [
                 {
-                    "name": "捕食者BOSS",
+                    "name": lang.menuUIMsgBailan243,
                     "typeId": "dec:predators",
                     "damage": 1,
                     "type": "boss"
@@ -76,18 +76,18 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             ],
             "rewards": [
                 {
-                    "name": "模组经验",
+                    "name": lang.modExperience,
                     "count": 4500,
-                    "unit": "点",
+                    "unit": lang.points,
                     "type": "integral"
                 }
             ]
         },
         "main_dec_enchant_illager": {
-            "name": "神秘教堂",
+            "name": lang.menuUIMsgBailan244,
             "conditions": [
                 {
-                    "name": "附魔师BOSS",
+                    "name": lang.menuUIMsgBailan245,
                     "typeId": "dec:enchant_illager_2",
                     "damage": 1,
                     "type": "boss"
@@ -95,18 +95,18 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             ],
             "rewards": [
                 {
-                    "name": "模组经验",
+                    "name": lang.modExperience,
                     "count": 4500,
-                    "unit": "点",
+                    "unit": lang.points,
                     "type": "integral"
                 }
             ]
         },
         "main_dec_evlghost": {
-            "name": "永冬之魂",
+            "name": lang.menuUIMsgBailan246,
             "conditions": [
                 {
-                    "name": "永冬恶魂BOSS",
+                    "name": lang.menuUIMsgBailan247,
                     "typeId": "dec:everlasting_winter_ghast_1",
                     "damage": 1,
                     "type": "boss"
@@ -114,18 +114,18 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             ],
             "rewards": [
                 {
-                    "name": "模组经验",
+                    "name": lang.modExperience,
                     "count": 8000,
-                    "unit": "点",
+                    "unit": lang.points,
                     "type": "integral"
                 }
             ]
         },
         "main_dec_escaped_soul": {
-            "name": "不死灵魂",
+            "name": lang.menuUIMsgBailan248,
             "conditions": [
                 {
-                    "name": "逃逸之魂BOSS",
+                    "name": lang.menuUIMsgBailan249,
                     "typeId": "dec:escaped_soul_entity",
                     "damage": 1,
                     "type": "boss"
@@ -133,18 +133,18 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             ],
             "rewards": [
                 {
-                    "name": "模组经验",
+                    "name": lang.modExperience,
                     "count": 9000,
-                    "unit": "点",
+                    "unit": lang.points,
                     "type": "integral"
                 }
             ]
         },
         "main_dec_host_of_deep": {
-            "name": "深渊？",
+            "name": lang.menuUIMsgBailan250,
             "conditions": [
                 {
-                    "name": "深渊之主BOSS",
+                    "name": lang.menuUIMsgBailan251,
                     "typeId": "dec:host_of_deep_2",
                     "damage": 1,
                     "type": "boss"
@@ -152,18 +152,18 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             ],
             "rewards": [
                 {
-                    "name": "模组经验",
+                    "name": lang.modExperience,
                     "count": 9000,
-                    "unit": "点",
+                    "unit": lang.points,
                     "type": "integral"
                 }
             ]
         },
         "main_dec_ash_knight": {
-            "name": "挑战灰烬",
+            "name": lang.menuUIMsgBailan252,
             "conditions": [
                 {
-                    "name": "灰烬骑士BOSS",
+                    "name": lang.menuUIMsgBailan253,
                     "typeId": "dec:ash_knight",
                     "damage": 1,
                     "type": "boss"
@@ -171,18 +171,18 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             ],
             "rewards": [
                 {
-                    "name": "模组经验",
+                    "name": lang.modExperience,
                     "count": 7500,
-                    "unit": "点",
+                    "unit": lang.points,
                     "type": "integral"
                 }
             ]
         },
         "dragon": {
-            "name": "结束了？",
+            "name": lang.menuUIMsgBailan254,
             "conditions": [
                 {
-                    "name": "觉醒末影龙",
+                    "name": lang.menuUIMsgBailan255,
                     "typeId": "wb:magic_stoneman",
                     "type": "boss_tag",
                     "tagName": "wbstartkeyok"
@@ -190,18 +190,18 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             ],
             "rewards": [
                 {
-                    "name": "模组经验",
+                    "name": lang.modExperience,
                     "count": 10000,
-                    "unit": "点",
+                    "unit": lang.points,
                     "type": "integral"
                 }
             ]
         },
         "main_pom_1": {
-            "name": "沙漠暴风",
+            "name": lang.menuUIMsgBailan256,
             "conditions": [
                 {
-                    "name": "魔化石块BOSS",
+                    "name": lang.menuUIMsgBailan257,
                     "typeId": PomMagicStoneBoss.typeId,
                     "damage": 100,
                     "type": "boss"
@@ -209,18 +209,18 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             ],
             "rewards": [
                 {
-                    "name": "模组经验",
+                    "name": lang.modExperience,
                     "count": 15000,
-                    "unit": "点",
+                    "unit": lang.points,
                     "type": "integral"
                 }
             ]
         },
         "main_pom_2": {
-            "name": "巨型洞穴",
+            "name": lang.menuUIMsgBailan258,
             "conditions": [
                 {
-                    "name": "无头守卫BOSS",
+                    "name": lang.menuUIMsgBailan259,
                     "typeId": PomHeadlessGuardBoss.typeId,
                     "damage": 300,
                     "type": "boss"
@@ -228,18 +228,18 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             ],
             "rewards": [
                 {
-                    "name": "模组经验",
+                    "name": lang.modExperience,
                     "count": 20000,
-                    "unit": "点",
+                    "unit": lang.points,
                     "type": "integral"
                 }
             ]
         },
         "main_pom_3": {
-            "name": "远古探索者",
+            "name": lang.menuUIMsgBailan260,
             "conditions": [
                 {
-                    "name": "远古石像BOSS",
+                    "name": lang.menuUIMsgBailan261,
                     "typeId": PomAncientStoneBoss.typeId,
                     "damage": 400,
                     "type": "boss"
@@ -247,18 +247,18 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             ],
             "rewards": [
                 {
-                    "name": "模组经验",
+                    "name": lang.modExperience,
                     "count": 30000,
-                    "unit": "点",
+                    "unit": lang.points,
                     "type": "integral"
                 }
             ]
         },
         "main_pom_4": {
-            "name": "心灵之境",
+            "name": lang.menuUIMsgBailan262,
             "conditions": [
                 {
-                    "name": "念BOSS",
+                    "name": lang.menuUIMsgBailan263,
                     "typeId": PomIntentionsBoss3.typeId,
                     "damage": 500,
                     "type": "boss"
@@ -266,9 +266,9 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
             ],
             "rewards": [
                 {
-                    "name": "模组经验",
+                    "name": lang.modExperience,
                     "count": 40000,
-                    "unit": "点",
+                    "unit": lang.points,
                     "type": "integral"
                 }
             ]
