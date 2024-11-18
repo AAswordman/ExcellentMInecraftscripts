@@ -493,7 +493,7 @@ export default class PomServer extends ExGameServer {
                 X: MinecraftBlockTypes.Sandstone,
                 W: MinecraftBlockTypes.Water,
                 Y: "wb:block_energy_seal",
-                S: MinecraftBlockTypes.CobblestoneWall,
+                S: MinecraftBlockTypes.SandstoneWall,
                 A: MinecraftBlockTypes.Air,
                 B: MinecraftBlockTypes.ChiseledStoneBricks
             });

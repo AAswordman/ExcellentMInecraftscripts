@@ -1,4 +1,4 @@
-import { MinecraftDimensionTypes, Block, EntityHurtAfterEvent, Entity, RawMessage } from '@minecraft/server';
+import { MinecraftDimensionTypes, Block, EntityHurtAfterEvent, Entity, RawMessage, GameMode } from '@minecraft/server';
 import GameController from "./GameController.js";
 import RuinsLoaction from "../serverFunc/ruins/RuinsLoaction.js";
 import { ExBlockArea } from '../../../modules/exmc/server/block/ExBlockArea.js';
@@ -79,7 +79,7 @@ export default class PomDimRuinsSystem extends GameController {
                                 "dec:ender_egg": 1,
                                 "dec:magic_crystal": 1
                             }
-                            if (Array.from(Object.keys(useMap)).every(k => (useMap as any)[k] as number <= (itemMap.get(k) ?? 0))) {
+                            if (this.exPlayer.gamemode == GameMode.creative || Array.from(Object.keys(useMap)).every(k => (useMap as any)[k] as number <= (itemMap.get(k) ?? 0))) {
                                 let ent = this.getExDimension().spawnEntity(id,
                                     ruin.getBossSpawnArea()!.center()
                                 );
@@ -376,7 +376,7 @@ export default class PomDimRuinsSystem extends GameController {
             if (this.causeDamageShow) {
                 let show: string[] = this.client.magicSystem.registActionbarPass("hasCauseDamage");
                 show.push(`${this.lang.hasDied} ${this.deathTimes} ${this.lang.times}`);
-                show.push(`${this.lang.causeDamage} ${this.causeDamage} ${this.lang.points}`);
+                show.push(`${this.lang.causeDamage} ${(this.causeDamage).toFixed(2)} ${this.lang.points}`);
             }
 
 

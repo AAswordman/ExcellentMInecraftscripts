@@ -41,3 +41,5 @@ export default class Random {
         return min + this.nextDouble() * (max - min);
     }
 }
+
+export const random = new Random();
