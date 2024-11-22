@@ -115,8 +115,8 @@ export default class DecClient extends ExGameClient {
             if (this.exPlayer.health <= 0) {
                 if (this.bossBarrier) this.bossBarrier.notifyDeathAdd();
                 this.exPlayer.command.runAsync('function die/normal');
-                world.setDynamicProperty('AlreadyDie',true)
-                this.exPlayer.entity.setDynamicProperty('AlreadyDie',true)
+                world.setDynamicProperty('AlreadyDie', true)
+                this.exPlayer.entity.setDynamicProperty('AlreadyDie', true)
                 if (this.globalscores.getNumber('DieMode') === 1) {
                     //死亡模式
                     this.exPlayer.command.runAsync('function die/die_mode');
@@ -203,9 +203,7 @@ export default class DecClient extends ExGameClient {
                                 e.applyKnockback(direction.x, direction.z, 1.2, 0.6);
                             } catch (e) { }
                         }
-                        ExGame.run(() => {
-                            // this.exPlayer.addEffect(MinecraftEffectTypes.Absorption, 1 * 20, 0);
-                        });
+                        this.exPlayer.addEffect(MinecraftEffectTypes.Absorption, 1 * 20, 0);
                         this.exPlayer.addEffect(MinecraftEffectTypes.FireResistance, 5 * 20, 0);
                         this.exPlayer.command.runAsync("function EPIC/armor/sunlight");
                         this.exPlayer.removeTag("skill_user")
@@ -336,15 +334,15 @@ export default class DecClient extends ExGameClient {
             //生存，冒险玩家添加gaming标签
             const gamemode = ep.gamemode;
             if ((gamemode == GameMode.adventure || gamemode == GameMode.survival)) {
-                if(!p.hasTag('gaming')){
+                if (!p.hasTag('gaming')) {
                     p.addTag('gaming')
                 }
             } else {
-                if(p.hasTag('gaming')){
+                if (p.hasTag('gaming')) {
                     p.removeTag('gaming')
                 }
-                p.setDynamicProperty('GmCheat',true)
-                world.setDynamicProperty('GmCheat',true)
+                p.setDynamicProperty('GmCheat', true)
+                world.setDynamicProperty('GmCheat', true)
             }
 
             //潜行获得tag is_sneaking
@@ -736,7 +734,7 @@ export default class DecClient extends ExGameClient {
             this.exPlayer.addTag('owner')
             this.globalscores.setNumber('FirstEnter', 1)
             this.exPlayer.runCommandAsync('gamerule commandblockoutput false')
-            if(DecGlobal.isDec()) this.exPlayer.runCommandAsync('function test/creator_list')
+            if (DecGlobal.isDec()) this.exPlayer.runCommandAsync('function test/creator_list')
             this.exPlayer.runCommandAsync('function test/load_ok')
             this.exPlayer.runCommandAsync('tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:command_help.name\" } ] }')
         }
@@ -765,8 +763,8 @@ export default class DecClient extends ExGameClient {
             this.player.setDynamicProperty('has_initalized', true)
         }
 
-        if(this.player.getDynamicProperty('InBoundary')){
-            this.player.setDynamicProperty('InBoundary',undefined);
+        if (this.player.getDynamicProperty('InBoundary')) {
+            this.player.setDynamicProperty('InBoundary', undefined);
             this.exPlayer.gameModeCode = this.exPlayer.getScoresManager().getScore("pre_gamemode");
         }
 

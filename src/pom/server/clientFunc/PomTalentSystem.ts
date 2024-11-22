@@ -400,7 +400,7 @@ export default class PomTalentSystem extends GameController {
                 willdamage -= this.armor_protection[6];
             }
 
-            let add = Math.min(damage - willdamage, damage - 1);
+            let add = Math.min(damage - willdamage, damage - 0.2);
 
             let anotherAdd = 0;
             if (PomTalentSystem.physicalDamageType.has(e.damageSource.cause)) {
@@ -423,7 +423,6 @@ export default class PomTalentSystem extends GameController {
                     "pitch": Random.random.randDouble(0.8, 1.2)
                 })
             }
-            console.warn("damage:", damage-add)
             this.calculateHealth = this.calculateHealth - damage + add;
             if (this.calculateHealth <= 0) {
                 const clnE = { ...e.damageSource };
@@ -434,9 +433,9 @@ export default class PomTalentSystem extends GameController {
                         const item_main = bag.itemOnMainHand;
                         const item_off = bag.itemOnOffHand;
                         if ((item_main?.typeId == MinecraftItemTypes.TotemOfUndying || item_off?.typeId == MinecraftItemTypes.TotemOfUndying)) {
-                        this.setTimeout(() => {
-                            [bag.equipmentOnHead, bag.equipmentOnChest, bag.equipmentOnLegs, bag.equipmentOnFeet] = armor_pitch;
-                        }, 100);
+                            this.setTimeout(() => {
+                                [bag.equipmentOnHead, bag.equipmentOnChest, bag.equipmentOnLegs, bag.equipmentOnFeet] = armor_pitch;
+                            }, 100);
                         }
                     } catch (e) { }
 

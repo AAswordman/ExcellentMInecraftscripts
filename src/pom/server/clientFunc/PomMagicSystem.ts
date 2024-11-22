@@ -228,7 +228,6 @@ export default class PomMagicSystem extends GameController {
                 this.hurtState = true;
                 this.hurtMaxNum = change;
             }
-            console.warn("change",change)
 
             if (!this.isProtected) {
                 if (n === 1) {
@@ -239,13 +238,15 @@ export default class PomMagicSystem extends GameController {
                         this.isProtected = false;
                     }, 1500);
                 } else {
-                    this.gameHealth = Math.min(this.gameHealth + change, this.gameMaxHealth);
+                    if (this.addGameHealth) {
+                        this.gameHealth += this.addGameHealth + change;
+                        this.addGameHealth = 0;
+                    }else{
+                        this.gameHealth += change;
+                    }
                 }
             }
-            if (this.addGameHealth) {
-                this.gameHealth += this.addGameHealth;
-                this.addGameHealth = 0;
-            }
+            
         }, health!.currentValue);
         // this.getEvents().exEvents.tick.subscribe(e => {
         //     healthListener.upDate(health!.currentValue);
