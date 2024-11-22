@@ -220,13 +220,4 @@ export default class ExEntityController implements DisposeAble, SetTimeOutSuppor
     onKilled(e: EntityHurtAfterEvent) {
         this._isKilled = true;
     }
-
-
-    sleep(timeout: number) {
-        return new Promise<void>((resolve, reject) => {
-            this.setTimeout(() => {
-                resolve();
-            }, timeout);
-        });
-    }
 }

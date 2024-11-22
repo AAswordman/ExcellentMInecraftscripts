@@ -337,8 +337,8 @@ export default class PomTalentSystem extends GameController {
                     this.getDimension().spawnParticle("dec:the_blade_particle", target.position.sub(0, 0.8, 0));
                     new ExEntityQuery(this.getDimension())
                         .at(this.exPlayer.position)
-                        .querySector(5, 2, this.exPlayer.viewDirection, 45,0,{
-                            excludeTypes:["minecraft:item"]
+                        .querySector(5, 2, this.exPlayer.viewDirection, 45, 0, {
+                            excludeTypes: ["minecraft:item"]
                         })
                         .except(this.player)
                         .except(target.entity)
@@ -413,17 +413,17 @@ export default class PomTalentSystem extends GameController {
             }
 
             add += anotherAdd;
-            
+
             if (!this.client.magicSystem.healthHeavyHitShower.isStarted() && damage - add > this.client.magicSystem.gameMaxHealth / 2) {
                 this.client.magicSystem.healthHeavyHit = this.calculateHealth;
                 this.client.magicSystem.healthHeavyHitShower.startOnce();
-                this.exPlayer.cameraShake(0.1,0.2,"rotational");
-                this.player.playSound("hurted.heavily.boom",{
+                this.exPlayer.cameraShake(0.1, 0.2, "rotational");
+                this.player.playSound("hurted.heavily.boom", {
                     "volume": 0.8,
-                    "pitch":Random.random.randDouble(0.8,1.2)
+                    "pitch": Random.random.randDouble(0.8, 1.2)
                 })
             }
-
+            console.warn("damage:", damage-add)
             this.calculateHealth = this.calculateHealth - damage + add;
             if (this.calculateHealth <= 0) {
                 const clnE = { ...e.damageSource };
@@ -433,10 +433,10 @@ export default class PomTalentSystem extends GameController {
                         const armor_pitch = [bag.equipmentOnHead, bag.equipmentOnChest, bag.equipmentOnLegs, bag.equipmentOnFeet];
                         const item_main = bag.itemOnMainHand;
                         const item_off = bag.itemOnOffHand;
-                        if (item_main?.typeId == MinecraftItemTypes.TotemOfUndying || item_off?.typeId == MinecraftItemTypes.TotemOfUndying) {
-                            this.setTimeout(() => {
-                                [bag.equipmentOnHead, bag.equipmentOnChest, bag.equipmentOnLegs, bag.equipmentOnFeet] = armor_pitch;
-                            }, 100);
+                        if ((item_main?.typeId == MinecraftItemTypes.TotemOfUndying || item_off?.typeId == MinecraftItemTypes.TotemOfUndying)) {
+                        this.setTimeout(() => {
+                            [bag.equipmentOnHead, bag.equipmentOnChest, bag.equipmentOnLegs, bag.equipmentOnFeet] = armor_pitch;
+                        }, 100);
                         }
                     } catch (e) { }
 
@@ -458,7 +458,7 @@ export default class PomTalentSystem extends GameController {
                     }
                     this.client.magicSystem.isDied = true;
                     this.data.pointRecord.deathPoint.push([this.getDimension().id, this.exPlayer.position.round()]);
-                    if(this.data.pointRecord.deathPoint.length > 5){
+                    if (this.data.pointRecord.deathPoint.length > 5) {
                         this.data.pointRecord.deathPoint.shift();
                     }
                 });
@@ -483,26 +483,26 @@ export default class PomTalentSystem extends GameController {
                 if (!comp.isEmpty()) {
                     comp.setGroup(comp.dataGroupJudge(this.client));
                     let base: string[] = [];
-                    if (comp.hasComponent("actual_level")) base.push(`§r§e`+this.lang.armorProperty + "  §r§6LV." + comp.getComponentWithGroup("actual_level"));
-                    if (comp.hasComponent("armor_protection")) base.push("§r§7•"+this.lang.armorProtection+"§6+" + comp.getComponentWithGroup("armor_protection") + "§r§7 | "+this.lang.armorResilience+"§6+" + comp.getComponentWithGroup("armor_resilience"));
+                    if (comp.hasComponent("actual_level")) base.push(`§r§e` + this.lang.armorProperty + "  §r§6LV." + comp.getComponentWithGroup("actual_level"));
+                    if (comp.hasComponent("armor_protection")) base.push("§r§7•" + this.lang.armorProtection + "§6+" + comp.getComponentWithGroup("armor_protection") + "§r§7 | " + this.lang.armorResilience + "§6+" + comp.getComponentWithGroup("armor_resilience"));
 
                     if (comp.hasComponent("armor_type")) {
-                        if (comp.hasComponent("armor_physical_protection")) base.push("§r§7•"+this.lang.physicalProtection+"§6+" + comp.getComponentWithGroup("armor_physical_protection") + "％§r§7 | "+this.lang.physicalReduction+"§6+" + comp.getComponentWithGroup("armor_physical_reduction"));
-                        if (comp.hasComponent("armor_magic_protection")) base.push("§r§7•"+this.lang.magicalProtection+"§6+" + comp.getComponentWithGroup("armor_magic_protection") + "％§r§7 | "+this.lang.magicalReduction+"§6+" + comp.getComponentWithGroup("armor_magic_reduction"));
+                        if (comp.hasComponent("armor_physical_protection")) base.push("§r§7•" + this.lang.physicalProtection + "§6+" + comp.getComponentWithGroup("armor_physical_protection") + "％§r§7 | " + this.lang.physicalReduction + "§6+" + comp.getComponentWithGroup("armor_physical_reduction"));
+                        if (comp.hasComponent("armor_magic_protection")) base.push("§r§7•" + this.lang.magicalProtection + "§6+" + comp.getComponentWithGroup("armor_magic_protection") + "％§r§7 | " + this.lang.magicalReduction + "§6+" + comp.getComponentWithGroup("armor_magic_reduction"));
                     }
                     let smove = comp.getComponentWithGroup("sneak_movement_addition") ?? 0;
                     if (comp.hasComponent("movement_addition")) {
-                        base.push("§r§7•"+this.lang.movement+"§6+" + comp.getComponentWithGroup("movement_addition"));
+                        base.push("§r§7•" + this.lang.movement + "§6+" + comp.getComponentWithGroup("movement_addition"));
 
                         if (comp.hasComponent("sneak_movement_addition"))
-                            base[base.length - 1] += ("§r§7 | "+this.lang.sneakingMovement + (smove < 0 ? "§c" + smove : "§6+" + smove));
-                    } else if (comp.hasComponent("sneak_movement_addition")) base.push("§r§7•"+this.lang.sneakingMovement + (smove < 0 ? "§c" + smove : "§6+" + smove));
+                            base[base.length - 1] += ("§r§7 | " + this.lang.sneakingMovement + (smove < 0 ? "§c" + smove : "§6+" + smove));
+                    } else if (comp.hasComponent("sneak_movement_addition")) base.push("§r§7•" + this.lang.sneakingMovement + (smove < 0 ? "§c" + smove : "§6+" + smove));
                     if (comp.hasComponent("attack_addition")) {
-                        base.push("§r§7•"+this.lang.attackDamage+"§6+" + comp.getComponentWithGroup("attack_addition"));
+                        base.push("§r§7•" + this.lang.attackDamage + "§6+" + comp.getComponentWithGroup("attack_addition"));
                     }
                     if (comp.hasComponent("equipment_type")) {
                         if (e.afterItem.typeId.startsWith("dec:")) {
-                            base.push("§r§7•"+this.lang.onTheMainHand+": +20％§7"+this.lang.attackDamage);
+                            base.push("§r§7•" + this.lang.onTheMainHand + ": +20％§7" + this.lang.attackDamage);
                         }
                         // let typeMsg = comp.getComponentWithGroup("equipment_type");
                         // lore.setValueUseDefault("武器类型", typeMsg.tagName + ": " + typeMsg.data);

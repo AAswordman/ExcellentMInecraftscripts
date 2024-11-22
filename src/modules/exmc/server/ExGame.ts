@@ -2,7 +2,7 @@ import ExConfig from '../ExConfig.js';
 import ExGameClient from "./ExGameClient.js";
 import ExGameServer from "./ExGameServer.js";
 
-import { Player, ScriptEventCommandMessageAfterEvent, system } from "@minecraft/server";
+import { Player, ScriptEventCommandMessageAfterEvent, system, world } from "@minecraft/server";
 import "../../reflect-metadata/Reflect.js";
 import ExSystem from "../utils/ExSystem.js";
 import MonitorManager from "../utils/MonitorManager.js";
@@ -110,6 +110,10 @@ export default class ExGame {
         });
     }
 
+    static gamerules = world.gameRules;
+    static sleep(tickDelay: number): Promise<void> {
+        return system.waitTicks(tickDelay);
+    }
     
     static beforeTickMonitor = new MonitorManager<[TickEvent]>();
     static tickMonitor = new MonitorManager<[TickEvent]>();

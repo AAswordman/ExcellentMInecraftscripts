@@ -203,8 +203,10 @@ export default class DecClient extends ExGameClient {
                                 e.applyKnockback(direction.x, direction.z, 1.2, 0.6);
                             } catch (e) { }
                         }
+                        ExGame.run(() => {
+                            // this.exPlayer.addEffect(MinecraftEffectTypes.Absorption, 1 * 20, 0);
+                        });
                         this.exPlayer.addEffect(MinecraftEffectTypes.FireResistance, 5 * 20, 0);
-                        this.exPlayer.addEffect(MinecraftEffectTypes.Absorption, 1 * 20, 0);
                         this.exPlayer.command.runAsync("function EPIC/armor/sunlight");
                         this.exPlayer.removeTag("skill_user")
                         break;

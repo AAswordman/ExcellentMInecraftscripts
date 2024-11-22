@@ -2,7 +2,6 @@
  * 原版接口
  */
 import * as server from "@minecraft/server";
-import ExErrorQueue from "../exmc/server/ExErrorQueue.js";
 /**
  * * 定义JSON值类型, 可以是字符串、布尔值、数字、JSON对象、JSON数组
  */
@@ -27,20 +26,38 @@ export type TransmissionDataType = TransmissionDataType[] | JSONValue | GameObje
  * * 定义一个导出函数类型, 它可以接受一个或多个TransmissionDataType类型的参数, 并返回一个TransmissionDataType类型的值。
  */
 export type ExportFunctionType = (...para: (TransmissionDataType)[]) => TransmissionDataType;
-
+/**
+ * * 定义一个接口，用于标识远程控制对象
+ * 
+ * * 这个接口的主要作用是通过类型系统标记某个对象是否具有远程控制的能力
+ * 
+ * @interface RemoteCtrlObject
+ * 
+ * @property {boolean} __remote - 一个布尔值属性，用于标识该对象是否为远程控制对象
+ */
 export interface RemoteCtrlObject {
     __remote: true;
-}
-
-
+};
 /**
  * * 从函数类型T中提取参数类型。
  * 
  * * 如果函数类型T可以被...para: (infer P)所匹配, 那么 P 就是参数类型, 否则返回 never。
-*/
+ */
 type ExportFunctionPara<T extends (...args: any) => any> = (T extends ((...para: (infer P)) => TransmissionDataType) ? P : never);
-
-
+/**
+ * 定义一个类型别名 `ExportPromiseSetter`，用于将对象类型中的函数转换为特定类型的函数，
+ * 非函数属性则转换为 `Promise` 类型。
+ * 
+ * @template T 输入的对象类型，其中的函数类型会被转换，非函数类型保持不变。
+ * 
+ * 此类型别名通过映射类型来转换输入的对象类型 `T`。对于 `T` 中的每个属性：
+ * - 如果属性值是一个函数，并且该函数的参数类型符合 `TransmissionDataType`，
+ *   则该函数类型保持不变，否则转换为 `never` 类型。
+ * - 如果属性值是一个函数，但不满足上述条件，则将其转换为 `ExportFunctionTypeTrans<T[K]>` 类型。
+ * - 如果属性值不是函数，则将其转换为 `Promise<T[K]>` 类型。
+ * 
+ * 这种转换主要用于在导出对象时，将其中的函数转换为特定格式，以便在其他模块中使用。
+ */
 export type ExportPromiseSetter<T extends { [K in keyof T]: T[K] extends (...para: any) => any ? (ExportFunctionPara<T[K]> extends TransmissionDataType ? T[K] : never) : T[K] }> =
     { [K in keyof T]: T[K] extends (...para: any[]) => any ? (T[K] extends (...args: any[]) => any ? ExportFunctionTypeTrans<T[K]> : any) : Promise<T[K]> }
 /**
@@ -51,35 +68,81 @@ export type ExportPromiseSetter<T extends { [K in keyof T]: T[K] extends (...par
 type ExportFunctionTypeTrans<T extends (...args: any) => any> =
     (...para: (T extends ((...para: (infer P)) => TransmissionDataType) ? P : never)) => (ReturnType<T> extends { [K in keyof T]: T[K] extends (...para: any) => any ? (ExportFunctionPara<T[K]> extends TransmissionDataType ? T[K] : never) : T[K] }
         ? Promise<ExportPromiseSetter<ReturnType<T>>> : Promise<ReturnType<T>>);
-
+/**
+ * * 定义导出函数联合类型, 包含导出ID和其他未知键值对
+ */
+export interface ExportFunctionUnion {
+    /**
+     * * 导出函数的唯一标识符, 用于在导出函数列表中识别该函数
+     */
+    exportId: string;
+};
+/**
+ * 表示一种符号类型，提供基本的信息和比较功能。
+ */
 export class SignType {
-    constructor(public name: string, public transName: string) {
-
-    }
+    /**
+     * 构造一个 SignType 实例。
+     * @param name 符号类型的名称，用于唯一标识该符号。
+     * @param transName 符号类型的翻译名称，用于国际化显示。
+     */
+    constructor(public name: string, public transName: string) { };
+    /**
+     * 比较当前符号类型是否与另一个符号类型相同。
+     * 比较基于名称属性的一致性。
+     * @param sign 要比较的另一个符号类型。
+     * @returns 如果名称相同则返回 true，否则返回 false。
+     */
     equals(sign: SignType) {
         return this.name == sign.name;
     }
-}
-
+};
+/**
+ * SIGN对象定义了一系列签名类型，用于在程序中标识不同的操作或表达式类型
+ * 
+ * 每种签名类型都是SignType的实例，具有唯一的名称和符号表示
+ */
 export const SIGN = {
+    // 类型获取签名，用于标识类型获取操作
     TypeGetterSign: new SignType("TypeGetterSign", "sign<tg>"),
+    // 函数调用签名，用于标识函数调用操作
     FunctionCallSign: new SignType("FunctionCallSign", "sign<fc>"),
+    // 变量地址获取签名，用于标识变量地址获取操作
     VarAddressGetterSign: new SignType("VarAddressGetterSign", "sign<vag>"),
+    // 函数标识签名，用于标识某个实体是函数
     IsFunctionSign: new SignType("IsFunctionSign", "sign<isf>"),
+    // 非函数标识签名，用于标识某个实体不是函数
     IsNotFunctionSign: new SignType("IsNotFunctionSign", "sign<isnf>")
-}
-
-function keys(obj: any) {
+};
+/**
+ * 获取对象及其原型链上的所有键
+ * 
+ * 此函数的目的是深入对象的原型链，收集从对象本身到原型链末端的所有键
+ * 
+ * 这包括了对象自身的属性和方法，以及其所有原型上的可枚举和不可枚举属性
+ * 
+ * @param obj {any} - 输入的对象，将要检索其键
+ * 
+ * @returns {Array} - 包含对象及其原型链上所有键的数组
+ */
+function keys(obj: any): Array<string | symbol> {
+    // 从对象本身开始，获取其所有键，包括可枚举和不可枚举的
     const keys = Reflect.ownKeys(obj);
+    // 初始化指向对象的原型
     let i = obj.__proto__;
+    // 遍历原型链，直到达到原型链的末端
     while (i) {
+        // 遍历当前原型的所有键
         for (let key of Reflect.ownKeys(i)) {
+            // 将键添加到结果数组中
             keys.push(key);
         }
+        // 移动到下一个原型
         i = i.__proto__;
-    }
+    };
+    // 返回收集到的所有键
     return keys;
-}
+};
 
 /**
  * * 定义一个事件监听器接口, 用于订阅和取消事件监
@@ -102,48 +165,21 @@ interface EventListener<T> {
      */
     unsubscribe: (callback: (arg: T) => void) => void;
 };
-/**
- * * 定义导出函数联合类型, 包含导出ID和其他未知键值对
- */
-export interface ExportFunctionUnion {
-    /**
-     * * 导出函数的唯一标识符, 用于在导出函数列表中识别该函数
-     */
-    exportId: string;
-};
-/**
- * * 定义脚本消息的接口
- * 
- * * 用于标准化脚本执行时的消息格式
- */
-export interface ScriptMessage {
-    /**
-     * * 标记消息来源的ID
-     */
-    id: string;
-    /**
-     * * 消息的文本内容
-     */
-    message: string;
-    /**
-     * * 可选的源实体, 用于指示消息的发送者
-     */
-    sourceEntity?: server.Entity;
-};
-
 
 /**
  * * 创建一个 Promise, 该 Promise 在指定事件发生时解析
  * 
  * @param {EventListener<T>} [lis] 事件监听器对象, 用于订阅和取消订阅事件
  * 
- * @param {number} [timeout] 超时时间, 默认为200毫秒
+ * @param {number} [timeout] 超时时间, 默认为 200 tick
  * 
  * @param {(e: T) => boolean} [filter] 过滤函数, 用于判断事件是否满足条件
  * 
- * @returns {Promise<T>} 返回一个Promise, 当满足条件的事件发生时解析, 否则在超时后拒绝
+ * @param {string} [type] 事件类型
+ * 
+ * @returns {Promise<T>} 返回一个 Promise, 当满足条件的事件发生时解析, 否则在超时后拒绝
  */
-function eventGetter<T>(lis: EventListener<T>, timeout: number = 20 * 10, filter: ((e: T) => boolean)): Promise<T> {
+function eventGetter<T>(lis: EventListener<T>, timeout: number = 20 * 10, filter: ((e: T) => boolean), type: string): Promise<T> {
     return new Promise<T>(
         (resolve, reject) => {
             /**
@@ -163,7 +199,7 @@ function eventGetter<T>(lis: EventListener<T>, timeout: number = 20 * 10, filter
             server.system.runTimeout(
                 () => {
                     lis.unsubscribe(f);
-                    reject(`Timeout after ${timeout}ms`);
+                    reject(`${type} Timeout after ${timeout}ms`);
                 },
                 timeout
             );
@@ -189,7 +225,7 @@ function randomFloor(min: number, max: number): number {
  */
 function BriefID(): string {
     /**
-     * * 获取当前时间戳的后16位作为时间部分
+     * * 获取当前时间戳的后 16 位 作为时间部分
      */
     const timePart = (server.system.currentTick & 0xFFFF).toString(16).padStart(4, '0').toUpperCase();
     /**
@@ -201,7 +237,7 @@ function BriefID(): string {
      */
     const difference = (parseInt(randomPart, 16) - parseInt(timePart, 16) + 0x10000) % 0x10000;
     /**
-     * * 将差值转换为4位十六进制字符串
+     * * 将差值转换为 4 位 十六进制 字符串
      */
     const differencePart = difference.toString(16).padStart(4, '0').toUpperCase();
     // 拼接各部分以形成完整的ID字符串
@@ -247,7 +283,7 @@ export class ProtocolInterceptors {
 /**
  * * 统一推送协议
  */
-export default class BridgeProtocol {
+export class BridgeProtocol {
     /**
      * * 协议信息
      */
@@ -280,32 +316,40 @@ export default class BridgeProtocol {
     /**
      * * 接入 统一推送协议 的 函数列表
      */
-    private functionList: Map<string, ExportFunctionType> = new Map([['help', this.help]]);
+    private functionList: Map<string, ExportFunctionType> = new Map([['help', () => { this.help(); }]]);
     /**
      * * 拦截器
      */
     private protocolInterceptors: ProtocolInterceptors;
-
+    /**
+     * 存储与数字关联的内存地址的映射。
+     * 
+     * 键是数字，值可以是任何类型。
+     */
     private memoryAddress: Map<number, unknown>;
+    /**
+     * 存储与对象关联的内存地址获取器的映射。
+     * 
+     * 键是对象，值是数字，表示内存地址。
+     */
     private memoryAddressGetter: Map<Object, number>;
-
     /**
      * * 当前包函数 的 文本描述 用于 在游戏中反馈给调用者
      */
     private describe: (server.RawMessage | string)[] = [];
     /**
-     * * 构建 统一推送协议 对象 并 初始化拦截器
+     * * 构造函数用于初始化通信相关的数据结构和拦截器
      */
     constructor() {
         // 初始化协议拦截器对象
         this.protocolInterceptors = new ProtocolInterceptors();
-
-        this.memoryAddress = new Map();
+        // 初始化内存地址获取器映射表
         this.memoryAddressGetter = new Map();
+        // 初始化内存地址映射表
+        this.memoryAddress = new Map();
         // 初始化接收处理
         this.initReceive();
     };
-
     /**
      * * 初始化接收事件处理
      * 
@@ -317,63 +361,89 @@ export default class BridgeProtocol {
             async (data) => {
                 // 忽略带有返回结果的事件, 避免循环处理
                 if (data.message.startsWith('return+')) return;
-
-                const name = data.id.split(':')[1];
-
-                let getFunction: ExportFunctionType | undefined | number | string | boolean = this.functionList.get(name);
-                if (name.indexOf(".") !== -1) {
-                    const [moduleLocation, functionName] = name.split(".");
-                    const object = this.memoryAddress.get(parseInt(moduleLocation));
-                    getFunction = (object as any)[functionName];
-                }
-
-                let sendbackMsg = (msg: string) => {
-                    console.warn("return+" + msg);
-                    server.world.getDimension('overworld').runCommand(`scriptevent ${data.id} return+${msg}`);
-                }
-
                 /**
-                 * * 将接收到的 数据 转换为 函数可用 的 参数数组
+                 * * 获取 本次通讯 期望引用 的 函数 的 名称
+                 */
+                const name = data.id.split(':')[1];
+                /**
+                 * * 从 功能列表中 查询对应 的 函数
+                 */
+                let getFunction: ExportFunctionType | undefined | number | string | boolean = this.functionList.get(name);
+                // 如果函数名包含".",则表示需要从对象中获取函数
+                if (name.indexOf(".") !== -1) {
+                    /**
+                     * * 将函数名按"."分割为模块名和函数名
+                     */
+                    const [moduleLocation, functionName] = name.split(".");
+                    /**
+                     * * 从内存地址映射表中获取对象
+                     */
+                    const object = this.memoryAddress.get(parseInt(moduleLocation));
+                    // 尝试从对象中获取函数
+                    getFunction = (object as any)[functionName];
+                    // 如果获取到的是函数，则将其绑定到对象上
+                    if (getFunction instanceof Function) getFunction = getFunction.bind(object);
+                };
+                /**
+                 * * 定义函数调用结果的处理函数，用于将结果发送回调用方
+                 * 
+                 * @param msg - 待发送的消息
+                 */
+                let sendbackMsg = (msg: string) => {
+                    server.world.getDimension('overworld').runCommand(`scriptevent ${data.id} return+${msg}`);
+                };
+                /**
+                 * * 将接收到的数据转换为函数可用的参数数组
                  */
                 const parameters = this.dataToTransmitString(data);
-                //其他获取
+                /**
+                 * * 初始化传输数据类型
+                 */
                 let result: TransmissionDataType[] | undefined;
+                // 如果参数只有一个且是获取类型的标识，则处理函数类型查询
                 if (parameters.length === 1 && parameters[0] instanceof SignType) {
+                    // 如果是类型查询标识，则返回函数类型标识
                     if (parameters[0].equals(SIGN.TypeGetterSign)) {
+                        // 如果是函数，返回函数标识
                         if (getFunction instanceof Function) {
                             result = [SIGN.IsFunctionSign];
-                        } else {
+                        }
+                        // 如果不是函数，返回非函数标识和值
+                        else {
                             result = [SIGN.IsNotFunctionSign, getFunction];
                         }
                     }
-                } else {
-                    // 函数调用
-                    // 如果未找到对应的函数, 则不进行后续处理
+                }
+                else {
+                    // 如果未找到对应的函数，则不进行后续处理
                     if (getFunction === undefined) return;
-                    // 捕获函数执行过程中的异常
+                    // 尝试调用函数，并捕获可能发生的异常
                     try {
+                        // 如果是函数，则调用并处理结果
                         if (getFunction instanceof Function) {
                             result = [this.protocolInterceptors.onCalled(getFunction, name, parameters)];
-                        } else {
+                        }
+                        // 如果不是函数，则直接返回值
+                        else {
                             result = [getFunction];
                             // throw new Error(`${name} is not a function`);
                         }
-                        // 将处理结果通过命令形式返回给发送方
                     }
+                    // 如果发生异常，构造错误信息并返回
                     catch (error) {
-                        //如果报错，返回报错
                         let errorFlow = '';
                         if (error instanceof Error) errorFlow = (error.name + " : " + error.message + "\n" + error.stack);
                         else errorFlow = errorFlow + (error);
                         result = [errorFlow];
                     }
                 }
+                // 如果结果未定义，则抛出错误
                 if (!result) throw new Error('result is undefined');
+                // 发送处理结果回调用方
                 sendbackMsg(this.arrayToTransmitString(result));
             }
         );
     };
-
     /**
      * * 向统一推送 的 功能列表 中 添加 或 更新功能
      * 
@@ -403,7 +473,7 @@ export default class BridgeProtocol {
      * 
      * - [string, ExportFunctionType<any>]：单一的包含函数名称和函数本身的数组
      */
-    public set exportFunctions(func: ExportFunctionType[] | ExportFunctionType | [string, ExportFunctionType][] | [string, ExportFunctionType]) {
+    public set exportFunctions(func: any) {
         // 如果传入的是一个函数实例, 则直接调用exportFunction方法
         if (func instanceof Function) {
             this.exportFunction(func);
@@ -421,41 +491,39 @@ export default class BridgeProtocol {
     };
 
     /**
-     * * 显示帮助信息
+     * * 显示帮助信息的方法
      * 
-     * * 此方法用于输出模块的描述信息作为帮助文档如果模块的描述为空, 则抛出错误
+     * * 该方法主要用于向世界广播功能描述、协议版本信息、描述信息和函数列表
      * 
-     * * 描述信息可以是字符串, 也可以是包含文本的对象, 方法会根据类型进行相应的处理
+     * * 它通过发送消息到服务器的世界频道并打印到控制台来实现
      */
     public help() {
-        // 将协议版本信息添加到描述信息数组的开头
-        this.describe.unshift('协议版本: ' + this.protocolMessage.protocolVersion);
-        // 检查描述信息数组是否至少包含两条信息
-        if (this.describe.length >= 2) {
-            // 遍历描述信息数组，将每条信息发送到世界聊天并打印到控制台
-            this.describe.forEach(
-                value => {
-                    // 发送到世界聊天栏
-                    server.world.sendMessage(value);
-                    // 根据值的类型，选择合适的打印方式
-                    console.log(typeof value === 'string' ? value : value.text);
-                }
-            );
-        }
-        else {
-            // 如果描述信息数组为空或信息不足，抛出错误
-            throw new Error('模块描述为空, 无法输出帮助文档');
-        }
-        // 向世界聊天发送函数列表的标题，并在控制台打印相同的标题
-        server.world.sendMessage('=+==+==+==+==+=< 函数列表 >=+==+==+==+==+=');
-        console.log('=+==+==+==+==+=< 函数列表 >=+==+==+==+==+=');
-        // 从函数列表映射中提取所有函数名称，并将它们发送到世界聊天以及打印到控制台
-        [...this.functionList.values()].map(item => item.name).forEach(
-            item => {
-                server.world.sendMessage(item);
-                console.log(item);
-            }
-        );
+        /**
+         * * 定义帮助信息的标题
+         */
+        const title = '=+==+==+==+==+=< 功能描述 >=+==+==+==+==+=';
+        /**
+         * * 定义函数列表的标题
+         */
+        const functionListTitle = '=+==+==+==+==+=< 函数列表 >=+==+==+==+==+=';
+        /**
+         * * 发送消息到世界频道并打印到控制台
+         * 
+         * @param {string} message - 要发送和打印的消息
+         */
+        const sendMessage = (message: string) => {
+            server.world.sendMessage(message);
+            console.log(message);
+        };
+        // 发送标题和协议版本信息
+        sendMessage(title);
+        sendMessage(`协议版本: ${this.protocolMessage.protocolVersion}`);
+        // 发送描述信息
+        this.describe.forEach(value => sendMessage(typeof value !== 'string' ? value.text ?? JSON.stringify(value) : value));
+        // 发送函数列表标题
+        sendMessage(functionListTitle);
+        // 发送函数名称列表
+        this.functionList.forEach((_, name) => sendMessage(name));
     };
     /**
      * * 对一个模块进行解析，并返回一个可以进行调用的模块
@@ -495,10 +563,29 @@ export default class BridgeProtocol {
             }
         );
     };
-
+    /**
+     * 异步调用一个函数，并通过协议拦截器处理调用过程
+     * 
+     * @param functionName 要调用的函数名称
+     * 
+     * @param parameters 函数调用的参数列表，为TransmissionDataType类型的数组
+     * 
+     * @param timeout 调用的超时时间，默认为 200 tick（20 * 10）
+     * 
+     * @param source 调用的源，可以是服务器的玩家或实体，用于追踪调用上下文
+     * 
+     * @returns 返回一个Promise，解析为函数调用的结果，类型为TransmissionDataType
+     */
     public async call(functionName: string, parameters: TransmissionDataType[], timeout: number = 20 * 10, source?: server.Player | server.Entity): Promise<TransmissionDataType> {
+        /**
+         * 通过协议拦截器处理函数调用，以便在调用前后添加额外的处理逻辑
+         */
         const data = await this.protocolInterceptors.onCalling(
+            // 定义一个函数，用于实际执行函数调用
             (_functionName, _parameters, _timeout, _source) => {
+                /**
+                 * 执行函数调用，并返回调用结果
+                 */
                 let res = this.post(_functionName, SIGN.FunctionCallSign, _parameters, _timeout, _source);
                 return res;
             },
@@ -507,33 +594,69 @@ export default class BridgeProtocol {
             timeout,
             source
         );
+        // 返回调用结果的第一个元素，因为结果可能是一个数组，但这里只需要第一个元素
         return data[0];
-    };
-
-
+    }
+    /**
+     * 异步执行一个脚本事件，并等待结果返回
+     * 
+     * @param functionName 脚本事件的名称
+     * 
+     * @param typePost 签名类型，用于验证和标识事件
+     * 
+     * @param parameters 传递给脚本事件的参数数组
+     * 
+     * @param timeout 等待事件响应的超时时间，默认为200tick
+     * 
+     * @param source 触发脚本事件的来源，可以是玩家或实体，默认为世界维度
+     * 
+     * @returns 返回一个Promise，解析为接收到的事件数据数组
+     * 
+     * 此函数用于向游戏服务器发送脚本事件，并等待相应的响应它主要用于跨系统的数据交互和功能调用
+     */
     public async post(functionName: string, typePost: SignType, parameters?: TransmissionDataType[], timeout: number = 20 * 10, source?: server.Player | server.Entity): Promise<TransmissionDataType[]> {
+        // 生成一个唯一的调用ID，用于标识和匹配事件响应
         const callId = '-' + randomFloor(1000, 9999);
+        // 根据签名类型决定参数的处理方式如果类型不是函数调用签名，则将签名作为第一个参数
         if (!(typePost.equals(SIGN.FunctionCallSign))) parameters = [typePost];
+        // 如果没有提供参数，则抛出错误
         if (!parameters) throw new Error('Error in parameters');
+        // 将参数数组转换为传输字符串
         const arrayTransData = this.arrayToTransmitString(parameters);
-        console.warn("postMessage: " + functionName + arrayTransData);
+        // 定义一个测试函数，用于验证接收到的事件是否与当前调用相关
         const testDeclare = (data: string): boolean => data.split(/:/)[0] == this.projectId + callId && data.split(/:/)[1] == functionName;
         // 执行命令以触发脚本事件, 并传递调用ID和参数
         (source ?? server.world.getDimension('overworld')).runCommand(`scriptevent ${this.projectId + callId}:${functionName} ${arrayTransData}`);
         // 等待脚本事件接收, 并在指定时间内返回结果
-        const data = this.dataToTransmitString(await eventGetter(server.system.afterEvents.scriptEventReceive, timeout, (data) => testDeclare(data.id) && data.message.split('+')[0] == 'return'));
+        const data = this.dataToTransmitString(await eventGetter(server.system.afterEvents.scriptEventReceive, timeout, (data) => testDeclare(data.id) && data.message.split('+')[0] == 'return', functionName));
         // 返回处理后的数据
         return data;
     };
-
-
-
+    /**
+     * 异步调用指定对象上的方法
+     * 
+     * 此函数封装了对特定对象地址上的方法进行调用的过程它通过将对象地址和函数名
+     * 组合来调用相应的方法，并允许传递参数和设置超时此外，还可以指定调用的源
+     * 
+     * @param objectAddress 对象的地址，用于定位对象
+     * 
+     * @param functionName 要调用的方法的名称
+     * 
+     * @param parameters 可选参数，传递给方法的参数数组
+     * 
+     * @param timeout 超时设置，默认为200毫秒
+     * 
+     * @param source 可选参数，指定调用的源可以是玩家或实体
+     * 
+     * @returns 返回一个Promise，解析为方法调用的结果
+     */
     public async callObject(objectAddress: number, functionName: string, parameters?: TransmissionDataType[], timeout: number = 20 * 10, source?: server.Player | server.Entity): Promise<TransmissionDataType> {
+        // 组合对象地址和函数名，构造完整的调用路径
+        // 调用方法，并传递参数和超时设置，以及可能的调用源
         const data = this.call(objectAddress + "." + functionName, parameters ?? [], timeout, source);
+        // 返回调用结果
         return data;
-    }
-
-
+    };
     /**
      * * 将接收到的服务器脚本事件命令消息转换为 JSONArray
      * 
@@ -642,7 +765,6 @@ export default class BridgeProtocol {
                 else return type;
             }
         );
-
         // 返回转换后的参数数组
         return parameters;
 
@@ -751,26 +873,46 @@ export default class BridgeProtocol {
         }
         // 如果数据以'x<'开头并以'>'结尾, 解析为JSON字符串并返回相应的对象
         else if (data.startsWith('x<') && data.endsWith('>')) return this.dataToJSON(data.slice(2, -1));
+        // 当数据以 'object<' 开头并以 '>' 结尾时，处理对象代理的创建
         else if (data.startsWith('object<') && data.endsWith('>')) {
+            // 提取地址字符串和键字符串，它们之间通过 "|" 分隔
             const [addressStr, keysStr] = data.slice(7, -1).split("|");
+            // 将地址字符串转换为数字
             const address = parseInt(addressStr);
+            // 将键字符串解析为字符串数组
             const keys: String[] = JSON.parse(keysStr);
+            // 保存对当前实例的引用，以便在代理中使用
             const inferrence = this;
-            return new Proxy(new Object(), {
-                "get": function (target, prop) {
-                    console.warn("listen: " + prop.toString());
-                    if (!keys.includes(String(prop))) {
-                        return inferrence.callObject(address, String(prop), []).then(type => {
-                            return type;
-                        })
-                    } else {
-                        return (...args: TransmissionDataType[]) => {
-                            return inferrence.callObject(address, String(prop), args);
+            // 标记是否首次访问 'then' 属性
+            let firstThen = true;
+            // 返回一个代理对象，该代理对象用于拦截对属性的访问
+            return <any>new Proxy(new Object(),
+                {
+                    "get": function (target, prop) {
+                        // 如果访问的是 'then' 属性且是首次访问，则标记为已访问并返回 undefined
+                        if (prop === 'then' && firstThen) {
+                            firstThen = false;
+                            return undefined;
+                        }
+                        // 如果属性键不在已知的键数组中，则远程调用对象方法
+                        if (!keys.includes(String(prop))) {
+                            // 返回一个 Promise，它将远程调用对象的属性并解析返回的类型
+                            return inferrence.callObject(address, String(prop), []).then(type => {
+                                return type;
+                            });
+                        }
+                        else {
+                            // 如果属性键在已知的键数组中，则返回一个函数，该函数将调用远程对象的方法
+                            return (...args: TransmissionDataType[]) => {
+                                // 返回一个 Promise，它将远程调用对象的方法并传递参数
+                                return inferrence.callObject(address, String(prop), args);
+                            };
                         }
                     }
                 }
-            })
+            );
         }
+        // 当数据等于某个特定符号的传输名称时，返回相应的符号实例
         else if (data === SIGN.IsFunctionSign.transName) return SIGN.IsFunctionSign;
         else if (data === SIGN.IsNotFunctionSign.transName) return SIGN.IsNotFunctionSign;
         else if (data === SIGN.TypeGetterSign.transName) return SIGN.TypeGetterSign;
@@ -877,23 +1019,36 @@ export default class BridgeProtocol {
                 if (element instanceof server.Entity) return this.entityToString(element);
                 // 如果元素是Dimension实例，调用dimensionToString方法
                 if (element instanceof server.Dimension) return this.dimensionToString(element);
+                // 检查元素是否是 SignType 类型的实例
                 if (element instanceof SignType) {
+                    // 如果元素等于 FunctionCallSign，则返回对应的传输名称
                     if (element.equals(SIGN.FunctionCallSign)) return SIGN.FunctionCallSign.transName;
+                    // 如果元素等于 IsFunctionSign，则返回对应的传输名称
                     if (element.equals(SIGN.IsFunctionSign)) return SIGN.IsFunctionSign.transName;
+                    // 如果元素等于 IsNotFunctionSign，则返回对应的传输名称
                     if (element.equals(SIGN.IsNotFunctionSign)) return SIGN.IsNotFunctionSign.transName;
+                    // 如果元素等于 TypeGetterSign，则返回对应的传输名称
                     if (element.equals(SIGN.TypeGetterSign)) return SIGN.TypeGetterSign.transName;
+                    // 如果元素等于 VarAddressGetterSign，则返回对应的传输名称
                     if (element.equals(SIGN.VarAddressGetterSign)) return SIGN.VarAddressGetterSign.transName;
                 }
+                // 检查元素是否具有 "__remote" 属性，这通常表示它是一个远程对象
                 if ("__remote" in element) {
+                    // 检查内存地址获取器是否已经为该元素分配了地址
                     if (this.memoryAddressGetter.has(element)) {
+                        // 如果已经分配了地址，则返回该地址
                         return this.memoryAddressGetter.get(element)!;
-                    } else {
+                    }
+                    else {
+                        // 如果没有分配地址，则生成一个随机的内存地址
                         const address = randomFloor(-1000000, 10000000);
+                        // 将元素和生成的地址存储在内存地址获取器中
                         this.memoryAddressGetter.set(element, address);
+                        // 同时在内存地址映射中存储元素，以便可以通过地址访问元素
                         this.memoryAddress.set(address, element);
-                        return `object<${address}|${JSON.stringify(keys(element).filter(e => {
-                            return (element as any)[e] instanceof Function && !e.toString().startsWith("_")
-                        }))}>`;
+                        // 返回一个对象字符串，包含地址和元素的所有函数键（不包括以 "_" 开头的键）
+                        // 这些键将用于在代理中拦截对这些函数的调用
+                        return `object<${address}|${JSON.stringify(keys(element).filter(e => { return (element as any)[e] instanceof Function && !e.toString().startsWith("_") }))}>`;
                     }
                 }
                 // 对于其他对象类型，使用JSON.stringify方法转换为字符串
@@ -1058,4 +1213,6 @@ export default class BridgeProtocol {
  * * 推送系统不涉及任何数据存储
  *
  */
-export const bridge = new BridgeProtocol();
+const bridge = new BridgeProtocol();
+// 默认导出 统一推送协议 实例
+export default bridge;

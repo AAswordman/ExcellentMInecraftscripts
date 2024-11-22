@@ -228,6 +228,7 @@ export default class PomMagicSystem extends GameController {
                 this.hurtState = true;
                 this.hurtMaxNum = change;
             }
+            console.warn("change",change)
 
             if (!this.isProtected) {
                 if (n === 1) {
@@ -308,6 +309,17 @@ export default class PomMagicSystem extends GameController {
             }
 
         });
+        this.getEvents().exEvents.afterEffectAdd.subscribe(e => {
+            let eff = e.effect.typeId;
+            if (eff === MinecraftEffectTypes.Absorption) {
+                this.setDamageAbsorbed((e.effect.amplifier + 1) * 4);
+                this.player.removeEffect(MinecraftEffectTypes.Absorption);
+            }
+            if (eff === MinecraftEffectTypes.HealthBoost) {
+                this.setMagicAbsorbed((e.effect.amplifier + 1) * 4);
+                this.player.removeEffect(MinecraftEffectTypes.HealthBoost);
+            }
+        })
     }
 
     setDamageAbsorbed(num: number) {

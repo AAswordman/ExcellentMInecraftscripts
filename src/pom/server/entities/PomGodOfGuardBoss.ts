@@ -1,4 +1,4 @@
-import { Dimension, Entity, EntityHurtAfterEvent, MolangVariableMap, Direction, EntityDamageCause, Player, GameMode, world } from '@minecraft/server';
+import { Dimension, Entity, EntityHurtAfterEvent, MolangVariableMap, Direction, EntityDamageCause, Player, GameMode, world, system, System } from '@minecraft/server';
 import { registerEvent } from '../../../modules/exmc/server/events/eventDecoratorFactory.js';
 import { ExEventNames, ExOtherEventNames, TickEvent } from '../../../modules/exmc/server/events/events.js';
 import ExErrorQueue, { ignorn } from '../../../modules/exmc/server/ExErrorQueue.js';
@@ -23,6 +23,7 @@ import ExTimeLine from '../../../modules/exmc/utils/ExTimeLine.js';
 import { ExBlockArea } from '../../../modules/exmc/server/block/ExBlockArea.js';
 import format from '../../../modules/exmc/utils/format.js';
 import { langType } from '../data/langType.js';
+import ExGame from '../../../modules/exmc/server/ExGame.js';
 
 export class PomGodOfGuardBossState {
     constructor(public centers: PomGodOfGuardShootCenters, public ctrl: PomBossController, public defDamage: number, arg?: any) {
@@ -1938,82 +1939,61 @@ export class PomGodOfGuardBoss3 extends PomBossController {
                 });
             }
         });
-        this.cycle = () => this.act().then(() => this.cycle?.());
+        this.cycle = () => this.act().then(() => {
+            return ExGame.sleep(20);
+        }).then(() => {
+            return this.cycle?.();
+        });
         this.cycle();
     }
     tmpV = new Vector3();
     act() {
         let actions = [
-            () => this.sprint(this.getRandomPos()).then(() => {
-                return this.skipWithAttackHeavy(this.getTargetPos);
-            }).then(() => {
-                return this.skipWithAttack(this.getTargetPos);
-            }).then(() => {
-                return this.skipWithAttack(this.getTargetPos);
-            }).then(() => {
-                return this.skipWithAttack(this.getTargetPos);
-            }).then(() => {
-                return this.sprint(this.getRandomPos());
-            }).then(() => {
+            async () => {
+                await this.sprint(this.getRandomPos());
+                await this.skipWithAttackHeavy(this.getTargetPos);
+                for (let i = 0; i < 3; i++) {
+                    await ExGame.sleep(10);
+                    await this.skipWithAttack(this.getTargetPos);
+                }
+                await this.sprint(this.getRandomPos());
                 this.summonBullet();
                 let pos = this.getRandomPos();
-                return this.summonLazer(pos, this.getTargetPos().sub(pos));
-            }),
-            () => this.sprint(this.getRandomPos()).then(() => {
-                return this.sprint(this.getTargetPos(4));
-            }).then(() => {
-                return this.sprint(this.getTargetPos(4));
-            }).then(() => {
-                return this.sprint(this.getRandomPos());
-            }).then(() => {
+                await this.summonLazer(pos, this.getTargetPos().sub(pos));
+            },
+            async () => {
+                await this.sprint(this.getRandomPos())
+                await this.sprint(this.getTargetPos(4));
+                await this.sprint(this.getTargetPos(4));
+                await this.sprint(this.getRandomPos());
                 this.summonBullet();
                 let pos = this.getRandomPos();
-                return this.summonLazer(pos, this.getTargetPos().sub(pos), 5);
-            }),
-            () => this.sprint(this.getRandomPos()).then(() => {
-                return this.skipWithAttackHeavy(this.getTargetPos);
-            }).then(() => {
-                return this.summonBullet();
-            }).then(() => {
-                return this.summonBullet();
-            }).then(() => {
-                if (this.getTargetPos().distance(this.entity.location) < 6) {
-                    return this.normalAttack();
-                } else {
-                    return this.skipWithAttackHeavy(this.getTargetPos);
+                await this.summonLazer(pos, this.getTargetPos().sub(pos), 5);
+            },
+            async () => {
+                await this.sprint(this.getRandomPos());
+                await this.skipWithAttackHeavy(this.getTargetPos);
+                await this.summonBullet();
+                await this.summonBullet();
+                for (let i = 0; i < 2; i++) {
+                    if (this.getTargetPos().distance(this.entity.location) < 6) {
+                        await this.normalAttack();
+                    } else {
+                        await this.skipWithAttackHeavy(this.getTargetPos);
+                    }
                 }
-            }).then(() => {
-                if (this.getTargetPos().distance(this.entity.location) < 6) {
-                    return this.normalAttack();
-                } else {
-                    return this.skipWithAttack(this.getTargetPos);
+            },
+            async () => {
+                await this.sprint(this.getRandomPos());
+                await this.skipWithAttackHeavy(this.getTargetPos);
+                for (let i = 0; i < 2; i++) {
+                    if (this.getTargetPos().distance(this.entity.location) < 6) {
+                        await this.normalAttack();
+                    } else {
+                        await this.skipWithAttack(this.getTargetPos);
+                    }
                 }
-            }),
-            () => this.sprint(this.getTargetPos(4)).then(() => {
-                if(this.getTargetPos().distance(this.entity.location) > 10){
-                    return this.sprint(this.getTargetPos(4));
-                }else{
-                    return this.normalAttack();
-                }
-            }).then(() => {
-                if(this.getTargetPos().distance(this.entity.location) > 10){
-                    return this.sprint(this.getTargetPos(4));
-                }else{
-                    return this.normalAttack();
-                }
-            }).then(() => {
-                if(this.getTargetPos().distance(this.entity.location) > 10){
-                    return this.sprint(this.getTargetPos(4));
-                }else{
-                    return this.normalAttack();
-                }
-            }).then(() => {
-                if(this.getTargetPos().distance(this.entity.location) > 10){
-                    return this.sprint(this.getTargetPos(4));
-                }else{
-                    return this.normalAttack();
-                }
-            })
+            }
         ];
         return Random.choice(actions)()
     }

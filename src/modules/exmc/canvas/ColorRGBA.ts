@@ -1,8 +1,6 @@
 import ColorHSV from "./ColorHSV.js";
 
 export default class ColorRGBA {
-
-
     private _r: number;
     private _g: number;
     private _b: number;

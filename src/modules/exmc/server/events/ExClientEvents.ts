@@ -1,5 +1,5 @@
 import ExGameClient from "../ExGameClient.js";
-import { PlayerBreakBlockAfterEvent, ChatSendAfterEvent, ChatSendBeforeEvent, EffectAddAfterEvent, EntityHealthChangedAfterEvent, EntityHitBlockAfterEvent, EntityHurtAfterEvent, ItemReleaseUseAfterEvent, ItemStopUseAfterEvent, ItemUseAfterEvent, ItemUseBeforeEvent, ItemUseOnAfterEvent, ItemUseOnBeforeEvent, PlayerSpawnAfterEvent, ItemUseOnEvent, PlayerInteractWithBlockBeforeEvent, PlayerInteractWithEntityBeforeEvent } from '@minecraft/server';
+import { PlayerBreakBlockAfterEvent, ChatSendAfterEvent, ChatSendBeforeEvent, EffectAddAfterEvent, EntityHealthChangedAfterEvent, EntityHitBlockAfterEvent, EntityHurtAfterEvent, ItemReleaseUseAfterEvent, ItemStopUseAfterEvent, ItemUseAfterEvent, ItemUseBeforeEvent, ItemUseOnAfterEvent, ItemUseOnBeforeEvent, PlayerSpawnAfterEvent, ItemUseOnEvent, PlayerInteractWithBlockBeforeEvent, PlayerInteractWithEntityBeforeEvent, EffectAddBeforeEvent } from '@minecraft/server';
 import ExEventManager from "../../interface/ExEventManager.js";
 import ExGameServer from '../ExGameServer.js';
 import { Player, ItemStack, Entity } from '@minecraft/server';
@@ -288,6 +288,12 @@ export default class ExClientEvents implements ExEventManager {
                 "name": "entity"
             }
         },
+        [ExEventNames.beforeEffectAdd]: {
+            pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
+            filter: {
+                "name": "entity"
+            }
+        },
         [ExEventNames.afterItemStartUse]: {
             pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
             filter: {
@@ -319,6 +325,7 @@ export default class ExClientEvents implements ExEventManager {
         [ExEventNames.afterPlayerBreakBlock]: new Listener<PlayerBreakBlockAfterEvent>(this, ExEventNames.afterPlayerBreakBlock),
         [ExEventNames.afterPlayerSpawn]: new Listener<PlayerSpawnAfterEvent>(this, ExEventNames.afterPlayerSpawn),
         [ExEventNames.afterEntityHealthChanged]: new Listener<EntityHealthChangedAfterEvent>(this, ExEventNames.afterEntityHealthChanged),
+        [ExEventNames.beforeEffectAdd]: new Listener<EffectAddBeforeEvent>(this, ExEventNames.beforeEffectAdd),
         [ExEventNames.afterEffectAdd]: new Listener<EffectAddAfterEvent>(this, ExEventNames.afterEffectAdd),
 
         [ExEventNames.afterItemStartUse]: new Listener<ItemStartUseAfterEvent>(this, ExEventNames.afterItemStartUse)
