@@ -622,7 +622,7 @@ export default class DecServer extends ExGameServer {
                     block_around_judge(may_grow_block, block_zn, 'dec:trellis_cover', { 'dec:crop_type': 'empty' })
                     block_around_judge(may_grow_block, block_above, 'dec:trellis', { 'dec:crop_type': 'empty' });
                     if (may_grow_block.length > 0) {
-                        state_set_keep(may_grow_block[MathUtil.randomInteger(0, may_grow_block.length - 1)], { 'dec:may_wither': false, 'dec:growth_stage': 0, 'dec:crop_type': <string>block.permutation.getState('dec:crop_type') })
+                        state_set_keep(may_grow_block[MathUtil.randomInteger(0, may_grow_block.length - 1)], { 'dec:may_wither': false, 'dec:growth_stage': 0, 'dec:crop_type': <string>block.permutation.getState('dec:crop_type' as any) })
                     }
                 }
                 if (e.message == 'wither_spread') {

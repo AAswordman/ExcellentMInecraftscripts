@@ -24,6 +24,8 @@ import { ExBlockArea } from '../../../modules/exmc/server/block/ExBlockArea.js';
 import format from '../../../modules/exmc/utils/format.js';
 import { langType } from '../data/langType.js';
 import ExGame from '../../../modules/exmc/server/ExGame.js';
+import ExPlayer from '../../../modules/exmc/server/entity/ExPlayer.js';
+import { MinecraftEffectTypes, MinecraftEntityTypes, MinecraftItemTypes } from '../../../modules/vanilla-data/lib/index.js';
 
 export class PomGodOfGuardBossState {
     constructor(public centers: PomGodOfGuardShootCenters, public ctrl: PomBossController, public defDamage: number, arg?: any) {
@@ -1242,7 +1244,9 @@ export class PomGodOfGuardSkillBox {
         map.setFloat("dic_z", Math.cos(i / 180 * Math.PI));
         new ExEntityQuery(this.entity.dimension)
             .at(this.entity.location)
-            .queryBall(64)
+            .queryBall(64, {
+                excludeFamilies: ["god_summoner"]
+            })
             .except(this.entity)
             .except(this.exception)
             .setMatrix(new Matrix4().setRotationY(i / 180 * Math.PI))
@@ -1314,7 +1318,9 @@ export class PomGodOfGuardShadow extends ExEntityController {
                         "facingLocation": target
                     });
                     new ExEntityQuery(this.entity.dimension).at(this.entity.location)
-                        .queryBall(2)
+                        .queryBall(2, {
+                            excludeFamilies: ["god_summoner"]
+                        })
                         .except(this.entity)
                         .except(this.bossOri.entity)
                         .forEach(e => {
@@ -1412,7 +1418,9 @@ export class PomGodOfGuardShadow extends ExEntityController {
     attack(r: number, angle: number) {
         let view = new Vector3(this.entity.getViewDirection());
         let q = new ExEntityQuery(this.entity.dimension).at(this.entity.location)
-            .querySector(r, 4, view, 135)
+            .querySector(r, 4, view, 135, 0, {
+                excludeFamilies: ["god_summoner"]
+            })
             .except(this.entity)
             .except(this.bossOri.entity)
             .forEach(e => {
@@ -1591,7 +1599,9 @@ export class PomGodOfGuardBoss2 extends PomBossController {
                                     "facingLocation": targetFacing
                                 });
                                 new ExEntityQuery(this.entity.dimension).at(this.entity.location)
-                                    .queryBall(2)
+                                    .queryBall(2, {
+                                        excludeFamilies: ["god_summoner"]
+                                    })
                                     .except(this.entity)
                                     .except(this.shadow.entity)
                                     .forEach(e => {
@@ -1648,11 +1658,13 @@ export class PomGodOfGuardBoss2 extends PomBossController {
     attack(r: number, angle: number) {
         let view = new Vector3(this.entity.getViewDirection());
         let q = new ExEntityQuery(this.entity.dimension).at(this.entity.location)
-            .querySector(r, 4, view, 135)
+            .querySector(r, 4, view, angle, 0, {
+                excludeFamilies: ["god_summoner"]
+            })
             .except(this.entity)
             .except(this.shadow.entity)
             .forEach(e => {
-                e.applyDamage(30 + this.passive.getDamage());
+                e.applyDamage(20 + this.passive.getDamage());
             });
         let arg = new MolangVariableMap();
         arg.setFloat("angle", angle);
@@ -1917,6 +1929,31 @@ export class PomGodOfGuardBoss2 extends PomBossController {
     }
 }
 
+export class PomGodOfGuardBossSword extends ExEntityController {
+    longtick: (e: TickEvent) => void;
+    constructor(e: Entity, server: PomServer, boss: PomGodOfGuardBoss3) {
+        super(e, server);
+        this.longtick = (e: TickEvent) => {
+            if (e.currentTick % 4 === 0) {
+                boss.passive.causeDamageToBoss(20);
+            }
+        }
+        new ExEntityQuery(this.entity.dimension).at(this.entity.location)
+            .queryBall(3, {
+                "excludeFamilies": ["god"]
+            }).forEach((p) => {
+                p.applyDamage(200, { "cause": EntityDamageCause.magic, "damagingEntity": boss.entity });
+                p.addEffect(MinecraftEffectTypes.Slowness, 20 * 3, { "amplifier": 5 });
+            });
+        this.getEvents().exEvents.onLongTick.subscribe(this.longtick);
+
+    }
+    override dispose(): void {
+        this.getEvents().exEvents.onLongTick.unsubscribe(this.longtick);
+    }
+}
+
+
 export class PomGodOfGuardBoss3 extends PomBossController {
     static typeId = "wb:god_of_guard_third";
     states: PomGodOfGuardBossStates;
@@ -1933,10 +1970,11 @@ export class PomGodOfGuardBoss3 extends PomBossController {
         //弹射加伤害
         this.getEvents().exEvents.afterEntityHitEntity.subscribe((e: EntityHurtAfterEvent) => {
             if (e.damageSource.cause == EntityDamageCause.projectile) {
-                e.hurtEntity.applyDamage(this.passive.getDamage(), {
+                e.hurtEntity.applyDamage(this.damageAmount, {
                     "cause": EntityDamageCause.entityAttack,
                     "damagingEntity": this.entity
                 });
+
             }
         });
         this.cycle = () => this.act().then(() => {
@@ -1964,7 +2002,9 @@ export class PomGodOfGuardBoss3 extends PomBossController {
             async () => {
                 await this.sprint(this.getRandomPos())
                 await this.sprint(this.getTargetPos(4));
+                this.useBigSword();
                 await this.sprint(this.getTargetPos(4));
+                this.useBigSword();
                 await this.sprint(this.getRandomPos());
                 this.summonBullet();
                 let pos = this.getRandomPos();
@@ -1974,7 +2014,10 @@ export class PomGodOfGuardBoss3 extends PomBossController {
                 await this.sprint(this.getRandomPos());
                 await this.skipWithAttackHeavy(this.getTargetPos);
                 await this.summonBullet();
+                this.useBigSword();
                 await this.summonBullet();
+                this.useBigSword();
+
                 for (let i = 0; i < 2; i++) {
                     if (this.getTargetPos().distance(this.entity.location) < 6) {
                         await this.normalAttack();
@@ -1985,6 +2028,7 @@ export class PomGodOfGuardBoss3 extends PomBossController {
             },
             async () => {
                 await this.sprint(this.getRandomPos());
+                this.useBigSword();
                 await this.skipWithAttackHeavy(this.getTargetPos);
                 for (let i = 0; i < 2; i++) {
                     if (this.getTargetPos().distance(this.entity.location) < 6) {
@@ -2042,6 +2086,26 @@ export class PomGodOfGuardBoss3 extends PomBossController {
         this.passive.dispose();
         super.onFail();
     }
+
+    listenForBreak(en: Entity[]) {
+        if (en.findIndex(e => e instanceof Player) === -1) {
+            const target = this.entity.target;
+            let listener = (e: EntityHurtAfterEvent) => {
+                if (e.damageSource.damagingEntity instanceof Player &&
+                    this.exEntity.position.distance(e.damageSource.damagingEntity.location) < 5 &&
+                    target == e.damageSource.damagingEntity) {
+                    this.getEvents().exEvents.afterOnHurt.unsubscribe(listener);
+                    for (let i = 0; i < 5; i++) this.passive.getDamage();
+                    this.entity.dimension.spawnParticle("wb:god_of_guard_attack_breakdef_par", this.entity.location);
+                }
+            }
+            this.getEvents().exEvents.afterOnHurt.subscribe(listener)
+            this.setTimeout(() => {
+                this.getEvents().exEvents.afterOnHurt.unsubscribe(listener)
+            }, 2000);
+        }
+    }
+
     skillTimer?: TickDelayTask;
     normalAttack() {
         return new Promise<void>(resolve => {
@@ -2051,7 +2115,7 @@ export class PomGodOfGuardBoss3 extends PomBossController {
             this.skillBox.setMeleeState();
             this.skillTimer?.stop();
             this.skillTimer = ExSystem.tickTask(() => {
-                if (this.entity.target && this.exEntity.position.distance(this.entity.target?.location) < 3) {
+                if (this.entity.target && this.exEntity.position.distance(this.entity.target?.location) < 6) {
                     this.skillBox.removeMove();
                     this.skillBox.removeMelee();
                     this.entity.playAnimation("animation.god_of_guard.melee_attack", {
@@ -2059,22 +2123,7 @@ export class PomGodOfGuardBoss3 extends PomBossController {
                     });
                     this.skillTimer?.stop();
                     this.skillTimer = ExSystem.tickTask(() => {
-                        const target = this.entity.target;
-                        let listener = (e: EntityHurtAfterEvent) => {
-                            if (e.damageSource.damagingEntity instanceof Player &&
-                                this.exEntity.position.distance(e.damageSource.damagingEntity.location) < 5 &&
-                                target == e.damageSource.damagingEntity) {
-                                this.getEvents().exEvents.afterOnHurt.unsubscribe(listener);
-                                for (let i = 0; i < 5; i++) this.passive.getDamage();
-                                this.entity.dimension.spawnParticle("wb:god_of_guard_attack_breakdef_par", this.entity.location);
-                            }
-                        }
-                        if (this.attack(15, 90).findIndex(e => e instanceof Player) === -1) {
-                            this.getEvents().exEvents.afterOnHurt.subscribe(listener)
-                            this.setTimeout(() => {
-                                this.getEvents().exEvents.afterOnHurt.unsubscribe(listener)
-                            }, 2000)
-                        };
+                        this.listenForBreak(this.attack(15, 90));
                         this.exEntity.shootProj("wb:god_of_guard_sword_s", {
                             "speed": 1.0
                         }, undefined, new Vector3(this.entity.getHeadLocation()).add(0, -1, 0));
@@ -2084,14 +2133,58 @@ export class PomGodOfGuardBoss3 extends PomBossController {
                             resolve();
                         }).delay(20 * 0.55).startOnce();
                     }).delay(20 * 0.9).startOnce();
+                } else {
+                    resolve();
                 }
             }).delay(2).start();
         });
-
     }
+    async useBigSword() {
+        let entities: Entity[] = [];
+        let start = this.exEntity.position;
+        let tar = this.getTargetPos();
+        tar.y = start.y;
+        let step = tar.cpy().sub(start).normalize();
+        (async () => {
+            for (let i = 0; i <= Math.max(36, tar.cpy().sub(start).x / step.x); i++) {
+                start.add(step);
+                let e = this.entity.dimension.spawnEntity("wb:god_of_guard_big_sword", start, {
+                    "initialPersistence": true
+                });
+                entities.push(e);
+                e.setRotation({
+                    "x": 0,
+                    "y": i % 2 == 0 ? 0 : 180
+                });
+                await ExGame.sleep(1);
+            }
+        })();
+        return (async () => {
+            await ExGame.sleep(40);
+            for (let i = 0; i < entities.length; i++) {
+                new ExEntityQuery(this.entity.dimension).at(entities[i].location)
+                    .queryBall(3, {
+                        "excludeFamilies": ["god"]
+                    }).forEach((p) => {
+                        p.applyDamage(this.damageAmount + 50, {
+                            "cause": EntityDamageCause.entityAttack,
+                            "damagingEntity": this.entity
+                        });
+                        p.addEffect(MinecraftEffectTypes.Slowness, 20 * 3, { "amplifier": 5 });
+                    });
+                await ExGame.sleep(1);
+            }
+            let swordCtrl = new PomGodOfGuardBossSword(this.entity.dimension.spawnEntity("wb:god_of_guard_big_sword", tar, {
+                "initialPersistence": true
+            }), this.server as PomServer, this);
+            swordCtrl.entity.triggerEvent("scale");
+        })();
+    }
+
     skipWithAttack(targetLocGetter: () => Vector3) {
         return new Promise<void>(resolve => {
             this.skillBox.setMeleeState();
+            this.skillBox.removeAll();
             this.entity.playAnimation("animation.god_of_guard.melee_attack_continuily", {
                 "blendOutTime": 0.2
             });
@@ -2130,7 +2223,9 @@ export class PomGodOfGuardBoss3 extends PomBossController {
                             "facingLocation": targetFacing
                         });
                         new ExEntityQuery(this.entity.dimension).at(this.entity.location)
-                            .queryBall(2)
+                            .queryBall(2, {
+                                excludeFamilies: ["god_summoner"]
+                            })
                             .except(this.entity)
                             .forEach(e => {
                                 e.applyDamage(30);
@@ -2139,14 +2234,14 @@ export class PomGodOfGuardBoss3 extends PomBossController {
                 },
                 "0.71": () => {
                     //攻击
-                    this.attack(8, 120)
+                    this.attack(8, 90)
                 },
                 "0.85": (time) => {
                     //落地
                     time.cancelTick("fly");
                 },
                 "1.71": () => {
-                    this.attack(8, 120);
+                    this.listenForBreak(this.attack(8, 100));
                     this.skillBox.forwords();
                 },
                 "2.08": () => {
@@ -2157,6 +2252,7 @@ export class PomGodOfGuardBoss3 extends PomBossController {
     }
     skipWithAttackHeavy(targetLocGetter: () => Vector3) {
         this.skillBox.setMeleeState();
+        this.skillBox.removeAll();
         return new Promise<void>(resolve => {
             this.entity.playAnimation("animation.god_of_guard.melee_skill_all", {
                 "blendOutTime": 0.2
@@ -2196,12 +2292,13 @@ export class PomGodOfGuardBoss3 extends PomBossController {
                             "facingLocation": targetFacing
                         });
                         new ExEntityQuery(this.entity.dimension).at(this.entity.location)
-                            .queryBall(2)
+                            .queryBall(2, {
+                                excludeFamilies: ["god_summoner"]
+                            })
                             .except(this.entity)
                             .forEach(e => {
                                 e.applyDamage(this.damageAmount);
                             });
-                        this.passive.getDamage();
 
                     });
                 },
@@ -2214,7 +2311,7 @@ export class PomGodOfGuardBoss3 extends PomBossController {
                     time.cancelTick("fly");
                 },
                 "4.13": () => {
-                    this.attack(10, 90);
+                    this.listenForBreak(this.attack(10, 90));
                     this.skillBox.forwords();
                 },
                 "4.7": () => {
@@ -2226,7 +2323,9 @@ export class PomGodOfGuardBoss3 extends PomBossController {
     attack(r: number, angle: number) {
         let view = new Vector3(this.entity.getViewDirection());
         let q = new ExEntityQuery(this.entity.dimension).at(this.entity.location)
-            .querySector(r, 4, view, 135)
+            .querySector(r, 4, view, angle, 0, {
+                excludeFamilies: ["god_summoner"]
+            })
             .except(this.entity)
             .forEach(e => {
                 e.applyDamage(30 + this.passive.getDamage());
@@ -2259,9 +2358,14 @@ export class PomGodOfGuardBoss3 extends PomBossController {
                     this.skillBox.summonLazerPre(i);
                     this.skillBox.summonLazerPre(i + 30);
                     this.skillBox.summonLazerPre(i - 30);
+                    this.skillBox.summonLazerPre(180 + i);
+                    this.skillBox.summonLazerPre(180 + i + 30);
+                    this.skillBox.summonLazerPre(180 + i - 30);
                     if (lazerNum == 5) {
                         this.skillBox.summonLazerPre(i + 60);
                         this.skillBox.summonLazerPre(i - 60);
+                        this.skillBox.summonLazerPre(180 + i + 60);
+                        this.skillBox.summonLazerPre(180 + i - 60);
                     }
                 }).delay(4).start();
                 const i = dic.rotateAngleX();
@@ -2272,11 +2376,16 @@ export class PomGodOfGuardBoss3 extends PomBossController {
                     this.skillTimer?.stop();
                     this.skillTimer = ExSystem.tickTask(() => {
                         this.skillBox.summonLazer(i);
+                        this.skillBox.summonLazer(180 + i);
                         this.skillBox.summonLazer(i + 30);
                         this.skillBox.summonLazer(i - 30);
+                        this.skillBox.summonLazer(180 + i + 30);
+                        this.skillBox.summonLazer(180 + i - 30);
                         if (lazerNum == 5) {
                             this.skillBox.summonLazer(i + 60);
                             this.skillBox.summonLazer(i - 60);
+                            this.skillBox.summonLazer(180 + i + 60);
+                            this.skillBox.summonLazer(180 + i - 60);
                         }
                         num -= 1;
                         if (num <= 0) {
@@ -2370,7 +2479,9 @@ export class PomGodOfGuardBoss3 extends PomBossController {
                             "facingLocation": target
                         });
                         new ExEntityQuery(this.entity.dimension).at(this.entity.location)
-                            .queryBall(2)
+                            .queryBall(2, {
+                                excludeFamilies: ["god_summoner"]
+                            })
                             .except(this.entity)
                             .forEach(e => {
                                 e.applyDamage(this.damageAmount);
@@ -2417,6 +2528,7 @@ export class PomGodOfGuardBossPassive implements DisposeAble {
     playerSkipperData: Map<Player, [number[], number]> = new Map();
     healthReduce = 0;
     passiveShower: (e: TickEvent) => void;
+
     constructor(public ctrl: PomBossController, public state = 1) {
         this.listener = (e) => {
             if (e.hurtEntity instanceof Player && e.damageSource.damagingEntity == ctrl.entity) {
@@ -2429,18 +2541,14 @@ export class PomGodOfGuardBossPassive implements DisposeAble {
                 if (e.damageSource.cause !== EntityDamageCause.charging) {
                     ctrl.exEntity.addHealth(ctrl, e.damage * (this.defense[0] / 20));
                     if (state == 1) {
-                        this.defense[1] += (e.damage);
+                        this.causeDamageToBoss(e.damage);
                     } else {
-                        this.defense[1] += e.damage - (ctrl.exEntity.getPreRemoveHealth() ?? 0)
+                        this.causeDamageToBoss(e.damage - (ctrl.exEntity.getPreRemoveHealth() ?? 0));
                     }
-                    this.defense[0] = Math.min(20, this.defense[0] + 1);
                     this.healthReduce += e.damage + (ctrl.exEntity.getPreRemoveHealth() ?? 0);
-                    this.upDateInf();
                 } else {
-                    this.defense[1] += e.damage
-                    this.defense[0] = Math.min(20, this.defense[0] + 1);
+                    this.causeDamageToBoss(e.damage);
                     this.healthReduce += e.damage;
-                    this.upDateInf();
                 }
             }
         }
@@ -2470,14 +2578,30 @@ export class PomGodOfGuardBossPassive implements DisposeAble {
                         ((under = ignorn(() => under?.below(1)))?.typeId === "minecraft:air" ? 1 : 0) +
                         ((under = ignorn(() => under?.below(1)))?.typeId === "minecraft:air" ? 1 : 0)
                     );
-                    getter[1] += getter[0][14]
+                    getter[1] += getter[0][14];
+                    if (ExPlayer.getInstance(p).getBag().itemOnMainHand?.typeId === MinecraftItemTypes.Shield) {
+                        ExPlayer.getInstance(p).getBag().itemOnMainHand = undefined;
+                    }
+                    if (ExPlayer.getInstance(p).getBag().itemOnOffHand?.typeId === MinecraftItemTypes.Shield) {
+                        ExPlayer.getInstance(p).getBag().itemOnOffHand = undefined;
+                    }
                 }
+
             }
         }
         ctrl.getEvents().exEvents.onLongTick.subscribe(this.skipper);
         ctrl.getEvents().exEvents.onLongTick.subscribe(this.passiveShower);
+        // ctrl.getEvents().exEvents.afterEntityHitEntity.subscribe(this.sheidBreaker);
 
     }
+
+
+    causeDamageToBoss(damage: number) {
+        this.defense[1] += damage;
+        this.defense[0] = Math.min(20, this.defense[0] + 1);
+        this.upDateInf();
+    }
+
     getSkipper() {
         for (let i of this.playerSkipperData) {
             let s = i[1][1];
@@ -2490,6 +2614,8 @@ export class PomGodOfGuardBossPassive implements DisposeAble {
         this.ctrl.server.getEvents().events.afterEntityHurt.unsubscribe(this.listener);
         this.ctrl.getEvents().exEvents.onLongTick.unsubscribe(this.skipper);
         this.ctrl.getEvents().exEvents.onLongTick.unsubscribe(this.passiveShower);
+        // this.ctrl.getEvents().exEvents.afterEntityHitEntity.unsubscribe(this.sheidBreaker);
+
 
         for (let p of this.ctrl.barrier.clientsByPlayer()) {
             p.magicSystem.deleteActionbarPass("godofguard");

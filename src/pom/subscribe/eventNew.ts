@@ -87,7 +87,7 @@ function molangCalculate(molang: string | number, option: TriggerOption) {
     molang = (molang + "").replace(/q\./g, "query.");
     const query = {
         "block_state": (name: string) => {
-            return option.triggerBlock?.permutation.getState(name);
+            return option.triggerBlock?.permutation.getState(name as any);
         },
         "get_equipped_item_name": (pos: string) => {
             if (option.triggerEntity && option.triggerEntity instanceof Player) {
@@ -279,7 +279,7 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
         if (eventUser.set_block_state) {
             let per = option.triggerBlock.permutation;
             for (let i in eventUser.set_block_state) {
-                per = per.withState(i, molangCalculate((eventUser.set_block_state[i]), option));
+                per = per.withState(i as any, molangCalculate((eventUser.set_block_state[i]), option));
             }
             option.triggerBlock.setPermutation(per);
         }

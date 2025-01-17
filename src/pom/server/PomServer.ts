@@ -447,11 +447,11 @@ export default class PomServer extends ExGameServer {
                     "XXXXX"
                 ],
                 [
-                    "XSXSX",
+                    "XSASX",
                     "SAAAS",
-                    "XAAAX",
+                    "AAAAA",
                     "SAAAS",
-                    "XSXSX"
+                    "XSASX"
                 ],
                 [
                     "CAAAC",
@@ -464,10 +464,10 @@ export default class PomServer extends ExGameServer {
             .analysis({
                 X: MinecraftBlockTypes.Sandstone,
                 W: MinecraftBlockTypes.Water,
-                Y: "wb:block_magic_equipment",
+                Y: "wb:block_senior_equipment",
                 A: MinecraftBlockTypes.Air,
                 S: MinecraftBlockTypes.SandstoneSlab,
-                C: MinecraftBlockTypes.Air
+                C: MinecraftBlockTypes.SandstoneWall
             });
 
         //石头遗迹

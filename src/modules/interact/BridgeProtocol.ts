@@ -35,8 +35,13 @@ export type ExportFunctionType = (...para: (TransmissionDataType)[]) => Transmis
  * 
  * @property {boolean} __remote - 一个布尔值属性，用于标识该对象是否为远程控制对象
  */
-export interface RemoteCtrlObject {
-    __remote: true;
+export class RemoteCtrlObject {
+    __remote = true;
+    dispose() {
+        if (bridge.memoryAddressGetter.has(this)) {
+            bridge.memoryAddress.delete(bridge.memoryAddressGetter.get(this)!);
+        }
+    }
 };
 /**
  * * 从函数类型T中提取参数类型。
@@ -326,13 +331,13 @@ export class BridgeProtocol {
      * 
      * 键是数字，值可以是任何类型。
      */
-    private memoryAddress: Map<number, unknown>;
+    public memoryAddress: Map<number, unknown>;
     /**
      * 存储与对象关联的内存地址获取器的映射。
      * 
      * 键是对象，值是数字，表示内存地址。
      */
-    private memoryAddressGetter: Map<Object, number>;
+    public memoryAddressGetter: Map<Object, number>;
     /**
      * * 当前包函数 的 文本描述 用于 在游戏中反馈给调用者
      */
@@ -374,7 +379,8 @@ export class BridgeProtocol {
                     /**
                      * * 将函数名按"."分割为模块名和函数名
                      */
-                    const [moduleLocation, functionName] = name.split(".");
+                    const [targetId, moduleLocation, functionName] = name.split(".");
+                    if (targetId !== this.projectId) return;
                     /**
                      * * 从内存地址映射表中获取对象
                      */
@@ -453,9 +459,12 @@ export class BridgeProtocol {
      * 
      * @param {string} [functionName] - 函数公开名, 默认为函数名
      */
-    public exportFunction(func: ExportFunctionType, functionName: string = func.name) {
-        this.functionList.set(functionName, func);
+    public exportFunction<T extends ((...args: any) => any)>(func: ExportFunctionPara<T> extends TransmissionDataType ? (ReturnType<T> extends TransmissionDataType ? T : never) : never, functionName: string = func.name) {
+        this._exportFunction(func,functionName);
     };
+    private _exportFunction(func:Function,functionName:string = func.name){
+        this.functionList.set(functionName, func as any);
+    }
     /**
      * * 设置导出功能函数
      * 
@@ -476,11 +485,11 @@ export class BridgeProtocol {
     public set exportFunctions(func: any) {
         // 如果传入的是一个函数实例, 则直接调用exportFunction方法
         if (func instanceof Function) {
-            this.exportFunction(func);
+            this._exportFunction(func);
         }
         // 如果传入的是一个长度为2的数组, 且第一个元素是字符串, 第二个元素是函数, 则调用exportFunction方法, 并传入函数名称
         else if (func instanceof Array && func.length === 2 && typeof func[0] === 'string' && typeof func[1] === 'function') {
-            this.exportFunction(func[1], func[0]);
+            this._exportFunction(func[1], func[0]);
         }
         // 对于其他情况, 遍历数组, 递归调用exportFunctions方法
         else {
@@ -650,10 +659,10 @@ export class BridgeProtocol {
      * 
      * @returns 返回一个Promise，解析为方法调用的结果
      */
-    public async callObject(objectAddress: number, functionName: string, parameters?: TransmissionDataType[], timeout: number = 20 * 10, source?: server.Player | server.Entity): Promise<TransmissionDataType> {
+    public async callObject(targetId: string, objectAddress: number, functionName: string, parameters?: TransmissionDataType[], timeout: number = 20 * 10, source?: server.Player | server.Entity): Promise<TransmissionDataType> {
         // 组合对象地址和函数名，构造完整的调用路径
         // 调用方法，并传递参数和超时设置，以及可能的调用源
-        const data = this.call(objectAddress + "." + functionName, parameters ?? [], timeout, source);
+        const data = this.call(targetId + "." + objectAddress + "." + functionName, parameters ?? [], timeout, source);
         // 返回调用结果
         return data;
     };
@@ -876,7 +885,7 @@ export class BridgeProtocol {
         // 当数据以 'object<' 开头并以 '>' 结尾时，处理对象代理的创建
         else if (data.startsWith('object<') && data.endsWith('>')) {
             // 提取地址字符串和键字符串，它们之间通过 "|" 分隔
-            const [addressStr, keysStr] = data.slice(7, -1).split("|");
+            const [targetID, addressStr, keysStr] = data.slice(7, -1).split("|");
             // 将地址字符串转换为数字
             const address = parseInt(addressStr);
             // 将键字符串解析为字符串数组
@@ -897,7 +906,7 @@ export class BridgeProtocol {
                         // 如果属性键不在已知的键数组中，则远程调用对象方法
                         if (!keys.includes(String(prop))) {
                             // 返回一个 Promise，它将远程调用对象的属性并解析返回的类型
-                            return inferrence.callObject(address, String(prop), []).then(type => {
+                            return inferrence.callObject(targetID, address, String(prop), []).then(type => {
                                 return type;
                             });
                         }
@@ -905,7 +914,7 @@ export class BridgeProtocol {
                             // 如果属性键在已知的键数组中，则返回一个函数，该函数将调用远程对象的方法
                             return (...args: TransmissionDataType[]) => {
                                 // 返回一个 Promise，它将远程调用对象的方法并传递参数
-                                return inferrence.callObject(address, String(prop), args);
+                                return inferrence.callObject(targetID, address, String(prop), args);
                             };
                         }
                     }
@@ -1048,7 +1057,7 @@ export class BridgeProtocol {
                         this.memoryAddress.set(address, element);
                         // 返回一个对象字符串，包含地址和元素的所有函数键（不包括以 "_" 开头的键）
                         // 这些键将用于在代理中拦截对这些函数的调用
-                        return `object<${address}|${JSON.stringify(keys(element).filter(e => { return (element as any)[e] instanceof Function && !e.toString().startsWith("_") }))}>`;
+                        return `object<${bridge.projectId}|${address}|${JSON.stringify(keys(element).filter(e => { return (element as any)[e] instanceof Function }))}>`;
                     }
                 }
                 // 对于其他对象类型，使用JSON.stringify方法转换为字符串
