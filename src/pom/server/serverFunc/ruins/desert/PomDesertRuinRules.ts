@@ -203,7 +203,7 @@ export default class PomDesertRuinRules {
                 if (r.canceled || r.formValues === undefined) break outerLoop;
                 const delay = Number(r.formValues[0]) * 1000;
                 const tmpV = new Vector3();
-                const skillLoop = ExSystem.tickTask(() => {
+                const skillLoop = ExSystem.tickTask(this.game,() => {
                     tmpV.set(this.game.player.location).add(addPos);
                     this.game.getExDimension().spawnParticle("wb:ruin_desert_rulepre", tmpV);
                 }).delay(1);

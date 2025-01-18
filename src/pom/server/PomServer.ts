@@ -3,7 +3,6 @@ import ExConfig from "../../modules/exmc/ExConfig.js";
 import Vector3, { IVector3 } from '../../modules/exmc/utils/math/Vector3.js';
 import ExDimension from "../../modules/exmc/server/ExDimension.js";
 import ExGameServer from "../../modules/exmc/server/ExGameServer.js";
-import ExTickQueue from "../../modules/exmc/server/ExTickQueue.js";
 import ExBlockStructure from '../../modules/exmc/server/block/structure/ExBlockStructure.js';
 import ExBlockStructureNormal from '../../modules/exmc/server/block/structure/ExBlockStructureNormal.js';
 import ExEntity from '../../modules/exmc/server/entity/ExEntity.js';
@@ -20,7 +19,6 @@ import { falseIfError } from '../../modules/exmc/utils/tool.js';
 import PomClient from "./PomClient.js";
 import GlobalSettings from "./cache/GlobalSettings.js";
 import PomAncientStoneBoss from './entities/PomAncientStoneBoss.js';
-import PomFakePlayer from './entities/PomFakePlayer.js';
 import PomHeadlessGuardBoss from './entities/PomHeadlessGuardBoss.js';
 import { PomIntentionsBoss1, PomIntentionsBoss2, PomIntentionsBoss3 } from './entities/PomIntentionsBoss.js';
 import PomMagicStoneBoss from './entities/PomMagicStoneBoss.js';
@@ -90,10 +88,6 @@ export default class PomServer extends ExGameServer {
     ruin_guardBoss!: PomGuardBossRuin;
     portal_guardBoss!: ExBlockStructure;
 
-
-    //虚拟玩家
-    fakeplayers: PomFakePlayer[] = [];
-
     //全局变量
     setting!: GlobalSettings;
     cache!: ExPropCache<PomServerData>;
@@ -120,7 +114,7 @@ export default class PomServer extends ExGameServer {
     }
     private initTerritory() {
         this.territoryData = new BlockPartitioning<TerritoryData>(this.data.territoryData);
-        this.territoryParLooper = ExSystem.tickTask(() => {
+        this.territoryParLooper = ExSystem.tickTask(this, () => {
             let terAreas: [ExBlockArea, number][] = [];
             let terSet = new Set<string>();
             for (let p of this.getExPlayers()) {
@@ -230,7 +224,7 @@ export default class PomServer extends ExGameServer {
                 }
             }
         };
-        this.ruinCleaner = ExSystem.tickTask(() => {
+        this.ruinCleaner = ExSystem.tickTask(this, () => {
             upDateMonster();
         }).delay(60 * 20);
         upDateMonster();
@@ -243,13 +237,13 @@ export default class PomServer extends ExGameServer {
             if (e.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && (RuinsLoaction.isInProtectArea(e.block))) {
                 // let ex = ExPlayer.getInstance(e.player);
                 // ExGame.run(() => {
-                //     // ex.addEffect(MinecraftEffectTypes.Nausea, 200, 0, true);
-                //     // ex.addEffect(MinecraftEffectTypes.Darkness, 400, 0, true);
-                //     // ex.addEffect(MinecraftEffectTypes.Wither, 100, 0, true);
-                //     ex.addEffect(MinecraftEffectTypes.MiningFatigue, 600, 4, true);
-                //     // ex.addEffect(MinecraftEffectTypes.Hunger, 600, 1, true);
-                //     // ex.addEffect(MinecraftEffectTypes.Blindness, 200, 0, true);
-                //     ex.command.runAsync("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }");
+                // ex.addEffect(MinecraftEffectTypes.Nausea, 200, 0, true);
+                // ex.addEffect(MinecraftEffectTypes.Darkness, 400, 0, true);
+                // ex.addEffect(MinecraftEffectTypes.Wither, 100, 0, true);
+                // ex.addEffect(MinecraftEffectTypes.MiningFatigue, 600, 4, true);
+                // ex.addEffect(MinecraftEffectTypes.Hunger, 600, 1, true);
+                // ex.addEffect(MinecraftEffectTypes.Blindness, 200, 0, true);
+                // ex.command.runAsync("tellraw @s { \"rawtext\" : [ { \"translate\" : \"text.dec:i_inviolable.name\" } ] }");
                 // });
                 e.cancel = true;
             }
@@ -292,7 +286,7 @@ export default class PomServer extends ExGameServer {
         const tmpV = new Vector3();
         const tmpP = new Vector3();
         this.ruinDesertGuardPos = new Vector3(RuinsLoaction.DESERT_RUIN_LOCATION_CENTER);
-        this.ruinDesertGuardRule = ExSystem.tickTask(() => {
+        this.ruinDesertGuardRule = ExSystem.tickTask(this, () => {
             enddim.spawnParticle("wb:ruin_desert_guardpar", this.ruinDesertGuardPos);
             if (ruin_desert_count > 400) {
                 ruin_desert_count = 0;
@@ -329,7 +323,7 @@ export default class PomServer extends ExGameServer {
             ruin_desert_count += 1;
         }).delay(1);
 
-        this.protectTper = ExSystem.tickTask(() => {
+        this.protectTper = ExSystem.tickTask(this, () => {
             let centersAndExc = [
                 [RuinsLoaction.STONE_RUIN_AREA, RuinsLoaction.STONE_RUIN_PROTECT_AREA],
                 [RuinsLoaction.MIND_RUIN_AREA, RuinsLoaction.MIND_RUIN_PROTECT_AREA],
@@ -351,7 +345,7 @@ export default class PomServer extends ExGameServer {
         this.protectTper.start();
 
         //遗迹功能总监听
-        this.ruinFuncLooper = ExSystem.tickTask(() => {
+        this.ruinFuncLooper = ExSystem.tickTask(this, () => {
             let desertFlag = false;
             let mindFlag = false;
             for (let client of this.getClients()) {
@@ -590,7 +584,7 @@ export default class PomServer extends ExGameServer {
 
 
         //遗迹初始化各个房间位置
-        ExTickQueue.push(() => {
+        this.setTimeout(() => {
             this.ruin_desertBoss.init(RuinsLoaction.DESERT_RUIN_LOCATION_START.x, RuinsLoaction.DESERT_RUIN_LOCATION_START.y,
                 RuinsLoaction.DESERT_RUIN_LOCATION_START.z,
                 this.getDimension(MinecraftDimensionTypes.theEnd));
@@ -620,7 +614,7 @@ export default class PomServer extends ExGameServer {
                 RuinsLoaction.GUARD_RUIN_LOCATION_START.z,
                 this.getDimension(MinecraftDimensionTypes.theEnd));
             this.ruin_guardBoss.dispose();
-        });
+        },2000);
     }
     cleanTimes = 11;
 
@@ -697,7 +691,7 @@ export default class PomServer extends ExGameServer {
         this.setting.initBoolean("nuclearBomb", true);
 
         this.cache = new ExPropCache(this.getDynamicPropertyManager());
-        this.looper = ExSystem.tickTask(() => {
+        this.looper = ExSystem.tickTask(this, () => {
             this.cache.save();
         });
         this.looper.delay(10 * 20);

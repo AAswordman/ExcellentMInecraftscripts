@@ -21,7 +21,7 @@ import { TickEvent } from '../../../modules/exmc/server/events/events.js';
 export default class SimpleItemUseFunc extends GameController {
     worldExploreTimer?: TickDelayTask;
     inkSwordsSkill = false;
-    inkSwordsSkillTask = ExSystem.tickTask(() => {
+    inkSwordsSkillTask = ExSystem.tickTask(this,() => {
         this.inkSwordsSkill = false;
     }).delay(2 * 20);
 
@@ -111,7 +111,7 @@ export default class SimpleItemUseFunc extends GameController {
                             }));
 
                             const dic = new Vector3(pos).sub(pPos).normalize().scl(1 / 10)
-                            this.worldExploreTimer = ExSystem.tickTask(() => {
+                            this.worldExploreTimer = ExSystem.tickTask(this,() => {
                                 if (falseIfError(() => ball.entity.isValid())) {
                                     pPos.add(dic);
                                     ball.setPosition(pPos.cpy().add(0, 1.5, 0));

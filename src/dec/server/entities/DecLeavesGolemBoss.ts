@@ -5,8 +5,8 @@ import { DecCommonBossLastStage } from "./DecCommonBossLastStage.js";
 
 export class DecLeavesGolemBoss extends DecCommonBossLastStage {
     music: ExMusic;
-    constructor(e: Entity, server: DecServer) {
-        super(e, server);
+    constructor(e: Entity, server: DecServer, spawn: boolean) {
+        super(e, server,spawn);
         this.music = server.getMusic("music.wb.wooden_heart");
         this.music.trackPlayers(Array.from(this.barrier.getPlayers()));
         this.music.loop();
@@ -15,7 +15,7 @@ export class DecLeavesGolemBoss extends DecCommonBossLastStage {
         this.music.stop();
         super.onDestroy();
     }
-    override onSpawn(): void {
-        super.onSpawn();
+    override onAppear(spawn:boolean): void {
+        super.onAppear(spawn);
     }
 }

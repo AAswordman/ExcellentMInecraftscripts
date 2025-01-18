@@ -104,7 +104,7 @@ export default class ExClientEvents implements ExEventManager {
                     let part = <Map<Player, MonitorManager<unknown[]>>>(ExClientEvents.eventHandlers.monitorMap[k]);
                     if (!this.onceItemUseOnMap.has(e.source)) {
                         const player = e.source;
-                        this.onceItemUseOnMap.set(e.source, [ExSystem.tickTask(() => {
+                        this.onceItemUseOnMap.set(e.source, [ExSystem.tickTask(ExClientEvents.eventHandlers.server,() => {
                             let res = this.onceItemUseOnMap.get(player);
                             if (res === undefined) return;
                             res[1] = true;
@@ -135,7 +135,7 @@ export default class ExClientEvents implements ExEventManager {
                     let part = <Map<Player, MonitorManager<unknown[]>>>(ExClientEvents.eventHandlers.monitorMap[k]);
                     if (!this.onceInteractWithBlockMap.has(e.player)) {
                         const player = e.player;
-                        this.onceInteractWithBlockMap.set(e.player, [ExSystem.tickTask(() => {
+                        this.onceInteractWithBlockMap.set(e.player, [ExSystem.tickTask(ExClientEvents.eventHandlers.server,() => {
                             let res = this.onceInteractWithBlockMap.get(player);
                             if (res === undefined) return;
                             res[1] = true;

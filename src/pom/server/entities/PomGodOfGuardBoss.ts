@@ -74,7 +74,7 @@ export class PomGodOfGuardBossStateWarn extends PomGodOfGuardBossState {
         return false;
     }
     override onExit() {
-        ExSystem.tickTask(() => {
+        ExSystem.tickTask(this.ctrl, () => {
             this.centers.remove(this.center1);
         }).delay(2 * 20).startOnce();
     }
@@ -112,7 +112,7 @@ export class PomGodOfGuardBossState1 extends PomGodOfGuardBossState {
         return false;
     }
     override onExit() {
-        ExSystem.tickTask(() => {
+        ExSystem.tickTask(this.ctrl, () => {
             this.centers.remove(this.center1);
         }).delay(10 * 20).startOnce();
     }
@@ -144,7 +144,7 @@ export class PomGodOfGuardBossState2 extends PomGodOfGuardBossState {
         return false;
     }
     override onExit() {
-        ExSystem.tickTask(() => {
+        ExSystem.tickTask(this.ctrl, () => {
             this.centers.remove(this.center1);
         }).delay(4 * 20).startOnce();
     }
@@ -181,7 +181,7 @@ export class PomGodOfGuardBossState3 extends PomGodOfGuardBossState {
         return false;
     }
     override onExit() {
-        ExSystem.tickTask(() => {
+        ExSystem.tickTask(this.ctrl, () => {
             this.centers.remove(this.center1);
         }).delay(6 * 20).startOnce();
     }
@@ -213,7 +213,7 @@ export class PomGodOfGuardBossState4 extends PomGodOfGuardBossState {
         return false;
     }
     override onExit() {
-        ExSystem.tickTask(() => {
+        ExSystem.tickTask(this.ctrl, () => {
             this.centers.remove(this.center1);
         }).delay(5 * 20).startOnce();
     }
@@ -286,7 +286,7 @@ export class PomGodOfGuardBossState5 extends PomGodOfGuardBossState {
         return false;
     }
     override onExit() {
-        ExSystem.tickTask(() => {
+        ExSystem.tickTask(this.ctrl, () => {
             this.centers.remove(this.center1);
         }).delay(10 * 20).startOnce();
     }
@@ -312,7 +312,7 @@ export class PomGodOfGuardBossState6 extends PomGodOfGuardBossState {
         return false;
     }
     override onExit() {
-        ExSystem.tickTask(() => {
+        ExSystem.tickTask(this.ctrl, () => {
             this.centers.remove(this.center1);
         }).delay(3 * 20).startOnce();
     }
@@ -338,7 +338,7 @@ export class PomGodOfGuardBossState7 extends PomGodOfGuardBossState {
         return false;
     }
     override onExit() {
-        ExSystem.tickTask(() => {
+        ExSystem.tickTask(this.ctrl, () => {
             this.centers.remove(this.center1);
         }).delay(3 * 20).startOnce();
     }
@@ -372,7 +372,7 @@ export class PomGodOfGuardBossState8 extends PomGodOfGuardBossState {
     }
 
     override onExit() {
-        ExSystem.tickTask(() => {
+        ExSystem.tickTask(this.ctrl, () => {
             this.centers.remove(this.center1);
         }).delay(6 * 20).startOnce();
     }
@@ -405,7 +405,7 @@ export class PomGodOfGuardBossState9 extends PomGodOfGuardBossState {
     }
 
     override onExit() {
-        ExSystem.tickTask(() => {
+        ExSystem.tickTask(this.ctrl, () => {
             this.centers.remove(this.center1);
         }).delay(10 * 20).startOnce();
     }
@@ -446,7 +446,7 @@ export class PomGodOfGuardBossState10 extends PomGodOfGuardBossState {
     }
 
     override onExit() {
-        ExSystem.tickTask(() => {
+        ExSystem.tickTask(this.ctrl, () => {
             this.centers.remove(this.center1);
         }).delay(15 * 20).startOnce();
     }
@@ -500,7 +500,7 @@ export class PomGodOfGuardBossState11 extends PomGodOfGuardBossState {
     }
 
     override onExit() {
-        ExSystem.tickTask(() => {
+        ExSystem.tickTask(this.ctrl, () => {
             this.centers.remove(this.center1);
             this.centers.remove(this.center2);
             this.entity2.remove();
@@ -566,7 +566,7 @@ export class PomGodOfGuardBossState12 extends PomGodOfGuardBossState {
     }
 
     override onExit() {
-        ExSystem.tickTask(() => {
+        ExSystem.tickTask(this.ctrl, () => {
             this.centers.remove(this.center1);
             this.centers.remove(this.center2);
 
@@ -627,7 +627,7 @@ export class PomGodOfGuardBossState13 extends PomGodOfGuardBossState {
     }
 
     override onExit() {
-        ExSystem.tickTask(() => {
+        ExSystem.tickTask(this.ctrl, () => {
             this.centers.remove(this.center1);
             this.centers.remove(this.center2);
             ignorn(() => this.entity2.remove());
@@ -676,7 +676,7 @@ export class PomGodOfGuardBossState18 extends PomGodOfGuardBossState {
     }
 
     override onExit() {
-        ExSystem.tickTask(() => {
+        ExSystem.tickTask(this.ctrl, () => {
             this.centers.remove(this.center1);
             this.centers.remove(this.center2);
             ignorn(() => this.entity2.remove());
@@ -754,7 +754,7 @@ export class PomGodOfGuardBossState14 extends PomGodOfGuardBossState {
     }
 
     override onExit() {
-        ExSystem.tickTask(() => {
+        ExSystem.tickTask(this.ctrl, () => {
             this.centers.remove(this.center1);
             this.centers.remove(this.center2);
 
@@ -830,7 +830,7 @@ export class PomGodOfGuardBossState15 extends PomGodOfGuardBossState {
     override onExit() {
         ignorn(() => this.entity2.map((e) => e.remove()));
 
-        ExSystem.tickTask(() => {
+        ExSystem.tickTask(this.ctrl, () => {
             this.centers.remove(this.center1);
             this.center2.map((e) => this.centers.remove(e));
 
@@ -910,7 +910,7 @@ export class PomGodOfGuardBossState16 extends PomGodOfGuardBossState {
     override onExit() {
         ignorn(() => this.entity2.map((e) => e.remove()));
 
-        ExSystem.tickTask(() => {
+        ExSystem.tickTask(this.ctrl, () => {
             this.centers.remove(this.center1);
             this.center2.map((e) => this.centers.remove(e));
 
@@ -1005,7 +1005,7 @@ export class PomGodOfGuardBossState17 extends PomGodOfGuardBossState {
         ignorn(() => this.entity2.map((e) => e.remove()));
         ignorn(() => this.entity3.map((e) => e.remove()));
 
-        ExSystem.tickTask(() => {
+        ExSystem.tickTask(this.ctrl, () => {
             this.centers.remove(this.center1);
             this.center2.map((e) => this.centers.remove(e));
             this.center3.map((e) => this.centers.remove(e));
@@ -1050,9 +1050,9 @@ export class PomGodOfGuardBoss0 extends PomBossController {
     spawnTimer: TickDelayTask;
     health;
     tick = 1;
-    constructor(e: Entity, server: PomServer) {
-        super(e, server);
-        this.spawnTimer = ExSystem.tickTask(() => {
+    constructor(e: Entity, server: PomServer, spawn: boolean) {
+        super(e, server,spawn);
+        this.spawnTimer = ExSystem.tickTask(this, () => {
             this.entity.triggerEvent("change")
         }).delay(7.0 * 20).startOnce();
         this.health = this.entity.getComponent("minecraft:health");
@@ -1064,8 +1064,8 @@ export class PomGodOfGuardBoss0 extends PomBossController {
             this.server.say({ rawtext: [{ translate: "text.wb:summon_god_of_guard.name" }] });
         }
     }
-    override onSpawn(): void {
-        super.onSpawn();
+    override onAppear(spawn: boolean): void {
+        super.onAppear(spawn);
     }
     override onKilled(e: EntityHurtAfterEvent): void {
         console.warn("onWin");
@@ -1092,11 +1092,11 @@ export class PomGodOfGuardBoss1 extends PomBossController {
     passive: PomGodOfGuardBossPassive;
     spawnTimer: TickDelayTask;
     times = 0;
-    constructor(e: Entity, server: PomServer) {
-        super(e, server);
+    constructor(e: Entity, server: PomServer, spawn: boolean) {
+        super(e, server,spawn);
         this.states = new PomGodOfGuardBossStates(this);
         this.passive = new PomGodOfGuardBossPassive(this);
-        this.timer = ExSystem.tickTask(() => {
+        this.timer = ExSystem.tickTask(this, () => {
             let normal = [
                 PomGodOfGuardBossState1,
                 PomGodOfGuardBossState2,
@@ -1148,7 +1148,7 @@ export class PomGodOfGuardBoss1 extends PomBossController {
                 }
             }
         });
-        this.spawnTimer = ExSystem.tickTask(() => {
+        this.spawnTimer = ExSystem.tickTask(this, () => {
             this.entity.dimension.createExplosion(this.entity.location, 10, {
                 "breaksBlocks": false,
                 "causesFire": false,
@@ -1163,8 +1163,8 @@ export class PomGodOfGuardBoss1 extends PomBossController {
         super.initBossEntity();
         if (this.isFisrtCall) this.server.say({ rawtext: [{ translate: "text.wb:summon_god_of_guard.name" }] });
     }
-    override onSpawn(): void {
-        super.onSpawn();
+    override onAppear(spawn: boolean): void {
+        super.onAppear(spawn);
     }
     override onKilled(e: EntityHurtAfterEvent): void {
         this.passive.dispose();
@@ -1298,7 +1298,7 @@ export class PomGodOfGuardShadow extends ExEntityController {
         let dic = new Vector3(target).sub(startPos).normalize();
 
         this.attackLiner?.stop();
-        this.attackLiner = ExSystem.timeLine({
+        this.attackLiner = ExSystem.timeLine(this, {
             "0.0": (time) => {
                 time.registerTick("fly", (time, pastTime) => {
                     this.entity.teleport(startPos.add(dic.scl(0.1)), {
@@ -1337,7 +1337,7 @@ export class PomGodOfGuardShadow extends ExEntityController {
         if (this.skillBox.state == PomGodOfGuard2State.Melee) {
             let num = 3;
             this.tryStateSprint();
-            this.attackTimer = ExSystem.tickTask(() => {
+            this.attackTimer = ExSystem.tickTask(this, () => {
                 this.tryStateSprint();
                 num--;
                 if (num <= 0) {
@@ -1376,13 +1376,13 @@ export class PomGodOfGuardShadow extends ExEntityController {
     tryRangeAttack() {
         this.skillBox.addMove();
         this.attackTimer?.stop();
-        this.attackTimer = ExSystem.tickTask(() => {
+        this.attackTimer = ExSystem.tickTask(this, () => {
             if (this.entity.target && this.exEntity.position.distance(this.entity.target?.location) < 32) {
                 this.entity.playAnimation("animation.god_of_guard.staff_effect_only", {
                     "blendOutTime": 0.2
                 });
                 this.attackTimer?.stop();
-                this.attackTimer = ExSystem.tickTask(() => {
+                this.attackTimer = ExSystem.tickTask(this, () => {
                     this.skillBox.addRange();
                     this.skillBox.removeMove();
                     if (this.entity.target) {
@@ -1404,7 +1404,7 @@ export class PomGodOfGuardShadow extends ExEntityController {
                         // }
                     }
                     this.attackTimer?.stop();
-                    this.attackTimer = ExSystem.tickTask(() => {
+                    this.attackTimer = ExSystem.tickTask(this, () => {
                         this.skillBox.removeRange();
                         this.tryRangeAttack();
                     }).delay(20 * 1).startOnce();
@@ -1438,7 +1438,7 @@ export class PomGodOfGuardShadow extends ExEntityController {
         this.skillBox.addMelee();
         this.skillBox.addMove();
         this.attackTimer?.stop();
-        this.attackTimer = ExSystem.tickTask(() => {
+        this.attackTimer = ExSystem.tickTask(this, () => {
             if (this.entity.target && this.exEntity.position.distance(this.entity.target?.location) < 3) {
                 this.skillBox.removeMove();
                 this.skillBox.removeMelee();
@@ -1446,14 +1446,14 @@ export class PomGodOfGuardShadow extends ExEntityController {
                     "blendOutTime": 0.2
                 });
                 this.attackTimer?.stop();
-                this.attackTimer = ExSystem.tickTask(() => {
+                this.attackTimer = ExSystem.tickTask(this, () => {
                     this.attack(3, 45);
                     this.skillBox.forwords();
                     this.exEntity.shootProj("wb:god_of_guard_sword_s", {
                         "speed": 1.0
                     }, undefined, new Vector3(this.entity.getHeadLocation()).add(0, -1, 0));
                     this.attackTimer?.stop();
-                    this.attackTimer = ExSystem.tickTask(() => {
+                    this.attackTimer = ExSystem.tickTask(this, () => {
                         this.tryMeleeAttack();
                     }).delay(20 * 0.55).startOnce();
                 }).delay(20 * 0.9).startOnce();
@@ -1461,8 +1461,8 @@ export class PomGodOfGuardShadow extends ExEntityController {
         }).delay(2).start();
     }
     get passive() { return this.bossOri.passive }
-    constructor(public bossOri: PomGodOfGuardBoss2, e: Entity, server: PomServer) {
-        super(e, server);
+    constructor(public bossOri: PomGodOfGuardBoss2, spawn: boolean, e: Entity, server: PomServer) {
+        super(e, server, spawn);
         //弹射加伤害
         this.getEvents().exEvents.afterEntityHitEntity.subscribe((e: EntityHurtAfterEvent) => {
             if (e.damageSource.cause == EntityDamageCause.projectile) {
@@ -1503,8 +1503,8 @@ export class PomGodOfGuardBoss2 extends PomBossController {
     passive: PomGodOfGuardBossPassive;
     skillBox: PomGodOfGuardSkillBox = new PomGodOfGuardSkillBox(this);
 
-    constructor(e: Entity, server: PomServer) {
-        super(e, server);
+    constructor(e: Entity, server: PomServer, spawn: boolean) {
+        super(e, server, true);
         this.passive = new PomGodOfGuardBossPassive(this, 2);
     }
     override initBossEntity(): void {
@@ -1513,10 +1513,12 @@ export class PomGodOfGuardBoss2 extends PomBossController {
             "type": "wb:god_of_guard_shadow"
         }).getEntities();
         if (arr.length == 0) {
-            this.shadow = new PomGodOfGuardShadow(this, this.entity.dimension.spawnEntity("wb:god_of_guard_shadow", this.barrier.center), this.server as PomServer);
+            this.shadow = new PomGodOfGuardShadow(this, true,
+                this.entity.dimension.spawnEntity("wb:god_of_guard_shadow", this.barrier.center),
+                this.server as PomServer);
         }
         if (!this.shadow) {
-            this.shadow = new PomGodOfGuardShadow(this, arr[0], this.server as PomServer);
+            this.shadow = new PomGodOfGuardShadow(this, true, arr[0], this.server as PomServer);
         }
         //弹射加伤害
         this.getEvents().exEvents.afterEntityHitEntity.subscribe((e: EntityHurtAfterEvent) => {
@@ -1533,11 +1535,11 @@ export class PomGodOfGuardBoss2 extends PomBossController {
     }
     changePos() {
         this.timer?.stop();
-        this.timer = ExSystem.tickTask(() => {
+        this.timer = ExSystem.tickTask(this, () => {
             this.entity.dimension.spawnParticle("epic:sunlight_sword_particle2", this.entity.location);
             this.shadow.entity.dimension.spawnParticle("epic:sunlight_sword_particle2", this.shadow.entity.location);
             this.timer?.stop();
-            this.timer = ExSystem.tickTask(() => {
+            this.timer = ExSystem.tickTask(this, () => {
                 let pos1 = this.entity.location, pos2 = this.shadow.entity.location;
                 this.shadow.entity.teleport(pos1);
                 this.entity.teleport(pos2);
@@ -1570,7 +1572,7 @@ export class PomGodOfGuardBoss2 extends PomBossController {
                     let tmpV = new Vector3();
                     let targetFacing = new Vector3();
                     let target = new Vector3();
-                    this.attackLiner = ExSystem.timeLine({
+                    this.attackLiner = ExSystem.timeLine(this, {
                         "1.3": (time) => {
                             //起飞
                             time.registerTick("fly", (time, pastTime) => {
@@ -1680,7 +1682,7 @@ export class PomGodOfGuardBoss2 extends PomBossController {
         this.skillBox.addMelee();
         this.skillBox.addMove();
         this.attackTimer?.stop();
-        this.attackTimer = ExSystem.tickTask(() => {
+        this.attackTimer = ExSystem.tickTask(this, () => {
             if (this.entity.target && this.exEntity.position.distance(this.entity.target?.location) < 3) {
                 this.skillBox.removeMove();
                 this.skillBox.removeMelee();
@@ -1688,7 +1690,7 @@ export class PomGodOfGuardBoss2 extends PomBossController {
                     "blendOutTime": 0.2
                 });
                 this.attackTimer?.stop();
-                this.attackTimer = ExSystem.tickTask(() => {
+                this.attackTimer = ExSystem.tickTask(this, () => {
                     const target = this.entity.target;
                     let listener = (e: EntityHurtAfterEvent) => {
                         if (e.damageSource.damagingEntity instanceof Player &&
@@ -1721,7 +1723,7 @@ export class PomGodOfGuardBoss2 extends PomBossController {
                     });
                     this.skillBox.forwords();
                     this.attackTimer?.stop();
-                    this.attackTimer = ExSystem.tickTask(() => {
+                    this.attackTimer = ExSystem.tickTask(this, () => {
                         this.tryMeleeAttack();
                     }).delay(20 * 0.55).startOnce();
                 }).delay(20 * 0.9).startOnce();
@@ -1760,13 +1762,13 @@ export class PomGodOfGuardBoss2 extends PomBossController {
     tryRangeAttack() {
         this.skillBox.addMove();
         this.attackTimer?.stop();
-        this.attackTimer = ExSystem.tickTask(() => {
+        this.attackTimer = ExSystem.tickTask(this, () => {
             if (this.entity.target && this.exEntity.position.distance(this.entity.target?.location) < 32) {
                 this.entity.playAnimation("animation.god_of_guard.staff_effect_only", {
                     "blendOutTime": 0.2
                 });
                 this.attackTimer?.stop();
-                this.attackTimer = ExSystem.tickTask(() => {
+                this.attackTimer = ExSystem.tickTask(this, () => {
                     this.skillBox.addRange();
                     this.skillBox.removeMove();
                     if (this.entity.target) {
@@ -1796,7 +1798,7 @@ export class PomGodOfGuardBoss2 extends PomBossController {
                         );
                     }
                     this.attackTimer?.stop();
-                    this.attackTimer = ExSystem.tickTask(() => {
+                    this.attackTimer = ExSystem.tickTask(this, () => {
                         this.skillBox.removeRange();
                         this.tryRangeAttack();
                     }).delay(20 * 1).startOnce();
@@ -1821,7 +1823,7 @@ export class PomGodOfGuardBoss2 extends PomBossController {
         this.lazerState = true;
 
         this.attackTimer?.stop();
-        this.attackTimer = ExSystem.tickTask(() => {
+        this.attackTimer = ExSystem.tickTask(this, () => {
             this.entity.dimension.spawnParticle("wb:god_of_guard_lazer_pre_par", this.entity.location);
             this.entity.playAnimation("animation.god_of_guard.staff_effect_only", {
                 "blendOutTime": 0.2
@@ -1829,13 +1831,13 @@ export class PomGodOfGuardBoss2 extends PomBossController {
             let angle = Math.floor(Math.random() * 120) * 3;
             let numTotal = 360;
             let num = numTotal;
-            this.attackTimer = ExSystem.tickTask(() => {
+            this.attackTimer = ExSystem.tickTask(this, () => {
                 for (let i = angle; i < 360 + angle; i += 72) {
                     this.skillBox.summonLazerPre(i)
                 }
             }).delay(4).start();
             this.shadow.skillBox.setMeleeState();
-            this.shadow.attackTimer = ExSystem.tickTask(() => {
+            this.shadow.attackTimer = ExSystem.tickTask(this, () => {
                 this.shadow.tryStateSprint();
             }).delay(2.5 * 20).start();
             this.setTimeout(() => {
@@ -1846,7 +1848,7 @@ export class PomGodOfGuardBoss2 extends PomBossController {
 
                 this.attackTimer?.stop();
 
-                this.attackTimer = ExSystem.tickTask(() => {
+                this.attackTimer = ExSystem.tickTask(this, () => {
                     if (num > numTotal * 12 / 16) {
                         for (let i = angle; i < 360 + angle; i += 72) {
                             this.skillBox.summonLazer(i)
@@ -1900,8 +1902,8 @@ export class PomGodOfGuardBoss2 extends PomBossController {
 
     }
 
-    override onSpawn(): void {
-        super.onSpawn();
+    override onAppear(spawn: boolean): void {
+        super.onAppear(spawn);
     }
     override onKilled(e: EntityHurtAfterEvent): void {
         super.onKilled(e);
@@ -1931,8 +1933,8 @@ export class PomGodOfGuardBoss2 extends PomBossController {
 
 export class PomGodOfGuardBossSword extends ExEntityController {
     longtick: (e: TickEvent) => void;
-    constructor(e: Entity, server: PomServer, boss: PomGodOfGuardBoss3) {
-        super(e, server);
+    constructor(e: Entity, server: PomServer, spawn: boolean, boss: PomGodOfGuardBoss3) {
+        super(e, server, spawn);
         this.longtick = (e: TickEvent) => {
             if (e.currentTick % 4 === 0) {
                 boss.passive.causeDamageToBoss(20);
@@ -1962,8 +1964,8 @@ export class PomGodOfGuardBoss3 extends PomBossController {
     skillBox: PomGodOfGuardSkillBox = new PomGodOfGuardSkillBox(this);
     attackLiner?: ExTimeLine;
     cycle?: () => void;
-    constructor(e: Entity, server: PomServer) {
-        super(e, server);
+    constructor(e: Entity, server: PomServer, spawn: boolean) {
+        super(e, server, spawn);
         this.states = new PomGodOfGuardBossStates(this);
         this.passive = new PomGodOfGuardBossPassive(this);
 
@@ -1988,53 +1990,53 @@ export class PomGodOfGuardBoss3 extends PomBossController {
     act() {
         let actions = [
             async () => {
-                await this.sprint(this.getRandomPos());
-                await this.skipWithAttackHeavy(this.getTargetPos);
+                await this.waitContext(this.sprint(this.getRandomPos()));
+                await this.waitContext(this.skipWithAttackHeavy(this.getTargetPos));
                 for (let i = 0; i < 3; i++) {
-                    await ExGame.sleep(10);
-                    await this.skipWithAttack(this.getTargetPos);
+                    await this.waitContext(ExGame.sleep(10));
+                    await this.waitContext(this.skipWithAttack(this.getTargetPos));
                 }
-                await this.sprint(this.getRandomPos());
+                await this.waitContext(this.sprint(this.getRandomPos()));
                 this.summonBullet();
                 let pos = this.getRandomPos();
-                await this.summonLazer(pos, this.getTargetPos().sub(pos));
+                await this.waitContext(this.summonLazer(pos, this.getTargetPos().sub(pos)));
             },
             async () => {
-                await this.sprint(this.getRandomPos())
-                await this.sprint(this.getTargetPos(4));
+                await this.waitContext(this.sprint(this.getRandomPos()))
+                await this.waitContext(this.sprint(this.getTargetPos(4)));
                 this.useBigSword();
-                await this.sprint(this.getTargetPos(4));
+                await this.waitContext(this.sprint(this.getTargetPos(4)));
                 this.useBigSword();
-                await this.sprint(this.getRandomPos());
+                await this.waitContext(this.sprint(this.getRandomPos()));
                 this.summonBullet();
                 let pos = this.getRandomPos();
-                await this.summonLazer(pos, this.getTargetPos().sub(pos), 5);
+                await this.waitContext(this.summonLazer(pos, this.getTargetPos().sub(pos), 5));
             },
             async () => {
-                await this.sprint(this.getRandomPos());
-                await this.skipWithAttackHeavy(this.getTargetPos);
-                await this.summonBullet();
+                await this.waitContext(this.sprint(this.getRandomPos()));
+                await this.waitContext(this.skipWithAttackHeavy(this.getTargetPos));
+                await this.waitContext(this.summonBullet());
                 this.useBigSword();
-                await this.summonBullet();
+                await this.waitContext(this.summonBullet());
                 this.useBigSword();
 
                 for (let i = 0; i < 2; i++) {
                     if (this.getTargetPos().distance(this.entity.location) < 6) {
-                        await this.normalAttack();
+                        await this.waitContext(this.normalAttack());
                     } else {
-                        await this.skipWithAttackHeavy(this.getTargetPos);
+                        await this.waitContext(this.skipWithAttackHeavy(this.getTargetPos));
                     }
                 }
             },
             async () => {
-                await this.sprint(this.getRandomPos());
+                await this.waitContext(this.sprint(this.getRandomPos()));
                 this.useBigSword();
-                await this.skipWithAttackHeavy(this.getTargetPos);
+                await this.waitContext(this.skipWithAttackHeavy(this.getTargetPos));
                 for (let i = 0; i < 2; i++) {
                     if (this.getTargetPos().distance(this.entity.location) < 6) {
-                        await this.normalAttack();
+                        await this.waitContext(this.normalAttack());
                     } else {
-                        await this.skipWithAttack(this.getTargetPos);
+                        await this.waitContext(this.skipWithAttack(this.getTargetPos));
                     }
                 }
             }
@@ -2072,8 +2074,8 @@ export class PomGodOfGuardBoss3 extends PomBossController {
             this.entity.dimension.spawnParticle("wb:blast_par_small", new Vector3(loc).add(0, 1, 0));
         }
     }
-    override onSpawn(): void {
-        super.onSpawn();
+    override onAppear(spawn: boolean): void {
+        super.onAppear(spawn);
     }
     override onKilled(e: EntityHurtAfterEvent): void {
         this.passive.dispose();
@@ -2114,7 +2116,7 @@ export class PomGodOfGuardBoss3 extends PomBossController {
             this.skillBox.addMove();
             this.skillBox.setMeleeState();
             this.skillTimer?.stop();
-            this.skillTimer = ExSystem.tickTask(() => {
+            this.skillTimer = ExSystem.tickTask(this, () => {
                 if (this.entity.target && this.exEntity.position.distance(this.entity.target?.location) < 6) {
                     this.skillBox.removeMove();
                     this.skillBox.removeMelee();
@@ -2122,14 +2124,14 @@ export class PomGodOfGuardBoss3 extends PomBossController {
                         "blendOutTime": 0.2
                     });
                     this.skillTimer?.stop();
-                    this.skillTimer = ExSystem.tickTask(() => {
+                    this.skillTimer = ExSystem.tickTask(this, () => {
                         this.listenForBreak(this.attack(15, 90));
                         this.exEntity.shootProj("wb:god_of_guard_sword_s", {
                             "speed": 1.0
                         }, undefined, new Vector3(this.entity.getHeadLocation()).add(0, -1, 0));
                         this.skillBox.forwords();
                         this.skillTimer?.stop();
-                        this.skillTimer = ExSystem.tickTask(() => {
+                        this.skillTimer = ExSystem.tickTask(this, () => {
                             resolve();
                         }).delay(20 * 0.55).startOnce();
                     }).delay(20 * 0.9).startOnce();
@@ -2160,7 +2162,7 @@ export class PomGodOfGuardBoss3 extends PomBossController {
             }
         })();
         return (async () => {
-            await ExGame.sleep(40);
+            await this.waitContext(ExGame.sleep(40));
             for (let i = 0; i < entities.length; i++) {
                 new ExEntityQuery(this.entity.dimension).at(entities[i].location)
                     .queryBall(3, {
@@ -2172,11 +2174,11 @@ export class PomGodOfGuardBoss3 extends PomBossController {
                         });
                         p.addEffect(MinecraftEffectTypes.Slowness, 20 * 3, { "amplifier": 5 });
                     });
-                await ExGame.sleep(1);
+                await this.waitContext(ExGame.sleep(1));
             }
             let swordCtrl = new PomGodOfGuardBossSword(this.entity.dimension.spawnEntity("wb:god_of_guard_big_sword", tar, {
                 "initialPersistence": true
-            }), this.server as PomServer, this);
+            }), this.server as PomServer, true, this);
             swordCtrl.entity.triggerEvent("scale");
         })();
     }
@@ -2195,7 +2197,7 @@ export class PomGodOfGuardBoss3 extends PomBossController {
             let tmpV = new Vector3();
             let targetFacing = new Vector3();
             let target = new Vector3();
-            this.attackLiner = ExSystem.timeLine({
+            this.attackLiner = ExSystem.timeLine(this, {
                 "0.0": (time) => {
                     //起飞
                     time.registerTick("fly", (time, pastTime) => {
@@ -2264,7 +2266,7 @@ export class PomGodOfGuardBoss3 extends PomBossController {
             let tmpV = new Vector3();
             let targetFacing = new Vector3();
             let target = new Vector3();
-            this.attackLiner = ExSystem.timeLine({
+            this.attackLiner = ExSystem.timeLine(this, {
                 "1.3": (time) => {
                     //起飞
                     time.registerTick("fly", (time, pastTime) => {
@@ -2346,7 +2348,7 @@ export class PomGodOfGuardBoss3 extends PomBossController {
             this.exEntity.viewDirection = dic;
 
             this.skillTimer?.stop();
-            this.skillTimer = ExSystem.tickTask(() => {
+            this.skillTimer = ExSystem.tickTask(this, () => {
                 this.entity.dimension.spawnParticle("wb:god_of_guard_lazer_pre_par", this.entity.location);
                 this.entity.playAnimation("animation.god_of_guard.staff_effect_only", {
                     "blendOutTime": 0.2
@@ -2354,7 +2356,7 @@ export class PomGodOfGuardBoss3 extends PomBossController {
                 let numTotal = 20 * 2;
                 let num = numTotal;
                 this.skillTimer?.stop();
-                this.skillTimer = ExSystem.tickTask(() => {
+                this.skillTimer = ExSystem.tickTask(this, () => {
                     this.skillBox.summonLazerPre(i);
                     this.skillBox.summonLazerPre(i + 30);
                     this.skillBox.summonLazerPre(i - 30);
@@ -2374,7 +2376,7 @@ export class PomGodOfGuardBoss3 extends PomBossController {
                         "blendOutTime": 0.2
                     });
                     this.skillTimer?.stop();
-                    this.skillTimer = ExSystem.tickTask(() => {
+                    this.skillTimer = ExSystem.tickTask(this, () => {
                         this.skillBox.summonLazer(i);
                         this.skillBox.summonLazer(180 + i);
                         this.skillBox.summonLazer(i + 30);
@@ -2459,7 +2461,7 @@ export class PomGodOfGuardBoss3 extends PomBossController {
             let dic = new Vector3(target).sub(startPos).normalize();
 
             this.attackLiner?.stop();
-            this.attackLiner = ExSystem.timeLine({
+            this.attackLiner = ExSystem.timeLine(this, {
                 "0.0": (time) => {
                     time.registerTick("fly", (time, pastTime) => {
                         this.entity.teleport(startPos.add(dic.scl(0.1)), {

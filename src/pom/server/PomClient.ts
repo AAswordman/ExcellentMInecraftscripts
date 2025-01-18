@@ -56,7 +56,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
         super(server, id, player);
         this.globalSettings = new GlobalSettings(new Objective("wpsetting"));
         this.cache = new ExPropCache(this.getDynamicPropertyManager());
-        this.looper = ExSystem.tickTask(() => {
+        this.looper = ExSystem.tickTask(this, () => {
             this.cache.save();
         });
 
@@ -182,7 +182,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
             });
         }
         if (!this.data.licenseRead) {
-            this.licenseLooper = ExSystem.tickTask(() => {
+            this.licenseLooper = ExSystem.tickTask(this, () => {
                 new WarningAlertUI(this, POMLICENSE, [[this.getLang().agreeAndContinue, (c, ui) => {
                     this.data.licenseRead = true;
                     this.licenseLooper?.stop();

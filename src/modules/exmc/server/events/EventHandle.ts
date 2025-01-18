@@ -37,7 +37,6 @@ export default class EventHandle<T> {
         }
 
         e.get(entity)?.addMonitor(callback);
-
     }
 
     unsubscribe(entity: Entity, name: string, callback: (args: unknown) => void) {

@@ -25,7 +25,7 @@ export default class PomTerritorySystem extends GameController {
     }, "")
     onJoin(): void {
         this.territoryData = new BlockPartitioning(this.globalData.territoryData);
-        this.looper = ExSystem.tickTask(() => {
+        this.looper = ExSystem.tickTask(this,() => {
             this.getLocationLevel();
             this.data.territory.data.forEach(e => e.coolingTime = Math.max(0, e.coolingTime - 4));
 

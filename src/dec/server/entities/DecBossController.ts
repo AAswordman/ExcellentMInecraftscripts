@@ -13,8 +13,8 @@ export default class DecBossController extends ExEntityController {
     startPos: Vector3;
     barrier: DecBossBarrier;
     isFisrtCall = false;
-    constructor(e: Entity, server: DecServer) {
-        super(e, server);
+    constructor(e: Entity, server: DecServer, spawn: boolean) {
+        super(e, server,spawn);
         this.startPos = this.exEntity.position;
         let barrier = DecBossBarrier.find(this.startPos);
 
@@ -40,8 +40,8 @@ export default class DecBossController extends ExEntityController {
         this.entity.triggerEvent("minecraft:despawn");
     }
     
-    override onSpawn(): void {
-        super.onSpawn();
+    override onAppear(spawn:boolean): void {
+        super.onAppear(spawn);
     }
 
     stopBarrier() {

@@ -1,4 +1,4 @@
-import { PlayerBreakBlockAfterEvent, Entity, EntityHurtAfterEvent, ItemStack, Player, EntityRemoveAfterEvent, EntityDieAfterEvent } from "@minecraft/server";
+import { PlayerBreakBlockAfterEvent, Entity, EntityHurtAfterEvent, ItemStack, Player, EntityRemoveAfterEvent, EntityDieAfterEvent, EntityLoadAfterEvent } from "@minecraft/server";
 import ExEventManager from "../../interface/ExEventManager.js";
 import TickDelayTask from "../../utils/TickDelayTask.js";
 import ExGameServer from '../ExGameServer.js';
@@ -6,6 +6,7 @@ import ExPlayer from '../entity/ExPlayer.js';
 import EventHandle, { EventListenerSettings } from "../events/EventHandle.js";
 import { ExEventNames, ExOtherEventNames, ItemOnHandChangeEvent, TickEvent } from "../events/events.js";
 import ExEntityController from "./ExEntityController.js";
+import { falseIfError } from "../../utils/tool.js";
 export default class ExEntityEvents implements ExEventManager {
 
     private static eventHandlers: EventHandle<ExEntityEvents["exEvents"]> = new EventHandle();
@@ -71,10 +72,27 @@ export default class ExEntityEvents implements ExEventManager {
             }
         },
         [ExEventNames.afterEntityDie]: {
-            pattern: ExEntityEvents.eventHandlers.registerToServerByServerEvent
+            pattern: ExEntityEvents.eventHandlers.registerToServerByEntity,
+            filter: {
+                "name": "deadEntity"
+            }
         },
         [ExEventNames.afterEntityRemove]: {
-            pattern: ExEntityEvents.eventHandlers.registerToServerByServerEvent
+            pattern: (registerName: string, k: string) => {
+                ExEntityEvents.eventHandlers.server.getEvents().register(registerName, (e: EntityRemoveAfterEvent) => {
+                    for (let [key, value] of ExEntityEvents.eventHandlers.monitorMap[k]) {
+                        if (key.id === e.removedEntityId) {
+                            value.trigger(e);
+                        }
+                    }
+                })
+            }
+        },
+        [ExEventNames.afterEntityLoad]: {
+            pattern: ExEntityEvents.eventHandlers.registerToServerByEntity,
+            filter: {
+                "name": "entity"
+            }
         }
     }
 
@@ -89,7 +107,8 @@ export default class ExEntityEvents implements ExEventManager {
         [ExOtherEventNames.beforeTick]: new Listener<TickEvent>(this, ExOtherEventNames.beforeTick),
         [ExEventNames.afterPlayerBreakBlock]: new Listener<PlayerBreakBlockAfterEvent>(this, ExEventNames.afterPlayerBreakBlock),
         [ExEventNames.afterEntityDie]: new Listener<EntityDieAfterEvent>(this, ExEventNames.afterEntityDie),
-        [ExEventNames.afterEntityRemove]: new Listener<EntityRemoveAfterEvent>(this, ExEventNames.afterEntityRemove)
+        [ExEventNames.afterEntityRemove]: new Listener<EntityRemoveAfterEvent>(this, ExEventNames.afterEntityRemove),
+        [ExEventNames.afterEntityLoad]: new Listener<EntityLoadAfterEvent>(this, ExEventNames.afterEntityLoad)
     };
 
     public static init(s: ExGameServer) {
@@ -107,7 +126,7 @@ export default class ExEntityEvents implements ExEventManager {
         if (name in this.exEvents) {
             return (<any>this.exEvents)[name].subscribe(func);
         }
-        
+
         console.warn("No event registered for name " + name);
     }
 

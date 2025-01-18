@@ -49,8 +49,8 @@ export default class PomAncientStoneBoss extends PomBossController {
 
         }
     }, false);
-    constructor(e: Entity, server: PomServer) {
-        super(e, server);
+    constructor(e: Entity, server: PomServer, spawn: boolean) {
+        super(e, server, spawn);
     }
     override initBossEntity(): void {
         super.initBossEntity();
@@ -64,8 +64,8 @@ export default class PomAncientStoneBoss extends PomBossController {
             this.cannonView.upDate(this.exEntity.hasTag("cannon"));
         });
     }
-    override onSpawn(): void {
-        super.onSpawn();
+    override onAppear(spawn: boolean): void {
+        super.onAppear(spawn);
     }
     override onKilled(e: EntityHurtAfterEvent): void {
         //设置奖励

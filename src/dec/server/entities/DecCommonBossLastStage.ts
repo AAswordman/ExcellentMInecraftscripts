@@ -4,14 +4,14 @@ import DecServer from "../DecServer.js";
 import DecBossController from "./DecBossController.js";
 
 export class DecCommonBossLastStage extends DecBossController{
-    constructor(e: Entity, server: DecServer) {
-        super(e, server);
+    constructor(e: Entity, server: DecServer, spawn: boolean) {
+        super(e, server,spawn);
     }
     override onDestroy(): void {
         super.onDestroy();
     }
-    override onSpawn(): void {
-        super.onSpawn();
+    override onAppear(spawn:boolean): void {
+        super.onAppear(spawn);
     }
     override onKilled(e: EntityHurtAfterEvent): void {
         this.onWin();

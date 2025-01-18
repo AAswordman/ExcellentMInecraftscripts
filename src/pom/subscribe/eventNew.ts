@@ -9,6 +9,7 @@ import ExGame from '../../modules/exmc/server/ExGame.js';
 import ExSystem from '../../modules/exmc/utils/ExSystem.js';
 import ExScoresManager, { Objective } from '../../modules/exmc/server/entity/ExScoresManager.js';
 import PomServer from '../server/PomServer.js';
+import ExContext from '../../modules/exmc/server/ExContext.js';
 
 
 const ex = (name: string) => "ex:" + name;
@@ -83,6 +84,8 @@ const onPlayerPlacingCompName = "on_player_placing"
 type onPlayerDestroyedCompType = onStepOnCompType;
 const onPlayerDestroyedCompName = "on_player_destroyed"
 
+const context = new ExContext();
+
 function molangCalculate(molang: string | number, option: TriggerOption) {
     molang = (molang + "").replace(/q\./g, "query.");
     const query = {
@@ -121,9 +124,27 @@ function molangCalculate(molang: string | number, option: TriggerOption) {
                 }
             }
             return false;
+        },
+        get cardinal_facing_2d() {
+            if (!option.triggerEntity || !option.triggerBlock) return 6;
+            let dis = ExEntity.getInstance(option.triggerEntity).position.sub(option.triggerBlock.location);
+            let angle = dis.rotateAngleX() + 45;
+            switch (Math.floor(angle / 90) % 4) {
+                case 0:
+                    return 2;
+                case 1:
+                    return 4;
+                case 2:
+                    return 3;
+                case 3:
+                    return 5;
+                default:
+                    return 6;
+            }
         }
     }
     let res = eval("(" + molang + ")");
+    // console.warn(molang + " -> "+  res);
     return res;
 }
 
@@ -443,7 +464,13 @@ export default () => {
         initEvent.blockComponentRegistry.registerCustomComponent(ex(onPlayerPlacingCompName), {
             onPlace: e => {
                 if (e) {
-                    let option = { triggerBlock: e.block, triggerType: onPlayerPlacingCompName };
+                    let players = e.block.dimension.getPlayers({
+                        "maxDistance": 5,
+                        "closest": 1,
+                        "location": e.block.location
+                    });
+
+                    let option = { triggerBlock: e.block, triggerType: onPlayerPlacingCompName, triggerEntity: players.length > 0 ? players[0] : undefined };
                     const triggerComp = findTriggerComp(option) as onPlayerPlacingCompType | undefined;
                     if (triggerComp) {
                         emitEvent(triggerComp.event, option);
@@ -521,7 +548,7 @@ export default () => {
                 let duration = cooling.duration as number;
                 if (duration * 20 - 1 == player.getItemCooldown(cate)) {
                     tryUse();
-                    useMap.set(player, ExSystem.tickTask(() => {
+                    useMap.set(player, ExSystem.tickTask(context, () => {
                         if (!tryUse(cate, Math.floor(duration * 20))) {
                             useMap.get(player)?.startOnce();
                         } else {
@@ -531,7 +558,7 @@ export default () => {
                 }
             } else {
                 tryUse();
-                useMap.set(player, ExSystem.tickTask(() => {
+                useMap.set(player, ExSystem.tickTask(context, () => {
                     tryUse();
                 }).delay(1).start());
             }

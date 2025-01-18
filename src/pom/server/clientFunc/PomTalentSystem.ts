@@ -29,7 +29,7 @@ import { canSweep } from '../items/isEquipment.js';
 export default class PomTalentSystem extends GameController {
     strikeSkill = true;
     talentRes: Map<number, number> = new Map<number, number>();
-    skillLoop = ExSystem.tickTask(() => {
+    skillLoop = ExSystem.tickTask(this,() => {
         if (this.data.talent.occupation.id === Occupation.ASSASSIN.id) this.strikeSkill = true;
         if (this.data.talent.occupation.id === Occupation.PRIEST.id) {
             let health = 999;
@@ -132,7 +132,7 @@ export default class PomTalentSystem extends GameController {
 
     attackCooldown: number = 0;
     maxAttackCooldown: number = 0;
-    attackCooldownLooper = ExSystem.tickTask(() => {
+    attackCooldownLooper = ExSystem.tickTask(this,() => {
         const maxFrame = 30;
         if (this.attackCooldown < -10) {
             this.attackCooldownLooper.stop();
@@ -525,7 +525,7 @@ export default class PomTalentSystem extends GameController {
                         };
                         this.hasCauseDamage.addMonitor(lastListener);
                         this.equiTotalTask?.stop();
-                        (this.equiTotalTask = ExSystem.tickTask(() => {
+                        (this.equiTotalTask = ExSystem.tickTask(this,() => {
                             let shouldUpstate = false;
                             maxSecondaryDamage = Math.ceil(Math.max(maxSecondaryDamage, damage / 5));
                             damage = 0;

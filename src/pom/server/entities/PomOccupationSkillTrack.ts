@@ -7,8 +7,8 @@ export default class PomOccupationSkillTrack extends ExEntityController {
     target: Entity | undefined;
     speed!: number;
     speedListener!: (te: TickEvent) => void;
-    override onSpawn(): void {
-        super.onSpawn();
+    override onAppear(spawn:boolean): void {
+        super.onAppear(spawn);
         this.speed = this.exEntity.getVelocity().len();
         const tmpV = new Vector3();
         const tmpP = new Vector3();
@@ -36,9 +36,6 @@ export default class PomOccupationSkillTrack extends ExEntityController {
         }
 
         this.getEvents().exEvents.tick.subscribe(this.speedListener);
-    }
-    override onDespawn(): void {
-        super.onDespawn();
     }
     setTarget(target: Entity) {
         this.target = target;

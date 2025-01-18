@@ -27,6 +27,7 @@ import { DecLeavesGolemBoss } from './entities/DecLeavesGolemBoss.js';
 import { DecEscapeSoulBoss3, DecEscapeSoulBoss4, DecEscapeSoulBoss5 } from './entities/DecEscapeSoulBoss.js';
 import DecBossController from './entities/DecBossController.js';
 import DecBossBarrier from './entities/DecBossBarrier.js';
+import ExContext from '../../modules/exmc/server/ExContext.js';
 
 
 export default class DecServer extends ExGameServer {
@@ -197,7 +198,7 @@ export default class DecServer extends ExGameServer {
                         let end = new Vector3(Math.floor(parseFloat(cmds[4])), Math.floor(parseFloat(cmds[5])), Math.floor(parseFloat(cmds[6]))).add(1);
 
                         let data: string[] = [];
-                        let task = new ExTaskRunner();
+                        let task = new ExTaskRunner(this);
                         const mthis = this;
                         task.setTasks((function* () {
                             for (let i of new IStructureDriver().save(mthis.getExDimension(MinecraftDimensionTypes.overworld), start, end)) {

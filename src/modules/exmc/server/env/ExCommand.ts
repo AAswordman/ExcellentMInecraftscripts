@@ -2,13 +2,13 @@ import { CommandResult, Entity } from '@minecraft/server';
 import ExEntity from '../entity/ExEntity.js';
 import format from '../../utils/format.js';
 import UUID from '../../utils/UUID.js';
-import {ExCommandNativeRunner } from '../../interface/ExCommandRunner.js';
+import { ExCommandNativeRunner } from '../../interface/ExCommandRunner.js';
 import ExGameServer from '../ExGameServer.js';
 import TickDelayTask from '../../utils/TickDelayTask.js';
 import ExErrorQueue from '../ExErrorQueue.js';
 import Queue from '../../utils/queue/Queue.js';
 import ExSystem from '../../utils/ExSystem.js';
-export default class ExCommand{
+export default class ExCommand {
     runner: ExCommandNativeRunner;
     static delay: TickDelayTask;
     static queue: Queue<(undefined | [ExCommandNativeRunner, string, ((Entity | ExEntity)[]), (e: CommandResult) => void, (e: any) => void])>;
@@ -35,8 +35,7 @@ export default class ExCommand{
 
     public static init(server: ExGameServer) {
         this.queue = new Queue();
-        this.delay = ExSystem.tickTask(() => {
-
+        this.delay = ExSystem.tickTask(server, () => {
             let i = 0;
             while (ExCommand.queue.length > 0 && i < 100) {
                 const a = ExCommand.queue.shift();

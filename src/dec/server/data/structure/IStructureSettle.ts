@@ -5,6 +5,7 @@ import ExTaskRunner from "../../../../modules/exmc/server/ExTaskRunner.js";
 import Random from "../../../../modules/exmc/utils/Random.js";
 import DisposeAble from "../../../../modules/exmc/interface/DisposeAble.js";
 import { MinecraftBlockTypes } from "../../../../modules/vanilla-data/lib/index.js";
+import ExContext from "../../../../modules/exmc/server/ExContext.js";
 
 export default class IStructureSettle implements DisposeAble{
     dispose(): void {
@@ -43,7 +44,7 @@ export default class IStructureSettle implements DisposeAble{
     }
     async run(dim: ExDimension, pos: Vector3) {
         const s = new Vector3(), e = new Vector3();
-        let runner = new ExTaskRunner();
+        let runner = new ExTaskRunner(new ExContext());
         const t = this;
         const tmpV = new Vector3();
         const tmpP = new Vector3();
