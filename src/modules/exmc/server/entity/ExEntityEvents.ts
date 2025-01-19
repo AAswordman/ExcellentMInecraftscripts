@@ -7,9 +7,14 @@ import EventHandle, { EventListenerSettings } from "../events/EventHandle.js";
 import { ExEventNames, ExOtherEventNames, ItemOnHandChangeEvent, TickEvent } from "../events/events.js";
 import ExEntityController from "./ExEntityController.js";
 import { falseIfError } from "../../utils/tool.js";
+import ExEntityPool from "./ExEntityPool.js";
+import MonitorManager from "../../utils/MonitorManager.js";
 export default class ExEntityEvents implements ExEventManager {
 
     private static eventHandlers: EventHandle<ExEntityEvents["exEvents"]> = new EventHandle();
+    monitorMapBackup: { [event: string]: MonitorManager<unknown[]> } = {
+
+    }
 
     _subscribe(arg0: string, callback: (arg: any) => void) {
         ExEntityEvents.eventHandlers.subscribe(this._ctrl.entity, arg0, callback);
@@ -37,10 +42,26 @@ export default class ExEntityEvents implements ExEventManager {
             }
         },
         [ExOtherEventNames.tick]: {
-            pattern: ExEntityEvents.eventHandlers.registerToServerByServerEvent
+            pattern: (registerName: string, k: string) => {
+                ExEntityEvents.eventHandlers.server.getEvents().register(registerName, (e: TickEvent) => {
+                    for (let [key, value] of ExEntityEvents.eventHandlers.monitorMap[k]) {
+                        if (!ExEntityPool.pool.get(key.id)?.interrupt) {
+                            value.trigger(e);
+                        }
+                    }
+                })
+            }
         },
         [ExOtherEventNames.beforeTick]: {
-            pattern: ExEntityEvents.eventHandlers.registerToServerByServerEventCanErr
+            pattern: (registerName: string, k: string) => {
+                ExEntityEvents.eventHandlers.server.getEvents().register(registerName, (e: TickEvent) => {
+                    for (let [key, value] of ExEntityEvents.eventHandlers.monitorMap[k]) {
+                        if (!ExEntityPool.pool.get(key.id)?.interrupt) {
+                            value.trigger(e);
+                        }
+                    }
+                })
+            }
         },
         [ExEventNames.afterEntityHitBlock]: {
             pattern: ExEntityEvents.eventHandlers.registerToServerByEntity,
@@ -63,7 +84,15 @@ export default class ExEntityEvents implements ExEventManager {
             name: ExEventNames.afterEntityHurt
         },
         [ExOtherEventNames.onLongTick]: {
-            pattern: ExEntityEvents.eventHandlers.registerToServerByServerEvent
+            pattern: (registerName: string, k: string) => {
+                ExEntityEvents.eventHandlers.server.getEvents().register(registerName, (e: TickEvent) => {
+                    for (let [key, value] of ExEntityEvents.eventHandlers.monitorMap[k]) {
+                        if (!ExEntityPool.pool.get(key.id)?.interrupt) {
+                            value.trigger(e);
+                        }
+                    }
+                })
+            }
         },
         [ExEventNames.afterPlayerBreakBlock]: {
             pattern: ExEntityEvents.eventHandlers.registerToServerByEntity,
@@ -135,6 +164,29 @@ export default class ExEntityEvents implements ExEventManager {
         if (name in this.exEvents) {
             return (<any>this.exEvents)[name].unsubscribe(fun);
         }
+    }
+
+    stopContext() {
+        if (ExEntityEvents.eventHandlers.monitorMap[ExOtherEventNames.onLongTick].has(this._ctrl.entity)) {
+            this.monitorMapBackup[ExOtherEventNames.onLongTick] =
+                ExEntityEvents.eventHandlers.monitorMap[ExOtherEventNames.onLongTick].get(this._ctrl.entity)!
+            ExEntityEvents.eventHandlers.monitorMap[ExOtherEventNames.onLongTick].delete(this._ctrl.entity)
+
+        }
+        if (ExEntityEvents.eventHandlers.monitorMap[ExOtherEventNames.tick].has(this._ctrl.entity)) {
+            this.monitorMapBackup[ExOtherEventNames.tick] =
+                ExEntityEvents.eventHandlers.monitorMap[ExOtherEventNames.tick].get(this._ctrl.entity)!
+            ExEntityEvents.eventHandlers.monitorMap[ExOtherEventNames.tick].delete(this._ctrl.entity)
+        }
+    }
+    startContext() {
+        if(ExOtherEventNames.tick in this.monitorMapBackup){
+            ExEntityEvents.eventHandlers.monitorMap[ExOtherEventNames.tick].set(this._ctrl.entity, this.monitorMapBackup[ExOtherEventNames.tick]);
+        }
+        if(ExOtherEventNames.onLongTick in this.monitorMapBackup){
+            ExEntityEvents.eventHandlers.monitorMap[ExOtherEventNames.onLongTick].set(this._ctrl.entity, this.monitorMapBackup[ExOtherEventNames.onLongTick]);
+        }
+        this.monitorMapBackup = {};
     }
 }
 

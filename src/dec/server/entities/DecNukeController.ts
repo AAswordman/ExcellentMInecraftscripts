@@ -27,11 +27,11 @@ export default class DecNukeController extends ExEntityController {
                 return;
             }
         }
-        this.setTimeout(() => {
+        this.runTimeout(() => {
             const tmpV = new Vector3();
             // for (let i = 0; i <= 50; i += 10) {
             const i = 50;
-            this.setTimeout(() => {
+            this.runTimeout(() => {
                 const dim = this.exEntity.exDimension;
                 const pos = this.entity.location;
                 ExGame.runJob(function* () {

@@ -12,4 +12,4 @@ config.watchDog = false;
 config.debug = true;
 ExGame.createServer(DecServer,config);
 
-ExGame.register("pomEvent",eventNew);
+ExGame.register("pomEvent",eventNew,config);

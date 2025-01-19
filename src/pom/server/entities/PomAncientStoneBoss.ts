@@ -36,12 +36,12 @@ export default class PomAncientStoneBoss extends PomBossController {
                 }
             };
             this.getEvents().exEvents.tick.subscribe(f);
-            this.setTimeout(() => {
+            this.runTimeout(() => {
                 this.getEvents().exEvents.tick.unsubscribe(f);
             }, 5000);
             for (let e of this.barrier.getPlayers()) {
                 const c = this.server.findClientByPlayer(e);
-                c?.setTimeout(() => {
+                c?.runTimeout(() => {
                     c.exPlayer.command.runAsync(`camera @s clear`);
                 }, 5200);
             }

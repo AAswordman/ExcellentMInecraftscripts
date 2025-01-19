@@ -16,4 +16,4 @@ ExGame.createServer(PomServer, config);
 ExGame.createServer(DecServer, config);
 // ExGame.createServer(CustomServer, config);
 
-ExGame.register("pomEvent", eventNew);
+ExGame.register("pomEvent", eventNew, config);

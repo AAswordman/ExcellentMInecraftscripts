@@ -145,7 +145,7 @@ export default class PomServer extends ExGameServer {
             if (e.dimension === this.getDimension(MinecraftDimensionTypes.overworld)
                 && (<PomClient>this.findClientByPlayer(e.player)).territorySystem.isLocationLevelToPlayer(new Vector3(e.block))) {
                 let ex = ExPlayer.getInstance(e.player);
-                ExGame.run(() => {
+                this.run(() => {
                     ex.addEffect(MinecraftEffectTypes.Nausea, 200, 0, true);
                     ex.addEffect(MinecraftEffectTypes.Darkness, 400, 0, true);
                     ex.addEffect(MinecraftEffectTypes.Wither, 100, 0, true);
@@ -171,7 +171,7 @@ export default class PomServer extends ExGameServer {
             )) {
                 e.cancel = true;
                 const s = e.source.location;
-                ExGame.run(() => this.getExDimension(MinecraftDimensionTypes.overworld).spawnParticle("dec:damp_explosion_particle", s));
+                this.run(() => this.getExDimension(MinecraftDimensionTypes.overworld).spawnParticle("dec:damp_explosion_particle", s));
             }
         });
         this.getEvents().events.beforeItemUseOn.subscribe(e => {
@@ -265,7 +265,7 @@ export default class PomServer extends ExGameServer {
             )) {
                 e.setImpactedBlocks([]);
                 const s = e.source.location;
-                ExGame.run(() => this.getExDimension(MinecraftDimensionTypes.theEnd).spawnParticle("dec:damp_explosion_particle", s));
+                this.run(() => this.getExDimension(MinecraftDimensionTypes.theEnd).spawnParticle("dec:damp_explosion_particle", s));
             }
         });
         this.getEvents().events.beforeItemUse.subscribe(e => {
@@ -584,7 +584,7 @@ export default class PomServer extends ExGameServer {
 
 
         //遗迹初始化各个房间位置
-        this.setTimeout(() => {
+        this.runTimeout(() => {
             this.ruin_desertBoss.init(RuinsLoaction.DESERT_RUIN_LOCATION_START.x, RuinsLoaction.DESERT_RUIN_LOCATION_START.y,
                 RuinsLoaction.DESERT_RUIN_LOCATION_START.z,
                 this.getDimension(MinecraftDimensionTypes.theEnd));

@@ -8,16 +8,17 @@ import ExSystem from "../utils/ExSystem.js";
 import MonitorManager from "../utils/MonitorManager.js";
 import { TickEvent } from "./events/events.js";
 import ExErrorQueue from "./ExErrorQueue.js";
+import ExContext from '../interface/ExContext.js';
 
 export default class ExGame {
-    
-    static idRunSeq = 0;
-    static nowTick = 0;
-    static tickDelayTriggers = new Map<number, [number, () => void][]>();
-    static idToTrigger = new Map<number, number>();
-    static intevalTask = new Map<number, [number, () => void][]>();
-    static idToIntevalTrigger = new Map<number, number>();
-    static tickDelayMax = 2300000000;
+
+    private static idRunSeq = 0;
+    private static nowTick = 0;
+    private static tickDelayTriggers = new Map<number, [number, () => void][]>();
+    private static idToTrigger = new Map<number, number>();
+    private static intevalTask = new Map<number, [number, () => void][]>();
+    private static idToIntevalTrigger = new Map<number, number>();
+    private static tickDelayMax = 2300000000;
     static {
         const func = () => {
             this.nowTick = (this.nowTick + 1) % this.tickDelayMax;
@@ -38,7 +39,7 @@ export default class ExGame {
                 if (this.nowTick % time === 0) {
                     list.forEach(e => {
                         try {
-                            if(this.idToIntevalTrigger.has(e[0])) e[1]();
+                            if (this.idToIntevalTrigger.has(e[0])) e[1]();
                         } catch (err) {
                             ExErrorQueue.throwError(err);
                         }
@@ -52,7 +53,7 @@ export default class ExGame {
     }
 
 
-    static clearRun(runId: number): void {
+    static _clearRun(runId: number): void {
         if (this.idToTrigger.has(runId)) {
             let time = this.idToTrigger.get(runId)!;
             let list = this.tickDelayTriggers.get(time);
@@ -60,7 +61,7 @@ export default class ExGame {
                 list.splice(list.findIndex(e => e[0] == runId), 1);
             }
             this.idToTrigger.delete(runId);
-        }else if(this.idToIntevalTrigger.has(runId)){
+        } else if (this.idToIntevalTrigger.has(runId)) {
             let time = this.idToIntevalTrigger.get(runId)!;
             let list = this.intevalTask.get(time);
             if (list) {
@@ -71,7 +72,7 @@ export default class ExGame {
     }
 
 
-    static runInterval(callback: () => void, tickDelay?: number): number {
+    static _runInterval(callback: () => void, tickDelay?: number): number {
         tickDelay = Math.round(Math.max(1, tickDelay ?? 1));
 
         this.idRunSeq = (1 + this.idRunSeq) % this.tickDelayMax;
@@ -86,7 +87,7 @@ export default class ExGame {
     }
 
 
-    static runTimeout(callback: () => void, tickDelay?: number): number {
+    static _runTimeout(callback: () => void, tickDelay?: number): number {
         tickDelay = Math.round(Math.max(1, tickDelay ?? 1));
         this.idRunSeq = (1 + this.idRunSeq) % this.tickDelayMax;
         let tar = this.nowTick + tickDelay
@@ -99,7 +100,7 @@ export default class ExGame {
         return this.idRunSeq;
     }
 
-    static run(callback: () => void): number {
+    static _run(callback: () => void): number {
         return system.run(() => {
             try {
                 callback();
@@ -111,10 +112,10 @@ export default class ExGame {
     }
 
     static gamerules = world.gameRules;
-    static sleep(tickDelay: number): Promise<void> {
+    static _sleep(tickDelay: number): Promise<void> {
         return system.waitTicks(tickDelay);
     }
-    
+
     static beforeTickMonitor = new MonitorManager<[TickEvent]>();
     static tickMonitor = new MonitorManager<[TickEvent]>();
     static longTickMonitor = new MonitorManager<[TickEvent]>();
@@ -133,7 +134,7 @@ export default class ExGame {
             this.beforeTickMonitor.trigger(event);
             this.tickMonitor.trigger(event);
         }
-        ExGame.runInterval(fun, 1);
+        ExGame._runInterval(fun, 1);
     }
     static {
         let tickNum = 0,
@@ -148,7 +149,7 @@ export default class ExGame {
             tickNum = (tickNum + 1) % 72000;
             this.longTickMonitor.trigger(event);
         }
-        ExGame.runInterval(fun, 5);
+        ExGame._runInterval(fun, 5);
     }
 
     static {
@@ -165,14 +166,14 @@ export default class ExGame {
         let server = new serverCons(config);
         this.serverMap.set(serverCons, server);
     }
-    static register(arg0: string, event: () => void) {
-        event();
+    static register(arg0: string, event: (context: any) => void, config: ExConfig) {
+        event(config.gameContext);
     }
     static postMessageBetweenServer() {
 
     }
-    static postMessageBetweenClient<T extends ExGameClient>(client: T|Player, s: typeof ExGameServer, exportName: string, args: any[]) {
-        ExGame.run(() => {
+    static postMessageBetweenClient<T extends ExGameClient>(client: T | Player, s: typeof ExGameServer, exportName: string, args: any[]) {
+        ExGame._run(() => {
             let server = this.serverMap.get(s);
             if (!server) return;
             let finder = server.findClientByPlayer(client instanceof Player ? client : client.player);
@@ -192,3 +193,42 @@ export function receiveMessage(exportName: string) {
         Reflect.defineMetadata("exportName", exportName, target, propertyName);
     }
 }
+
+export const gameContext = new (class extends ExContext {
+    override interrupt = true;
+    override parent = undefined;
+    override sleep(timeout: number): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            ExGame._runTimeout(() => {
+                resolve();
+            }, timeout);
+        });
+    }
+    override sleepByTick(timeout: number): Promise<void> {
+        return ExGame._sleep(timeout);
+    }
+    override run(func: () => void): void {
+        ExGame._run(func);
+    }
+    override runTimeout(fun: () => void, timeout: number): number {
+        return this.runTimeoutByTick(fun, timeout / 1000 * 20);
+    }
+    override runTimeoutByTick(fun: () => void, timeout: number): number {
+        return ExGame._runTimeout(fun, timeout);
+    }
+    override runIntervalByTick(fun: () => void, timeout: number): number {
+        return ExGame._runInterval(fun, timeout);
+    }
+    override clearRun(runId: number): void {
+        ExGame._clearRun(runId);
+    }
+    override stopContext(): void {
+        throw new Error('Top Layer Context Dont support');
+    }
+    override startContext(): void {
+        throw new Error('Top Layer Context Dont support');
+    }
+    override waitContext<T>(promise: Promise<T>): Promise<T> {
+        throw new Error('Top Layer Context Dont support');
+    }
+})();

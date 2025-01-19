@@ -27,7 +27,7 @@ import { DecLeavesGolemBoss } from './entities/DecLeavesGolemBoss.js';
 import { DecEscapeSoulBoss3, DecEscapeSoulBoss4, DecEscapeSoulBoss5 } from './entities/DecEscapeSoulBoss.js';
 import DecBossController from './entities/DecBossController.js';
 import DecBossBarrier from './entities/DecBossBarrier.js';
-import ExContext from '../../modules/exmc/server/ExContext.js';
+import ExContext from '../../modules/exmc/server/ExGameObject.js';
 
 
 export default class DecServer extends ExGameServer {
@@ -222,7 +222,7 @@ export default class DecServer extends ExGameServer {
                         for (let comp of this.compress) {
                             task.push(() => {
                                 data.load(JSON.parse(GZIPUtil.unzipString(comp)));
-                                data.run(this.getExDimension(MinecraftDimensionTypes.overworld), start)
+                                data.run(this, this.getExDimension(MinecraftDimensionTypes.overworld), start)
                                     .then(() => {
                                         task.shift()?.();
                                     });
@@ -308,7 +308,7 @@ export default class DecServer extends ExGameServer {
             //防破坏方块 i_inviolable计分板控制
             if (entity.getScoresManager().getScore(this.i_inviolable) > 1) {
                 let ep = ExPlayer.getInstance(e.player);
-                ExGame.run(() => {
+                this.run(() => {
                     // ep.addEffect(MinecraftEffectTypes.Blindness, 200, 0, true);
                     // ep.addEffect(MinecraftEffectTypes.Darkness, 400, 0, true);
                     // ep.addEffect(MinecraftEffectTypes.Wither, 100, 0, true);
@@ -328,7 +328,7 @@ export default class DecServer extends ExGameServer {
                 if (entity.getScoresManager().getScore(this.i_damp) > 0 || DecBossBarrier.find(e.source.location)) {
                     const s = e.source.location;
                     const dim = entity.dimension
-                    ExGame.run(() => dim.spawnParticle("dec:damp_explosion_particle", s));;
+                    this.run(() => dim.spawnParticle("dec:damp_explosion_particle", s));;
                     e.cancel = true;
                 }
             }

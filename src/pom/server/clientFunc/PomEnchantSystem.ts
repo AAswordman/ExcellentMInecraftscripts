@@ -50,7 +50,7 @@ export default class PomEnChantSystem extends GameController {
                 if (item) {
                     if (item.typeId === "wb:book_cache") {
                         PomEnChantSystem.blockTranslateData.set(new Vector3(block).toString(), item);
-                        this.setTimeout(() => {
+                        this.runTimeout(() => {
                             block.transTo("wb:block_translate_book");
                             bag.clearItem(bag.getSelectedSlot(), 1);
                         }, 0);
@@ -63,7 +63,7 @@ export default class PomEnChantSystem extends GameController {
                 const item = e.itemStack;
                 const saveItem = PomEnChantSystem.blockTranslateData.get(new Vector3(block).toString());
                 if (!saveItem) {
-                    this.setTimeout(() => {
+                    this.runTimeout(() => {
                         block.transTo("wb:block_translate");
                     }, 0);
                     return;
@@ -71,7 +71,7 @@ export default class PomEnChantSystem extends GameController {
                 if (saveItem) {
                     if (item && item.amount === 1) {
                         PomEnChantSystem.blockTranslateData.delete(new Vector3(block).toString());
-                        this.setTimeout(() => {
+                        this.runTimeout(() => {
                             let exHandItem = item;
                             let exSaveItem = saveItem;
                             let d = exSaveItem.getComponentById("minecraft:durability")!.damage;
@@ -137,7 +137,7 @@ export default class PomEnChantSystem extends GameController {
                     if (this.client.talentSystem.itemOnHandComp?.getComponent("equipment_type")) {
                         this.client.sayTo(this.lang.itemIsTooValuable)
                     } else {
-                        this.setTimeout(() => {
+                        this.runTimeout(() => {
                             let m = new Map<string, number>();
                             for (let i = (item.amount) ?? 0; i > 0; i--) {
                                 if (MathUtil.randomInteger(1, 8) === 1) {

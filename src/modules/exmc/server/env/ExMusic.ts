@@ -49,7 +49,7 @@ export default class ExMusic {
     }
     delayStop(time: number) {
         this.isInDelayStop = true;
-        this.manager.setTimeout(() => {
+        this.manager.runTimeout(() => {
             if (this.isInDelayStop) {
                 this.stop();
             }

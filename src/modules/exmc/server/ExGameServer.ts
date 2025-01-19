@@ -22,7 +22,8 @@ import ExSystem from "../utils/ExSystem.js";
 import Vector3 from "../utils/math/Vector3.js";
 import DynamicPropertyManager from "../interface/DynamicPropertyManager.js";
 import ExEntityPool from "./entity/ExEntityPool.js";
-import ExContext from "./ExContext.js";
+import ExContext from "./ExGameObject.js";
+import ExGame from "./ExGame.js";
 
 export default class ExGameServer extends ExContext implements SetTimeOutSupport {
     clients;
@@ -33,7 +34,7 @@ export default class ExGameServer extends ExContext implements SetTimeOutSupport
     static isInitialized: boolean;
 
     constructor(config: ExConfig) {
-        super();
+        super(config.gameContext);
         this.clients = new Map<string, ExGameClient>();
         this.clients_nameMap = new Map<string, ExGameClient>();
 

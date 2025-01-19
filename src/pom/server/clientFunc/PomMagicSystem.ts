@@ -212,8 +212,8 @@ export default class PomMagicSystem extends GameController {
             let change = n - (l ?? 0);
             if (change < 0 && this.hurtState) {
                 if (this.hurtMaxNum <= change) return;//build-in method
-                ExGame.clearRun(hurtTimeId);
-                hurtTimeId = ExGame.runTimeout(() => {
+                this.clearRun(hurtTimeId);
+                hurtTimeId = this.runTimeoutByTick(() => {
                     this.hurtState = false;
                     this.hurtMaxNum = 0;
                 }, 1);
@@ -221,7 +221,7 @@ export default class PomMagicSystem extends GameController {
                 this.hurtMaxNum = -(n - (l ?? 0));
             }
             if (!this.hurtState && change < 0) {
-                hurtTimeId = ExGame.runTimeout(() => {
+                hurtTimeId = this.runTimeoutByTick(() => {
                     this.hurtState = false;
                     this.hurtMaxNum = 0;
                 }, 1);
@@ -234,7 +234,7 @@ export default class PomMagicSystem extends GameController {
                     //不死图腾
                     this.gameHealth = 1;
                     this.isProtected = true;
-                    this.setTimeout(() => {
+                    this.runTimeout(() => {
                         this.isProtected = false;
                     }, 1500);
                 } else {
@@ -266,7 +266,7 @@ export default class PomMagicSystem extends GameController {
             //绕开常规逻辑设置血量
             this.isDied = false;
             this.isProtected = true;
-            this.setTimeout(() => {
+            this.runTimeout(() => {
                 this.isProtected = false;
             }, 3000);
             this.gameHealth = this.gameMaxHealth;

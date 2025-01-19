@@ -29,7 +29,7 @@ export default class PomDesertRuinRules {
         return id;
     }
     public async show() {
-        this.game.setTimeout(async () => {
+        this.game.runTimeout(async () => {
             let cmdArr: string[] = [];
             outerLoop:
             for (let loop of [1]) {
@@ -209,7 +209,7 @@ export default class PomDesertRuinRules {
                 }).delay(1);
                 skillLoop.start();
                 //i+=1;
-                this.game.setTimeout(() => {
+                this.game.runTimeout(() => {
                     skillLoop.stop();
                     switch (mainCmd) {
                         case desertCommand.MAIN.BLAST: {

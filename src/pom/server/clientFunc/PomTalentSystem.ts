@@ -248,13 +248,12 @@ export default class PomTalentSystem extends GameController {
 
         //玩家攻击生物增伤
         this.getEvents().exEvents.afterPlayerHitEntity.subscribe((e) => {
-            if (e.damage > 10000000) return;
+            if (e.damage > 10000000 && e.hurtEntity.isValid()) return;
             let item = this.exPlayer.getBag().itemOnMainHand;
 
             let damageFac = 0;
             let extraDamage = 0;
             let target = ExEntity.getInstance(e.hurtEntity);
-
             let targetHealth = target.health;
 
             let dis = target.position.distance(this.exPlayer.position);
@@ -265,7 +264,7 @@ export default class PomTalentSystem extends GameController {
                 let scores = this.exPlayer.getScoresManager();
                 let extraFl = scores.getScore("wbfl") - 100
                 if (extraFl > 0) {
-                    ExGame.runTimeout(() => {
+                    this.runTimeoutByTick(() => {
                         e.hurtEntity.applyDamage(extraFl / 100 * e.damage, {
                             "cause": EntityDamageCause.magic,
                             "damagingEntity": this.player
@@ -370,7 +369,7 @@ export default class PomTalentSystem extends GameController {
         //玩家减伤
         this.afterHurtListener = this.getEvents().exEvents.afterPlayerHurt.subscribe((e) => {
             if (this.client.magicSystem.isDied) {
-                this.setTimeout(() => {
+                this.runTimeout(() => {
                     this.client.magicSystem.isDied = false;
                 }, 2500);
                 return;
@@ -426,14 +425,14 @@ export default class PomTalentSystem extends GameController {
             this.calculateHealth = this.calculateHealth - damage + add;
             if (this.calculateHealth <= 0) {
                 const clnE = { ...e.damageSource };
-                ExGame.run(() => {
+                this.run(() => {
                     try {
                         let bag = this.exPlayer.getBag();
                         const armor_pitch = [bag.equipmentOnHead, bag.equipmentOnChest, bag.equipmentOnLegs, bag.equipmentOnFeet];
                         const item_main = bag.itemOnMainHand;
                         const item_off = bag.itemOnOffHand;
                         if ((item_main?.typeId == MinecraftItemTypes.TotemOfUndying || item_off?.typeId == MinecraftItemTypes.TotemOfUndying)) {
-                            this.setTimeout(() => {
+                            this.runTimeout(() => {
                                 [bag.equipmentOnHead, bag.equipmentOnChest, bag.equipmentOnLegs, bag.equipmentOnFeet] = armor_pitch;
                             }, 100);
                         }
@@ -587,7 +586,7 @@ export default class PomTalentSystem extends GameController {
                     }
                     this.skill_stateNum[0] += 1;
                 }
-                this.setTimeout(() => {
+                this.runTimeout(() => {
                     this.exPlayer.selectedSlotIndex = e.beforeSlot;
                 }, (0));
             }
@@ -604,7 +603,7 @@ export default class PomTalentSystem extends GameController {
                 if (!this.debugger) {
                     this.debugger = true;
 
-                    ExGame.run(() => {
+                    this.run(() => {
                         let resetTime = 5;
                         this.client.magicSystem.registActionbarPass("debugger");
                         this.hasBeenDamaged.addMonitor(e => {

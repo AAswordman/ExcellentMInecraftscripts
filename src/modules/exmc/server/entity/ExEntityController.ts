@@ -8,7 +8,8 @@ import { eventDecoratorFactory, registerEvent } from "../events/eventDecoratorFa
 import { ExEventNames, ExOtherEventNames, TickEvent } from "../events/events.js";
 import { falseIfError } from "../../utils/tool.js";
 import ExEntityPool from "./ExEntityPool.js";
-import ExContext from "../ExContext.js";
+import ExContext from "../ExGameObject.js";
+import { ignorn } from "../ExErrorQueue.js";
 /**
  * 控制实体的控制器类。
  * @implements {DisposeAble}
@@ -43,8 +44,8 @@ export default class ExEntityController extends ExContext
     getEvents() {
         return this._events;
     }
-    public constructor(e: Entity, server: ExGameServer, spawn:boolean) {
-        super();
+    public constructor(e: Entity, server: ExGameServer, spawn: boolean) {
+        super(server);
         this._entity = e;
         this.server = server;
         this._events = new ExEntityEvents(this);
@@ -68,15 +69,29 @@ export default class ExEntityController extends ExContext
             return e.removedEntityId === ctrl.getId();
         }
     )
+    @registerEvent<ExEntityController>(
+        ExOtherEventNames.beforeTick,
+        (ctrl, e: TickEvent) => {
+            return !ignorn(() => ctrl.entity.isValid());
+        }
+    )
     onMemoryRemove() {
-        console.warn("remove " + this._entity.typeId);
-        this.stopContext();
+        if (this.isLoaded) {
+            this.stopContext();
+            this.getEvents().stopContext();
+        }
     }
 
     @registerEvent<ExEntityController>(ExEventNames.afterEntityLoad)
     onMemoryLoad() {
-        console.warn("load " + this._entity.typeId);
-        this.startContext();
+        if (!this.isLoaded) {
+            this.startContext();
+            this.getEvents().startContext();
+        }
+    }
+
+    onAppear(spawn: boolean) {
+
     }
 
     @registerEvent<ExEntityController>(ExEventNames.afterEntityDie)
@@ -86,9 +101,6 @@ export default class ExEntityController extends ExContext
             this.onDestroy();
         }
     }
-    onAppear(spawn: boolean) {
-
-    }
     onDestroy() {
         this.dispose();
     }
@@ -96,7 +108,7 @@ export default class ExEntityController extends ExContext
     dispose() {
         console.warn("dispose " + this._entity.typeId);
         this.getEvents().cancelAll();
-        if (!this.interrupt) this.onMemoryRemove();
+        if (this.isLoaded) this.onMemoryRemove();
         ExEntityPool.pool.delete(this.getId());
     }
 
@@ -107,5 +119,6 @@ export default class ExEntityController extends ExContext
     )
     onKilled(e: EntityHurtAfterEvent) {
         this._isKilled = true;
+        console.warn("onKilled " + this._entity.typeId);
     }
 }

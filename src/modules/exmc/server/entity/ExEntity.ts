@@ -36,7 +36,7 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     removeHealth(timeout: SetTimeOutSupport, damage: number) {
         if (this._damage === undefined) {
             this._damage = damage;
-            timeout.setTimeout(() => {
+            timeout.runTimeout(() => {
                 if (!this.entity.isValid()) return;
                 let health = this.getComponent("minecraft:health")!;
                 if (health.currentValue > 0) health.setCurrentValue(Math.max(0.5, health.currentValue - (this._damage ?? 0)));
@@ -270,7 +270,7 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         let v = new Vector3(view)
         if (option.delay) {
             proj_comp.shoot(view.normalize().scl(0.05), shootOpt);
-            ExGame.runTimeout(() => {
+            ExGame._runTimeout(() => {
                 if (falseIfError(() => proj.isValid())) proj_comp.shoot(view.normalize().scl(option.speed), shootOpt);
             }, option.delay * 20);
         } else {

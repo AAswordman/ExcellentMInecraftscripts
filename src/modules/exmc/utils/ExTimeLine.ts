@@ -1,5 +1,5 @@
 import DisposeAble from "../interface/DisposeAble.js";
-import ExContext from "../server/ExContext.js";
+import ExContext from "../server/ExGameObject.js";
 import ExSystem from "./ExSystem.js";
 import TickDelayTask from "./TickDelayTask.js";
 

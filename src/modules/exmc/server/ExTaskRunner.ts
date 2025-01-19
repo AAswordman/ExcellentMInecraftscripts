@@ -1,6 +1,6 @@
 import ExSystem from "../utils/ExSystem.js";
 import TickDelayTask from "../utils/TickDelayTask.js";
-import ExContext from "./ExContext.js";
+import ExContext from "./ExGameObject.js";
 import ExGame from "./ExGame.js";
 
 export default class ExTaskRunner {

@@ -18,14 +18,14 @@ import ExGame from "./ExGame.js";
 import DynamicPropertyManager from "../interface/DynamicPropertyManager.js";
 import Vector3 from "../utils/math/Vector3.js";
 import { MinecraftDimensionTypes } from "../../vanilla-data/lib/index.js";
-import ExContext from "./ExContext.js";
+import ExContext from "./ExGameObject.js";
 
 export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingPool> extends ExContext
     implements SetTimeOutSupport {
     private _events: ExClientEvents;
 
     debuggerChatTest = (e: ChatSendBeforeEvent) => {
-        ExGame.run(() => {
+        this.run(() => {
             if (e.message.startsWith("*/"))
                 ExGameConfig.console.info(eval(e.message.substring(2, e.message.length)));
         });
@@ -57,7 +57,7 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
     }
 
     constructor(server: ExGameServer, id: string, player: Player) {
-        super();
+        super(server);
         this._server = server;
         this.clientId = id;
         this.player = player;
@@ -186,14 +186,5 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
         for (let c of this.getServer().getClients()) {
             fun(c as any);
         }
-    }
-
-    
-    sleep(timeout: number) {
-        return new Promise<void>((resolve, reject) => {
-            this.setTimeout(() => {
-                resolve();
-            }, timeout);
-        });
     }
 }

@@ -66,7 +66,7 @@ export default class PomDimRuinsSystem extends GameController {
     backJudgeGenerate = (id: string, ruin: PomRuinCommon) => {
         return new VarOnChangeListener((v) => {
             if (v) {
-                this.setTimeout(() => {
+                this.runTimeout(() => {
                     new ExActionAlert().title(this.lang.operation).body(this.lang.chooseYourOper)
                         .button(this.lang.summonBoss, () => {
                             let bag = this.exPlayer.getBag();
@@ -425,7 +425,7 @@ export default class PomDimRuinsSystem extends GameController {
         this.getEvents().exEvents.beforeOnceItemUseOn.subscribe(e => {
             let block = e.block;
             if (e.itemStack.typeId === "wb:start_key") {
-                ExGame.runTimeout(() => {
+                this.run(() => {
                     if (block?.typeId === "wb:block_magic_equipment") {
                         let p = this.client.getServer().portal_desertBoss;
                         let v2 = new Vector3(e.block).add(2, 2, 2);

@@ -1161,7 +1161,6 @@ export class PomGodOfGuardBoss1 extends PomBossController {
     }
     override initBossEntity(): void {
         super.initBossEntity();
-        if (this.isFisrtCall) this.server.say({ rawtext: [{ translate: "text.wb:summon_god_of_guard.name" }] });
     }
     override onAppear(spawn: boolean): void {
         super.onAppear(spawn);
@@ -1267,7 +1266,7 @@ export class PomGodOfGuardSkillBox {
     }
     forwords(time = 0.25) {
         const nstate = this.state;
-        this.boss.setTimeout(() => {
+        this.boss.runTimeout(() => {
             if (nstate !== this.state) return;
             let pos = this.boss.exEntity.position;
             let view = this.boss.exEntity.viewDirection;
@@ -1350,7 +1349,7 @@ export class PomGodOfGuardShadow extends ExEntityController {
             this.entity.playAnimation("animation.god_of_guard.staff_effect_only", {
                 "blendOutTime": 0.2
             });
-            this.setTimeout(() => {
+            this.runTimeout(() => {
                 let p = this.entity.target ?? Random.choice(Array.from(this.bossOri.barrier.getPlayers()));
                 for (let i = 1; i < 4; i++) {
                     let targetPos = new Vector3(p.location);
@@ -1642,7 +1641,7 @@ export class PomGodOfGuardBoss2 extends PomBossController {
                     mat2.rmulVector(tar);
                     for (let p = -4; p <= 4; p += 1) {
                         const n = p * 15;
-                        this.setTimeout(() => {
+                        this.runTimeout(() => {
                             this.exEntity.shootProj("wb:god_of_guard_sword_p", {
                                 "speed": 0.9,
                                 "delay": 0.8
@@ -1703,7 +1702,7 @@ export class PomGodOfGuardBoss2 extends PomBossController {
                     }
                     if (this.attack(5, 90).findIndex(e => e instanceof Player) === -1) {
                         this.getEvents().exEvents.afterOnHurt.subscribe(listener)
-                        this.setTimeout(() => {
+                        this.runTimeout(() => {
                             this.getEvents().exEvents.afterOnHurt.unsubscribe(listener)
                         }, 2000)
                     };
@@ -1840,7 +1839,7 @@ export class PomGodOfGuardBoss2 extends PomBossController {
             this.shadow.attackTimer = ExSystem.tickTask(this, () => {
                 this.shadow.tryStateSprint();
             }).delay(2.5 * 20).start();
-            this.setTimeout(() => {
+            this.runTimeout(() => {
                 this.passive.defense[0] = 20;
                 this.entity.playAnimation("animation.god_of_guard.staff_effect_only", {
                     "blendOutTime": 0.2
@@ -1979,8 +1978,8 @@ export class PomGodOfGuardBoss3 extends PomBossController {
 
             }
         });
-        this.cycle = () => this.act().then(() => {
-            return ExGame.sleep(20);
+        this.cycle = () => this.waitContext(this.act()).then(() => {
+            return this.sleep(20);
         }).then(() => {
             return this.cycle?.();
         });
@@ -1990,10 +1989,10 @@ export class PomGodOfGuardBoss3 extends PomBossController {
     act() {
         let actions = [
             async () => {
-                await this.waitContext(this.sprint(this.getRandomPos()));
-                await this.waitContext(this.skipWithAttackHeavy(this.getTargetPos));
+                await this.sprint(this.getRandomPos());
+                await this.skipWithAttackHeavy(this.getTargetPos);
                 for (let i = 0; i < 3; i++) {
-                    await this.waitContext(ExGame.sleep(10));
+                    await this.sleep(10);
                     await this.waitContext(this.skipWithAttack(this.getTargetPos));
                 }
                 await this.waitContext(this.sprint(this.getRandomPos()));
@@ -2082,7 +2081,6 @@ export class PomGodOfGuardBoss3 extends PomBossController {
         super.onWin();
         this.server.say({ rawtext: [{ translate: "text.wb:defeat_god_of_guard.name" }] });
         super.onKilled(e);
-
     }
     override onFail(): void {
         this.passive.dispose();
@@ -2102,7 +2100,7 @@ export class PomGodOfGuardBoss3 extends PomBossController {
                 }
             }
             this.getEvents().exEvents.afterOnHurt.subscribe(listener)
-            this.setTimeout(() => {
+            this.runTimeout(() => {
                 this.getEvents().exEvents.afterOnHurt.unsubscribe(listener)
             }, 2000);
         }
@@ -2158,11 +2156,11 @@ export class PomGodOfGuardBoss3 extends PomBossController {
                     "x": 0,
                     "y": i % 2 == 0 ? 0 : 180
                 });
-                await ExGame.sleep(1);
+                await this.sleep(1);
             }
         })();
         return (async () => {
-            await this.waitContext(ExGame.sleep(40));
+            await this.sleep(40);
             for (let i = 0; i < entities.length; i++) {
                 new ExEntityQuery(this.entity.dimension).at(entities[i].location)
                     .queryBall(3, {
@@ -2174,7 +2172,7 @@ export class PomGodOfGuardBoss3 extends PomBossController {
                         });
                         p.addEffect(MinecraftEffectTypes.Slowness, 20 * 3, { "amplifier": 5 });
                     });
-                await this.waitContext(ExGame.sleep(1));
+                await this.sleep(1);
             }
             let swordCtrl = new PomGodOfGuardBossSword(this.entity.dimension.spawnEntity("wb:god_of_guard_big_sword", tar, {
                 "initialPersistence": true
@@ -2371,7 +2369,7 @@ export class PomGodOfGuardBoss3 extends PomBossController {
                     }
                 }).delay(4).start();
                 const i = dic.rotateAngleX();
-                this.setTimeout(() => {
+                this.runTimeout(() => {
                     this.entity.playAnimation("animation.god_of_guard.staff_effect_only", {
                         "blendOutTime": 0.2
                     });
@@ -2513,6 +2511,7 @@ export class PomGodOfGuardBoss3 extends PomBossController {
         this.states.onTick(e);
     }
     override dispose(): void {
+        super.dispose();
         this.attackLiner?.dispose();
         this.skillTimer?.dispose();
         this.cycle = undefined;
@@ -2613,6 +2612,7 @@ export class PomGodOfGuardBossPassive implements DisposeAble {
         }
     }
     dispose() {
+        
         this.ctrl.server.getEvents().events.afterEntityHurt.unsubscribe(this.listener);
         this.ctrl.getEvents().exEvents.onLongTick.unsubscribe(this.skipper);
         this.ctrl.getEvents().exEvents.onLongTick.unsubscribe(this.passiveShower);

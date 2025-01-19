@@ -9,8 +9,7 @@ import ExGame from '../../modules/exmc/server/ExGame.js';
 import ExSystem from '../../modules/exmc/utils/ExSystem.js';
 import ExScoresManager, { Objective } from '../../modules/exmc/server/entity/ExScoresManager.js';
 import PomServer from '../server/PomServer.js';
-import ExContext from '../../modules/exmc/server/ExContext.js';
-
+import ExContext from '../../modules/exmc/server/ExGameObject.js';
 
 const ex = (name: string) => "ex:" + name;
 const minecraft = (name: string) => "minecraft:" + name;
@@ -84,7 +83,6 @@ const onPlayerPlacingCompName = "on_player_placing"
 type onPlayerDestroyedCompType = onStepOnCompType;
 const onPlayerDestroyedCompName = "on_player_destroyed"
 
-const context = new ExContext();
 
 function molangCalculate(molang: string | number, option: TriggerOption) {
     molang = (molang + "").replace(/q\./g, "query.");
@@ -419,7 +417,7 @@ function handleRandomizeEventUser(eventUser: RandomizeEventUser, option: Trigger
 
 
 
-export default () => {
+export default (context:ExContext) => {
     for (let fpath of fileProvider.listAll("ex_items")) {
         let f = fileProvider.get(fpath)!;
         idItemMap.set(((f["minecraft:item"] as JSONObject).description as JSONObject).identifier as string, f);

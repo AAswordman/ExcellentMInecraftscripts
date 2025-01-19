@@ -99,7 +99,7 @@ export class PomIntentionsBoss3 extends PomBossController {
         this.changeFog = new VarOnChangeListener((n) => {
             if (n === "wb:ruin_mind_5_boss") {
                 this.barrier.changeFog("wb:ruin_mind_4_boss");
-                this.setTimeout(() => {
+                this.runTimeout(() => {
                     this.barrier.changeFog("wb:ruin_mind_5_boss");
                 }, 5000);
             } else {

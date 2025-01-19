@@ -987,7 +987,7 @@ ${lang.size}: ${areaMsg?.[0].getWidth().toString()}
                                         bag.clearItem("wb:conveyor_issue", 1);
                                     }
                                     client.sayTo(lang.menuUIMsgBailan57);
-                                    client.setTimeout(() => {
+                                    client.runTimeout(() => {
                                         if ((<PomClient>client.getClient(i[0])).data
                                             .socialList.refuseList.filter(e => e[0] === client.gameId).length > 0) return;
                                         new ExMessageAlert().title(lang.menuUIMsgBailan58).body(format(lang.playerWantToTpYou,client.player.nameTag))
@@ -1034,7 +1034,7 @@ ${lang.size}: ${areaMsg?.[0].getWidth().toString()}
                                         bag.clearItem("wb:conveyor_issue", 1);
                                     }
                                     client.sayTo(lang.menuUIMsgBailan67);
-                                    client.setTimeout(() => {
+                                    client.runTimeout(() => {
                                         if ((<PomClient>client.getClient(i[0])).data
                                             .socialList.refuseList.filter(e => e[0] === client.gameId).length > 0) return;
                                         new ExMessageAlert().title(lang.menuUIMsgBailan58).body(format(lang.playerInviteYouToPos,client.player.nameTag,client.exPlayer.position.floor()))
@@ -1597,7 +1597,7 @@ ${lang.size}: ${areaMsg?.[0].getWidth().toString()}
                                     "type": "button",
                                     "msg": `${p.nameTag} : ${(<PomClient>client.getClient(i[0])).data.gameGrade}`,
                                     "function": (client, ui): boolean => {
-                                        client.setTimeout(() => {
+                                        client.runTimeout(() => {
                                             new ModalFormData()
                                                 .title(lang.menuUIMsgBailan209)
                                                 .slider(lang.menuUIMsgBailan210, 0, 99, 1, (<PomClient>client.getClient(i[0])).data.gameGrade)

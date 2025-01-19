@@ -23,7 +23,7 @@ export default class WarningAlertUI<T extends ExGameClient> {
     }
 
     showPage() {
-        this._client.setTimeout(() => {
+        this._client.runTimeout(() => {
             let ui = new ExActionAlert()
                 .title("__pomAlertWarning")
                 .body(this._uiBody);

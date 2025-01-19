@@ -1,5 +1,5 @@
 
-import ExContext from '../server/ExContext.js';
+import ExContext from '../server/ExGameObject.js';
 import ExServerTickDelayTask from '../server/ExServerTickDelayTask.js';
 import ExTimeLine, { ExTimeLineTask } from './ExTimeLine.js';
 import Random from './Random.js';

@@ -43,7 +43,6 @@ export default class PomBossController extends ExEntityController {
         super.onAppear(spawn);
         this.startPos = this.exEntity.position;
         let barrier = PomBossBarrier.find(this.startPos);
-        console.warn("onAppear", spawn);
         this.isFisrtCall = spawn;
         if (!barrier) {
             barrier = new PomBossBarrier(this.server as PomServer, this.exEntity.exDimension,
