@@ -317,7 +317,7 @@ export default class PomTalentSystem extends GameController {
             if (this.globalSettings.damageShow) {
                 damageShow(this.getExDimension(), e.damage + damage, target.entity.location);
             }
-            this.hasCauseDamage.trigger(e.damage + damage, e.hurtEntity);
+            this.hasCauseDamage.trigger([e.damage + damage, e.hurtEntity]);
             usetarget = e.hurtEntity;
 
             if (damage >= targetHealth && targetHealth > 0) {
@@ -465,10 +465,10 @@ export default class PomTalentSystem extends GameController {
 
             this.client.magicSystem.addGameHealth += add;
             // this.exPlayer.addHealth(this, add);
-            this.hasBeenDamaged.trigger(e.damage - add, e.damageSource.damagingEntity);
+            this.hasBeenDamaged.trigger([e.damage - add, e.damageSource.damagingEntity]);
         });
 
-        let lastListener = (d: number) => { };
+        let lastListener = (d: [number,Entity|undefined]) => { };
 
         this.getEvents().exEvents.afterItemOnHandChange.subscribe((e) => {
             let bag = this.exPlayer.getBag();
@@ -518,9 +518,9 @@ export default class PomTalentSystem extends GameController {
                         let maxSecondaryDamage = parseFloat(lore.getValueUseMap("total", this.getLang().maxSecondaryDamage) ?? "0");
                         let damage = 0;
                         this.hasCauseDamage.removeMonitor(lastListener);
-                        lastListener = (d: number) => {
-                            damage += d;
-                            maxSingleDamage = Math.ceil(Math.max(d, maxSingleDamage));
+                        lastListener = (d: [number,Entity|undefined]) => {
+                            damage += d[0];
+                            maxSingleDamage = Math.ceil(Math.max(d[0], maxSingleDamage));
                         };
                         this.hasCauseDamage.addMonitor(lastListener);
                         this.equiTotalTask?.stop();
@@ -606,11 +606,11 @@ export default class PomTalentSystem extends GameController {
                     this.run(() => {
                         let resetTime = 5;
                         this.client.magicSystem.registActionbarPass("debugger");
-                        this.hasBeenDamaged.addMonitor(e => {
+                        this.hasBeenDamaged.addMonitor(([e,_]) => {
                             testBeDamaged += e;
                             resetTime = 5;
                         });
-                        this.hasCauseDamage.addMonitor(e => {
+                        this.hasCauseDamage.addMonitor(([e,_]) => {
                             testCauseDamage += e;
                             resetTime = 5;
                         });
@@ -650,8 +650,8 @@ export default class PomTalentSystem extends GameController {
 
     }
     debugger = false;
-    hasBeenDamaged = new MonitorManager<[number, Entity | undefined]>();
-    hasCauseDamage = new MonitorManager<[number, Entity]>();
+    hasBeenDamaged = new MonitorManager<[number,Entity|undefined]>();
+    hasCauseDamage = new MonitorManager<[number,Entity]>();
 
     onLoad(): void {
 

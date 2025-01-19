@@ -70,6 +70,7 @@ export default class DecBossBarrier implements DisposeAble {
         this.boss = boss;
     }
     dispose(): void {
+        
         DecBossBarrier.map.delete(this.id);
         this.manager.cancel("onLongTick", this.tickEvent);
         for (let c of this.clientsByPlayer()) {

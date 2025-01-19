@@ -13,7 +13,7 @@ import ExContext from '../interface/ExContext.js';
 export default class ExGame {
 
     private static idRunSeq = 0;
-    private static nowTick = 0;
+    public static nowTick = 0;
     private static tickDelayTriggers = new Map<number, [number, () => void][]>();
     private static idToTrigger = new Map<number, number>();
     private static intevalTask = new Map<number, [number, () => void][]>();
@@ -73,7 +73,7 @@ export default class ExGame {
 
 
     static _runInterval(callback: () => void, tickDelay?: number): number {
-        tickDelay = Math.round(Math.max(1, tickDelay ?? 1));
+        tickDelay = Math.floor(Math.max(1, tickDelay ?? 1));
 
         this.idRunSeq = (1 + this.idRunSeq) % this.tickDelayMax;
         const willId = this.idRunSeq;
@@ -116,10 +116,10 @@ export default class ExGame {
         return system.waitTicks(tickDelay);
     }
 
-    static beforeTickMonitor = new MonitorManager<[TickEvent]>();
-    static tickMonitor = new MonitorManager<[TickEvent]>();
-    static longTickMonitor = new MonitorManager<[TickEvent]>();
-    static scriptEventReceive = new MonitorManager<[ScriptEventCommandMessageAfterEvent]>();
+    static beforeTickMonitor = new MonitorManager<TickEvent>();
+    static tickMonitor = new MonitorManager<TickEvent>();
+    static longTickMonitor = new MonitorManager<TickEvent>();
+    static scriptEventReceive = new MonitorManager<ScriptEventCommandMessageAfterEvent>();
     static {
         let tickNum = 0,
             tickTime = 0;
@@ -197,6 +197,9 @@ export function receiveMessage(exportName: string) {
 export const gameContext = new (class extends ExContext {
     override interrupt = true;
     override parent = undefined;
+    override tickMonitor: MonitorManager<TickEvent, void> = ExGame.tickMonitor;
+    override beforeTickMonitor: MonitorManager<TickEvent, void> = ExGame.beforeTickMonitor;
+    override longTickMonitor: MonitorManager<TickEvent, void> = ExGame.longTickMonitor;
     override sleep(timeout: number): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             ExGame._runTimeout(() => {

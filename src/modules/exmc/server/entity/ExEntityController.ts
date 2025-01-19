@@ -1,6 +1,6 @@
 import ExGameServer from "../ExGameServer.js";
 import ExEntity from "./ExEntity.js";
-import { Entity, EntityDieAfterEvent, EntityHurtAfterEvent, EntityLoadAfterEvent, EntityRemoveAfterEvent } from '@minecraft/server';
+import { Entity, EntityDieAfterEvent, EntityHurtAfterEvent, EntityLoadAfterEvent, EntityRemoveAfterEvent, EntityRemoveBeforeEvent } from '@minecraft/server';
 import ExEntityEvents from "./ExEntityEvents.js";
 import DisposeAble from "../../interface/DisposeAble.js";
 import SetTimeOutSupport from "../../interface/SetTimeOutSupport.js";
@@ -63,18 +63,7 @@ export default class ExEntityController extends ExContext
         return !this.interrupt;
     }
 
-    @registerEvent<ExEntityController>(
-        ExEventNames.afterEntityRemove,
-        (ctrl, e: EntityRemoveAfterEvent) => {
-            return e.removedEntityId === ctrl.getId();
-        }
-    )
-    @registerEvent<ExEntityController>(
-        ExOtherEventNames.beforeTick,
-        (ctrl, e: TickEvent) => {
-            return !ignorn(() => ctrl.entity.isValid());
-        }
-    )
+    @registerEvent<ExEntityController>(ExEventNames.beforeEntityRemove)
     onMemoryRemove() {
         if (this.isLoaded) {
             this.stopContext();
@@ -105,11 +94,12 @@ export default class ExEntityController extends ExContext
         this.dispose();
     }
     private _isDestroyed = false;
-    dispose() {
+    override dispose() {
+        super.dispose();
         console.warn("dispose " + this._entity.typeId);
         this.getEvents().cancelAll();
         if (this.isLoaded) this.onMemoryRemove();
-        ExEntityPool.pool.delete(this.getId());
+        ExEntityPool.pool.delete(this.entity);
     }
 
     private _isKilled: boolean = false;

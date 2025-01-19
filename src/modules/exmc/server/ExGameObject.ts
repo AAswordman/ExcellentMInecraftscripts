@@ -1,15 +1,39 @@
+import DisposeAble from "../interface/DisposeAble.js";
 import ExContext from "../interface/ExContext.js";
 import SetTimeOutSupport from "../interface/SetTimeOutSupport.js";
+import MonitorManager from "../utils/MonitorManager.js";
+import { TickEvent } from "./events/events.js";
 import ExGame from "./ExGame.js";
 
-export default class ExGameObject extends ExContext implements SetTimeOutSupport {
+export default class ExGameObject extends ExContext implements SetTimeOutSupport, DisposeAble {
+    tickMonitorListener: (args: TickEvent) => void;
+    beforeTickMonitorListener: (args: TickEvent) => void;
+    longTickMonitorListener: (args: TickEvent) => void;
     constructor(parrent: ExContext) {
         super();
         this.interrupt = false;
         this.parent = parrent;
+
+        this.tickMonitorListener = this.parent.tickMonitor.addMonitor((arg: TickEvent) => {
+            if (this.interrupt) return;
+            this.tickMonitor.trigger(arg);
+        });
+        this.beforeTickMonitorListener = this.parent.beforeTickMonitor.addMonitor((arg: TickEvent) => {
+            if (this.interrupt) return;
+            this.beforeTickMonitor.trigger(arg);
+        });
+        this.longTickMonitorListener = this.parent.longTickMonitor.addMonitor((arg: TickEvent) => {
+            if (this.interrupt) return;
+            this.longTickMonitor.trigger(arg);
+        });
+        
     }
     override parent!: ExContext;
     override interrupt: boolean;
+
+    override tickMonitor: MonitorManager<TickEvent, void> = new MonitorManager();
+    override longTickMonitor: MonitorManager<TickEvent, void> = new MonitorManager();
+    override beforeTickMonitor: MonitorManager<TickEvent, void> = new MonitorManager();
 
     override sleep(timeout: number) {
         return new Promise<void>((resolve, reject) => {
@@ -27,7 +51,10 @@ export default class ExGameObject extends ExContext implements SetTimeOutSupport
     }
 
     override clearRun(runId: number): void {
-        return this.parent.clearRun(runId);
+        this.tickMonitor.removeId(runId);
+        this.longTickMonitor.removeId(runId);
+        this.beforeTickMonitor.removeId(runId);
+        // console.warn("clear run:"+runId+"/"+JSON.stringify(Array.from(this.tickMonitor.idMap.keys())));
     }
 
     override run(func: () => void) {
@@ -48,11 +75,11 @@ export default class ExGameObject extends ExContext implements SetTimeOutSupport
             if (this.interrupt) return;
             time += deltaTime;
             if (time > timeout) {
-                this.parent.clearRun(id);
+                this.clearRun(id);
                 fun();
             }
         };
-        return id = this.parent.runIntervalByTick(method);
+        return id = this.runIntervalByTick(method);
     }
     override runTimeoutByTick(fun: () => void, timeout: number) {
         let time = 0;
@@ -61,25 +88,33 @@ export default class ExGameObject extends ExContext implements SetTimeOutSupport
             if (this.interrupt) return;
             time += 1;
             if (time > timeout) {
-                this.parent.clearRun(id);
+                this.clearRun(id);
                 fun();
             }
         };
-        return id = this.parent.runIntervalByTick(method);
+        return id = this.runIntervalByTick(method);
     }
 
     override runIntervalByTick(fun: () => void, timeout = 1): number {
         let id = 0;
+        timeout = Math.max(1, Math.floor(timeout));
         let method = () => {
-            if (this.interrupt) return;
+            if (this.interrupt || ExGame.nowTick % timeout != 0) return;
             fun();
         };
-        return id = this.parent.runIntervalByTick(method,timeout);
+        this.tickMonitor.addMonitor(method);
+        // console.warn("create runIntervalByTick");
+
+        id = this.tickMonitor.idMap.get(method)!;
+        return id;
     }
 
     stopContext() {
         this._waitCode = [];
         this.interrupt = true;
+        this.parent.tickMonitor.removeMonitor(this.tickMonitorListener);
+        this.parent.tickMonitor.removeMonitor(this.beforeTickMonitorListener);
+        this.parent.tickMonitor.removeMonitor(this.longTickMonitorListener);
     }
     startContext() {
         this.interrupt = false;
@@ -87,6 +122,9 @@ export default class ExGameObject extends ExContext implements SetTimeOutSupport
             p(res);
         });
         this._waitCode = [];
+        this.parent.tickMonitor.addMonitor(this.tickMonitorListener);
+        this.parent.tickMonitor.addMonitor(this.beforeTickMonitorListener);
+        this.parent.tickMonitor.addMonitor(this.longTickMonitorListener);
     }
     private _waitCode: [(value: any) => void, unknown][] = [];
     waitContext<T>(promise: Promise<T>) {
@@ -102,6 +140,7 @@ export default class ExGameObject extends ExContext implements SetTimeOutSupport
             })
         });
     }
+    dispose(): void {
+        this.stopContext();
+    }
 }
-
-

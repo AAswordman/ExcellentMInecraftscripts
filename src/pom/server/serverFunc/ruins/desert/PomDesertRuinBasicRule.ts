@@ -7,6 +7,7 @@ import Vector3 from "../../../../../modules/exmc/utils/math/Vector3.js";
 import ExErrorQueue from "../../../../../modules/exmc/server/ExErrorQueue.js";
 import VarOnChangeListener from "../../../../../modules/exmc/utils/VarOnChangeListener.js";
 import { MinecraftEntityTypes } from "../../../../../modules/vanilla-data/lib/index.js";
+import { Entity } from "@minecraft/server";
 
 export default class PomDesertRuinBasicRule extends GameControllerRuinRule {
     tmpA = new Vector3();
@@ -79,8 +80,8 @@ export default class PomDesertRuinBasicRule extends GameControllerRuinRule {
     constructor(game: GameController) {
         super(game);
 
-        const addHealthListener = (damage: number) => {
-            this.client.magicSystem.additionHealth -= damage / 2;
+        const addHealthListener = (damage: [number,Entity|undefined]) => {
+            this.client.magicSystem.additionHealth -= damage[0] / 2;
             if (this.client.magicSystem.additionHealth <= 0) {
                 game.exPlayer.removeHealth(game, 999);
             }

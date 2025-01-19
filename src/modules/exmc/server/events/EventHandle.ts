@@ -26,7 +26,7 @@ export default class EventHandle<T> {
             p.pattern(registerName, k);
         }
     }
-    monitorMap: { [event: string]: Map<Entity, MonitorManager<unknown[]>> } = {
+    monitorMap: { [event: string]: Map<Entity, MonitorManager<unknown>> } = {
 
     }
 

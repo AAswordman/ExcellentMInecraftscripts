@@ -1,9 +1,15 @@
+import { TickEvent } from "../server/events/events.js";
+import MonitorManager from "../utils/MonitorManager.js";
 import SetTimeOutSupport from "./SetTimeOutSupport.js";
 
 export default abstract class ExContext implements SetTimeOutSupport {
     constructor() {}
     abstract interrupt: boolean;
     abstract parent?: ExContext;
+
+    abstract tickMonitor: MonitorManager<TickEvent,void>;
+    abstract beforeTickMonitor: MonitorManager<TickEvent,void>;
+    abstract longTickMonitor: MonitorManager<TickEvent,void>;
 
     abstract sleep(timeout: number): Promise<void>;
     abstract sleepByTick(timeout: number): Promise<void>;

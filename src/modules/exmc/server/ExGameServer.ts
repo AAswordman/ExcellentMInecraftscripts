@@ -96,8 +96,8 @@ export default class ExGameServer extends ExContext implements SetTimeOutSupport
         try { id = e.entity.typeId } catch (e) { return; }
         const entityConstructor = this.entityControllers.get(e.entity.typeId);
         if (entityConstructor) {
-            if (!ExEntityPool.pool.has(e.entity.id)) {
-                ExEntityPool.pool.set(e.entity.id, new (entityConstructor)(e.entity, this, false));
+            if (!ExEntityPool.pool.has(e.entity)) {
+                ExEntityPool.pool.set(e.entity, new (entityConstructor)(e.entity, this, false));
             }
         }
     }
@@ -109,7 +109,7 @@ export default class ExGameServer extends ExContext implements SetTimeOutSupport
         try { id = e.entity.typeId } catch (e) { return; }
         const entityConstructor = this.entityControllers.get(e.entity.typeId);
         if (entityConstructor) {
-            ExEntityPool.pool.set(e.entity.id, new (entityConstructor)(e.entity, this, true));
+            ExEntityPool.pool.set(e.entity, new (entityConstructor)(e.entity, this, true));
         }
     }
 

@@ -20,7 +20,7 @@ export default class PomDimRuinsSystem extends GameController {
     causeDamage = 0;
     deathTimes = 0;
     private _causeDamageShow = false;
-    causeDamageMonitor: { (args_0: number, args_1: Entity): void; } | undefined;
+    causeDamageMonitor: { (args_0: [number,Entity]): void; } | undefined;
     barrier?: PomBossBarrier;
     deathTimesListener?: (e: EntityHurtAfterEvent) => void;
     public get causeDamageShow() {
@@ -35,7 +35,7 @@ export default class PomDimRuinsSystem extends GameController {
 
     causeDamageListenner = new VarOnChangeListener((n, last) => {
         if (n) {
-            this.causeDamageMonitor = this.client.talentSystem.hasCauseDamage.addMonitor((d, e) => {
+            this.causeDamageMonitor = this.client.talentSystem.hasCauseDamage.addMonitor(([d, e]) => {
                 if (this.causeDamageType.has(e.typeId)) {
                     this.causeDamage += d;
                 }

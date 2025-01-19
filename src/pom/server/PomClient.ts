@@ -58,6 +58,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
         this.cache = new ExPropCache(this.getDynamicPropertyManager());
         this.looper = ExSystem.tickTask(this, () => {
             this.cache.save();
+            // console.warn("save cache" + Date.now());
         });
 
 

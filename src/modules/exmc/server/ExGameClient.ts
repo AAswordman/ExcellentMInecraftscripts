@@ -162,6 +162,7 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
     onLeave() {
         this._events.cancelAll();
         ExPlayer.deleteInstance(this.player);
+        this.dispose();
     }
 
     getEvents() {
