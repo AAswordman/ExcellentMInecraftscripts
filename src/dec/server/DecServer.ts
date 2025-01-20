@@ -21,7 +21,7 @@ import ExTaskRunner from '../../modules/exmc/server/ExTaskRunner.js';
 import DecNukeController from './entities/DecNukeController.js';
 import GlobalScoreBoardCache from '../../modules/exmc/server/storage/cache/GlobalScoreBoardCache.js';
 import MathUtil from '../../modules/exmc/utils/math/MathUtil.js';
-import ExGame from '../../modules/exmc/server/ExGame.js';
+import ExGame, { receiveMessage } from '../../modules/exmc/server/ExGame.js';
 import { MinecraftEffectTypes } from '../../modules/vanilla-data/lib/index.js';
 import { DecLeavesGolemBoss } from './entities/DecLeavesGolemBoss.js';
 import { DecEscapeSoulBoss3, DecEscapeSoulBoss4, DecEscapeSoulBoss5 } from './entities/DecEscapeSoulBoss.js';
@@ -711,6 +711,13 @@ export default class DecServer extends ExGameServer {
             return arr
         }
 
+    }
+
+    @receiveMessage('dec:crate_unlocked')
+    crateUnlocked(x:number,y:number,z:number,pos:Vector3){
+        console.warn('crate unlocked');
+        console.warn(x,y,z);
+        console.warn(pos);
     }
 
     override newClient(id: string, player: Player): ExGameClient {

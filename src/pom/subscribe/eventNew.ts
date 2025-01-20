@@ -83,9 +83,14 @@ const onPlayerPlacingCompName = "on_player_placing"
 type onPlayerDestroyedCompType = onStepOnCompType;
 const onPlayerDestroyedCompName = "on_player_destroyed"
 
-
+const tmpV = new Vector3();
 function molangCalculate(molang: string | number, option: TriggerOption) {
     molang = (molang + "").replace(/q\./g, "query.");
+    const sapi = {
+        get position() {
+            return new Vector3(option.triggerEntity?.location ?? option.triggerBlock?.location ?? new Vector3());
+        }
+    };
     const query = {
         "block_state": (name: string) => {
             return option.triggerBlock?.permutation.getState(name as any);
@@ -108,6 +113,17 @@ function molangCalculate(molang: string | number, option: TriggerOption) {
             if (!option.triggerEntity) return "";
             return ExEntity.getInstance(option.triggerEntity).getScoresManager().getScore(name);
         },
+
+        "position": (index: number) => {
+            if (option.triggerBlock) {
+                return tmpV.set(option.triggerBlock).toArray()[index];
+            } else if (option.triggerEntity) {
+                return tmpV.set(option.triggerEntity.location).toArray()[index];
+            } else {
+                return 0;
+            }
+        },
+
         get time_of_day() {
             return world.getTimeOfDay() / 24000;
         },
@@ -187,6 +203,10 @@ type EventUser = {
     run_command?: {
         command: string[];
         target?: string;
+    };
+    post_message?: {
+        message: any[];
+        sign: string;
     };
     play_sound?: {
         target?: string;
@@ -327,7 +347,12 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
                     bag.clearItem(item.typeId, 1);
                 }
             }
-
+        }
+        if (eventUser.post_message) {
+            for (let [i, m] of eventUser.post_message.message.entries()) {
+                eventUser.post_message.message[i] = typeof m === "string" ? molangCalculate(m, option) : m;
+            }
+            ExGame.postMessageToServer(eventUser.post_message.sign, eventUser.post_message.message);
         }
     } else if (option.triggerItem && option.triggerEntity) {
         if (eventUser.condition) {
@@ -417,7 +442,7 @@ function handleRandomizeEventUser(eventUser: RandomizeEventUser, option: Trigger
 
 
 
-export default (context:ExContext) => {
+export default (context: ExContext) => {
     for (let fpath of fileProvider.listAll("ex_items")) {
         let f = fileProvider.get(fpath)!;
         idItemMap.set(((f["minecraft:item"] as JSONObject).description as JSONObject).identifier as string, f);

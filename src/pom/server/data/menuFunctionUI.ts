@@ -39,6 +39,7 @@ import format from "../../../modules/exmc/utils/format.js";
 
 export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
     function tpPlayer(client: PomClient, v: Vector3, dim: string | Dimension) {
+        
         const off = new Vector3().add(0, 5, 0).add(client.exPlayer.viewDirection.scl(-5));
         new ExTimeLine(client,{
             "0.0": () => {
