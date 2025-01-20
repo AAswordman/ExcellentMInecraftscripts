@@ -11,12 +11,12 @@ import applyMixins from "../../utils/applyMixins.js";
 
 import "../../../reflect-metadata/Reflect.js";
 
-export default class ExPlayerController extends ExEntityController implements DisposeAble {
-    public constructor(e: Player, server: ExGameServer) {
-        super(e, server);
-        this.init(server);
+export default class ExPlayerController extends ExEntityController {
+    public constructor(e: Player, server: ExGameServer, spawn: boolean) {
+        super(e, server,spawn);
+        this._init(server);
     }
-    override init(server: ExGameServer): void {
+    protected override _init(server: ExGameServer): void {
         this.exEntity = ExPlayer.getInstance(this.entity);
     }
     override get entity(): Player {

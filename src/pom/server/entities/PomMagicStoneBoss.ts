@@ -8,8 +8,8 @@ import PomClient from '../PomClient.js';
 
 export default class PomMagicStoneBoss extends PomBossController {
     static typeId = "wb:magic_stoneman";
-    constructor(e: Entity, server: PomServer) {
-        super(e, server);
+    constructor(e: Entity, server: PomServer, spawn: boolean) {
+        super(e, server, spawn);
     }
     override initBossEntity(): void {
         super.initBossEntity();
@@ -17,8 +17,8 @@ export default class PomMagicStoneBoss extends PomBossController {
             this.server.say({ rawtext: [{ translate: "text.wb:summon_magic_stoneman.name" }] });
         }
     }
-    override onSpawn(): void {
-        super.onSpawn();
+    override onAppear(spawn: boolean): void {
+        super.onAppear(spawn);
     }
     override onKilled(e: EntityHurtAfterEvent): void {
         //清理周围

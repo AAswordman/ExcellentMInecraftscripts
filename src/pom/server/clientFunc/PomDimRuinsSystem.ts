@@ -20,7 +20,7 @@ export default class PomDimRuinsSystem extends GameController {
     causeDamage = 0;
     deathTimes = 0;
     private _causeDamageShow = false;
-    causeDamageMonitor: { (args_0: number, args_1: Entity): void; } | undefined;
+    causeDamageMonitor: { (args_0: [number,Entity]): void; } | undefined;
     barrier?: PomBossBarrier;
     deathTimesListener?: (e: EntityHurtAfterEvent) => void;
     public get causeDamageShow() {
@@ -35,7 +35,7 @@ export default class PomDimRuinsSystem extends GameController {
 
     causeDamageListenner = new VarOnChangeListener((n, last) => {
         if (n) {
-            this.causeDamageMonitor = this.client.talentSystem.hasCauseDamage.addMonitor((d, e) => {
+            this.causeDamageMonitor = this.client.talentSystem.hasCauseDamage.addMonitor(([d, e]) => {
                 if (this.causeDamageType.has(e.typeId)) {
                     this.causeDamage += d;
                 }
@@ -66,7 +66,7 @@ export default class PomDimRuinsSystem extends GameController {
     backJudgeGenerate = (id: string, ruin: PomRuinCommon) => {
         return new VarOnChangeListener((v) => {
             if (v) {
-                this.setTimeout(() => {
+                this.runTimeout(() => {
                     new ExActionAlert().title(this.lang.operation).body(this.lang.chooseYourOper)
                         .button(this.lang.summonBoss, () => {
                             let bag = this.exPlayer.getBag();
@@ -425,7 +425,7 @@ export default class PomDimRuinsSystem extends GameController {
         this.getEvents().exEvents.beforeOnceItemUseOn.subscribe(e => {
             let block = e.block;
             if (e.itemStack.typeId === "wb:start_key") {
-                ExGame.runTimeout(() => {
+                this.run(() => {
                     if (block?.typeId === "wb:block_magic_equipment") {
                         let p = this.client.getServer().portal_desertBoss;
                         let v2 = new Vector3(e.block).add(2, 2, 2);
@@ -449,30 +449,6 @@ export default class PomDimRuinsSystem extends GameController {
                             const parLoc = new Vector3(e.block).add(0.5, 0.5, 0.5);
                             this.getExDimension().spawnParticle("wb:portal_desertboss_par1", parLoc);
                             this.getExDimension().spawnParticle("wb:portal_desertboss_par2", parLoc);
-                        } else {
-                            p = this.client.getServer().portal_guardBoss;
-                            v1 = new Vector3(e.block).sub(2, 0, 2);
-                            v2 = new Vector3(e.block).add(2, 2, 2);
-                            m = p.setArea(new ExBlockArea(v1, v2, true))
-                                .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
-                                .find();
-                            if (m) {
-                                this.getDimension().playSound("game.portal.active", e.block, {
-                                    "volume": 1.2
-                                });
-                                p.clone().analysis({
-                                    X: MinecraftBlockTypes.Sandstone,
-                                    W: "wb:portal_guardboss",
-                                    Y: "wb:portal_guardboss",
-                                    A: MinecraftBlockTypes.Air,
-                                    S: MinecraftBlockTypes.SandstoneSlab,
-                                    C: MinecraftBlockTypes.Air
-                                })
-                                    .putStructure(m);
-                                const parLoc = new Vector3(e.block).add(0.5, 0.5, 0.5);
-                                this.getExDimension().spawnParticle("wb:portal_desertboss_par1", parLoc);
-                                this.getExDimension().spawnParticle("wb:portal_desertboss_par2", parLoc);
-                            }
                         }
                     } else if (block?.typeId === "wb:block_energy_seal") {
                         const v2 = new Vector3(e.block).add(2, 1, 2);
@@ -539,8 +515,8 @@ export default class PomDimRuinsSystem extends GameController {
                         }
 
                     } else if (block?.typeId === "wb:block_senior_equipment") {
-                        const v2 = new Vector3(e.block).add(2, 1, 2);
-                        const v1 = new Vector3(e.block).sub(2, 0, 2);
+                        let v2 = new Vector3(e.block).add(2, 1, 2);
+                        let v1 = new Vector3(e.block).sub(2, 0, 2);
                         let p = this.client.getServer().portal_mindBoss;
                         let m = p.setArea(new ExBlockArea(v1, v2, true))
                             .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
@@ -557,6 +533,30 @@ export default class PomDimRuinsSystem extends GameController {
                                 A: MinecraftBlockTypes.Air
                             })
                                 .putStructure(m);
+                        } else {
+                            p = this.client.getServer().portal_guardBoss;
+                            v1 = new Vector3(e.block).sub(2, 0, 2);
+                            v2 = new Vector3(e.block).add(2, 2, 2);
+                            m = p.setArea(new ExBlockArea(v1, v2, true))
+                                .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
+                                .find();
+                            if (m) {
+                                this.getDimension().playSound("game.portal.active", e.block, {
+                                    "volume": 1.2
+                                });
+                                p.clone().analysis({
+                                    X: MinecraftBlockTypes.Sandstone,
+                                    W: "wb:portal_guardboss",
+                                    Y: "wb:portal_guardboss",
+                                    A: MinecraftBlockTypes.Air,
+                                    S: MinecraftBlockTypes.SandstoneSlab,
+                                    C: MinecraftBlockTypes.Air
+                                })
+                                    .putStructure(m);
+                                const parLoc = new Vector3(e.block).add(0.5, 0.5, 0.5);
+                                this.getExDimension().spawnParticle("wb:portal_desertboss_par1", parLoc);
+                                this.getExDimension().spawnParticle("wb:portal_desertboss_par2", parLoc);
+                            }
                         }
                     }
                 });

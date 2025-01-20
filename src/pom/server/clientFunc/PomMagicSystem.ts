@@ -38,24 +38,24 @@ export default class PomMagicSystem extends GameController {
     isProtected = false;
     gameMaxHealth = 30;
     scoresManager = this.exPlayer.getScoresManager();
-    wbflLooper = ExSystem.tickTask(() => {
+    wbflLooper = ExSystem.tickTask(this, () => {
         if (this.scoresManager.getScore("wbfl") < this.wbflMax) this.scoresManager.addScore("wbfl", 2);
     }).delay(5 * 20);
     wbflDefaultMax = 120;
     wbflMax = this.wbflDefaultMax;
-    experienceAddLooper = ExSystem.tickTask(() => {
+    experienceAddLooper = ExSystem.tickTask(this, () => {
         this.data.gameExperience += 1;
     }).delay(12 * 20);
-    armorCoolingLooper = ExSystem.tickTask(() => {
+    armorCoolingLooper = ExSystem.tickTask(this, () => {
         if (this.scoresManager.getScore("wbkjlq") > 0) this.scoresManager.removeScore("wbkjlq", 1);
     }).delay(1 * 20);
     healthHeavyHit = 0;
-    healthHeavyHitShower = ExSystem.tickTask(() => {
+    healthHeavyHitShower = ExSystem.tickTask(this, () => {
     }).delay(1 * 20);
 
     private _anotherShow: string[] = [];
     private _mapShow = new Map<string, string[]>();
-    healthSaver = ExSystem.tickTask(() => {
+    healthSaver = ExSystem.tickTask(this, () => {
         this.player.setDynamicProperty('health', this.gameHealth);
         this.player.setDynamicProperty('damageAbsorbed', this.damageAbsorbed);
         this.player.setDynamicProperty('magicReduce', this.magicReduce);
@@ -87,7 +87,7 @@ export default class PomMagicSystem extends GameController {
 
     dataCacheRefreshDelay = 0;
     lastHealth = 0;
-    actionbarShow = ExSystem.tickTask(() => {
+    actionbarShow = ExSystem.tickTask(this, () => {
         const oldData = this.lastFromData;
         this.dataCacheRefreshDelay += 1;
         if (this.dataCacheRefreshDelay >= this.globalSettings.uiDataUpdateDelay) {
@@ -212,8 +212,8 @@ export default class PomMagicSystem extends GameController {
             let change = n - (l ?? 0);
             if (change < 0 && this.hurtState) {
                 if (this.hurtMaxNum <= change) return;//build-in method
-                ExGame.clearRun(hurtTimeId);
-                hurtTimeId = ExGame.runTimeout(() => {
+                this.clearRun(hurtTimeId);
+                hurtTimeId = this.runTimeoutByTick(() => {
                     this.hurtState = false;
                     this.hurtMaxNum = 0;
                 }, 1);
@@ -221,7 +221,7 @@ export default class PomMagicSystem extends GameController {
                 this.hurtMaxNum = -(n - (l ?? 0));
             }
             if (!this.hurtState && change < 0) {
-                hurtTimeId = ExGame.runTimeout(() => {
+                hurtTimeId = this.runTimeoutByTick(() => {
                     this.hurtState = false;
                     this.hurtMaxNum = 0;
                 }, 1);
@@ -234,19 +234,19 @@ export default class PomMagicSystem extends GameController {
                     //不死图腾
                     this.gameHealth = 1;
                     this.isProtected = true;
-                    this.setTimeout(() => {
+                    this.runTimeout(() => {
                         this.isProtected = false;
                     }, 1500);
                 } else {
                     if (this.addGameHealth) {
                         this.gameHealth += this.addGameHealth + change;
                         this.addGameHealth = 0;
-                    }else{
+                    } else {
                         this.gameHealth += change;
                     }
                 }
             }
-            
+
         }, health!.currentValue);
         // this.getEvents().exEvents.tick.subscribe(e => {
         //     healthListener.upDate(health!.currentValue);
@@ -266,7 +266,7 @@ export default class PomMagicSystem extends GameController {
             //绕开常规逻辑设置血量
             this.isDied = false;
             this.isProtected = true;
-            this.setTimeout(() => {
+            this.runTimeout(() => {
                 this.isProtected = false;
             }, 3000);
             this.gameHealth = this.gameMaxHealth;
@@ -281,7 +281,7 @@ export default class PomMagicSystem extends GameController {
             }
         });
 
-        
+
 
 
         this.magicReduce = this.player.getDynamicProperty("magicReduce") as number ?? 0;

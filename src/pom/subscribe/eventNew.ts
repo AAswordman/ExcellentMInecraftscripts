@@ -9,7 +9,7 @@ import ExGame from '../../modules/exmc/server/ExGame.js';
 import ExSystem from '../../modules/exmc/utils/ExSystem.js';
 import ExScoresManager, { Objective } from '../../modules/exmc/server/entity/ExScoresManager.js';
 import PomServer from '../server/PomServer.js';
-
+import ExContext from '../../modules/exmc/server/ExGameObject.js';
 
 const ex = (name: string) => "ex:" + name;
 const minecraft = (name: string) => "minecraft:" + name;
@@ -83,11 +83,12 @@ const onPlayerPlacingCompName = "on_player_placing"
 type onPlayerDestroyedCompType = onStepOnCompType;
 const onPlayerDestroyedCompName = "on_player_destroyed"
 
+
 function molangCalculate(molang: string | number, option: TriggerOption) {
     molang = (molang + "").replace(/q\./g, "query.");
     const query = {
         "block_state": (name: string) => {
-            return option.triggerBlock?.permutation.getState(name);
+            return option.triggerBlock?.permutation.getState(name as any);
         },
         "get_equipped_item_name": (pos: string) => {
             if (option.triggerEntity && option.triggerEntity instanceof Player) {
@@ -121,9 +122,27 @@ function molangCalculate(molang: string | number, option: TriggerOption) {
                 }
             }
             return false;
+        },
+        get cardinal_facing_2d() {
+            if (!option.triggerEntity || !option.triggerBlock) return 6;
+            let dis = ExEntity.getInstance(option.triggerEntity).position.sub(option.triggerBlock.location);
+            let angle = dis.rotateAngleX() + 45;
+            switch (Math.floor(angle / 90) % 4) {
+                case 0:
+                    return 2;
+                case 1:
+                    return 4;
+                case 2:
+                    return 3;
+                case 3:
+                    return 5;
+                default:
+                    return 6;
+            }
         }
     }
     let res = eval("(" + molang + ")");
+    // console.warn(molang + " -> "+  res);
     return res;
 }
 
@@ -279,7 +298,7 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
         if (eventUser.set_block_state) {
             let per = option.triggerBlock.permutation;
             for (let i in eventUser.set_block_state) {
-                per = per.withState(i, molangCalculate((eventUser.set_block_state[i]), option));
+                per = per.withState(i as any, molangCalculate((eventUser.set_block_state[i]), option));
             }
             option.triggerBlock.setPermutation(per);
         }
@@ -398,7 +417,7 @@ function handleRandomizeEventUser(eventUser: RandomizeEventUser, option: Trigger
 
 
 
-export default () => {
+export default (context:ExContext) => {
     for (let fpath of fileProvider.listAll("ex_items")) {
         let f = fileProvider.get(fpath)!;
         idItemMap.set(((f["minecraft:item"] as JSONObject).description as JSONObject).identifier as string, f);
@@ -443,7 +462,13 @@ export default () => {
         initEvent.blockComponentRegistry.registerCustomComponent(ex(onPlayerPlacingCompName), {
             onPlace: e => {
                 if (e) {
-                    let option = { triggerBlock: e.block, triggerType: onPlayerPlacingCompName };
+                    let players = e.block.dimension.getPlayers({
+                        "maxDistance": 5,
+                        "closest": 1,
+                        "location": e.block.location
+                    });
+
+                    let option = { triggerBlock: e.block, triggerType: onPlayerPlacingCompName, triggerEntity: players.length > 0 ? players[0] : undefined };
                     const triggerComp = findTriggerComp(option) as onPlayerPlacingCompType | undefined;
                     if (triggerComp) {
                         emitEvent(triggerComp.event, option);
@@ -521,7 +546,7 @@ export default () => {
                 let duration = cooling.duration as number;
                 if (duration * 20 - 1 == player.getItemCooldown(cate)) {
                     tryUse();
-                    useMap.set(player, ExSystem.tickTask(() => {
+                    useMap.set(player, ExSystem.tickTask(context, () => {
                         if (!tryUse(cate, Math.floor(duration * 20))) {
                             useMap.get(player)?.startOnce();
                         } else {
@@ -531,7 +556,7 @@ export default () => {
                 }
             } else {
                 tryUse();
-                useMap.set(player, ExSystem.tickTask(() => {
+                useMap.set(player, ExSystem.tickTask(context, () => {
                     tryUse();
                 }).delay(1).start());
             }

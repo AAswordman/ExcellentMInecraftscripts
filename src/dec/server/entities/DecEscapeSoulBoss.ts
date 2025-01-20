@@ -9,8 +9,8 @@ import { DecCommonBossLastStage } from "./DecCommonBossLastStage.js";
 
 export class DecEscapeSoulBoss3 extends DecBossController {
     music: ExMusic;
-    constructor(e: Entity, server: DecServer) {
-        super(e, server);
+    constructor(e: Entity, server: DecServer, spawn: boolean) {
+        super(e,server,spawn);
         this.music = server.getMusic("music.wb.chasing_stage1");
         this.music.trackPlayers(Array.from(this.barrier.getPlayers()));
         this.music.loop();
@@ -25,14 +25,14 @@ export class DecEscapeSoulBoss3 extends DecBossController {
         this.music.stop();
         super.onFail();
     }
-    override onSpawn(): void {
-        super.onSpawn();
+    override onAppear(spawn:boolean): void {
+        super.onAppear(spawn);
     }
 }
 export class DecEscapeSoulBoss4 extends DecBossController {
     music: ExMusic;
-    constructor(e: Entity, server: DecServer) {
-        super(e, server);
+    constructor(e: Entity, server: DecServer, spawn: boolean) {
+        super(e, server,spawn);
         this.music = server.getMusic("music.wb.chasing_stage2");
         this.music.trackPlayers(Array.from(this.barrier.getPlayers()));
         this.music.loop();
@@ -47,14 +47,14 @@ export class DecEscapeSoulBoss4 extends DecBossController {
         this.music.stop();
         super.onFail();
     }
-    override onSpawn(): void {
-        super.onSpawn();
+    override onAppear(spawn:boolean): void {
+        super.onAppear(spawn);
     }
 }
 export class DecEscapeSoulBoss5 extends DecCommonBossLastStage {
     music: ExMusic;
-    constructor(e: Entity, server: DecServer) {
-        super(e, server);
+    constructor(e: Entity, server: DecServer, spawn: boolean) {
+        super(e, server,spawn);
         this.music = server.getMusic("music.wb.chasing_stage3");
         this.music.trackPlayers(Array.from(this.barrier.getPlayers()));
         this.music.loop();
@@ -63,7 +63,7 @@ export class DecEscapeSoulBoss5 extends DecCommonBossLastStage {
         this.music.stop();
         super.onDestroy();
     }
-    override onSpawn(): void {
-        super.onSpawn();
+    override onAppear(spawn:boolean): void {
+        super.onAppear(spawn);
     }
 }

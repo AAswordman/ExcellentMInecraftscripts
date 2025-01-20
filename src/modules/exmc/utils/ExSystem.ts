@@ -1,4 +1,5 @@
 
+import ExContext from '../server/ExGameObject.js';
 import ExServerTickDelayTask from '../server/ExServerTickDelayTask.js';
 import ExTimeLine, { ExTimeLineTask } from './ExTimeLine.js';
 import Random from './Random.js';
@@ -45,23 +46,23 @@ export default class ExSystem {
         return true;
     }
 
-    public static tickTask(tasks: () => void): TickDelayTask {
+    public static tickTask(context: ExContext, tasks: () => void): TickDelayTask {
         if (this.isServer()) {
-            return new ExServerTickDelayTask(tasks);
+            return new ExServerTickDelayTask(context, tasks);
         } else {
-            return new ExServerTickDelayTask(tasks);
+            return new ExServerTickDelayTask(context, tasks);
         }
     }
-    public static timeLine(tasks: ExTimeLineTask): ExTimeLine {
+    public static timeLine(context: ExContext, tasks: ExTimeLineTask): ExTimeLine {
         if (this.isServer()) {
-            return new ExTimeLine(tasks);
+            return new ExTimeLine(context, tasks);
         } else {
-            return new ExTimeLine(tasks);
+            return new ExTimeLine(context, tasks);
         }
     }
     public static deepEqual(obj1: object | number | string | boolean | Array<unknown>,
         obj2: object | number | string | boolean | Array<unknown>) {
-        if(typeof obj1 !== typeof obj2){
+        if (typeof obj1 !== typeof obj2) {
             return false;
         }
         if (typeof obj1 === 'number' || typeof obj1 === 'string' || typeof obj1 === 'boolean') {

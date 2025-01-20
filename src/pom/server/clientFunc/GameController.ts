@@ -4,10 +4,13 @@ import SetTimeOutSupport from "../../../modules/exmc/interface/SetTimeOutSupport
 import PomClient from '../PomClient.js';
 import ExGameConfig from "../../../modules/exmc/server/ExGameConfig.js";
 import { ExCommandNativeRunner } from "../../../modules/exmc/interface/ExCommandRunner.js";
+import ExContext from "../../../modules/exmc/server/ExGameObject.js";
 
-export default abstract class GameController implements ExCommandNativeRunner, SetTimeOutSupport {
+export default abstract class GameController extends ExContext
+    implements ExCommandNativeRunner {
     private _client: PomClient;
     constructor(client: PomClient) {
+        super(client);
         this._client = client;
     }
     public get exPlayer() {
@@ -36,12 +39,6 @@ export default abstract class GameController implements ExCommandNativeRunner, S
     }
     runCommand(str: string): CommandResult {
         return ExGameConfig.runCommand(str);
-    }
-    setTimeout(fun: () => void, timeout: number): void {
-        this._client.setTimeout(fun, timeout);
-    }
-    sleep(timeout: number) {
-        return this._client.sleep(timeout);
     }
     getDimension(type: string | undefined = undefined) {
         return this._client.getDimension(type);

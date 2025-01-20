@@ -1,6 +1,6 @@
 import ExGameClient from "./ExGameClient.js";
 import ExDimension from "./ExDimension.js";
-import { world, MinecraftDimensionTypes, PlayerJoinAfterEvent, Player, PlayerLeaveAfterEvent, system, RawMessage, EntitySpawnAfterEvent, Entity, Dimension, PlayerSpawnAfterEvent } from "@minecraft/server";
+import { world, MinecraftDimensionTypes, PlayerJoinAfterEvent, Player, PlayerLeaveAfterEvent, system, RawMessage, EntitySpawnAfterEvent, Entity, Dimension, PlayerSpawnAfterEvent, EntityLoadAfterEvent } from "@minecraft/server";
 import ExGameConfig from "./ExGameConfig.js";
 import initConsole from "../utils/Console.js";
 import ExServerEvents from "./events/ExServerEvents.js";
@@ -8,7 +8,6 @@ import UUID from "../utils/UUID.js";
 import ExErrorQueue from './ExErrorQueue.js';
 import SetTimeOutSupport from "../interface/SetTimeOutSupport.js";
 import ExConfig from '../ExConfig.js';
-import ExTickQueue from "./ExTickQueue.js";
 import ExCommand from './env/ExCommand.js';
 import ExClientEvents from "./events/ExClientEvents.js";
 import ExEntityController from './entity/ExEntityController.js';
@@ -22,8 +21,11 @@ import { falseIfError } from "../utils/tool.js";
 import ExSystem from "../utils/ExSystem.js";
 import Vector3 from "../utils/math/Vector3.js";
 import DynamicPropertyManager from "../interface/DynamicPropertyManager.js";
+import ExEntityPool from "./entity/ExEntityPool.js";
+import ExContext from "./ExGameObject.js";
+import ExGame from "./ExGame.js";
 
-export default class ExGameServer implements SetTimeOutSupport {
+export default class ExGameServer extends ExContext implements SetTimeOutSupport {
     clients;
     clients_nameMap;
     _events;
@@ -32,6 +34,7 @@ export default class ExGameServer implements SetTimeOutSupport {
     static isInitialized: boolean;
 
     constructor(config: ExConfig) {
+        super(config.gameContext);
         this.clients = new Map<string, ExGameClient>();
         this.clients_nameMap = new Map<string, ExGameClient>();
 
@@ -51,7 +54,6 @@ export default class ExGameServer implements SetTimeOutSupport {
             }
             ExGameConfig.console = initConsole(ExGameConfig);
             ExErrorQueue.init();
-            ExTickQueue.init(this);
             ExCommand.init(this);
             ExClientEvents.init(this);
             ExEntityEvents.init(this);
@@ -80,32 +82,40 @@ export default class ExGameServer implements SetTimeOutSupport {
     addEntityController(id: string, ec: typeof ExEntityController) {
         this.entityControllers.set(id, ec);
     }
-    getDefaultSpawnLocation(){
+    getDefaultSpawnLocation() {
         return new Vector3(world.getDefaultSpawnLocation());
     }
-    getDynamicPropertyManager():DynamicPropertyManager {
+    getDynamicPropertyManager(): DynamicPropertyManager {
         return world;
     }
 
-    @registerEvent(ExEventNames.afterEntitySpawn)
-    _onEntitySpawn(e: EntitySpawnAfterEvent){
-        this.onEntitySpawn(e);
-    }
-
     @registerEvent(ExEventNames.afterEntityLoad)
-    onEntitySpawn(e: EntitySpawnAfterEvent) {
+    _onEntityLoad(e: EntityLoadAfterEvent) {
         if (!e.entity.isValid()) return;
         let id;
         try { id = e.entity.typeId } catch (e) { return; }
         const entityConstructor = this.entityControllers.get(e.entity.typeId);
         if (entityConstructor) {
-            new (entityConstructor)(e.entity, this);
+            if (!ExEntityPool.pool.has(e.entity)) {
+                ExEntityPool.pool.set(e.entity, new (entityConstructor)(e.entity, this, false));
+            }
+        }
+    }
+
+    @registerEvent(ExEventNames.afterEntitySpawn)
+    _onEntitySpawn(e: EntitySpawnAfterEvent) {
+        if (!e.entity.isValid()) return;
+        let id;
+        try { id = e.entity.typeId } catch (e) { return; }
+        const entityConstructor = this.entityControllers.get(e.entity.typeId);
+        if (entityConstructor) {
+            ExEntityPool.pool.set(e.entity, new (entityConstructor)(e.entity, this, true));
         }
     }
 
 
-    createEntityController<T extends ExEntityController>(e: Entity, ec: new (e: Entity, server: ExGameServer) => (T)) {
-        return new ec(e, this);
+    createEntityController<T extends ExEntityController>(e: Entity, ec: new (e: Entity, server: ExGameServer, spawn: boolean) => (T)) {
+        return new ec(e, this,false);
     }
 
     getDimension(dimensionId: string) {
@@ -212,17 +222,5 @@ export default class ExGameServer implements SetTimeOutSupport {
 
     newClient(id: string, player: Player): ExGameClient {
         return new ExGameClient(this, id, player);
-    }
-
-    setTimeout(fun: () => void, timeout: number) {
-        let time = 0;
-        let method = (e: TickEvent) => {
-            time += e.deltaTime * 1000;
-            if (time > timeout) {
-                this.getEvents().exEvents.tick.unsubscribe(method);
-                fun();
-            }
-        };
-        this.getEvents().exEvents.tick.subscribe(method);
     }
 }

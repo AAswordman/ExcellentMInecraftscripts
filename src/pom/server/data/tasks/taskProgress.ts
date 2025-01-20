@@ -1,4 +1,5 @@
 import PomAncientStoneBoss from "../../entities/PomAncientStoneBoss.js";
+import { PomGodOfGuardBoss3 } from "../../entities/PomGodOfGuardBoss.js";
 import PomHeadlessGuardBoss from "../../entities/PomHeadlessGuardBoss.js";
 import { PomIntentionsBoss3 } from "../../entities/PomIntentionsBoss.js";
 import PomMagicStoneBoss from "../../entities/PomMagicStoneBoss.js";
@@ -268,6 +269,25 @@ export default function taskProgress(lang: langType): { [x: string]: PomTaskProg
                 {
                     "name": lang.modExperience,
                     "count": 40000,
+                    "unit": lang.points,
+                    "type": "integral"
+                }
+            ]
+        },
+        "main_pom_5": {
+            "name": lang.menuUIMsgBailan424,
+            "conditions": [
+                {
+                    "name": lang.menuUIMsgBailan425,
+                    "typeId": PomGodOfGuardBoss3.typeId,
+                    "damage": 500,
+                    "type": "boss"
+                }
+            ],
+            "rewards": [
+                {
+                    "name": lang.modExperience,
+                    "count": 50000,
                     "unit": lang.points,
                     "type": "integral"
                 }

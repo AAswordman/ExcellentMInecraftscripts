@@ -492,7 +492,7 @@ export default class DecClient extends ExGameClient {
             //魔法卷轴
             if (e.itemStack.typeId == "dec:magic_scroll_blue") {
                 const i = e.itemStack;
-                this.setTimeout(() => {
+                this.runTimeout(() => {
                     if (DecGlobal.isDec())
                         taskUi(this, i);
                     else

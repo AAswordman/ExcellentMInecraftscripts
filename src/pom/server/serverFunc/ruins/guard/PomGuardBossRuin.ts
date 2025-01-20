@@ -54,10 +54,10 @@ export default class PomGuardBossRuin implements PomRuinCommon {
         this.jigsaw.setStructurePlane(2, 2, 0, 0, 0, this.structure_area4, 180);
         this._bossArea = (new ExBlockArea(new Vector3(62, 2, 62).add(x, y, z), new Vector3(4, 6, 4)));
         this._playerArea.push(
-            new ExBlockArea(new Vector3(6, 5, 6).add(x, y, z), new Vector3(2, 4, 2)),
-            new ExBlockArea(new Vector3(128 - 6 - 2, 5, 6).add(x, y, z), new Vector3(2, 4, 2)),
-            new ExBlockArea(new Vector3(6, 5, 128 - 6 - 2).add(x, y, z), new Vector3(2, 4, 2)),
-            new ExBlockArea(new Vector3(128 - 6 - 2, 5, 128 - 6 - 2).add(x, y, z), new Vector3(2, 4, 2))
+            new ExBlockArea(new Vector3(3, 5, 3).add(x, y, z), new Vector3(1, 1, 1)),
+            new ExBlockArea(new Vector3(128 - 3 - 1, 5, 3).add(x, y, z), new Vector3(1, 1, 1)),
+            new ExBlockArea(new Vector3(3, 5, 128 - 3 - 1).add(x, y, z), new Vector3(1, 1, 1)),
+            new ExBlockArea(new Vector3(128 - 3 - 1, 5, 128 - 3 - 1).add(x, y, z), new Vector3(1, 1, 1))
         );
     }
     generate(): void {

@@ -471,7 +471,7 @@ BunBun不是笨笨    在矿里的小金呀
     "menuUIMsgBailan272": "水果提交 I",
     "menuUIMsgBailan273": "西瓜",
     "menuUIMsgBailan274": "水果提交 II",
-    "menuUIMsgBailan275": "熟鸡肉",
+    "menuUIMsgBailan275": "南瓜",
     "menuUIMsgBailan276": "清理怪物 I",
     "menuUIMsgBailan277": "僵尸",
     "menuUIMsgBailan278": "苦力怕",
@@ -620,6 +620,9 @@ BunBun不是笨笨    在矿里的小金呀
     "menuUIMsgBailan421": "钻石鱼",
     "menuUIMsgBailan422": "觉醒龙之力",
     "menuUIMsgBailan423": "觉醒末影龙",
+
+    "menuUIMsgBailan424": "守卫遗迹",
+    "menuUIMsgBailan425": "守卫战神BOSS",
 
     "unknown":"未知",
     "extraCountererDamage":"反击额外伤害: {0}",
@@ -1097,7 +1100,7 @@ BunBun不是笨笨 - In the mine, little gold
     "menuUIMsgBailan272": "Fruit Submission I",
     "menuUIMsgBailan273": "Watermelon",
     "menuUIMsgBailan274": "Fruit Submission II",
-    "menuUIMsgBailan275": "Cooked Chicken",
+    "menuUIMsgBailan275": "Pumpkin",
     "menuUIMsgBailan276": "Clear Mobs I",
     "menuUIMsgBailan277": "Zombie",
     "menuUIMsgBailan278": "Creeper",
@@ -1246,6 +1249,9 @@ BunBun不是笨笨 - In the mine, little gold
     "menuUIMsgBailan421": "Diamond Fish",
     "menuUIMsgBailan422": "Awaken Dragon Power",
     "menuUIMsgBailan423": "Awaken Ender Dragon",
+
+    "menuUIMsgBailan424": "The Ruin of the Guardians",
+    "menuUIMsgBailan425": "The God Of Guard BOSS",
 
     "unknown":"unknown",
     "extraCountererDamage": "Extra Counter Damage: {0}",

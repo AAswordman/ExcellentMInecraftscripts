@@ -54,7 +54,7 @@ export default class MenuUIAlert<T extends ExGameClient> {
         to(this.upDatePage());
     }
     async upDatePage() {
-        this._client.setTimeout(tofunc(async () => {
+        this._client.runTimeout(tofunc(async () => {
             let page = this._uiJson[this.choose[0]].page;
             if (typeof (page) === "function") {
                 page = page(this._client, this);

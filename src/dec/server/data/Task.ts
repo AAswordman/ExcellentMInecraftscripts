@@ -49,7 +49,7 @@ export class DecTask {
         }
         if (this.commands) {
             c.exPlayer.command.runAsync(this.commands);
-            c.setTimeout(() => {
+            c.runTimeout(() => {
                 if (c.exPlayer.hasTag('task_complete')) {
                     c.data.gameExperience += this.xps;
                     c.exPlayer.removeTag("task_complete");

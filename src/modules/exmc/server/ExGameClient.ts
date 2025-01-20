@@ -18,12 +18,14 @@ import ExGame from "./ExGame.js";
 import DynamicPropertyManager from "../interface/DynamicPropertyManager.js";
 import Vector3 from "../utils/math/Vector3.js";
 import { MinecraftDimensionTypes } from "../../vanilla-data/lib/index.js";
+import ExContext from "./ExGameObject.js";
 
-export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingPool> implements SetTimeOutSupport {
+export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingPool> extends ExContext
+    implements SetTimeOutSupport {
     private _events: ExClientEvents;
 
     debuggerChatTest = (e: ChatSendBeforeEvent) => {
-        ExGame.run(() => {
+        this.run(() => {
             if (e.message.startsWith("*/"))
                 ExGameConfig.console.info(eval(e.message.substring(2, e.message.length)));
         });
@@ -48,13 +50,14 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
             .show(this.player);
     }
     debug_remove() {
-        return this.getDimension(MinecraftDimensionTypes.Nether).getEntities().forEach(e=> e.remove());
+        return this.getDimension(MinecraftDimensionTypes.Nether).getEntities().forEach(e => e.remove());
     }
     debug_error() {
         return ExErrorQueue.getError();
     }
 
     constructor(server: ExGameServer, id: string, player: Player) {
+        super(server);
         this._server = server;
         this.clientId = id;
         this.player = player;
@@ -108,7 +111,7 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
         }
     }
 
-    getScreen(){
+    getScreen() {
         return this.player.onScreenDisplay;
     }
 
@@ -159,6 +162,7 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
     onLeave() {
         this._events.cancelAll();
         ExPlayer.deleteInstance(this.player);
+        this.dispose();
     }
 
     getEvents() {
@@ -183,24 +187,5 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
         for (let c of this.getServer().getClients()) {
             fun(c as any);
         }
-    }
-
-    setTimeout(fun: () => void, timeout: number) {
-        let time = 0;
-        let method = (e: TickEvent) => {
-            time += e.deltaTime * 1000;
-            if (time > timeout) {
-                this.getEvents().exEvents.tick.unsubscribe(method);
-                fun();
-            }
-        };
-        this.getEvents().exEvents.tick.subscribe(method);
-    }
-    sleep(timeout: number) {
-        return new Promise<void>((resolve, reject) => {
-            this.setTimeout(() => {
-                resolve();
-            }, timeout);
-        });
     }
 }

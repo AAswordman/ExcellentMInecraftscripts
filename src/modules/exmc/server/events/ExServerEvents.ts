@@ -55,7 +55,7 @@ export default class ExServerEvents implements ExEventManager {
         }
 
     };
-    static monitorMap = new Map<string, MonitorManager<unknown[]>>();
+    static monitorMap = new Map<string, MonitorManager<unknown>>();
 
     static init: boolean = false;
     _subscribe(name: string, callback: (arg: any) => void) {

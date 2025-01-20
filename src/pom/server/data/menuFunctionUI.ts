@@ -40,7 +40,7 @@ import format from "../../../modules/exmc/utils/format.js";
 export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
     function tpPlayer(client: PomClient, v: Vector3, dim: string | Dimension) {
         const off = new Vector3().add(0, 5, 0).add(client.exPlayer.viewDirection.scl(-5));
-        new ExTimeLine({
+        new ExTimeLine(client,{
             "0.0": () => {
                 client.player.addEffect(MinecraftEffectTypes.Resistance, 20 * 6, {
                     "amplifier": 3
@@ -987,7 +987,7 @@ ${lang.size}: ${areaMsg?.[0].getWidth().toString()}
                                         bag.clearItem("wb:conveyor_issue", 1);
                                     }
                                     client.sayTo(lang.menuUIMsgBailan57);
-                                    client.setTimeout(() => {
+                                    client.runTimeout(() => {
                                         if ((<PomClient>client.getClient(i[0])).data
                                             .socialList.refuseList.filter(e => e[0] === client.gameId).length > 0) return;
                                         new ExMessageAlert().title(lang.menuUIMsgBailan58).body(format(lang.playerWantToTpYou,client.player.nameTag))
@@ -1034,7 +1034,7 @@ ${lang.size}: ${areaMsg?.[0].getWidth().toString()}
                                         bag.clearItem("wb:conveyor_issue", 1);
                                     }
                                     client.sayTo(lang.menuUIMsgBailan67);
-                                    client.setTimeout(() => {
+                                    client.runTimeout(() => {
                                         if ((<PomClient>client.getClient(i[0])).data
                                             .socialList.refuseList.filter(e => e[0] === client.gameId).length > 0) return;
                                         new ExMessageAlert().title(lang.menuUIMsgBailan58).body(format(lang.playerInviteYouToPos,client.player.nameTag,client.exPlayer.position.floor()))
@@ -1597,7 +1597,7 @@ ${lang.size}: ${areaMsg?.[0].getWidth().toString()}
                                     "type": "button",
                                     "msg": `${p.nameTag} : ${(<PomClient>client.getClient(i[0])).data.gameGrade}`,
                                     "function": (client, ui): boolean => {
-                                        client.setTimeout(() => {
+                                        client.runTimeout(() => {
                                             new ModalFormData()
                                                 .title(lang.menuUIMsgBailan209)
                                                 .slider(lang.menuUIMsgBailan210, 0, 99, 1, (<PomClient>client.getClient(i[0])).data.gameGrade)
@@ -1669,10 +1669,10 @@ ${lang.size}: ${areaMsg?.[0].getWidth().toString()}
                                 const step = 2
                                 let centerX = 100, centerY = 100;
                                 let perSize = centerX / num * 2 ** 0.5;
-
+                                
                                 canvas.rotateRad(180 - client.exPlayer.rotation.y, centerX, centerY);
 
-                                const task = new ExTaskRunner()
+                                const task = new ExTaskRunner(client);
                                 task.setTasks(function* () {
                                     const highMap = new Map<string, [number, ColorRGBA]>();
                                     for (let x = -num; x <= num; x += step) {

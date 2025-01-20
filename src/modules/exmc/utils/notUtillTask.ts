@@ -11,12 +11,12 @@ export default function notUtillTask(m: SetTimeOutSupport, f: (() => boolean) | 
             } else {
                 if (maxTimes > 0) {
                     maxTimes--;
-                    m.setTimeout((func), tryDelay);
+                    m.runTimeout((func), tryDelay);
                 }
             }
         } catch (e) {
             ExErrorQueue.throwError(e);
         }
     };
-    m.setTimeout(func, 0);
+    m.runTimeout(func, 0);
 }

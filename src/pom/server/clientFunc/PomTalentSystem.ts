@@ -29,7 +29,7 @@ import { canSweep } from '../items/isEquipment.js';
 export default class PomTalentSystem extends GameController {
     strikeSkill = true;
     talentRes: Map<number, number> = new Map<number, number>();
-    skillLoop = ExSystem.tickTask(() => {
+    skillLoop = ExSystem.tickTask(this,() => {
         if (this.data.talent.occupation.id === Occupation.ASSASSIN.id) this.strikeSkill = true;
         if (this.data.talent.occupation.id === Occupation.PRIEST.id) {
             let health = 999;
@@ -132,7 +132,7 @@ export default class PomTalentSystem extends GameController {
 
     attackCooldown: number = 0;
     maxAttackCooldown: number = 0;
-    attackCooldownLooper = ExSystem.tickTask(() => {
+    attackCooldownLooper = ExSystem.tickTask(this,() => {
         const maxFrame = 30;
         if (this.attackCooldown < -10) {
             this.attackCooldownLooper.stop();
@@ -248,13 +248,12 @@ export default class PomTalentSystem extends GameController {
 
         //玩家攻击生物增伤
         this.getEvents().exEvents.afterPlayerHitEntity.subscribe((e) => {
-            if (e.damage > 10000000) return;
+            if (e.damage > 10000000 && e.hurtEntity.isValid()) return;
             let item = this.exPlayer.getBag().itemOnMainHand;
 
             let damageFac = 0;
             let extraDamage = 0;
             let target = ExEntity.getInstance(e.hurtEntity);
-
             let targetHealth = target.health;
 
             let dis = target.position.distance(this.exPlayer.position);
@@ -265,7 +264,7 @@ export default class PomTalentSystem extends GameController {
                 let scores = this.exPlayer.getScoresManager();
                 let extraFl = scores.getScore("wbfl") - 100
                 if (extraFl > 0) {
-                    ExGame.runTimeout(() => {
+                    this.runTimeoutByTick(() => {
                         e.hurtEntity.applyDamage(extraFl / 100 * e.damage, {
                             "cause": EntityDamageCause.magic,
                             "damagingEntity": this.player
@@ -318,7 +317,7 @@ export default class PomTalentSystem extends GameController {
             if (this.globalSettings.damageShow) {
                 damageShow(this.getExDimension(), e.damage + damage, target.entity.location);
             }
-            this.hasCauseDamage.trigger(e.damage + damage, e.hurtEntity);
+            this.hasCauseDamage.trigger([e.damage + damage, e.hurtEntity]);
             usetarget = e.hurtEntity;
 
             if (damage >= targetHealth && targetHealth > 0) {
@@ -370,7 +369,7 @@ export default class PomTalentSystem extends GameController {
         //玩家减伤
         this.afterHurtListener = this.getEvents().exEvents.afterPlayerHurt.subscribe((e) => {
             if (this.client.magicSystem.isDied) {
-                this.setTimeout(() => {
+                this.runTimeout(() => {
                     this.client.magicSystem.isDied = false;
                 }, 2500);
                 return;
@@ -426,14 +425,14 @@ export default class PomTalentSystem extends GameController {
             this.calculateHealth = this.calculateHealth - damage + add;
             if (this.calculateHealth <= 0) {
                 const clnE = { ...e.damageSource };
-                ExGame.run(() => {
+                this.run(() => {
                     try {
                         let bag = this.exPlayer.getBag();
                         const armor_pitch = [bag.equipmentOnHead, bag.equipmentOnChest, bag.equipmentOnLegs, bag.equipmentOnFeet];
                         const item_main = bag.itemOnMainHand;
                         const item_off = bag.itemOnOffHand;
                         if ((item_main?.typeId == MinecraftItemTypes.TotemOfUndying || item_off?.typeId == MinecraftItemTypes.TotemOfUndying)) {
-                            this.setTimeout(() => {
+                            this.runTimeout(() => {
                                 [bag.equipmentOnHead, bag.equipmentOnChest, bag.equipmentOnLegs, bag.equipmentOnFeet] = armor_pitch;
                             }, 100);
                         }
@@ -466,10 +465,10 @@ export default class PomTalentSystem extends GameController {
 
             this.client.magicSystem.addGameHealth += add;
             // this.exPlayer.addHealth(this, add);
-            this.hasBeenDamaged.trigger(e.damage - add, e.damageSource.damagingEntity);
+            this.hasBeenDamaged.trigger([e.damage - add, e.damageSource.damagingEntity]);
         });
 
-        let lastListener = (d: number) => { };
+        let lastListener = (d: [number,Entity|undefined]) => { };
 
         this.getEvents().exEvents.afterItemOnHandChange.subscribe((e) => {
             let bag = this.exPlayer.getBag();
@@ -519,13 +518,13 @@ export default class PomTalentSystem extends GameController {
                         let maxSecondaryDamage = parseFloat(lore.getValueUseMap("total", this.getLang().maxSecondaryDamage) ?? "0");
                         let damage = 0;
                         this.hasCauseDamage.removeMonitor(lastListener);
-                        lastListener = (d: number) => {
-                            damage += d;
-                            maxSingleDamage = Math.ceil(Math.max(d, maxSingleDamage));
+                        lastListener = (d: [number,Entity|undefined]) => {
+                            damage += d[0];
+                            maxSingleDamage = Math.ceil(Math.max(d[0], maxSingleDamage));
                         };
                         this.hasCauseDamage.addMonitor(lastListener);
                         this.equiTotalTask?.stop();
-                        (this.equiTotalTask = ExSystem.tickTask(() => {
+                        (this.equiTotalTask = ExSystem.tickTask(this,() => {
                             let shouldUpstate = false;
                             maxSecondaryDamage = Math.ceil(Math.max(maxSecondaryDamage, damage / 5));
                             damage = 0;
@@ -587,7 +586,7 @@ export default class PomTalentSystem extends GameController {
                     }
                     this.skill_stateNum[0] += 1;
                 }
-                this.setTimeout(() => {
+                this.runTimeout(() => {
                     this.exPlayer.selectedSlotIndex = e.beforeSlot;
                 }, (0));
             }
@@ -604,14 +603,14 @@ export default class PomTalentSystem extends GameController {
                 if (!this.debugger) {
                     this.debugger = true;
 
-                    ExGame.run(() => {
+                    this.run(() => {
                         let resetTime = 5;
                         this.client.magicSystem.registActionbarPass("debugger");
-                        this.hasBeenDamaged.addMonitor(e => {
+                        this.hasBeenDamaged.addMonitor(([e,_]) => {
                             testBeDamaged += e;
                             resetTime = 5;
                         });
-                        this.hasCauseDamage.addMonitor(e => {
+                        this.hasCauseDamage.addMonitor(([e,_]) => {
                             testCauseDamage += e;
                             resetTime = 5;
                         });
@@ -651,8 +650,8 @@ export default class PomTalentSystem extends GameController {
 
     }
     debugger = false;
-    hasBeenDamaged = new MonitorManager<[number, Entity | undefined]>();
-    hasCauseDamage = new MonitorManager<[number, Entity]>();
+    hasBeenDamaged = new MonitorManager<[number,Entity|undefined]>();
+    hasCauseDamage = new MonitorManager<[number,Entity]>();
 
     onLoad(): void {
 

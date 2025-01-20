@@ -1,9 +1,9 @@
-export default class BidirectionalMap<K, V> extends Map<K | V, V | K>{
+export default class BidirectionalMap<K, V> extends Map<K | V, V | K> {
     override has<T extends (K | V)>(key: T): boolean {
-        return this.has(key);
+        return super.has(key);
     }
-    override get<T extends (K | V)>(key: T): T extends K ? V : K {
-        return this.get(key);
+    override get<T extends (K | V)>(key: T): (T extends K ? V : K) | undefined {
+        return super.get(key) as any;
     }
     override set(key: K | V, value: K | V): this {
         super.set(key, value);
@@ -11,6 +11,14 @@ export default class BidirectionalMap<K, V> extends Map<K | V, V | K>{
         return this;
     }
     override delete(key: K | V): boolean {
-        return super.delete(key) && super.delete(this.get(key));
+        if (!this.has(key)) return false;
+
+        const value = this.get(key);
+        if (value === undefined) return false;
+
+        super.delete(key);
+        super.delete(value);
+
+        return true;
     }
 }

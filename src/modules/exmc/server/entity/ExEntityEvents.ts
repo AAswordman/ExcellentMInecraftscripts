@@ -1,4 +1,4 @@
-import { PlayerBreakBlockAfterEvent, Entity, EntityHurtAfterEvent, ItemStack, Player, EntityRemoveAfterEvent, EntityDieAfterEvent } from "@minecraft/server";
+import { PlayerBreakBlockAfterEvent, Entity, EntityHurtAfterEvent, ItemStack, Player, EntityRemoveAfterEvent, EntityDieAfterEvent, EntityLoadAfterEvent, EntityRemoveBeforeEvent } from "@minecraft/server";
 import ExEventManager from "../../interface/ExEventManager.js";
 import TickDelayTask from "../../utils/TickDelayTask.js";
 import ExGameServer from '../ExGameServer.js';
@@ -6,9 +6,15 @@ import ExPlayer from '../entity/ExPlayer.js';
 import EventHandle, { EventListenerSettings } from "../events/EventHandle.js";
 import { ExEventNames, ExOtherEventNames, ItemOnHandChangeEvent, TickEvent } from "../events/events.js";
 import ExEntityController from "./ExEntityController.js";
+import { falseIfError } from "../../utils/tool.js";
+import ExEntityPool from "./ExEntityPool.js";
+import MonitorManager from "../../utils/MonitorManager.js";
 export default class ExEntityEvents implements ExEventManager {
 
     private static eventHandlers: EventHandle<ExEntityEvents["exEvents"]> = new EventHandle();
+    monitorMapBackup: { [event: string]: MonitorManager<unknown> } = {
+
+    }
 
     _subscribe(arg0: string, callback: (arg: any) => void) {
         ExEntityEvents.eventHandlers.subscribe(this._ctrl.entity, arg0, callback);
@@ -36,10 +42,10 @@ export default class ExEntityEvents implements ExEventManager {
             }
         },
         [ExOtherEventNames.tick]: {
-            pattern: ExEntityEvents.eventHandlers.registerToServerByServerEvent
+            pattern: (registerName: string, k: string) => {}
         },
         [ExOtherEventNames.beforeTick]: {
-            pattern: ExEntityEvents.eventHandlers.registerToServerByServerEventCanErr
+            pattern: (registerName: string, k: string) => {}
         },
         [ExEventNames.afterEntityHitBlock]: {
             pattern: ExEntityEvents.eventHandlers.registerToServerByEntity,
@@ -62,7 +68,7 @@ export default class ExEntityEvents implements ExEventManager {
             name: ExEventNames.afterEntityHurt
         },
         [ExOtherEventNames.onLongTick]: {
-            pattern: ExEntityEvents.eventHandlers.registerToServerByServerEvent
+            pattern: (registerName: string, k: string) => {}
         },
         [ExEventNames.afterPlayerBreakBlock]: {
             pattern: ExEntityEvents.eventHandlers.registerToServerByEntity,
@@ -71,10 +77,33 @@ export default class ExEntityEvents implements ExEventManager {
             }
         },
         [ExEventNames.afterEntityDie]: {
-            pattern: ExEntityEvents.eventHandlers.registerToServerByServerEvent
+            pattern: ExEntityEvents.eventHandlers.registerToServerByEntity,
+            filter: {
+                "name": "deadEntity"
+            }
         },
         [ExEventNames.afterEntityRemove]: {
-            pattern: ExEntityEvents.eventHandlers.registerToServerByServerEvent
+            pattern: (registerName: string, k: string) => {
+                ExEntityEvents.eventHandlers.server.getEvents().register(registerName, (e: EntityRemoveAfterEvent) => {
+                    for (let [key, value] of ExEntityEvents.eventHandlers.monitorMap[k]) {
+                        if (key.id === e.removedEntityId) {
+                            value.trigger(e);
+                        }
+                    }
+                })
+            }
+        },
+        [ExEventNames.beforeEntityRemove]: {
+            pattern: ExEntityEvents.eventHandlers.registerToServerByEntity,
+            filter: {
+                "name": "removedEntity"
+            }
+        },
+        [ExEventNames.afterEntityLoad]: {
+            pattern: ExEntityEvents.eventHandlers.registerToServerByEntity,
+            filter: {
+                "name": "entity"
+            }
         }
     }
 
@@ -89,7 +118,9 @@ export default class ExEntityEvents implements ExEventManager {
         [ExOtherEventNames.beforeTick]: new Listener<TickEvent>(this, ExOtherEventNames.beforeTick),
         [ExEventNames.afterPlayerBreakBlock]: new Listener<PlayerBreakBlockAfterEvent>(this, ExEventNames.afterPlayerBreakBlock),
         [ExEventNames.afterEntityDie]: new Listener<EntityDieAfterEvent>(this, ExEventNames.afterEntityDie),
-        [ExEventNames.afterEntityRemove]: new Listener<EntityRemoveAfterEvent>(this, ExEventNames.afterEntityRemove)
+        [ExEventNames.afterEntityRemove]: new Listener<EntityRemoveAfterEvent>(this, ExEventNames.afterEntityRemove),
+        [ExEventNames.beforeEntityRemove]: new Listener<EntityRemoveBeforeEvent>(this, ExEventNames.beforeEntityRemove),
+        [ExEventNames.afterEntityLoad]: new Listener<EntityLoadAfterEvent>(this, ExEventNames.afterEntityLoad)
     };
 
     public static init(s: ExGameServer) {
@@ -101,13 +132,16 @@ export default class ExEntityEvents implements ExEventManager {
 
     constructor(ctrl: ExEntityController) {
         this._ctrl = ctrl;
+        this.exEvents[ExOtherEventNames.tick] = ctrl.tickMonitor;
+        this.exEvents[ExOtherEventNames.onLongTick] = ctrl.longTickMonitor;
+        this.exEvents[ExOtherEventNames.beforeTick] = ctrl.beforeTickMonitor;
     }
     register(name: string, fun: (...arg: unknown[]) => void) {
         let func: (...arg: unknown[]) => void = fun;
         if (name in this.exEvents) {
             return (<any>this.exEvents)[name].subscribe(func);
         }
-        
+
         console.warn("No event registered for name " + name);
     }
 
@@ -116,6 +150,29 @@ export default class ExEntityEvents implements ExEventManager {
         if (name in this.exEvents) {
             return (<any>this.exEvents)[name].unsubscribe(fun);
         }
+    }
+
+    stopContext() {
+        if (ExEntityEvents.eventHandlers.monitorMap[ExOtherEventNames.onLongTick].has(this._ctrl.entity)) {
+            this.monitorMapBackup[ExOtherEventNames.onLongTick] =
+                ExEntityEvents.eventHandlers.monitorMap[ExOtherEventNames.onLongTick].get(this._ctrl.entity)!
+            ExEntityEvents.eventHandlers.monitorMap[ExOtherEventNames.onLongTick].delete(this._ctrl.entity)
+
+        }
+        if (ExEntityEvents.eventHandlers.monitorMap[ExOtherEventNames.tick].has(this._ctrl.entity)) {
+            this.monitorMapBackup[ExOtherEventNames.tick] =
+                ExEntityEvents.eventHandlers.monitorMap[ExOtherEventNames.tick].get(this._ctrl.entity)!
+            ExEntityEvents.eventHandlers.monitorMap[ExOtherEventNames.tick].delete(this._ctrl.entity)
+        }
+    }
+    startContext() {
+        if (ExOtherEventNames.tick in this.monitorMapBackup) {
+            ExEntityEvents.eventHandlers.monitorMap[ExOtherEventNames.tick].set(this._ctrl.entity, this.monitorMapBackup[ExOtherEventNames.tick]);
+        }
+        if (ExOtherEventNames.onLongTick in this.monitorMapBackup) {
+            ExEntityEvents.eventHandlers.monitorMap[ExOtherEventNames.onLongTick].set(this._ctrl.entity, this.monitorMapBackup[ExOtherEventNames.onLongTick]);
+        }
+        this.monitorMapBackup = {};
     }
 }
 

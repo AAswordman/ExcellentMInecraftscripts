@@ -26,7 +26,7 @@ export default class EventHandle<T> {
             p.pattern(registerName, k);
         }
     }
-    monitorMap: { [event: string]: Map<Entity, MonitorManager<unknown[]>> } = {
+    monitorMap: { [event: string]: Map<Entity, MonitorManager<unknown>> } = {
 
     }
 
@@ -37,7 +37,6 @@ export default class EventHandle<T> {
         }
 
         e.get(entity)?.addMonitor(callback);
-
     }
 
     unsubscribe(entity: Entity, name: string, callback: (args: unknown) => void) {

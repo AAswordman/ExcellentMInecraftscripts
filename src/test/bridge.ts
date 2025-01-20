@@ -38,7 +38,7 @@ function testBridge() {
         (ReturnType<T> extends TransmissionDataType ? T : never) : never;
 
     interface RemoteCtrlObject {
-        __remote: true;
+        __remote: boolean;
     }
 
 
@@ -304,7 +304,7 @@ function testBridge() {
                         const [moduleLocation, functionName] = name.split(".");
                         const object = this.memoryAddress.get(parseInt(moduleLocation));
                         getFunction = (object as any)[functionName];
-                        if(getFunction instanceof Function) getFunction = getFunction.bind(object);
+                        if (getFunction instanceof Function) getFunction = getFunction.bind(object);
                     }
 
                     let sendbackMsg = (msg: string) => {
@@ -724,38 +724,47 @@ function testBridge() {
     const bridge = new BridgeProtocol();
 
     //端1
-    class Vector2 implements RemoteCtrlObject {
-        __remote: true = true;
-        x: number;
-        y: number;
-        constructor(x: number, y: number) {
-            this.x = x;
-            this.y = y;
+    function client1() {
+        class Vector2 implements RemoteCtrlObject {
+            __remote = true;
+            x: number;
+            y: number;
+            constructor(x: number, y: number) {
+                this.x = x;
+                this.y = y;
+            }
+            public add(a: number, b: number) {
+                return new Vector2(a + this.x, this.y + b);
+            }
+            pi = 3.14;
         }
-        public add(a: number, b: number) {
-            return new Vector2(a + this.x, this.y + b);
-        }
-        pi = 3.14;
-    }
-    function newVector2(a: number, b: number) {
-        return new Vector2(a, b);
-    }
-    bridge.exportFunction(newVector2);
-
-
-    //端2
-    let exportTest = {
-        exportId: "",
-        "newVector2": (a: number, b: number) => {
+        function newVector2(a: number, b: number) {
             return new Vector2(a, b);
         }
+        bridge.exportFunction(newVector2);
     }
-
-    async function name() {
-        const vec = await bridge.solve(exportTest).newVector2(1,2);
+    //端2
+    async function client2() {
+        class Vector2 implements RemoteCtrlObject {
+            __remote = true;
+            x!: number;
+            y!: number;
+            constructor(x: number, y: number) {
+            }
+            public add(a: number, b: number) {
+                return new Vector2(0,0);
+            }
+            pi!: number;
+        }
+        let exportTest = {
+            exportId: "",
+            "newVector2": (a: number, b: number) => {
+                return new Vector2(a, b);
+            }
+        }
+        const vec = await bridge.solve(exportTest).newVector2(1, 2);
         console.warn((await vec.add(999, 2)).x);
         console.warn(await vec.pi);
     }
-    name();
 }
 testBridge()

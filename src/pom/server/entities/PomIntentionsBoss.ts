@@ -9,8 +9,8 @@ import { TickEvent } from '../../../modules/exmc/server/events/events.js';
 
 export class PomIntentionsBoss1 extends PomBossController {
     static typeId = "wb:intentions_first";
-    constructor(e: Entity, server: PomServer) {
-        super(e, server);
+    constructor(e: Entity, server: PomServer, spawn: boolean) {
+        super(e, server, spawn);
     }
     override initBossEntity(): void {
         super.initBossEntity();
@@ -19,8 +19,8 @@ export class PomIntentionsBoss1 extends PomBossController {
         }
         this.barrier.changeFog("wb:ruin_mind_1_boss");
     }
-    override onSpawn(): void {
-        super.onSpawn();
+    override onAppear(spawn: boolean): void {
+        super.onAppear(spawn);
     }
     override onKilled(e: EntityHurtAfterEvent): void {
         super.onKilled(e);
@@ -44,15 +44,15 @@ export class PomIntentionsBoss1 extends PomBossController {
 
 export class PomIntentionsBoss2 extends PomBossController {
     static typeId = "wb:intentions_second";
-    constructor(e: Entity, server: PomServer) {
-        super(e, server);
+    constructor(e: Entity, server: PomServer, spawn: boolean) {
+        super(e, server, spawn);
     }
     override initBossEntity(): void {
         super.initBossEntity();
         this.barrier.changeFog("wb:ruin_mind_2_boss");
     }
-    override onSpawn(): void {
-        super.onSpawn();
+    override onAppear(spawn: boolean): void {
+        super.onAppear(spawn);
     }
     override onKilled(e: EntityHurtAfterEvent): void {
         super.onKilled(e);
@@ -79,8 +79,8 @@ export class PomIntentionsBoss2 extends PomBossController {
 
 export class PomIntentionsBoss3 extends PomBossController {
     static typeId = "wb:intentions_third";
-    constructor(e: Entity, server: PomServer) {
-        super(e, server);
+    constructor(e: Entity, server: PomServer, spawn: boolean) {
+        super(e, server, spawn);
     }
     override initBossEntity(): void {
         super.initBossEntity();
@@ -99,18 +99,18 @@ export class PomIntentionsBoss3 extends PomBossController {
         this.changeFog = new VarOnChangeListener((n) => {
             if (n === "wb:ruin_mind_5_boss") {
                 this.barrier.changeFog("wb:ruin_mind_4_boss");
-                this.setTimeout(() => {
+                this.runTimeout(() => {
                     this.barrier.changeFog("wb:ruin_mind_5_boss");
                 }, 5000);
             } else {
                 this.barrier.changeFog(n);
             }
         }, "");
-        
+
         this.changeFog.upDate("wb:ruin_mind_5_boss");
     }
-    changeFog!: VarOnChangeListener<string>; 
-    state!: VarOnChangeListener<number>; 
+    changeFog!: VarOnChangeListener<string>;
+    state!: VarOnChangeListener<number>;
     @registerEvent("onLongTick")
     onLongTick(e: TickEvent) {
         try {
@@ -126,8 +126,8 @@ export class PomIntentionsBoss3 extends PomBossController {
             ExErrorQueue.throwError(e);
         }
     }
-    override onSpawn(): void {
-        super.onSpawn();
+    override onAppear(spawn: boolean): void {
+        super.onAppear(spawn);
     }
     override onKilled(e: EntityHurtAfterEvent): void {
         //设置奖励

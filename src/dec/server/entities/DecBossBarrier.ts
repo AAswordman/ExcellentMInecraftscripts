@@ -70,6 +70,7 @@ export default class DecBossBarrier implements DisposeAble {
         this.boss = boss;
     }
     dispose(): void {
+        
         DecBossBarrier.map.delete(this.id);
         this.manager.cancel("onLongTick", this.tickEvent);
         for (let c of this.clientsByPlayer()) {
@@ -108,7 +109,7 @@ export default class DecBossBarrier implements DisposeAble {
                 if (!this.area.contains(e.entity.location)) {
                     if (this.players.get(e.entity)) {
                         // notUtillTask(this.server,() => ExPlayer.getInstance(e).getHealth()>0,()=>{
-                        this.server.setTimeout(() => {
+                        this.server.runTimeout(() => {
                             if (this.dim.dimension !== e.dimension) {
                                 e.addEffect(MinecraftEffectTypes.Resistance, 14 * 20, 10, false);
                                 e.addEffect(MinecraftEffectTypes.Weakness, 14 * 20, 10, false);

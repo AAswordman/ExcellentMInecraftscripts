@@ -1,4 +1,5 @@
 import TickDelayTask from '../utils/TickDelayTask.js';
+import ExContext from './ExGameObject.js';
 import ExGame from "./ExGame.js";
 
 export default class ExServerTickDelayTask implements TickDelayTask {
@@ -6,10 +7,10 @@ export default class ExServerTickDelayTask implements TickDelayTask {
     getDelay() {
         return this.time;
     }
-    id: undefined | number;
+    private id: undefined | number;
     looper: () => void;
     time: number = 20;
-    constructor(looper: () => void) {
+    constructor(public context: ExContext, looper: () => void) {
         this.looper = looper;
     }
     delay(time: number) {
@@ -26,25 +27,24 @@ export default class ExServerTickDelayTask implements TickDelayTask {
             this.func = undefined;
             this.looper();
         }
-        this.id = ExGame.runTimeout(() => this?.func?.(), this.time);
+        this.id = this.context.runTimeoutByTick(() => this?.func?.(), this.time);
         return this;
     }
     start() {
         if (this.isStarted()) return this;
         this.func = () => {
+            if(this.context.interrupt) return;
             this.looper();
         }
-
-        this.id = ExGame.runInterval(() => this?.func?.(), this.time);
+        this.id = this.context.runIntervalByTick(() => this?.func?.(), this.time);
         return this;
-
     }
 
     stop() {
         if (!this.func) return this;
         if (!this.id) throw new Error("error id is required");
 
-        ExGame.clearRun(this.id);
+        this.context.clearRun(this.id);
         this.func = undefined;
         return this;
 
