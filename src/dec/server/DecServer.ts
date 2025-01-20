@@ -632,38 +632,6 @@ export default class DecServer extends ExGameServer {
                     trellis_cover_wither_spread(block_zp)
                     trellis_cover_wither_spread(block_zn)
                 }
-            } else if (e.id == 'dec:flesh_block'){
-                if(e.message == 'spread'){
-                    let loc = <Vector3>e.sourceBlock?.location
-                    let dim = <Dimension>e.sourceBlock?.dimension
-                    let blocks = [
-                        dim.getBlock(loc.add(1, 0, 0)),
-                        dim.getBlock(loc.add(-1, 0, 0)),
-                        dim.getBlock(loc.add(0, 1, 0)),
-                        dim.getBlock(loc.add(0, -1, 0)),
-                        dim.getBlock(loc.add(0, 0, 1)),
-                        dim.getBlock(loc.add(0, 0, -1))
-                    ]
-                    let age_ori = <number>e.sourceBlock?.permutation.getState('dec:age')
-                    if (age_ori == 15){
-                        //这里写死亡
-                        e.sourceBlock?.setType('minecraft:air')//后面改成死亡的方块
-                    }
-                    let can_grow_on = [
-                        'minecraft:air',
-                        'minecraft:water',
-                        'minecraft:flowing_water',
-                        'minecraft:grass',
-                        'minecraft:tall_grass'
-                    ]
-                    blocks = blocks.filter(block => block?.typeId !== undefined && can_grow_on.indexOf(block?.typeId) !== -1);
-                    if(blocks.length > 0){
-                        let b = <Block>blocks[Math.floor(Math.random() * length)]
-                        // 以后这可以写长其他东西
-                        b.setType('dec:flesh_block')
-                        state_set_keep(b, { 'dec:age': age_ori+1 })
-                    }
-                }
             } else if (e.id == 'dec:sprint') {
                 let power = Number(e.message)
                 let p = (<Entity>e.sourceEntity)
