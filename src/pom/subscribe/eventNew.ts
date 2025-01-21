@@ -1,4 +1,4 @@
-import { world, BlockPermutation, Block, Player, Entity, ItemStack, EquipmentSlot } from '@minecraft/server';
+import { world, BlockPermutation, Block, Player, Entity, ItemStack, EquipmentSlot, Dimension } from '@minecraft/server';
 import { fileProvider, JSONObject } from '../../filepack/index.js';
 import ExPlayer from '../../modules/exmc/server/entity/ExPlayer.js';
 import Vector3 from '../../modules/exmc/utils/math/Vector3.js';
@@ -89,6 +89,9 @@ function molangCalculate(molang: string | number, option: TriggerOption) {
     const sapi = {
         get position() {
             return new Vector3(option.triggerEntity?.location ?? option.triggerBlock?.location ?? new Vector3());
+        },
+        get dimension() {
+            return option.triggerEntity?.dimension ?? option.triggerBlock?.dimension;
         }
     };
     const query = {
