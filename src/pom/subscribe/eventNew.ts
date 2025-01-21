@@ -287,7 +287,7 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
             for (let cmd of eventUser.run_command.command) {
                 if (eventUser.run_command.target == "other" && option.triggerEntity) {
                     option.triggerEntity.runCommand(`${cmd}`);
-                } else {
+                } else {    
                     option.triggerBlock.dimension.runCommand(`execute positioned ${posStr} run ${cmd}`);
                 }
             }

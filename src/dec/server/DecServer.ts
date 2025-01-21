@@ -633,8 +633,10 @@ export default class DecServer extends ExGameServer {
                     trellis_cover_wither_spread(block_zn)
                 }
             } else if (e.id == 'dec:flesh_block'){
-                if(e.message == 'spread'){
+                if(e.message == 'spread_flesh_block'){
                     let loc = <Vector3>e.sourceBlock?.location
+                    world.getDimension('overworld').runCommandAsync('say ' + e.sourceType)
+                    world.getDimension('overworld').runCommandAsync('say '+loc.x.toString() + ' ' + loc.y.toString() + ' ' + loc.z.toString())
                     let dim = <Dimension>e.sourceBlock?.dimension
                     let blocks = [
                         dim.getBlock(loc.add(1, 0, 0)),
@@ -645,6 +647,7 @@ export default class DecServer extends ExGameServer {
                         dim.getBlock(loc.add(0, 0, -1))
                     ]
                     let age_ori = <number>e.sourceBlock?.permutation.getState('dec:age')
+                    dim.runCommandAsync('say '+age_ori.toString())
                     if (age_ori == 15){
                         //这里写死亡
                         e.sourceBlock?.setType('minecraft:air')//后面改成死亡的方块
