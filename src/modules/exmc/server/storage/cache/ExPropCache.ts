@@ -73,7 +73,7 @@ export default class ExPropCache<T extends object> {
                 }
             }
         }
-        this.compareObject = ExSystem.deepClone(obj);
+        this.compareObject = ExSystem.deepClone(obj) as any;
         this.keyCache = Object.keys(obj).join(this.keyInterval);
         return obj as T;
     }

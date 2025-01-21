@@ -71,7 +71,7 @@ export default class ExSystem {
         return JSON.stringify(obj1) === JSON.stringify(obj2);
 
     }
-    public static deepClone(obj1: object) {
-        return JSON.parse(JSON.stringify(obj1));
+    public static deepClone<T>(obj1: T) {
+        return JSON.parse(JSON.stringify(obj1)) as T;
     }
 }

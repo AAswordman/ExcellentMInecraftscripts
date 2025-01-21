@@ -29,7 +29,6 @@ import DecBossController from './entities/DecBossController.js';
 import DecBossBarrier from './entities/DecBossBarrier.js';
 import ExContext from '../../modules/exmc/server/ExGameObject.js';
 
-
 export default class DecServer extends ExGameServer {
     i_inviolable: Objective;
     i_damp: Objective;
@@ -53,6 +52,27 @@ export default class DecServer extends ExGameServer {
 
     //test
     compress = [""];
+
+    state_set_keep = (block: Block, stateMatchMap: { [x: string]: (string | number | boolean) }) => {
+        let states = block.permutation.getAllStates();
+        for (let k in stateMatchMap) {
+            states[k] = stateMatchMap[k];
+        }
+        let states_string = '['
+        Object.keys(states).forEach(k => {
+            let new_st = '"' + k + '"='
+            if (typeof (states[k]) == 'boolean' || typeof (states[k]) == 'number') {
+                new_st += (states[k]) + ','
+            } else if (typeof (states[k]) == 'string') {
+                new_st += '"' + (states[k]) + '",'
+            }
+            states_string += new_st;
+        })
+        states_string = states_string.slice(0, states_string.length - 1)
+        states_string += ']'
+        this.getExDimension(block.dimension).command.runAsync('say setblock ' + (block.location.x) + ' ' + (block.location.y) + ' ' + (block.location.z) + ' ' + block.typeId + ' ' + states_string);
+        this.getExDimension(block.dimension).command.runAsync('setblock ' + (block.location.x) + ' ' + (block.location.y) + ' ' + (block.location.z) + ' ' + block.typeId + ' ' + states_string);
+    }
 
     constructor(config: ExConfig) {
         super(config);
@@ -286,7 +306,7 @@ export default class DecServer extends ExGameServer {
             if (block_before_id == 'dec:trellis') {
                 const bottom_block = (<Block>block.dimension.getBlock(new Vector3(block.location.x, block.location.y - 1, block.location.z)))
                 if (bottom_block.typeId == 'dec:trellis') {
-                    state_set_keep(bottom_block, { 'dec:is_top': true })
+                    this.state_set_keep(bottom_block, { 'dec:is_top': true })
                 }
             } else if (block_before_id in multiple_blocks) {
                 let block_test_below = e.block.location.y - <number>e.brokenBlockPermutation.getAllStates()['dec:location']
@@ -434,13 +454,13 @@ export default class DecServer extends ExGameServer {
             const block = e.block
             //种植架
             if (e.block.typeId == 'dec:trellis') {
-                state_set_keep(block, { 'dec:is_top': true })
+                this.state_set_keep(block, { 'dec:is_top': true })
                 const bottom_block = (<Block>block.dimension.getBlock(new Vector3(block.location.x, block.location.y - 1, block.location.z)))
                 if (bottom_block.typeId == 'minecraft:farmland') {
-                    state_set_keep(block, { 'dec:is_bottom': true })
+                    this.state_set_keep(block, { 'dec:is_bottom': true })
                 } else if (bottom_block.typeId == 'dec:trellis') {
-                    state_set_keep(block, { 'dec:is_bottom': false })
-                    state_set_keep(bottom_block, { 'dec:is_top': false })
+                    this.state_set_keep(block, { 'dec:is_bottom': false })
+                    this.state_set_keep(bottom_block, { 'dec:is_top': false })
                 }
             }
         })
@@ -573,29 +593,10 @@ export default class DecServer extends ExGameServer {
                 arr.push(block)
             }
         }
-        const state_set_keep = (block: Block, stateMatchMap: { [x: string]: (string | number | boolean) }) => {
-            let states = block.permutation.getAllStates();
-            for (let k in stateMatchMap) {
-                states[k] = stateMatchMap[k];
-            }
-            let states_string = '['
-            Object.keys(states).forEach(k => {
-                let new_st = '"' + k + '"='
-                if (typeof (states[k]) == 'boolean' || typeof (states[k]) == 'number') {
-                    new_st += (states[k]) + ','
-                } else if (typeof (states[k]) == 'string') {
-                    new_st += '"' + (states[k]) + '",'
-                }
-                states_string += new_st;
-            })
-            states_string = states_string.slice(0, states_string.length - 1)
-            states_string += ']'
-
-            this.getExDimension(block.dimension).command.runAsync('setblock ' + (block.location.x) + ' ' + (block.location.y) + ' ' + (block.location.z) + ' ' + block.typeId + ' ' + states_string);
-        }
+        
         const trellis_cover_wither_spread = (block: Block) => {
             if (block.typeId == 'dec:trellis_cover' && block.permutation.getAllStates()['dec:crop_type'] != 'empty') {
-                state_set_keep(block, { 'dec:may_wither': true })
+                this.state_set_keep(block, { 'dec:may_wither': true })
             }
         }
         ExGame.scriptEventReceive.addMonitor(e => {
@@ -611,7 +612,7 @@ export default class DecServer extends ExGameServer {
                 if (block_above?.typeId == 'dec:trellis' && e.message == 'wither') {
                     let block_above_n = block_above;
                     while (block_above_n.typeId == 'dec:trellis') {
-                        state_set_keep(block_above_n, { 'dec:may_wither': true });
+                        this.state_set_keep(block_above_n, { 'dec:may_wither': true });
                         block_above_n = <Block>block.dimension.getBlock(tmpV.set(block_above_n.location.x, block_above_n.location.y + 1, block_above_n.location.z))
                     }
                 }
@@ -623,7 +624,7 @@ export default class DecServer extends ExGameServer {
                     block_around_judge(may_grow_block, block_zn, 'dec:trellis_cover', { 'dec:crop_type': 'empty' })
                     block_around_judge(may_grow_block, block_above, 'dec:trellis', { 'dec:crop_type': 'empty' });
                     if (may_grow_block.length > 0) {
-                        state_set_keep(may_grow_block[MathUtil.randomInteger(0, may_grow_block.length - 1)], { 'dec:may_wither': false, 'dec:growth_stage': 0, 'dec:crop_type': <string>block.permutation.getState('dec:crop_type' as any) })
+                        this.state_set_keep(may_grow_block[MathUtil.randomInteger(0, may_grow_block.length - 1)], { 'dec:may_wither': false, 'dec:growth_stage': 0, 'dec:crop_type': <string>block.permutation.getState('dec:crop_type' as any) })
                     }
                 }
                 if (e.message == 'wither_spread') {
@@ -713,12 +714,38 @@ export default class DecServer extends ExGameServer {
 
     }
 
-    // @receiveMessage('dec:crate_unlocked')
-    // crateUnlocked(x:number,y:number,z:number,pos:Vector3){
-    //     console.warn('crate unlocked');
-    //     console.warn(x,y,z);
-    //     console.warn(pos);
-    // }
+    @receiveMessage('dec:flesh_block_spread')
+    fleshBlockSpread(block:Block) {
+        const dim = block.dimension;
+        const loc = new Vector3(block.location);
+        let blocks = [
+            dim.getBlock(loc.cpy().add(1, 0, 0)),
+            dim.getBlock(loc.cpy().add(-1, 0, 0)),
+            dim.getBlock(loc.cpy().add(0, 1, 0)),
+            dim.getBlock(loc.cpy().add(0, -1, 0)),
+            dim.getBlock(loc.cpy().add(0, 0, 1)),
+            dim.getBlock(loc.cpy().add(0, 0, -1))
+        ]
+        let age_ori = <number>block.permutation.getState('dec:age' as any)
+        if (age_ori == 15) {
+            //这里写死亡
+            block.setType('minecraft:air')//后面改成死亡的方块
+        }
+        let can_grow_on = [
+            'minecraft:air',
+            'minecraft:water',
+            'minecraft:flowing_water',
+            'minecraft:grass',
+            'minecraft:tall_grass'
+        ]
+        blocks = blocks.filter(b => can_grow_on.includes(b?.typeId ?? ''));
+        if (blocks) {
+            let b = <Block>blocks[Math.floor(Math.random() * blocks.length)]
+            // 以后这可以写长其他东西
+            b.setType('dec:flesh_block')
+            this.state_set_keep(b, { 'dec:age': age_ori + 1 })
+        }
+    }
 
     override newClient(id: string, player: Player): ExGameClient {
         return new DecClient(this, id, player);
