@@ -186,6 +186,18 @@ export default class ExGame {
             }
         });
     }
+    static postMessageToServer(exportName: string, args: any[]) {
+        ExGame._run(() => {
+            for(let [k,v] of this.serverMap.entries()) {
+                for (let k of ExSystem.keys(v)) {
+                    let data = Reflect.getMetadata("exportName", v, k);
+                    if (data === exportName) {
+                        Reflect.get(v, k).apply(v, args);
+                    }
+                }
+            }
+        });
+    }
 }
 
 export function receiveMessage(exportName: string) {
