@@ -7,7 +7,7 @@ export default class ExServerTickDelayTask implements TickDelayTask {
     getDelay() {
         return this.time;
     }
-    private id: undefined | number;
+    public id: undefined | number;
     looper: () => void;
     time: number = 20;
     constructor(public context: ExContext, looper: () => void) {
@@ -36,15 +36,17 @@ export default class ExServerTickDelayTask implements TickDelayTask {
             if(this.context.interrupt) return;
             this.looper();
         }
-        this.id = this.context.runIntervalByTick(() => this?.func?.(), this.time);
+        this.id = this.context.runIntervalByTick(() => {
+            this?.func?.()
+        }, this.time);
         return this;
     }
 
     stop() {
         if (!this.func) return this;
         if (!this.id) throw new Error("error id is required");
-
         this.context.clearRun(this.id);
+
         this.func = undefined;
         return this;
 

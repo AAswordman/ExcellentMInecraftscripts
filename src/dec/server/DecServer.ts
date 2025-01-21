@@ -713,12 +713,12 @@ export default class DecServer extends ExGameServer {
 
     }
 
-    @receiveMessage('dec:crate_unlocked')
-    crateUnlocked(x:number,y:number,z:number,pos:Vector3){
-        console.warn('crate unlocked');
-        console.warn(x,y,z);
-        console.warn(pos);
-    }
+    // @receiveMessage('dec:crate_unlocked')
+    // crateUnlocked(x:number,y:number,z:number,pos:Vector3){
+    //     console.warn('crate unlocked');
+    //     console.warn(x,y,z);
+    //     console.warn(pos);
+    // }
 
     override newClient(id: string, player: Player): ExGameClient {
         return new DecClient(this, id, player);

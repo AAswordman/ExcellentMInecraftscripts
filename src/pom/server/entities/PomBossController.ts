@@ -5,6 +5,10 @@ import { ExBlockArea } from '../../../modules/exmc/server/block/ExBlockArea.js';
 import PomServer from '../PomServer.js';
 import Vector3 from '../../../modules/exmc/utils/math/Vector3.js';
 import ExGameServer from '../../../modules/exmc/server/ExGameServer.js';
+import TickDelayTask from '../../../modules/exmc/utils/TickDelayTask.js';
+import ExSystem from '../../../modules/exmc/utils/ExSystem.js';
+import { registerEvent } from '../../../modules/exmc/server/events/eventDecoratorFactory.js';
+import { ExOtherEventNames, TickEvent } from '../../../modules/exmc/server/events/events.js';
 
 export default class PomBossController extends ExEntityController {
     startPos!: Vector3;
@@ -26,8 +30,8 @@ export default class PomBossController extends ExEntityController {
             c.progressTaskFinish(this.entity.typeId, c.ruinsSystem.causeDamage);
             c.ruinsSystem.causeDamageShow = false;
         }
-        this.stopBarrier();
 
+        this.stopBarrier();
         console.warn("onWin");
     }
 
@@ -80,6 +84,38 @@ export default class PomBossController extends ExEntityController {
         for (let c of this.barrier.clientsByPlayer()) {
             c.ruinsSystem.causeDamageShow = true;
             c.ruinsSystem.causeDamageType.add(this.entity.typeId);
+        }
+    }
+
+    lastPosition = new Vector3(this.barrier.center);
+    @registerEvent(ExOtherEventNames.onLongTick)
+    _lastPositionUpdater(e: TickEvent) {
+        this.lastPosition.set(this.entity.location);
+    }
+
+    autoJudgeTimer?: TickDelayTask;
+    override onMemoryRemove(): void {
+        super.onMemoryRemove();
+        const dim = this.exEntity.exDimension;
+        this.autoJudgeTimer?.stop();
+        this.autoJudgeTimer = ExSystem.tickTask(this.server, () => {
+            if (dim.chunkIsLoaded(this.lastPosition)) {
+                this.autoJudgeTimer?.stop();
+                this.onKilled({
+                    "damageSource": {
+                        "cause": EntityDamageCause.suffocation
+                    },
+                    "hurtEntity": this.entity,
+                    "damage": 1000000
+                });
+            }
+        }).delay(20 * 2).start();
+    }
+    override onMemoryLoad(): void {
+        super.onMemoryLoad();
+        if (this.autoJudgeTimer) {
+            this.autoJudgeTimer.stop();
+            this.autoJudgeTimer = undefined;
         }
     }
 }

@@ -20,6 +20,10 @@ export default class ExEntityController extends ExContext
 
     server!: ExGameServer;
     private _id: string;
+    private _typeId: string;
+    getTypeId() {
+        return this._typeId;
+    }
     getId() {
         return this._id;
     }
@@ -50,6 +54,7 @@ export default class ExEntityController extends ExContext
         this.server = server;
         this._events = new ExEntityEvents(this);
         this._id = e.id;
+        this._typeId = e.typeId;
         this._init(server);
         this.onAppear(spawn);
         this.onMemoryLoad();
@@ -66,16 +71,22 @@ export default class ExEntityController extends ExContext
     @registerEvent<ExEntityController>(ExEventNames.beforeEntityRemove)
     onMemoryRemove() {
         if (this.isLoaded) {
+            console.warn("onMemoryRemove " + this._entity.typeId);
             this.stopContext();
             this.getEvents().stopContext();
+        } else {
+            return;
         }
     }
 
     @registerEvent<ExEntityController>(ExEventNames.afterEntityLoad)
     onMemoryLoad() {
         if (!this.isLoaded) {
+            console.warn("onMemoryLoad " + this._entity.typeId);
             this.startContext();
             this.getEvents().startContext();
+        } else {
+            return;
         }
     }
 
@@ -83,7 +94,7 @@ export default class ExEntityController extends ExContext
 
     }
 
-    @registerEvent<ExEntityController>(ExEventNames.afterEntityDie)
+
     public destroyTrigger() {
         if (!this._isDestroyed) {
             this._isDestroyed = true;
@@ -103,12 +114,11 @@ export default class ExEntityController extends ExContext
     }
 
     private _isKilled: boolean = false;
-    @registerEvent<ExEntityController>(
-        ExOtherEventNames.afterOnHurt,
-        (ctrl, e) => ctrl.exEntity.health <= 0 && !ctrl._isKilled
-    )
+
+    // @registerEvent<ExEntityController>(ExEventNames.afterEntityDie)
     onKilled(e: EntityHurtAfterEvent) {
         this._isKilled = true;
         console.warn("onKilled " + this._entity.typeId);
+        this.destroyTrigger();
     }
 }

@@ -109,11 +109,9 @@ export default class PomBossBarrier implements DisposeAble {
         this.dim.spawnParticle("wb:boss_barrier", this.center);
         for (let e of this.server.getExPlayers()) {
             if (!e.entity.location) continue;
+
             if (this.players.has(e.entity)) {
-                if (!ignorn(() => e.entity.isValid())) {
-                    this.players.delete(e.entity);
-                    continue;
-                }
+                if (!ignorn(() => e.entity.isValid())) continue;
                 if (!this.area.contains(e.entity.location)) {
                     if (this.players.get(e.entity)) {
                         // notUtillTask(this.server,() => ExPlayer.getInstance(e).getHealth()>0,()=>{
@@ -149,7 +147,7 @@ export default class PomBossBarrier implements DisposeAble {
             }
         }
 
-        if (ignorn(() => this.boss.entity.location) && !this.area.contains(this.boss.entity.location)) {
+        if (ignorn(() => this.boss.entity.isValid()) && !this.area.contains(this.boss.entity.location)) {
             this.boss.exEntity.setPosition(this.area.center());
         }
 

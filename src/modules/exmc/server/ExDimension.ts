@@ -30,6 +30,10 @@ export default class ExDimension implements ExCommandNativeRunner {
         this._dimension = dimension;
     }
 
+    chunkIsLoaded(vec: IVector3) {
+        return this.spawnParticle("minecraft:conduit_particle", vec);
+    }
+
     getPlayers(entityQueryOptions?: EntityQueryOptions) {
         return this._dimension.getPlayers(entityQueryOptions);
     }
@@ -54,7 +58,7 @@ export default class ExDimension implements ExCommandNativeRunner {
     // }
     setBlock(vec: IVector3, blockId: string | BlockType) {
         if (typeof blockId === "string") blockId = <BlockType>BlockTypes.get(blockId);
-        let b = this.dimension.setBlockType(vec,blockId)
+        let b = this.dimension.setBlockType(vec, blockId)
     }
     setBlockAsync(vec: IVector3, blockId: string) {
         this.runCommandAsync(`setBlock ${vec.x} ${vec.y} ${vec.z} ${blockId}`);
@@ -77,9 +81,9 @@ export default class ExDimension implements ExCommandNativeRunner {
         };
     }
 
-    spawnEntity(id: string, v: IVector3,options?: SpawnEntityOptions) {
+    spawnEntity(id: string, v: IVector3, options?: SpawnEntityOptions) {
         try {
-            return this._dimension.spawnEntity(id, v,options);
+            return this._dimension.spawnEntity(id, v, options);
         } catch (error) {
             ExGameConfig.console.warn(error);
             return undefined;
