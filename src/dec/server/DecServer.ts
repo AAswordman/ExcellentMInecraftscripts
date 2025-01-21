@@ -715,9 +715,9 @@ export default class DecServer extends ExGameServer {
     }
 
     @receiveMessage('dec:flesh_block_spread')
-    fleshBlockSpread(dim: Dimension, loc: Vector3) {
-        dim.runCommandAsync('say block:' + loc.x.toString() + ' ' +loc.y.toString() + ' '+loc.z.toString())
-        let block = <Block>dim.getBlock(loc)
+    fleshBlockSpread(block:Block) {
+        const dim = block.dimension;
+        const loc = new Vector3(block.location);
         let blocks = [
             dim.getBlock(loc.cpy().add(1, 0, 0)),
             dim.getBlock(loc.cpy().add(-1, 0, 0)),
@@ -727,7 +727,6 @@ export default class DecServer extends ExGameServer {
             dim.getBlock(loc.cpy().add(0, 0, -1))
         ]
         let age_ori = <number>block.permutation.getState('dec:age')
-        dim.runCommandAsync('say age:' + age_ori.toString())
         if (age_ori == 15) {
             //这里写死亡
             block.setType('minecraft:air')//后面改成死亡的方块

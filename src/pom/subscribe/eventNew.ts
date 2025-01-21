@@ -88,10 +88,13 @@ function molangCalculate(molang: string | number, option: TriggerOption) {
     molang = (molang + "").replace(/q\./g, "query.");
     const sapi = {
         get position() {
-            return new Vector3(option.triggerEntity?.location ?? option.triggerBlock?.location ?? new Vector3());
+            return new Vector3(option.triggerEntity?.location ?? option.triggerBlock ?? new Vector3());
         },
         get dimension() {
             return option.triggerEntity?.dimension ?? option.triggerBlock?.dimension;
+        },
+        get block() {
+            return option.triggerBlock;
         }
     };
     const query = {
@@ -161,7 +164,7 @@ function molangCalculate(molang: string | number, option: TriggerOption) {
         }
     }
     let res = eval("(" + molang + ")");
-    // console.warn(molang + " -> "+  res);
+    //console.warn(molang + " -> "+  res);
     return res;
 }
 
@@ -310,7 +313,7 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
             for (let cmd of eventUser.run_command.command) {
                 if (eventUser.run_command.target == "other" && option.triggerEntity) {
                     option.triggerEntity.runCommand(`${cmd}`);
-                } else {    
+                } else {
                     option.triggerBlock.dimension.runCommand(`execute positioned ${posStr} run ${cmd}`);
                 }
             }
@@ -329,7 +332,6 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
             option.triggerBlock.transTo(eventUser.set_block.block_type);
         }
         if (eventUser.spawn_loot) {
-
             option.triggerBlock.dimension.runCommand(`loot spawn ${new Vector3(option.triggerBlock).add(0.5).toArray().join(' ')} loot "${eventUser.spawn_loot.table.split('/')
                 .slice(1).join('/').slice(0, -5)
                 }"`);
@@ -352,10 +354,11 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
             }
         }
         if (eventUser.post_message) {
-            for (let [i, m] of eventUser.post_message.message.entries()) {
-                eventUser.post_message.message[i] = typeof m === "string" ? molangCalculate(m, option) : m;
+            const post = ExSystem.deepClone(eventUser.post_message);
+            for (let [i, e] of post.message.entries()) {
+                post.message[i] = typeof e === "string" ? molangCalculate(e, option) : e;
             }
-            ExGame.postMessageToServer(eventUser.post_message.sign, eventUser.post_message.message);
+            ExGame.postMessageToServer(post.sign, post.message);
         }
     } else if (option.triggerItem && option.triggerEntity) {
         if (eventUser.condition) {
