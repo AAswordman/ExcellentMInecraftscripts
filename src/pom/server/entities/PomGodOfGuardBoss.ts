@@ -1068,10 +1068,7 @@ export class PomGodOfGuardBoss0 extends PomBossController {
         super.onAppear(spawn);
     }
     override onKilled(e: EntityHurtAfterEvent): void {
-        console.warn("onWin");
-        this.stopBarrier();
         super.onKilled(e);
-
     }
     override onFail(): void {
         super.onFail();

@@ -25,6 +25,7 @@ import Random from '../../../modules/exmc/utils/Random.js';
 import { MinecraftBlockTypes } from '../../../modules/vanilla-data/lib/index.js';
 import ExEntityQuery from '../../../modules/exmc/server/env/ExEntityQuery.js';
 import { canSweep } from '../items/isEquipment.js';
+import { ignorn } from '../../../modules/exmc/server/ExErrorQueue.js';
 
 export default class PomTalentSystem extends GameController {
     strikeSkill = true;
@@ -248,7 +249,7 @@ export default class PomTalentSystem extends GameController {
 
         //玩家攻击生物增伤
         this.getEvents().exEvents.afterPlayerHitEntity.subscribe((e) => {
-            if (e.damage > 10000000 && e.hurtEntity.isValid()) return;
+            if (e.damage > 10000000 || !(ignorn(() => e.hurtEntity.isValid()))) return;
             let item = this.exPlayer.getBag().itemOnMainHand;
 
             let damageFac = 0;

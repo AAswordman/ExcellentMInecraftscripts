@@ -7,7 +7,7 @@ import bridge, { RemoteCtrlObject } from "./modules/interact/BridgeProtocol.js";
 
 let config = new ExConfig();
 config.addonName = "POM";
-config.addonVersion = "1.9.3B1";
+config.addonVersion = "1.9.3B2";
 config.gameVersion = "1.20.0";
 config.watchDog = false;
 config.debug = true;

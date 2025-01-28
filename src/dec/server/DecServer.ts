@@ -725,7 +725,7 @@ export default class DecServer extends ExGameServer {
             dim.getBlock(loc.cpy().add(0, 0, 1)),
             dim.getBlock(loc.cpy().add(0, 0, -1))
         ]
-        let age_ori = <number>block.permutation.getState('dec:age')
+        let age_ori = <number>block.permutation.getState('dec:age' as any)
         if (age_ori == 15) {
             //这里写死亡
             block.setType('minecraft:air')//后面改成死亡的方块

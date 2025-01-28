@@ -156,6 +156,7 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
 
     }
     onLoad() {
+        
     }
 
 
