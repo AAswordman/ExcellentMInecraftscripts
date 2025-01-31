@@ -207,7 +207,7 @@ export function receiveMessage(exportName: string) {
 }
 
 export const gameContext = new (class extends ExContext {
-    override interrupt = true;
+    override interrupt = false;
     override parent = undefined;
     override tickMonitor: MonitorManager<TickEvent, void> = ExGame.tickMonitor;
     override beforeTickMonitor: MonitorManager<TickEvent, void> = ExGame.beforeTickMonitor;
