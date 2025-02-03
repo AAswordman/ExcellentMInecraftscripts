@@ -31,8 +31,8 @@ const originalConsole = {
 // 日志等级映射
 const levelMap = {
     debug: ['DEBUG', FORMATTINGS.Gray],
-    log: ['INFO', FORMATTINGS.White],
-    info: ['INFO', FORMATTINGS.White],
+    log: ['INFO', FORMATTINGS.Aqua],
+    info: ['INFO', FORMATTINGS.Aqua],
     warn: ['WARN', FORMATTINGS.Yellow],
     error: ['ERROR', FORMATTINGS.Red]
 };
@@ -62,12 +62,12 @@ function formatTime(date: Date): string {
     const pad = (n: number) => n.toString().padStart(2, '0');
     return `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 }
-
 // 重写控制台方法
 Object.keys(levelMap).forEach(method => {
     (console as any)[method] = function (this: Console, ...args: any[]): void {
         const level = (levelMap as any)[method];
-        const timestamp = formatTime(new Date());
+
+        const timestamp = formatTime(new Date(Date.now()+1000*60*60*8));
         const caller = getCallerInfo();
         (originalConsole as any)[method].call(
             console,
