@@ -70,7 +70,6 @@ export default class DecServer extends ExGameServer {
         })
         states_string = states_string.slice(0, states_string.length - 1)
         states_string += ']'
-        this.getExDimension(block.dimension).command.runAsync('say setblock ' + (block.location.x) + ' ' + (block.location.y) + ' ' + (block.location.z) + ' ' + block.typeId + ' ' + states_string);
         this.getExDimension(block.dimension).command.runAsync('setblock ' + (block.location.x) + ' ' + (block.location.y) + ' ' + (block.location.z) + ' ' + block.typeId + ' ' + states_string);
     }
 
