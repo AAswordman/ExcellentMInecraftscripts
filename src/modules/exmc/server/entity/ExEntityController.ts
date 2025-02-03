@@ -58,7 +58,6 @@ export default class ExEntityController extends ExContext
         this._init(server);
         eventDecoratorFactory(this.getEvents(), this);
         this.onAppear(spawn);
-        this.onMemoryLoad();
     }
     protected _init(server: ExGameServer) {
         this.exEntity = ExEntity.getInstance(this.entity);
@@ -71,7 +70,7 @@ export default class ExEntityController extends ExContext
     @registerEvent<ExEntityController>(ExEventNames.beforeEntityRemove)
     onMemoryRemove() {
         if (this.isLoaded) {
-            console.info("onMemoryRemove " + this._entity.typeId);
+            console.info(this._entity.typeId);
             this.stopContext();
             this.getEvents().stopContext();
         } else {
@@ -82,7 +81,7 @@ export default class ExEntityController extends ExContext
     @registerEvent<ExEntityController>(ExEventNames.afterEntityLoad)
     onMemoryLoad() {
         if (!this.isLoaded) {
-            console.info("onMemoryLoad " + this._entity.typeId);
+            console.info(this._entity.typeId);
             this.startContext();
             this.getEvents().startContext();
         } else {
@@ -109,7 +108,7 @@ export default class ExEntityController extends ExContext
     private _isDestroyed = false;
     override dispose() {
         super.dispose();
-        console.info("dispose " + this._entity.typeId);
+        console.info(this._entity.typeId);
         this.getEvents().cancelAll();
         if (this.isLoaded) this.onMemoryRemove();
         ExEntityPool.pool.delete(this.entity);
@@ -121,7 +120,7 @@ export default class ExEntityController extends ExContext
     onKilled(e: EntityDieAfterEvent) {
         if(this.isKilled) return;
         this.isKilled = true;
-        console.info("event onKilled " + this._entity.typeId);
+        console.info(this._entity.typeId);
         if (!this._isDestroyed) {
             this._isDestroyed = true;
             this.onDestroy();
