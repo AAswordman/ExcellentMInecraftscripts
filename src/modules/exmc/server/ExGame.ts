@@ -4,6 +4,8 @@ import ExGameServer from "./ExGameServer.js";
 
 import { Player, ScriptEventCommandMessageAfterEvent, system, world } from "@minecraft/server";
 import "../../reflect-metadata/Reflect.js";
+import '../utils/Console.js'
+
 import ExSystem from "../utils/ExSystem.js";
 import MonitorManager from "../utils/MonitorManager.js";
 import { TickEvent } from "./events/events.js";
@@ -85,8 +87,6 @@ export default class ExGame {
 
         return willId;
     }
-
-
     static _runTimeout(callback: () => void, tickDelay?: number): number {
         tickDelay = Math.round(Math.max(1, tickDelay ?? 1));
         this.idRunSeq = (1 + this.idRunSeq) % this.tickDelayMax;

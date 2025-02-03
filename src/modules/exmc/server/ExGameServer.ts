@@ -2,7 +2,6 @@ import ExGameClient from "./ExGameClient.js";
 import ExDimension from "./ExDimension.js";
 import { world, MinecraftDimensionTypes, PlayerJoinAfterEvent, Player, PlayerLeaveAfterEvent, system, RawMessage, EntitySpawnAfterEvent, Entity, Dimension, PlayerSpawnAfterEvent, EntityLoadAfterEvent, PlayerLeaveBeforeEvent } from "@minecraft/server";
 import ExGameConfig from "./ExGameConfig.js";
-import initConsole from "../utils/Console.js";
 import ExServerEvents from "./events/ExServerEvents.js";
 import UUID from "../utils/UUID.js";
 import ExErrorQueue from './ExErrorQueue.js';
@@ -52,7 +51,6 @@ export default class ExGameServer extends ExContext implements SetTimeOutSupport
                     e.cancel = true;
                 });
             }
-            ExGameConfig.console = initConsole(ExGameConfig);
             ExErrorQueue.init();
             ExCommand.init(this);
             ExClientEvents.init(this);
@@ -209,7 +207,7 @@ export default class ExGameServer extends ExContext implements SetTimeOutSupport
         const playerName = event.player.name;
         if(!this.playerIsInSet.has(playerName)) return;
         this.playerIsInSet.delete(playerName);
-        console.warn("Player " + playerName + " leave");
+        console.info("Player " + playerName + " leave");
         let client = this.findClientByName(playerName);
         if (client === undefined) {
             console.warn(playerName + " client is not exists");

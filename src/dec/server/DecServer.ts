@@ -472,6 +472,8 @@ export default class DecServer extends ExGameServer {
                 "scoreboard players remove @e[scores={i_damp=1..}] i_damp 1",
                 "scoreboard players remove @e[scores={i_soft=1..}] i_soft 1",
                 "scoreboard players remove @e[scores={i_heavy=1..}] i_heavy 1",
+                //由于隔壁太耗时间，所以迁移过来了
+                "execute as @e[scores={i_heavy=1..}] at @s run tag @e[r=10,type=ender_pearl] add no_ender_pearl",
                 "scoreboard players remove @e[scores={harmless=1..}] harmless 1"
             ]);
 

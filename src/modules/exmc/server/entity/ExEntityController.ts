@@ -56,9 +56,9 @@ export default class ExEntityController extends ExContext
         this._id = e.id;
         this._typeId = e.typeId;
         this._init(server);
+        eventDecoratorFactory(this.getEvents(), this);
         this.onAppear(spawn);
         this.onMemoryLoad();
-        eventDecoratorFactory(this.getEvents(), this);
     }
     protected _init(server: ExGameServer) {
         this.exEntity = ExEntity.getInstance(this.entity);
@@ -71,7 +71,7 @@ export default class ExEntityController extends ExContext
     @registerEvent<ExEntityController>(ExEventNames.beforeEntityRemove)
     onMemoryRemove() {
         if (this.isLoaded) {
-            console.warn("onMemoryRemove " + this._entity.typeId);
+            console.info("onMemoryRemove " + this._entity.typeId);
             this.stopContext();
             this.getEvents().stopContext();
         } else {
@@ -82,7 +82,7 @@ export default class ExEntityController extends ExContext
     @registerEvent<ExEntityController>(ExEventNames.afterEntityLoad)
     onMemoryLoad() {
         if (!this.isLoaded) {
-            console.warn("onMemoryLoad " + this._entity.typeId);
+            console.info("onMemoryLoad " + this._entity.typeId);
             this.startContext();
             this.getEvents().startContext();
         } else {
@@ -98,27 +98,33 @@ export default class ExEntityController extends ExContext
     public destroyTrigger() {
         if (!this._isDestroyed) {
             this._isDestroyed = true;
+            this.entity.remove();
             this.onDestroy();
         }
     }
+    
     onDestroy() {
         this.dispose();
     }
     private _isDestroyed = false;
     override dispose() {
         super.dispose();
-        console.warn("dispose " + this._entity.typeId);
+        console.info("dispose " + this._entity.typeId);
         this.getEvents().cancelAll();
         if (this.isLoaded) this.onMemoryRemove();
         ExEntityPool.pool.delete(this.entity);
     }
 
-    private _isKilled: boolean = false;
+    isKilled: boolean = false;
 
-    // @registerEvent<ExEntityController>(ExEventNames.afterEntityDie)
-    onKilled(e: EntityHurtAfterEvent) {
-        this._isKilled = true;
-        console.warn("onKilled " + this._entity.typeId);
-        this.destroyTrigger();
+    @registerEvent<ExEntityController>(ExEventNames.afterEntityDie)
+    onKilled(e: EntityDieAfterEvent) {
+        if(this.isKilled) return;
+        this.isKilled = true;
+        console.info("event onKilled " + this._entity.typeId);
+        if (!this._isDestroyed) {
+            this._isDestroyed = true;
+            this.onDestroy();
+        }
     }
 }

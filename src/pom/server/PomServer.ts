@@ -735,7 +735,7 @@ export default class PomServer extends ExGameServer {
             if (v > max[0] && !this.data.entityCleanerSetting.acceptListByTypeId[k]) {
                 max[0] = v;
                 max[1] = k;
-                console.warn(max);
+                console.info(max);
             }
         });
 

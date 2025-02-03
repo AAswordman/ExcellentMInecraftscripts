@@ -11,7 +11,7 @@ import ExEntityPool from "./ExEntityPool.js";
 import MonitorManager from "../../utils/MonitorManager.js";
 export default class ExEntityEvents implements ExEventManager {
 
-    private static eventHandlers: EventHandle<ExEntityEvents["exEvents"]> = new EventHandle();
+    public static eventHandlers: EventHandle<ExEntityEvents["exEvents"]> = new EventHandle();
     monitorMapBackup: { [event: string]: MonitorManager<unknown> } = {
 
     }

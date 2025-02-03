@@ -1,4 +1,4 @@
-import { Entity, EntityDamageCause, EntityHurtAfterEvent } from "@minecraft/server";
+import { Entity, EntityDamageCause, EntityDieAfterEvent, EntityHurtAfterEvent } from "@minecraft/server";
 import DecServer from "../DecServer.js";
 import ExEntityController from "../../../modules/exmc/server/entity/ExEntityController.js";
 import DecClient from "../DecClient.js";
@@ -34,9 +34,8 @@ export default class DecBossController extends ExEntityController {
         this.barrier = barrier;
 
         if (barrier.players.size === 0) {
-            this.despawn();
+            this.destroyTrigger();
             this.stopBarrier();
-            this.destroyBossEntity();
         } else {
             this.initBossEntity();
         }
@@ -52,14 +51,10 @@ export default class DecBossController extends ExEntityController {
     stopBarrier() {
         this.barrier.stop();
     }
-    destroyBossEntity() {
-
-    }
     initBossEntity() {
 
     }
-    override onKilled(e: EntityHurtAfterEvent): void {
-        this.destroyBossEntity();
+    override onKilled(e: EntityDieAfterEvent): void {
         if (e.damageSource.cause === EntityDamageCause.suicide || e.damageSource.cause === EntityDamageCause.selfDestruct) {
             this.stopBarrier();
         }
@@ -67,9 +62,8 @@ export default class DecBossController extends ExEntityController {
     }
     onFail() {
         this.stopBarrier();
-        this.destroyBossEntity();
         this.server.say({ rawtext: [{ translate: "text.dec:killed_by_boss.name" }] });
-        this.despawn();
+        this.destroyTrigger();
     }
 
     //发信息给pom，判断完成任务
@@ -95,14 +89,17 @@ export default class DecBossController extends ExEntityController {
         const dim = this.exEntity.exDimension;
         this.autoJudgeTimer?.stop();
         this.autoJudgeTimer = ExSystem.tickTask(this.server, () => {
+            if (this.isKilled) {
+                this.autoJudgeTimer?.stop();
+                return;
+            }
             if (dim.chunkIsLoaded(this.lastPosition)) {
                 this.autoJudgeTimer?.stop();
                 this.onKilled({
                     "damageSource": {
                         "cause": EntityDamageCause.suffocation
                     },
-                    "hurtEntity": this.entity,
-                    "damage": 1000000
+                    "deadEntity": this.entity,
                 });
             }
         }).delay(20 * 2).start();
