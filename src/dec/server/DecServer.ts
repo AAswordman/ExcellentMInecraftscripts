@@ -464,6 +464,18 @@ export default class DecServer extends ExGameServer {
             }
         })
 
+        this.getEvents().events.afterProjectileHitEntity.subscribe(e => {
+            if(e.projectile.getComponent('type_family')?.hasTypeFamily('remove_on_hit')){
+                e.projectile.remove()
+            }
+        });
+
+        this.getEvents().events.afterProjectileHitBlock.subscribe(e => {
+            if(e.projectile.getComponent('type_family')?.hasTypeFamily('remove_on_hit') || e.projectile.getComponent('type_family')?.hasTypeFamily('remove_on_hit_ground')){
+                e.projectile.remove()
+            }
+        });
+
         this.getEvents().exEvents.tick.subscribe(e => {
             //诅咒时间减少
             this.getExDimension(MinecraftDimensionTypes.overworld).command.runAsync([
