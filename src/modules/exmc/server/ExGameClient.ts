@@ -15,6 +15,7 @@ import { eventDecoratorFactory } from "./events/eventDecoratorFactory.js";
 import notUtillTask from "../utils/notUtillTask.js";
 import { TickEvent } from "./events/events.js";
 import ExGame from "./ExGame.js";
+import '../utils/Console.js';
 import DynamicPropertyManager from "../interface/DynamicPropertyManager.js";
 import Vector3 from "../utils/math/Vector3.js";
 import { MinecraftDimensionTypes } from "../../vanilla-data/lib/index.js";
@@ -27,7 +28,7 @@ export default class ExGameClient<T extends ExInterworkingPool = ExInterworkingP
     debuggerChatTest = (e: ChatSendBeforeEvent) => {
         this.run(() => {
             if (e.message.startsWith("*/"))
-                ExGameConfig.console.info(eval(e.message.substring(2, e.message.length)));
+                console.info(eval(e.message.substring(2, e.message.length)));
         });
     }
     player: Player;

@@ -20,7 +20,7 @@ export default class PomDimRuinsSystem extends GameController {
     causeDamage = 0;
     deathTimes = 0;
     private _causeDamageShow = false;
-    causeDamageMonitor: { (args_0: [number,Entity]): void; } | undefined;
+    causeDamageMonitor: { (args_0: [number, Entity]): void; } | undefined;
     barrier?: PomBossBarrier;
     deathTimesListener?: (e: EntityHurtAfterEvent) => void;
     public get causeDamageShow() {
@@ -550,7 +550,7 @@ export default class PomDimRuinsSystem extends GameController {
                                     Y: "wb:portal_guardboss",
                                     A: MinecraftBlockTypes.Air,
                                     S: MinecraftBlockTypes.SandstoneSlab,
-                                    C: MinecraftBlockTypes.Air
+                                    C: MinecraftBlockTypes.SandstoneWall
                                 })
                                     .putStructure(m);
                                 const parLoc = new Vector3(e.block).add(0.5, 0.5, 0.5);
@@ -561,18 +561,16 @@ export default class PomDimRuinsSystem extends GameController {
                     }
                 });
                 //遗迹传送门激活
-
             }
-        });
+        }); 
     }
 
 
     onLoad(): void {
-        
+
     }
 
     onLeave(): void {
 
     }
-
 }

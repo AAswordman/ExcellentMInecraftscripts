@@ -29,7 +29,7 @@ export default class ExSystem {
             }
             i = i.__proto__;
         }
-        return keys;
+        return new Set(keys);
     }
     static parseObj(obj: any) {
         let k = ExSystem.keys(obj);

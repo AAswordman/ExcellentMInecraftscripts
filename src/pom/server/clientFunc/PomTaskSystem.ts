@@ -29,7 +29,7 @@ export default class PomTaskSystem extends GameController {
     onJoin(): void {
         let date = new Date();
         let nDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-        console.warn(nDate);
+        console.info(nDate);
 
         let getInt = (arr: any[]) => {
             return Math.floor(arr.length * Math.random());

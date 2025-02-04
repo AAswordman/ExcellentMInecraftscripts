@@ -85,6 +85,10 @@ export default class PomMagicSystem extends GameController {
         wbkjlqcg: 0
     };
 
+    posOrRotChangeListener = new VarOnChangeListener<string>((old, now) => {
+        this.lastShowActionbar = '';
+    },'');
+
     dataCacheRefreshDelay = 0;
     lastHealth = 0;
     actionbarShow = ExSystem.tickTask(this, () => {
@@ -185,14 +189,15 @@ export default class PomMagicSystem extends GameController {
             arr2.push("");
         }
         arr2 = arr2.concat(Array.from(this._mapShow.values()).map(e => e.join('\n§r')));
-
-        this.exPlayer.titleActionBar(arr1.join("\n") + "定位".repeat(6) + arr2.join("\n§r"));
-
+        let show = arr1.join("\n") + "定位".repeat(6) + arr2.join("\n§r");
+        this.posOrRotChangeListener.upDate(this.exPlayer.position.toString() + this.exPlayer.viewDirection.toString());
+        if (this.lastShowActionbar != show) this.exPlayer.titleActionBar(show);
+        this.lastShowActionbar = show;
     }).delay(8);
 
     damageAbsorbed = 0;
     magicReduce = 0;
-
+    lastShowActionbar = "";
     getNumberFont(num: number) {
         let s = "";
         for (let i of num.toString()) {
@@ -320,7 +325,7 @@ export default class PomMagicSystem extends GameController {
                 this.setMagicAbsorbed((e.effect.amplifier + 1) * 4);
                 this.player.removeEffect(MinecraftEffectTypes.HealthBoost);
             }
-        })
+        });
     }
 
     setDamageAbsorbed(num: number) {

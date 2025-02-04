@@ -1,7 +1,4 @@
-import { Camera, Entity, EntityDamageCause, EntityHurtAfterEvent, world } from '@minecraft/server';
-import ExGameServer from '../../../modules/exmc/server/ExGameServer.js';
-import ExEntityController from '../../../modules/exmc/server/entity/ExEntityController.js';
-import ExGameConfig from '../../../modules/exmc/server/ExGameConfig.js';
+import { Camera, Entity, EntityDamageCause, EntityDieAfterEvent, EntityHurtAfterEvent, world } from '@minecraft/server';
 import PomBossController from './PomBossController.js';
 import PomServer from '../PomServer.js';
 import PomClient from '../PomClient.js';
@@ -67,7 +64,7 @@ export default class PomAncientStoneBoss extends PomBossController {
     override onAppear(spawn: boolean): void {
         super.onAppear(spawn);
     }
-    override onKilled(e: EntityHurtAfterEvent): void {
+    override onKilled(e: EntityDieAfterEvent): void {
         //设置奖励
         if (this.exEntity.hasComponent("minecraft:is_baby")) {
             super.onWin();

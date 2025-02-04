@@ -76,7 +76,7 @@ export default class ExDimension implements ExCommandNativeRunner {
         try {
             return this._dimension.spawnItem(item, v)
         } catch (error) {
-            ExGameConfig.console.warn(error);
+            console.warn(error);
             return undefined;
         };
     }
@@ -85,7 +85,7 @@ export default class ExDimension implements ExCommandNativeRunner {
         try {
             return this._dimension.spawnEntity(id, v, options);
         } catch (error) {
-            ExGameConfig.console.warn(error);
+            console.warn(error);
             return undefined;
         }
     }

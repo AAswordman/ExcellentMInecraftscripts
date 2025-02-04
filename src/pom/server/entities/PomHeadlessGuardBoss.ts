@@ -1,5 +1,5 @@
 
-import { Entity, EntityHurtAfterEvent, world } from '@minecraft/server';
+import { Entity, EntityDieAfterEvent, EntityHurtAfterEvent, world } from '@minecraft/server';
 import PomBossController from './PomBossController.js';
 import PomServer from '../PomServer.js';
 import ExMusic from '../../../modules/exmc/server/env/ExMusic.js';
@@ -23,7 +23,7 @@ export default class PomHeadlessGuardBoss extends PomBossController {
     override onAppear(spawn:boolean): void {
         super.onAppear(spawn);
     }
-    override onKilled(e: EntityHurtAfterEvent): void {
+    override onKilled(e: EntityDieAfterEvent): void {
         //设置奖励
         super.onWin();
         this.server.say({ rawtext: [{ translate: "text.wb:defeat_headless_guard.name" }] });

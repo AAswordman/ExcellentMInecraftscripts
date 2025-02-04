@@ -589,7 +589,7 @@ export default (context: ExContext) => {
                 tryUse();
                 useMap.set(player, ExSystem.tickTask(context, () => {
                     tryUse();
-                }).delay(1).start());
+                }).delay(5).start());
             }
         }
     });

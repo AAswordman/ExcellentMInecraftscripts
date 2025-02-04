@@ -45,7 +45,7 @@ export default class ExSound {
         }, time);
     }
     play(dim: ExDimension, vec: IVector3) {
-        console.warn(`play ${this.soundId} at ${vec.x} ${vec.y} ${vec.z}`)
+        console.info(`play ${this.soundId} at ${vec.x} ${vec.y} ${vec.z}`)
         to(dim.command.runAsync(`playsound ${this.soundId} @a[r=64,x=${vec.x},y=${vec.y},z=${vec.z}] ${vec.x} ${vec.y} ${vec.z} 0.5 1 0.5`));
     }
 }

@@ -1,5 +1,5 @@
 
-import { Entity, EntityHurtAfterEvent } from '@minecraft/server';
+import { Entity, EntityDieAfterEvent, EntityHurtAfterEvent } from '@minecraft/server';
 import PomBossController from './PomBossController.js';
 import PomServer from '../PomServer.js';
 import { registerEvent } from '../../../modules/exmc/server/events/eventDecoratorFactory.js';
@@ -22,7 +22,7 @@ export class PomIntentionsBoss1 extends PomBossController {
     override onAppear(spawn: boolean): void {
         super.onAppear(spawn);
     }
-    override onKilled(e: EntityHurtAfterEvent): void {
+    override onKilled(e: EntityDieAfterEvent): void {
         super.onKilled(e);
     }
     override onFail(): void {
@@ -54,7 +54,7 @@ export class PomIntentionsBoss2 extends PomBossController {
     override onAppear(spawn: boolean): void {
         super.onAppear(spawn);
     }
-    override onKilled(e: EntityHurtAfterEvent): void {
+    override onKilled(e: EntityDieAfterEvent): void {
         super.onKilled(e);
     }
     override onFail(): void {
@@ -129,7 +129,7 @@ export class PomIntentionsBoss3 extends PomBossController {
     override onAppear(spawn: boolean): void {
         super.onAppear(spawn);
     }
-    override onKilled(e: EntityHurtAfterEvent): void {
+    override onKilled(e: EntityDieAfterEvent): void {
         //设置奖励
         super.onWin();
         this.server.say({ rawtext: [{ translate: "text.wb:defeat_intentions.name" }] });

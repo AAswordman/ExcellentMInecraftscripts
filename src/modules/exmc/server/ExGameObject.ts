@@ -113,8 +113,8 @@ export default class ExGameObject extends ExContext implements SetTimeOutSupport
         this._waitCode = [];
         this.interrupt = true;
         this.parent.tickMonitor.removeMonitor(this.tickMonitorListener);
-        this.parent.tickMonitor.removeMonitor(this.beforeTickMonitorListener);
-        this.parent.tickMonitor.removeMonitor(this.longTickMonitorListener);
+        this.parent.beforeTickMonitor.removeMonitor(this.beforeTickMonitorListener);
+        this.parent.longTickMonitor.removeMonitor(this.longTickMonitorListener);
     }
     startContext() {
         this.interrupt = false;
@@ -123,8 +123,8 @@ export default class ExGameObject extends ExContext implements SetTimeOutSupport
         });
         this._waitCode = [];
         this.parent.tickMonitor.addMonitor(this.tickMonitorListener);
-        this.parent.tickMonitor.addMonitor(this.beforeTickMonitorListener);
-        this.parent.tickMonitor.addMonitor(this.longTickMonitorListener);
+        this.parent.beforeTickMonitor.addMonitor(this.beforeTickMonitorListener);
+        this.parent.longTickMonitor.addMonitor(this.longTickMonitorListener);
     }
     private _waitCode: [(value: any) => void, unknown][] = [];
     waitContext<T>(promise: Promise<T>) {

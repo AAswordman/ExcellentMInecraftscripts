@@ -1,4 +1,4 @@
-import { Entity, EntityHurtAfterEvent, EntityDamageCause } from '@minecraft/server';
+import { Entity, EntityHurtAfterEvent, EntityDamageCause, EntityDieAfterEvent } from '@minecraft/server';
 import ExEntityController from '../../../modules/exmc/server/entity/ExEntityController.js';
 import PomBossBarrier from './barrier/PomBossBarrier.js';
 import { ExBlockArea } from '../../../modules/exmc/server/block/ExBlockArea.js';
@@ -14,15 +14,11 @@ export default class PomBossController extends ExEntityController {
     startPos!: Vector3;
     barrier!: PomBossBarrier;
     isFisrtCall = false;
-    despawn() {
-        this.entity.remove();
-    }
     onFail() {
-        console.warn("onFail");
+        console.info("onFail");
         this.stopBattle();
-        this.destroyBossEntity();
         this.server.say({ rawtext: [{ translate: "text.dec:killed_by_boss.name" }] });
-        this.despawn();
+        this.destroyTrigger();
     }
     onWin() {
         //设置奖励
@@ -32,11 +28,10 @@ export default class PomBossController extends ExEntityController {
         }
 
         this.stopBarrier();
-        console.warn("onWin");
+        console.info("onWin");
     }
 
-    override onKilled(e: EntityHurtAfterEvent): void {
-        this.destroyBossEntity();
+    override onKilled(e: EntityDieAfterEvent): void {
         if (e.damageSource.cause === EntityDamageCause.suicide || e.damageSource.cause === EntityDamageCause.selfDestruct) {
             this.stopBattle();
         }
@@ -58,9 +53,8 @@ export default class PomBossController extends ExEntityController {
         this.barrier = barrier;
 
         if (barrier.players.size === 0) {
-            this.despawn();
+            this.destroyTrigger();
             this.stopBarrier();
-            this.destroyBossEntity();
         } else {
             this.initBossEntity();
         }
@@ -75,10 +69,6 @@ export default class PomBossController extends ExEntityController {
             c.ruinsSystem.causeDamageShow = false;
         }
         this.stopBarrier();
-    }
-
-    destroyBossEntity() {
-
     }
     initBossEntity() {
         for (let c of this.barrier.clientsByPlayer()) {
@@ -99,14 +89,18 @@ export default class PomBossController extends ExEntityController {
         const dim = this.exEntity.exDimension;
         this.autoJudgeTimer?.stop();
         this.autoJudgeTimer = ExSystem.tickTask(this.server, () => {
+            if (this.isKilled) {
+                this.autoJudgeTimer?.stop();
+                return;
+            }
             if (dim.chunkIsLoaded(this.lastPosition)) {
                 this.autoJudgeTimer?.stop();
+                console.info("onKilled - by autoJudge");
                 this.onKilled({
                     "damageSource": {
                         "cause": EntityDamageCause.suffocation
                     },
-                    "hurtEntity": this.entity,
-                    "damage": 1000000
+                    "deadEntity": this.entity
                 });
             }
         }).delay(20 * 2).start();

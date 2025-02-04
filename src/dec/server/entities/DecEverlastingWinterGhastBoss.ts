@@ -1,4 +1,4 @@
-import { Entity, EntityDamageCause, EntityHurtAfterEvent } from "@minecraft/server";
+import { Entity, EntityDamageCause, EntityDieAfterEvent, EntityHurtAfterEvent } from "@minecraft/server";
 import ExGameServer from "../../../modules/exmc/server/ExGameServer.js";
 import ExEntityController from "../../../modules/exmc/server/entity/ExEntityController.js";
 import ExMusic from "../../../modules/exmc/server/env/ExMusic.js";
@@ -15,7 +15,7 @@ export class DecEverlastingWinterGhastBoss1 extends DecBossController {
         this.music.trackPlayers(Array.from(this.barrier.getPlayers()));
         this.music.loop();
     }
-    override onKilled(e: EntityHurtAfterEvent): void {
+    override onKilled(e: EntityDieAfterEvent): void {
         super.onKilled(e);
         if (e.damageSource.cause === EntityDamageCause.suicide || e.damageSource.cause === EntityDamageCause.selfDestruct) {
             this.music.stop();

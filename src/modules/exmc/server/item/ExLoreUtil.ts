@@ -168,7 +168,7 @@ export default class LoreUtil implements ExLoreManager {
         }
         piece = this.search(key);
         if (!piece) {
-            ExGameConfig.console.error("Could not find " + key + " : " + value + " in lore");
+            console.error("Could not find " + key + " : " + value + " in lore");
             return;
         }
         this.insert(piece.index + 1, tab + use + " : " + value);

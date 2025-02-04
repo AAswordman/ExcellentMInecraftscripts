@@ -1,4 +1,4 @@
-import { Entity, EntityHurtAfterEvent, world } from '@minecraft/server';
+import { Entity, EntityDieAfterEvent, EntityHurtAfterEvent, world } from '@minecraft/server';
 import ExGameServer from '../../../modules/exmc/server/ExGameServer.js';
 import ExEntityController from '../../../modules/exmc/server/entity/ExEntityController.js';
 import ExGameConfig from '../../../modules/exmc/server/ExGameConfig.js';
@@ -20,7 +20,7 @@ export default class PomMagicStoneBoss extends PomBossController {
     override onAppear(spawn: boolean): void {
         super.onAppear(spawn);
     }
-    override onKilled(e: EntityHurtAfterEvent): void {
+    override onKilled(e: EntityDieAfterEvent): void {
         //清理周围
         for (let e of this.exEntity.dimension.getEntities({
             "location": this.barrier.center,

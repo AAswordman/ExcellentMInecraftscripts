@@ -30,6 +30,10 @@ export default class EventHandle<T> {
 
     }
 
+    getLength(entity: Entity, name: string){
+        return this.monitorMap[name].get(entity)?.length ?? 0;
+    }
+
     subscribe(entity: Entity, name: string, callback: (args: unknown) => void) {
         let e = this.monitorMap[name];
         if (!e.has(entity)) {
