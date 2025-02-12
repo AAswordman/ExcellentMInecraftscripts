@@ -1,4 +1,4 @@
-import { world, BlockPermutation, Block, Player, Entity, ItemStack, EquipmentSlot, Dimension } from '@minecraft/server';
+import { world, BlockPermutation, Block, Player, Entity, ItemStack, EquipmentSlot, Dimension, GameMode } from '@minecraft/server';
 import { fileProvider, JSONObject } from '../../filepack/index.js';
 import ExPlayer from '../../modules/exmc/server/entity/ExPlayer.js';
 import Vector3 from '../../modules/exmc/utils/math/Vector3.js';
@@ -347,7 +347,14 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
             if (item) {
                 let damageComp = item.getComponent("durability");
                 if (damageComp) {
-                    damageComp.damage += 1;
+                    let damage = damageComp.damage;
+                    damage += 1;
+                    if (damage >= damageComp.maxDurability) {
+                        bag.clearItem(item.typeId, 1);
+                    } else {
+                        damageComp.damage = damage;
+                        bag.itemOnMainHand = item;
+                    }
                 } else {
                     bag.clearItem(item.typeId, 1);
                 }
@@ -396,8 +403,16 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
         }
         if (eventUser.damage) {
             let damageComp = option.triggerItem.getComponent("durability");
-            if (damageComp) {
-                damageComp.damage += eventUser.damage.amount;
+            if (damageComp && !(option.triggerEntity instanceof Player && option.triggerEntity.getGameMode() == GameMode.creative)) {
+                let bag = ExEntity.getInstance(option.triggerEntity).getBag();
+                let damage = damageComp.damage;
+                damage += eventUser.damage.amount;
+                if (damage >= damageComp.maxDurability) {
+                    bag.clearItem(option.triggerItem.typeId, 1);
+                } else {
+                    damageComp.damage = damage;
+                    bag.itemOnMainHand = option.triggerItem;
+                }
             }
 
         }
