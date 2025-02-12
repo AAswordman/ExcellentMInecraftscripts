@@ -264,11 +264,12 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         proj_comp.lightningStrikeOnHit = option.lightningStrikeOnHit ?? proj_comp.lightningStrikeOnHit
         proj_comp.liquidInertia = option.liquidInertia ?? proj_comp.liquidInertia
         proj_comp.onFireTime = option.onFireTime ?? proj_comp.onFireTime
-        proj_comp.owner = option.owner ?? this._entity;
+        proj_comp.owner = owner;
         proj_comp.shouldBounceOnHit = option.shouldBounceOnHit ?? proj_comp.shouldBounceOnHit
         proj_comp.stopOnHit = option.stopOnHit ?? proj_comp.stopOnHit
         let v = new Vector3(view)
         if (option.delay) {
+            console.warn('after2:'+proj_comp.owner.nameTag)
             proj_comp.shoot(view.normalize().scl(0.05), shootOpt);
             ExGame._runTimeout(() => {
                 if (falseIfError(() => proj.isValid())) proj_comp.shoot(view.normalize().scl(option.speed), shootOpt);
