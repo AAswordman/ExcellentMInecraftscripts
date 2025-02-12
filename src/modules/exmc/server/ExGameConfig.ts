@@ -1,6 +1,5 @@
 import { world, MinecraftDimensionTypes } from '@minecraft/server';
 import ExConfig from '../ExConfig.js';
-import GameConsole from '../interface/GameConsole.js';
 
 export default class ExGameConfig{
     static config: ExConfig;

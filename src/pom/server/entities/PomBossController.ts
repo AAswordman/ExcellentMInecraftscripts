@@ -89,7 +89,7 @@ export default class PomBossController extends ExEntityController {
         const dim = this.exEntity.exDimension;
         this.autoJudgeTimer?.stop();
         this.autoJudgeTimer = ExSystem.tickTask(this.server, () => {
-            if (this.isKilled) {
+            if (this.isKilled || this.isDestroyed) {
                 this.autoJudgeTimer?.stop();
                 return;
             }

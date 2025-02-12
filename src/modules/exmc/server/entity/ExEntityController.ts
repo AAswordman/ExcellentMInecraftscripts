@@ -95,8 +95,8 @@ export default class ExEntityController extends ExContext
 
 
     public destroyTrigger() {
-        if (!this._isDestroyed) {
-            this._isDestroyed = true;
+        if (!this.isDestroyed) {
+            this.isDestroyed = true;
             this.entity.remove();
             this.onDestroy();
         }
@@ -105,9 +105,10 @@ export default class ExEntityController extends ExContext
     onDestroy() {
         this.dispose();
     }
-    private _isDestroyed = false;
+    public isDestroyed = false;
     override dispose() {
         super.dispose();
+        this.isDestroyed = true;
         console.info(this._entity.typeId);
         this.getEvents().cancelAll();
         if (this.isLoaded) this.onMemoryRemove();
@@ -121,8 +122,8 @@ export default class ExEntityController extends ExContext
         if(this.isKilled) return;
         this.isKilled = true;
         console.info(this._entity.typeId);
-        if (!this._isDestroyed) {
-            this._isDestroyed = true;
+        if (!this.isDestroyed) {
+            this.isDestroyed = true;
             this.onDestroy();
         }
     }
