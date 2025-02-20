@@ -10,6 +10,8 @@ import ExSystem from '../../modules/exmc/utils/ExSystem.js';
 import ExScoresManager, { Objective } from '../../modules/exmc/server/entity/ExScoresManager.js';
 import PomServer from '../server/PomServer.js';
 import ExContext from '../../modules/exmc/server/ExGameObject.js';
+import ExGameConfig from '../../modules/exmc/server/ExGameConfig.js';
+import DecGlobal from '../../dec/server/DecGlobal.js';
 
 const ex = (name: string) => "ex:" + name;
 const minecraft = (name: string) => "minecraft:" + name;
@@ -95,6 +97,15 @@ function molangCalculate(molang: string | number, option: TriggerOption) {
         },
         get block() {
             return option.triggerBlock;
+        },
+        get isDec() {
+            return DecGlobal.isDec();
+        },
+        get triggerEntity(){
+            return option.triggerEntity;
+        },
+        get player() {
+            return option.triggerEntity;
         }
     };
     const query = {
@@ -212,7 +223,7 @@ type EventUser = {
     };
     post_message?: {
         message: any[];
-        sign: string;
+        sign?: string;
     };
     play_sound?: {
         target?: string;
@@ -365,7 +376,7 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
             for (let [i, e] of post.message.entries()) {
                 post.message[i] = typeof e === "string" ? molangCalculate(e, option) : e;
             }
-            ExGame.postMessageToServer(post.sign, post.message);
+            if(post.sign) ExGame.postMessageToServer(post.sign, post.message);
         }
     } else if (option.triggerItem && option.triggerEntity) {
         if (eventUser.condition) {

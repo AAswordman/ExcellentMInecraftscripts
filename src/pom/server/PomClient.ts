@@ -59,13 +59,9 @@ export default class PomClient extends ExGameClient<PomTransmission> {
         this.looper = ExSystem.tickTask(this, () => {
             this.cache.save();
         });
-
-
-
         this.looper.delay(10 * 20);
         this.looper.start();
         this.data = this.cache.get(new PomClientData());
-
         if (!this.globalSettings.ownerExists) {
             player.addTag("owner");
             this.globalSettings.ownerExists = true;
@@ -98,6 +94,13 @@ export default class PomClient extends ExGameClient<PomTransmission> {
                     complete: [],
                     data: {}
                 }
+            }
+        }
+        if (!this.data.plotLine) {
+            this.data.plotLine = {
+                part: [
+                    [], [], []
+                ]
             }
         }
         if (!this.data.socialList) {
@@ -262,11 +265,16 @@ export default class PomClient extends ExGameClient<PomTransmission> {
     }
     @receiveMessage("chooseArmor")
     chooseArmor(a: ArmorData) {
-        this.talentSystem.chooseArmor(a);
+        this.talentSystem.chooseArmor(a); 
     }
 
     @receiveMessage("item:jet_pack_skill")
     jetPackSkill() {
         this.itemUseFunc.jetPackSkill();
+    }
+
+    @receiveMessage("item:unknow_book")
+    unknownBook() {
+        this.itemUseFunc.unknownBook();
     }
 }

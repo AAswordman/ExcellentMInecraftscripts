@@ -32,13 +32,13 @@ export default class GlobalScoreBoardCache {
         this.scores.setScore(this.objective, value);
         this.useMap.set(name, value);
     }
-    public getNumber(name: string) {
+    public getNumber(name: string): number{
         this.entity.nameTag = name;
         if (!this.useCache) return this.scores.getScore(this.objective)
         if (!this.useMap.has(name)) {
             this.useMap.set(name, this.scores.getScore(this.objective));
         }
-        return this.useMap.get(name);
+        return this.useMap.get(name)!;
     }
     public deleteNumber(name: string) {
         this.entity.nameTag = name;

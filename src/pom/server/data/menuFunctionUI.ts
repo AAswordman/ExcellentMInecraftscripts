@@ -39,9 +39,9 @@ import format from "../../../modules/exmc/utils/format.js";
 
 export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
     function tpPlayer(client: PomClient, v: Vector3, dim: string | Dimension) {
-        
+
         const off = new Vector3().add(0, 5, 0).add(client.exPlayer.viewDirection.scl(-5));
-        new ExTimeLine(client,{
+        new ExTimeLine(client, {
             "0.0": () => {
                 client.player.addEffect(MinecraftEffectTypes.Resistance, 20 * 6, {
                     "amplifier": 3
@@ -288,7 +288,6 @@ export default function menuFunctionUI(lang: langType): MenuUIJson<PomClient> {
                         `   ${lang.menuUIMsgBailan97}: ${scores.getScore("wbwqlq")}`,
                         `   ${lang.menuUIMsgBailan98}: ${scores.getScore("wbkjlqcg")}`,
                         `   ${lang.menuUIMsgBailan99}: ${source.hasTag("wbmsyh") ? lang.yes : lang.no}`,
-                        `   ${lang.menuUIMsgBailan100}: ${source.hasTag("wbdjeff") ? lang.yes : lang.no}`,
                         `   ${lang.gameDifficulty}: ${client.getDifficulty().name}`
                         ];
                         let arr: MenuUIAlertView<PomClient>[] = MenuUIAlert.getLabelViews(msg);
@@ -504,6 +503,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                         ]
 
                         if (client.globalSettings.tpPointRecord && !client.ruinsSystem.isInRuinJudge && client.territorySystem.inTerritotyLevel !== 0) {
+                            client.data.pointRecord.point.sort((a, b) => (a[1] || "").localeCompare(b[1] || ""));
                             for (let j = 0; j < client.data.pointRecord.point.length; j++) {
                                 const i = client.data.pointRecord.point[j];
                                 const v = new Vector3(i[2]);
@@ -534,7 +534,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                             return false;
                                         },
                                         (client, ui) => {
-                                            new ModalFormData().textField(lang.menuUIMsgBailan39, (i[0] + v.toString()))
+                                            new ModalFormData().textField(lang.menuUIMsgBailan39, (i[0] + v.toString()), i[1])
                                                 .show(client.player)
                                                 .then(e => {
                                                     if (e.canceled) return;
@@ -546,7 +546,7 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                         },
                                         (client, ui) => {
                                             new ExMessageAlert().title(lang.ensure)
-                                                .body(`${lang.whetherToDeletePoint} ${client.data.pointRecord.point[j].map(e => e.toString()).join(" / ")}`)
+                                                .body(`${lang.whetherToDeletePoint} ${client.data.pointRecord.point[j].map(e => typeof e === "object" ? new Vector3(e).toString() : e).join(" / ")}`)
                                                 .button1(lang.yes, () => {
                                                     client.data.pointRecord.point.splice(j, 1);
                                                 })
@@ -567,11 +567,12 @@ ${getCharByNum(client.data.gameExperience / (client.magicSystem.getGradeNeedExpe
                                 "msg": lang.menuUIMsgBailan41 + client.exPlayer.position.floor().toString(),
                                 "type": "button",
                                 "function": (client, ui) => {
-                                    if ((client.data.pointRecord.point.length ?? 0) <= 10) {
+                                    let nowNum = Math.max(2, Math.floor(client.data.gameGrade * client.globalSettings.tpPointRecordMaxNum / 100));
+                                    if ((client.data.pointRecord.point.length ?? 0) < nowNum) {
                                         client.data.pointRecord.point.push([client.exPlayer.dimension.id, "", client.exPlayer.position.floor()]);
                                         return true;
                                     } else {
-                                        client.sayTo(lang.menuUIMsgBailan106);
+                                        client.sayTo(format(lang.menuUIMsgBailan106, nowNum));
                                         return false;
                                     }
                                 }
@@ -785,7 +786,7 @@ ${lang.size}: ${areaMsg?.[0].getWidth().toString()}
                                             }
                                             if (client.getDefaultSpawnLocation())
                                                 client.getEvents().exEvents.onLongTick.subscribe(facingBlockGetter);
-                                            client.sayTo(format(lang.choosePoint2,`${minSize.toString()}-${maxSize.toString()}`));
+                                            client.sayTo(format(lang.choosePoint2, `${minSize.toString()}-${maxSize.toString()}`));
                                             const p2 = new Vector3((await eventGetter(client.getEvents().exEvents.beforeItemUseOn,
                                                 (e) => e.itemStack.typeId === MinecraftItemTypes.Stick)).block);
                                             //二次判断防止转空子
@@ -852,14 +853,6 @@ ${lang.size}: ${areaMsg?.[0].getWidth().toString()}
                         {
                             "type": "button",
                             "msg": lang.menuUIMsgBailan142,
-                            "function": (client, ui) => {
-                                client.taskUI();
-                                return false;
-                            }
-                        },
-                        {
-                            "type": "button",
-                            "msg": lang.menuUIMsgBailan143,
                             "function": (client, ui) => {
                                 client.taskUI();
                                 return false;
@@ -991,7 +984,7 @@ ${lang.size}: ${areaMsg?.[0].getWidth().toString()}
                                     client.runTimeout(() => {
                                         if ((<PomClient>client.getClient(i[0])).data
                                             .socialList.refuseList.filter(e => e[0] === client.gameId).length > 0) return;
-                                        new ExMessageAlert().title(lang.menuUIMsgBailan58).body(format(lang.playerWantToTpYou,client.player.nameTag))
+                                        new ExMessageAlert().title(lang.menuUIMsgBailan58).body(format(lang.playerWantToTpYou, client.player.nameTag))
                                             .button1(lang.yes, () => {
                                                 client.sayTo(lang.menuUIMsgBailan37);
                                                 client.sayTo(lang.menuUIMsgBailan37, i[0]);
@@ -1038,7 +1031,7 @@ ${lang.size}: ${areaMsg?.[0].getWidth().toString()}
                                     client.runTimeout(() => {
                                         if ((<PomClient>client.getClient(i[0])).data
                                             .socialList.refuseList.filter(e => e[0] === client.gameId).length > 0) return;
-                                        new ExMessageAlert().title(lang.menuUIMsgBailan58).body(format(lang.playerInviteYouToPos,client.player.nameTag,client.exPlayer.position.floor()))
+                                        new ExMessageAlert().title(lang.menuUIMsgBailan58).body(format(lang.playerInviteYouToPos, client.player.nameTag, client.exPlayer.position.floor()))
                                             .button1(lang.yes, () => {
                                                 client.sayTo(lang.menuUIMsgBailan37);
                                                 client.sayTo(lang.menuUIMsgBailan37, i[0]);
@@ -1567,6 +1560,24 @@ ${lang.size}: ${areaMsg?.[0].getWidth().toString()}
                                     }
                                 },
                                 {
+                                    "type": "button",
+                                    "msg": lang.setMaxTpPoint,
+                                    "function": (client, ui): boolean => {
+                                        new ModalFormData()
+                                            .title(lang.setMaxTpPoint)
+                                            .slider(lang.setMaxTpPoint, 1, 60, 1, client.globalSettings.tpPointRecordMaxNum)
+                                            .show(client.player).then((e) => {
+                                                if (!e.canceled && e.formValues) {
+                                                    client.globalSettings.tpPointRecordMaxNum = Number(e.formValues?.[0] ?? 0);
+                                                }
+                                            })
+                                            .catch((e) => {
+                                                ExErrorQueue.throwError(e);
+                                            });
+                                        return false;
+                                    }
+                                },
+                                {
                                     "type": "padding"
                                 }
                             ];
@@ -1670,7 +1681,7 @@ ${lang.size}: ${areaMsg?.[0].getWidth().toString()}
                                 const step = 2
                                 let centerX = 100, centerY = 100;
                                 let perSize = centerX / num * 2 ** 0.5;
-                                
+
                                 canvas.rotateRad(180 - client.exPlayer.rotation.y, centerX, centerY);
 
                                 const task = new ExTaskRunner(client);

@@ -11,5 +11,4 @@ config.gameVersion = "1.9.70";
 config.watchDog = false;
 config.debug = true;
 ExGame.createServer(DecServer,config);
-
 ExGame.register("pomEvent",eventNew,config);

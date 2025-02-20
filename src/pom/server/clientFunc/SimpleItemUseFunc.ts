@@ -17,11 +17,13 @@ import { falseIfError } from '../../../modules/exmc/utils/tool.js';
 import ExEntityQuery from '../../../modules/exmc/server/env/ExEntityQuery.js';
 import MathUtil from '../../../modules/exmc/utils/math/MathUtil.js';
 import { TickEvent } from '../../../modules/exmc/server/events/events.js';
+import plotLine from '../data/plotLine.js';
+import Random from '../../../modules/exmc/utils/Random.js';
 
 export default class SimpleItemUseFunc extends GameController {
     worldExploreTimer?: TickDelayTask;
     inkSwordsSkill = false;
-    inkSwordsSkillTask = ExSystem.tickTask(this,() => {
+    inkSwordsSkillTask = ExSystem.tickTask(this, () => {
         this.inkSwordsSkill = false;
     }).delay(2 * 20);
 
@@ -59,9 +61,9 @@ export default class SimpleItemUseFunc extends GameController {
                 this.sayTo(e.block?.typeId ?? "");
             }
         });
+        
         this.getEvents().exEvents.beforeItemUse.subscribe((e) => {
             const item = e.itemStack;
-
             if (item.typeId == "wb:power") {
                 if (!this.data.lang) {
                     this.runTimeout(() => {
@@ -111,7 +113,7 @@ export default class SimpleItemUseFunc extends GameController {
                             }));
 
                             const dic = new Vector3(pos).sub(pPos).normalize().scl(1 / 10)
-                            this.worldExploreTimer = ExSystem.tickTask(this,() => {
+                            this.worldExploreTimer = ExSystem.tickTask(this, () => {
                                 if (falseIfError(() => ball.entity.isValid())) {
                                     pPos.add(dic);
                                     ball.setPosition(pPos.cpy().add(0, 1.5, 0));
@@ -127,7 +129,7 @@ export default class SimpleItemUseFunc extends GameController {
                                 itemDim.spawnItem(item, pPos);
                                 ball.entity.remove();
                             }, 5000)
-                            
+
                         }
                     } else {
                         new ModalFormData()
@@ -395,4 +397,11 @@ export default class SimpleItemUseFunc extends GameController {
         this.exPlayer.dimension.spawnEntity("wb:ball_jet_pack", this.exPlayer.position.sub(this.exPlayer.viewDirection.scl(2)));
     }
 
+    unknownBook() {
+        let remainArr:any[] = [];
+        let choice = Random.choice(remainArr);
+        let [a,b] = choice;
+        this.sayTo(plotLine[a][b]);
+        this.data.plotLine.part[a].push(b);
+    }
 }

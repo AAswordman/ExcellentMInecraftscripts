@@ -283,7 +283,7 @@ BunBun不是笨笨    在矿里的小金呀
     "ensure": "确认",
     "whetherToDeletePoint": "是否删除传送点",
 
-    "menuUIMsgBailan106": "§b传送点不得超过10个",
+    "menuUIMsgBailan106": "§b传送点不得超过{0}个",
     "menuUIMsgBailan107": "死亡点回溯",
     "menuUIMsgBailan108": "死亡点记录",
     "menuUIMsgBailan109": "tips:回溯点最多只能有5个",
@@ -626,7 +626,8 @@ BunBun不是笨笨    在矿里的小金呀
 
     "unknown":"未知",
     "extraCountererDamage":"反击额外伤害: {0}",
-    "defenseLayer":"防御层数: {0}" 
+    "defenseLayer":"防御层数: {0}",
+    "setMaxTpPoint":"设置最大传送点数量"
   },
   "en": {
     "ruinDesertCmd_SELF": "Stay",
@@ -916,7 +917,7 @@ BunBun不是笨笨 - In the mine, little gold
     "clearOccupation": "Clear Talent",
     "ensure": "Confirm",
     "whetherToDeletePoint": "Confirm to delete this TP point.",
-    "menuUIMsgBailan106": "§bTP points can only have a maximum of 10",
+    "menuUIMsgBailan106": "§bTP points can only have a maximum of {0}",
     "menuUIMsgBailan107": "Death Point Retrace",
     "menuUIMsgBailan108": "Death Point Record",
     "menuUIMsgBailan109": "Tip: Death Retrace points can only have a maximum of 5",
@@ -1255,6 +1256,7 @@ BunBun不是笨笨 - In the mine, little gold
 
     "unknown":"unknown",
     "extraCountererDamage": "Extra Counter Damage: {0}",
-    "defenseLayer": "Defense Layers: {0}"
+    "defenseLayer": "Defense Layers: {0}",
+    "setMaxTpPoint":"set Max TP Point Number",
   }
 }

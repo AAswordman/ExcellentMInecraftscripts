@@ -1,4 +1,3 @@
-
 import Vector3, { IVector3 } from "../../../modules/exmc/utils/math/Vector3.js";
 import TalentData from "./TalentData.js";
 
@@ -28,6 +27,10 @@ export default class PomClientData {
                 [x: string]: number;
             }
         }
+    }
+
+    plotLine!: {
+        part:number[][];
     }
 
     socialList!: {
