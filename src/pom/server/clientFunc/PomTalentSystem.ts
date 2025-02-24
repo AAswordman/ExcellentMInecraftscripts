@@ -49,7 +49,7 @@ export default class PomTalentSystem extends GameController {
         }
     }).delay(10 * 20);
 
-    static magicDamageType = new Set([
+   static magicDamageType = new Set([
         EntityDamageCause.fire,
         EntityDamageCause.fireTick,
         EntityDamageCause.lava,
@@ -58,7 +58,8 @@ export default class PomTalentSystem extends GameController {
         EntityDamageCause.drowning,
         EntityDamageCause.temperature,
         EntityDamageCause.thorns,
-        EntityDamageCause.wither]);
+        EntityDamageCause.wither,
+    ]); 
     static physicalDamageType = new Set([
         EntityDamageCause.none,
         EntityDamageCause.anvil,
@@ -78,8 +79,15 @@ export default class PomTalentSystem extends GameController {
         EntityDamageCause.piston,
         EntityDamageCause.stalactite,
         EntityDamageCause.stalagmite,
-        EntityDamageCause.suffocation
+        EntityDamageCause.suffocation,
+        EntityDamageCause.soulCampfire,
+        EntityDamageCause.campfire,
+        EntityDamageCause.ramAttack
     ]);
+    static OtherDamageType = new Set([
+        EntityDamageCause.void, //湮灭伤害(虚空)
+        EntityDamageCause.sonicBoom //回声伤害(循声守卫音波)
+    ]); 
 
     calculateHealth!: number;
 

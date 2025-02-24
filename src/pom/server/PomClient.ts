@@ -30,6 +30,7 @@ import { GameDifficulty, pomDifficultyMap } from "./data/GameDifficulty.js";
 import Vector3 from "../../modules/exmc/utils/math/Vector3.js";
 import TalentData from "./cache/TalentData.js";
 import PomTerritorySystem from "./clientFunc/PomTerritorySystem.js";
+import EpicItemUse from "./clientFunc/EpicItem.js";
 
 
 
@@ -45,6 +46,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
     talentSystem = new PomTalentSystem(this);
     magicSystem = new PomMagicSystem(this);
     itemUseFunc = new SimpleItemUseFunc(this);
+    epic = new EpicItemUse(this);
     ruinsSystem = new PomDimRuinsSystem(this);
     taskSystem = new PomTaskSystem(this);
     interactSystem = new PomInteractSystem(this);
@@ -74,6 +76,7 @@ export default class PomClient extends ExGameClient<PomTransmission> {
         this.addCtrller(this.magicSystem);
         this.addCtrller(this.talentSystem);
         this.addCtrller(this.itemUseFunc);
+        this.addCtrller(this.epic);
         this.addCtrller(this.ruinsSystem);
         this.addCtrller(this.taskSystem);
         this.addCtrller(this.interactSystem);
