@@ -23,7 +23,8 @@ export default class SimpleItemUseFunc extends GameController {
     inkSwordsSkill = false;
     inkSwordsSkillTask = ExSystem.tickTask(this,() => {
         this.inkSwordsSkill = false;
-    }).delay(2 * 20);
+         //主目标倍率
+    }).delay(2 * 20);       
 
     getItem(): ItemStack | undefined {
         return this.exPlayer.getBag().itemOnMainHand;

@@ -54,9 +54,11 @@ export default class EpicItemUse extends GameController {
   getHealthComp(entity : Entity): EntityHealthComponent {
     return entity.getComponent(EntityComponentTypes.Health) as EntityHealthComponent;
   }
-  rangeSector(user : Entity , point : Vector3, r : number, h : number, angle : number) {
+  rangeSector(user : Entity , point : Vector3, r : number, h : number, angle : number , dis : number) {
         let view = new Vector3(user.getViewDirection());
-        let q = new ExEntityQuery(user.dimension).at(point)
+        let q = new ExEntityQuery(user.dimension)
+            .at(point)
+            .facingByDirection(view,dis)
             .querySector(r, h, view, angle, 0, {
                 excludeTags:["wbmsyh"],
                 excludeTypes: ["item"]
@@ -64,19 +66,24 @@ export default class EpicItemUse extends GameController {
             .except(user)
         return q.getEntities();
      }
-  rangeCircle(user : Entity , point : Vector3, r : number, h : number) {
+  rangeCircle(user : Entity , point : Vector3, r : number, h : number , dis : number) {
+      let view = new Vector3(user.getViewDirection());
       let q = new ExEntityQuery(user.dimension)
           .at(point)
-          .facingByDirection(point, 0) 
+          .facingByDirection(view,dis) 
           .queryCircle(r, h,{
               excludeTags:["wbmsyh"],
               excludeTypes: ["item"]
           })
           .except(user)
+          
       return q.getEntities();
    }
-  rangeBall(user : Entity , point : Vector3, r : number) {
+  rangeBall(user : Entity , point : Vector3, r : number , dis : number) {
+      let view = new Vector3(user.getViewDirection());
       let q = new ExEntityQuery(user.dimension).at(point)
+          .at(point)
+          .facingByDirection(view,dis)
           .queryBall(r, {
               excludeTags:["wbmsyh"],
               excludeTypes: ["item"]
@@ -106,24 +113,30 @@ export default class EpicItemUse extends GameController {
         case "epic:echoing_scream_saber":
           const sharpness = this.getEnchantLevel("sharpness");
           const atk = base_atk + sharpness * 1.25;
-          //主目标倍率
-          const dam1 = 1.5 * atk
+          //主目标倍率zzbcasd
+          const dam1 = 1.25* atk
           //副目标倍率
           const dam2 = 0.5 * atk
           this.runTimeout(() => {
             const loc = new Vector3(target.location)
-            for (let entity of this.rangeBall(this.player,loc,1.5)) { 
+            const face = new Vector3(target.getViewDirection());
+            for (let entity of this.rangeBall(this.player,loc,1.25,0)) { 
               try {
+                let targetLoc = new Vector3(entity.location)
                 let echoRecord = Number(entity.getDynamicProperty('echo_record')) || 0;
                 let Dam = (entity === target) ? dam1 : dam2;
                 //回声印记增伤
                 Dam *= (1 + 0.1 * echoRecord)
-                entity.applyDamage(Dam, {
-                  "cause": EntityDamageCause.contact,
-                  "damagingEntity": this.player
-                });
+                  entity.applyDamage(Dam, {
+                    "cause": EntityDamageCause.contact,
+                    "damagingEntity": this.player
+                  });
                 if (entity === target && echoRecord < 10) {
-                  entity.setDynamicProperty('echo_record', echoRecord + 1);
+                  echoRecord += 1;
+                  entity.setDynamicProperty('echo_record', echoRecord);
+                }
+                if (entity === target && echoRecord > 0) {
+                  this.spawnPar("epic:echo_record_" + echoRecord,targetLoc, new Vector3(0,0,0))
                 }
               } 
               catch (entity) {}
@@ -148,16 +161,17 @@ export default class EpicItemUse extends GameController {
         //重击
         if (cd == 0 && this.player.isSneaking == false) {
           //切割倍率200%+5
-          const dam1 = 2.0 * atk + 5;
+          const dam1 = 1.5 * atk + 4;
           //回声爆破伤害35（法术）
           const dam2 = 35;
           const loc = new Vector3(this.player.location);
+          const face = new Vector3(this.player.getViewDirection());
           let shock_entity : Entity[] = [];
           //第一段切割
           this.runTimeout(() => {
             //this.exPlayer.getScoresManager().removeScore("wbfl", 25);
             this.player.startItemCooldown("saber", 2 * 20);
-            for (let entity of this.rangeSector(this.player,loc,4.5,3,60)) {
+            for (let entity of this.rangeSector(this.player,loc,4,2.5,30,-0.5)) {
               try {
                   let Dam = dam1
                   let echoRecord = Number(entity.getDynamicProperty('echo_record')) || 0;
@@ -192,7 +206,7 @@ export default class EpicItemUse extends GameController {
              //this.getDimension().playSound("mob.warden.sonic_charge",targetloc,{"volume":50});
 
             this.runTimeout(() => {
-            for (let entity of this.rangeBall(this.player,targetloc,3)) {
+            for (let entity of this.rangeBall(this.player,targetloc,3.5,0)) {
               try {
                 let targetloc = new Vector3(target.location);
                   let echoRecord = Number(entity.getDynamicProperty('echo_record')) || 0;
@@ -206,7 +220,7 @@ export default class EpicItemUse extends GameController {
                     "damagingEntity": this.player
                   });
                   let direction = tmpV.set(entity.location).sub(this.player.location).normalize();
-                  entity.applyKnockback(direction.x, direction.z, 1, 0.5);
+                  entity.applyKnockback(direction.x, direction.z, 1.0, 0.5);
               }
               catch (e) { }
             }
@@ -215,7 +229,7 @@ export default class EpicItemUse extends GameController {
         },800);
       }
         if (cd == 0 && this.player.isSneaking) {
-          const dam1 = 2.5 * atk + 10;
+          const dam1 = 2.25 * atk + 4;
           let dam2 = 10;
           const loc = new Vector3(this.player.location);
           const face = new Vector3(this.player.getViewDirection());
@@ -225,7 +239,7 @@ export default class EpicItemUse extends GameController {
           this.runTimeout(() => {
             //this.exPlayer.getScoresManager().removeScore("wbfl", 25);
             this.player.startItemCooldown("saber", 5 * 20);
-            for (let entity of this.rangeBall(this.player,locFin,5)) {
+            for (let entity of this.rangeBall(this.player,loc,2.5,2)) {
               try {
                   let Dam = dam1
                   let echoRecord = Number(entity.getDynamicProperty('echo_record')) || 0;
@@ -236,7 +250,7 @@ export default class EpicItemUse extends GameController {
                     "damagingEntity": this.player
                   });
                   let direction = tmpV.set(entity.location).sub(this.player.location).normalize();
-                  entity.applyKnockback(direction.x, direction.z, 1, 0.5);
+                  entity.applyKnockback(direction.x, direction.z, 0.5, 0.2);
                   if (echoRecord >= 5) {
                     shock_entity.push(entity);
                     entity.addEffect("slowness",4 * 20,
@@ -282,8 +296,6 @@ export default class EpicItemUse extends GameController {
                       "damagingEntity": this.player
                     });
                     target.setDynamicProperty('echo_record', 0);
-                    let direction = tmpV.set(target.location).sub(this.player.location).normalize();
-                    target.applyKnockback(direction.x, direction.z, 1, 0.5);
                  }
                  catch (e) { }
                  },
