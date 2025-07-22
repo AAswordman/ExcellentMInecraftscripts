@@ -29,6 +29,7 @@ import DecBossController from './entities/DecBossController.js';
 import DecBossBarrier from './entities/DecBossBarrier.js';
 import ExDimension from '../../modules/exmc/server/ExDimension.js';
 import ExContext from '../../modules/exmc/server/ExGameObject.js';
+import { ignorn } from '../../modules/exmc/server/ExErrorQueue.js';
 
 export default class DecServer extends ExGameServer {
     i_inviolable: Objective;
@@ -466,13 +467,13 @@ export default class DecServer extends ExGameServer {
         })
 
         this.getEvents().events.afterProjectileHitEntity.subscribe(e => {
-            if(e.projectile.isValid && e.projectile.getComponent('type_family')?.hasTypeFamily('remove_on_hit')){
+            if(e.projectile.isValid && ignorn(() => e.projectile.getComponent('type_family')?.hasTypeFamily('remove_on_hit'))){
                 e.projectile.remove()
             }
         });
 
         this.getEvents().events.afterProjectileHitBlock.subscribe(e => {
-            if(e.projectile.isValid && e.projectile.getComponent('type_family')?.hasTypeFamily('remove_on_hit') || e.projectile.getComponent('type_family')?.hasTypeFamily('remove_on_hit_ground')){
+            if(e.projectile.isValid && ignorn(() => e.projectile.getComponent('type_family')?.hasTypeFamily('remove_on_hit') || e.projectile.getComponent('type_family')?.hasTypeFamily('remove_on_hit_ground'))){
                 e.projectile.remove()
             }
         });
