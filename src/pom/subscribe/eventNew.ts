@@ -101,7 +101,7 @@ function molangCalculate(molang: string | number, option: TriggerOption) {
         get isDec() {
             return DecGlobal.isDec();
         },
-        get triggerEntity(){
+        get triggerEntity() {
             return option.triggerEntity;
         },
         get player() {
@@ -256,6 +256,7 @@ type EventUser = {
         type: string;
     }
     shoot?: {
+        delay_ticks: number;
         projectile: string;
         launch_power?: number;
     }
@@ -376,7 +377,7 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
             for (let [i, e] of post.message.entries()) {
                 post.message[i] = typeof e === "string" ? molangCalculate(e, option) : e;
             }
-            if(post.sign) ExGame.postMessageToServer(post.sign, post.message);
+            if (post.sign) ExGame.postMessageToServer(post.sign, post.message);
         }
     } else if (option.triggerItem && option.triggerEntity) {
         if (eventUser.condition) {
@@ -401,16 +402,18 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
         if (eventUser.play_sound) {
             option.triggerEntity.dimension.playSound(eventUser.play_sound.sound, pos);
         }
-
         if (eventUser.shoot) {
-            let proj = (idEntityMap.get(eventUser.shoot.projectile) as any)?.["minecraft:entity"]?.["components"]?.['minecraft:projectile'];
-            let power = proj?.['power']
-            let uncertaintyBase = proj?.['uncertaintyBase']
-            ExEntity.getInstance(option.triggerEntity).shootProj(eventUser.shoot.projectile, {
-                "speed": (eventUser.shoot.launch_power ?? 1) *
-                    (power ?? 1),
-                "uncertainty": uncertaintyBase ?? 0
-            });
+            const shootConfig = eventUser.shoot;
+            let proj = (idEntityMap.get(shootConfig.projectile) as any)?.["minecraft:entity"]?.["components"]?.['minecraft:projectile'];
+            let power = proj?.['power'];
+            let uncertaintyBase = proj?.['uncertaintyBase'];
+
+            system.runTimeout(() => {
+                ExEntity.getInstance(<Entity>option.triggerEntity).shootProj(shootConfig.projectile, {
+                    "speed": (shootConfig.launch_power ?? 1) * (power ?? 1),
+                    "uncertainty": uncertaintyBase ?? 0
+                });
+            }, shootConfig.delay_ticks ?? 0);
         }
         if (eventUser.damage) {
             let damageComp = option.triggerItem.getComponent("durability");
