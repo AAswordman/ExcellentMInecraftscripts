@@ -90,8 +90,8 @@ export default class ExDimension implements ExCommandNativeRunner {
         }
     }
 
-    runCommandAsync(str: string) {
-        return this._dimension.runCommandAsync(str);
+    async runCommandAsync(str: string) {
+        return this._dimension.runCommand(str);
     }
     runCommand(str: string) {
         return this._dimension.runCommand(str);
@@ -104,5 +104,22 @@ export default class ExDimension implements ExCommandNativeRunner {
         }
         return (dimension[this.propertyNameCache] = new ExDimension(dimension));
     }
+}
 
+
+declare module "@minecraft/server" {
+    export interface Dimension {
+        spawnEntity(p: string, v: IVector3, options?: SpawnEntityOptions): Entity;
+        runCommandAsync(str: string): Promise<any>;
+    }
+}
+
+const oldMethod = Dimension.prototype.spawnEntity;
+Dimension.prototype.spawnEntity = function (p: any, v: IVector3, options?: SpawnEntityOptions) {
+    let entity = oldMethod.call(this, p, v, options);
+    return entity;
+}
+
+Dimension.prototype.runCommandAsync = async function (str: string) {
+    return this.runCommand(str);
 }

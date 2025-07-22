@@ -72,7 +72,7 @@ export default class PomAncientStoneBoss extends PomBossController {
             this.exEntity.command.runAsync(`camera @a[r=128] clear`);
             this.music.stop();
         }
-        if (e.damageSource.cause === EntityDamageCause.suicide || e.damageSource.cause === EntityDamageCause.selfDestruct) {
+        if (e.damageSource.cause === EntityDamageCause.selfDestruct) {
             this.music.stop();
         }
         super.onKilled(e);

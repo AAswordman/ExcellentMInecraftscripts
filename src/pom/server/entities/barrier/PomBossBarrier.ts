@@ -92,7 +92,7 @@ export default class PomBossBarrier implements DisposeAble {
     }
     *getPlayers() {
         for (let e of this.players) {
-            if (e[0].isValid()) yield e[0];
+            if (e[0].isValid) yield e[0];
         }
     }
 
@@ -111,7 +111,7 @@ export default class PomBossBarrier implements DisposeAble {
             if (!e.entity.location) continue;
 
             if (this.players.has(e.entity)) {
-                if (!ignorn(() => e.entity.isValid())) continue;
+                if (!ignorn(() => e.entity.isValid)) continue;
                 if (!this.area.contains(e.entity.location)) {
                     if (this.players.get(e.entity)) {
                         // notUtillTask(this.server,() => ExPlayer.getInstance(e).getHealth()>0,()=>{
@@ -136,7 +136,7 @@ export default class PomBossBarrier implements DisposeAble {
                     if (!e.entity.getDynamicProperty('InBoundary')) {
                         e.entity.setDynamicProperty('InBoundary', this.id);
                         e.getScoresManager().setScore("pre_gamemode", e.gameModeCode);
-                        e.gamemode = GameMode.spectator;
+                        e.gamemode = GameMode.Spectator;
                     }
                 } else {
                     if (e.entity.getDynamicProperty('InBoundary') === this.id) {
@@ -147,7 +147,7 @@ export default class PomBossBarrier implements DisposeAble {
             }
         }
 
-        if (ignorn(() => this.boss.entity.isValid()) && !this.area.contains(this.boss.entity.location)) {
+        if (ignorn(() => this.boss.entity.isValid) && !this.area.contains(this.boss.entity.location)) {
             this.boss.exEntity.setPosition(this.area.center());
         }
 

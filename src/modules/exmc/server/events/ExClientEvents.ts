@@ -1,5 +1,5 @@
 import ExGameClient from "../ExGameClient.js";
-import { PlayerBreakBlockAfterEvent, ChatSendAfterEvent, ChatSendBeforeEvent, EffectAddAfterEvent, EntityHealthChangedAfterEvent, EntityHitBlockAfterEvent, EntityHurtAfterEvent, ItemReleaseUseAfterEvent, ItemStopUseAfterEvent, ItemUseAfterEvent, ItemUseBeforeEvent, ItemUseOnAfterEvent, ItemUseOnBeforeEvent, PlayerSpawnAfterEvent, ItemUseOnEvent, PlayerInteractWithBlockBeforeEvent, PlayerInteractWithEntityBeforeEvent, EffectAddBeforeEvent } from '@minecraft/server';
+import { PlayerBreakBlockAfterEvent, ChatSendAfterEvent, ChatSendBeforeEvent, EffectAddAfterEvent, EntityHealthChangedAfterEvent, EntityHitBlockAfterEvent, EntityHurtAfterEvent, ItemReleaseUseAfterEvent, ItemStopUseAfterEvent, ItemUseAfterEvent, ItemUseBeforeEvent, PlayerSpawnAfterEvent, ItemUseOnEvent, PlayerInteractWithBlockBeforeEvent, PlayerInteractWithEntityBeforeEvent, EffectAddBeforeEvent } from '@minecraft/server';
 import ExEventManager from "../../interface/ExEventManager.js";
 import ExGameServer from '../ExGameServer.js';
 import { Player, ItemStack, Entity } from '@minecraft/server';
@@ -78,55 +78,11 @@ export default class ExClientEvents implements ExEventManager {
         [ExOtherEventNames.onLongTick]: {
             pattern: ExClientEvents.eventHandlers.registerToServerByServerEvent
         },
-        [ExEventNames.afterItemUseOn]: {
-            pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
-            filter: {
-                "name": "source"
-            }
-        },
         [ExEventNames.beforePlayerInteractWithBlock]: {
             pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
             filter: {
                 "name": "player"
             }
-        },
-        [ExEventNames.beforeItemUseOn]: {
-            pattern: ExClientEvents.eventHandlers.registerToServerByEntity,
-            filter: {
-                "name": "source"
-            }
-        },
-
-        [ExOtherEventNames.beforeOnceItemUseOn]: {
-            pattern: (registerName: string, k: string) => {
-                this.onceItemUseOnMap = new Map<Entity, [TickDelayTask, boolean]>();
-                ExClientEvents.eventHandlers.server.getEvents().register(registerName, (e: ItemUseBeforeEvent) => {
-                    if (!(e.source instanceof Player)) return;
-                    let part = <Map<Player, MonitorManager<unknown>>>(ExClientEvents.eventHandlers.monitorMap[k]);
-                    if (!this.onceItemUseOnMap.has(e.source)) {
-                        const player = e.source;
-                        this.onceItemUseOnMap.set(e.source, [ExSystem.tickTask(ExClientEvents.eventHandlers.server, () => {
-                            let res = this.onceItemUseOnMap.get(player);
-                            if (res === undefined) return;
-                            res[1] = true;
-                        }).delay(3), true]);
-                    }
-
-                    let res = this.onceItemUseOnMap.get(e.source);
-                    if (res === undefined) return;
-                    if (res[1]) {
-                        res[1] = false;
-                        part.get(e.source)?.forEach((v) => v(e));
-                    }
-                    res[0].stop();
-                    res[0].startOnce();
-
-                });
-            },
-            filter: {
-                "name": "source"
-            },
-            name: ExEventNames.beforeItemUseOn
         },
         [ExOtherEventNames.beforeOncePlayerInteractWithBlock]: {
             pattern: (registerName: string, k: string) => {
@@ -313,9 +269,6 @@ export default class ExClientEvents implements ExEventManager {
         [ExOtherEventNames.tick]: new Listener<TickEvent>(this, ExOtherEventNames.tick),
         [ExOtherEventNames.beforeTick]: new Listener<TickEvent>(this, ExOtherEventNames.beforeTick),
         [ExOtherEventNames.onLongTick]: new Listener<TickEvent>(this, ExOtherEventNames.onLongTick),
-        [ExEventNames.afterItemUseOn]: new Listener<ItemUseOnAfterEvent>(this, ExEventNames.afterItemUseOn),
-        [ExEventNames.beforeItemUseOn]: new Listener<ItemUseOnBeforeEvent>(this, ExEventNames.beforeItemUseOn),
-        [ExOtherEventNames.beforeOnceItemUseOn]: new Listener<ItemUseOnBeforeEvent>(this, ExOtherEventNames.beforeOnceItemUseOn),
         [ExEventNames.beforePlayerInteractWithBlock]: new Listener<PlayerInteractWithBlockBeforeEvent>(this, ExEventNames.beforePlayerInteractWithBlock),
         [ExOtherEventNames.beforeOncePlayerInteractWithBlock]: new Listener<PlayerInteractWithBlockBeforeEvent>(this, ExOtherEventNames.beforeOncePlayerInteractWithBlock),
         [ExOtherEventNames.afterPlayerHitBlock]: new Listener<EntityHitBlockAfterEvent>(this, ExOtherEventNames.afterPlayerHitBlock),

@@ -94,7 +94,7 @@ export default class DecBossBarrier implements DisposeAble {
     }
     *getPlayers() {
         for (let e of this.players) {
-            if (e[0].isValid()) yield e[0];
+            if (e[0].isValid) yield e[0];
         }
     }
 
@@ -127,7 +127,7 @@ export default class DecBossBarrier implements DisposeAble {
                     if (!e.entity.getDynamicProperty('InBoundary')) {
                         e.entity.setDynamicProperty('InBoundary', this.id);
                         e.getScoresManager().setScore("pre_gamemode", e.gameModeCode);
-                        e.gamemode = GameMode.spectator;
+                        e.gamemode = GameMode.Spectator;
                     }
                 } else {
                     if (e.entity.getDynamicProperty('InBoundary') === this.id) {

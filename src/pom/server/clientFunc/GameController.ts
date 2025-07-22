@@ -1,4 +1,4 @@
-import { CommandResult, Dimension, PlayerIterator } from "@minecraft/server";
+import { CommandResult } from "@minecraft/server";
 import ExGameServer from "../../../modules/exmc/server/ExGameServer.js";
 import SetTimeOutSupport from "../../../modules/exmc/interface/SetTimeOutSupport.js";
 import PomClient from '../PomClient.js';

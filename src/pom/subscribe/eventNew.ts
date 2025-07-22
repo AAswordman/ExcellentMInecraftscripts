@@ -414,7 +414,7 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
         }
         if (eventUser.damage) {
             let damageComp = option.triggerItem.getComponent("durability");
-            if (damageComp && !(option.triggerEntity instanceof Player && option.triggerEntity.getGameMode() == GameMode.creative)) {
+            if (damageComp && !(option.triggerEntity instanceof Player && option.triggerEntity.getGameMode() == GameMode.Creative)) {
                 let bag = ExEntity.getInstance(option.triggerEntity).getBag();
                 let damage = damageComp.damage;
                 damage += eventUser.damage.amount;
@@ -491,7 +491,7 @@ export default (context: ExContext) => {
             console.warn(fpath);
         }
     }
-    world.beforeEvents.worldInitialize.subscribe(initEvent => {
+    world.afterEvents.worldLoad.subscribe(initEvent => {
         initEvent.blockComponentRegistry.registerCustomComponent(ex(onStepOnCompName), {
             onStepOn: e => {
                 if (e.entity) {

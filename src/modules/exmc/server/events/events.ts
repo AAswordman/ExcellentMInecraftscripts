@@ -43,7 +43,6 @@ let exOtherEventNameMap = {
     "tick": "tick",
     "beforeTick": "beforeTick",
     "onLongTick": "onLongTick",
-    "beforeOnceItemUseOn":"beforeOnceItemUseOn",
     "beforeOncePlayerInteractWithBlock":"beforeOncePlayerInteractWithBlock",
     "afterPlayerHurt": "afterPlayerHurt",
     "afterPlayerHitBlock": "afterPlayerHitBlock",

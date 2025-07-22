@@ -32,7 +32,7 @@ export default class PomBossController extends ExEntityController {
     }
 
     override onKilled(e: EntityDieAfterEvent): void {
-        if (e.damageSource.cause === EntityDamageCause.suicide || e.damageSource.cause === EntityDamageCause.selfDestruct) {
+        if (e.damageSource.cause === EntityDamageCause.selfDestruct) {
             this.stopBattle();
         }
         super.onKilled(e);

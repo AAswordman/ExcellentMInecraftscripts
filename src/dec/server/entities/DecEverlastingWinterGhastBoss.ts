@@ -17,7 +17,7 @@ export class DecEverlastingWinterGhastBoss1 extends DecBossController {
     }
     override onKilled(e: EntityDieAfterEvent): void {
         super.onKilled(e);
-        if (e.damageSource.cause === EntityDamageCause.suicide || e.damageSource.cause === EntityDamageCause.selfDestruct) {
+        if (e.damageSource.cause === EntityDamageCause.selfDestruct) {
             this.music.stop();
         }
     }

@@ -627,7 +627,8 @@ BunBun不是笨笨    在矿里的小金呀
     "unknown":"未知",
     "extraCountererDamage":"反击额外伤害: {0}",
     "defenseLayer":"防御层数: {0}",
-    "setMaxTpPoint":"设置最大传送点数量"
+    "setMaxTpPoint":"设置最大传送点数量",
+    "unknownBookNoRemain":"你已经探索了所有的内容。继续探索，或许会有新的发现..."
   },
   "en": {
     "ruinDesertCmd_SELF": "Stay",
@@ -1258,5 +1259,6 @@ BunBun不是笨笨 - In the mine, little gold
     "extraCountererDamage": "Extra Counter Damage: {0}",
     "defenseLayer": "Defense Layers: {0}",
     "setMaxTpPoint":"set Max TP Point Number",
+    "unknownBookNoRemain":"You have explored all the content. Keep searching, there might be new discoveries..."
   }
 }

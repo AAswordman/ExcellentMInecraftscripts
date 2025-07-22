@@ -1,3 +1,3 @@
 import lang from "./lang.js";
 
-export type langType = typeof lang.zh;
+export type langType = { [key: string]: string };

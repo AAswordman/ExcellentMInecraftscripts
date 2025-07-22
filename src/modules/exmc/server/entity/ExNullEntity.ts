@@ -1,7 +1,8 @@
-import { MinecraftDimensionTypes, world } from "@minecraft/server";
+import {  world } from "@minecraft/server";
 import { ExCommandNativeRunner } from '../../interface/ExCommandRunner.js';
 import ExScoresManager from "./ExScoresManager.js";
 import ExCommand from '../env/ExCommand.js';
+import { MinecraftDimensionTypes } from "../../../vanilla-data/lib/mojang-dimension.js";
 
 export default class ExNullEntity implements ExCommandNativeRunner {
     public command = new ExCommand(this);
@@ -10,10 +11,10 @@ export default class ExNullEntity implements ExCommandNativeRunner {
         this.nameTag = name;
     }
     runCommandAsync(command: string) {
-        return world.getDimension(MinecraftDimensionTypes.overworld).runCommandAsync(command);
+        return world.getDimension(MinecraftDimensionTypes.Overworld).runCommandAsync(command);
     }
     runCommand(command: string) {
-        return world.getDimension(MinecraftDimensionTypes.overworld).runCommand(command);
+        return world.getDimension(MinecraftDimensionTypes.Overworld).runCommand(command);
     }
     getScoresManager() {
         return new ExScoresManager(this);

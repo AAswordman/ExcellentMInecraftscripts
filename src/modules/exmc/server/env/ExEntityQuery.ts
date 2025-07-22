@@ -117,7 +117,7 @@ export default class ExEntityQuery {
         remains.forEach(e => {
             let v = new Vector3(e.location).sub(this.position);
             fmat.rmulVector(v);
-            if (!falseIfError(() => e.isValid()) || !func(e, v)) this.except(e);
+            if (!falseIfError(() => e.isValid) || !func(e, v)) this.except(e);
         })
         return this;
     }

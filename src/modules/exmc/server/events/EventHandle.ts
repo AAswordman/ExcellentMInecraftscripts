@@ -75,7 +75,7 @@ export default class EventHandle<T> {
     registerToServerByServerEvent = (registerName: string, k: string) => {
         this.server.getEvents().register(registerName, (e: any) => {
             for (let [key, value] of this.monitorMap[k]) {
-                if (falseIfError(() => key.isValid())) {
+                if (falseIfError(() => key.isValid)) {
                     value.trigger(e);
                 }
             }
