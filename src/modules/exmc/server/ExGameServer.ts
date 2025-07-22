@@ -23,7 +23,7 @@ import DynamicPropertyManager from "../interface/DynamicPropertyManager.js";
 import ExEntityPool from "./entity/ExEntityPool.js";
 import ExContext from "./ExGameObject.js";
 import ExGame from "./ExGame.js";
-import { MinecraftDimensionTypes } from "../../vanilla-data/lib/mojang-dimension.js";
+import { MinecraftDimensionTypes } from "../../vanilla-data/lib/index.js";
 
 export default class ExGameServer extends ExContext implements SetTimeOutSupport {
     clients;

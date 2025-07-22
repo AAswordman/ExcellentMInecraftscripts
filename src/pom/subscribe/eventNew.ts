@@ -1,4 +1,4 @@
-import { world, BlockPermutation, Block, Player, Entity, ItemStack, EquipmentSlot, Dimension, GameMode } from '@minecraft/server';
+import { world, BlockPermutation, Block, Player, Entity, ItemStack, EquipmentSlot, Dimension, GameMode, system } from '@minecraft/server';
 import { fileProvider, JSONObject } from '../../filepack/index.js';
 import ExPlayer from '../../modules/exmc/server/entity/ExPlayer.js';
 import Vector3 from '../../modules/exmc/utils/math/Vector3.js';
@@ -491,7 +491,7 @@ export default (context: ExContext) => {
             console.warn(fpath);
         }
     }
-    world.afterEvents.worldLoad.subscribe(initEvent => {
+    system.beforeEvents.startup.subscribe(initEvent => {
         initEvent.blockComponentRegistry.registerCustomComponent(ex(onStepOnCompName), {
             onStepOn: e => {
                 if (e.entity) {
@@ -534,7 +534,7 @@ export default (context: ExContext) => {
             }
         });
         initEvent.blockComponentRegistry.registerCustomComponent(ex(onPlayerDestroyedCompName), {
-            onPlayerDestroy: e => {
+            onPlayerBreak: e => {
                 if (e) {
                     let option = { triggerBlock: e.block, triggerEntity: e.player, triggerType: onPlayerDestroyedCompName };
                     const triggerComp = findTriggerComp(option) as onPlayerDestroyedCompType | undefined;

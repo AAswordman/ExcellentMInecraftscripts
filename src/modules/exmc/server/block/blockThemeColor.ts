@@ -38,7 +38,7 @@ export const blockThemeColor = {
     "minecraft:pistonarmcollision": new ColorRGBA(67, 67, 67),
     "minecraft:wool": new ColorRGBA(15, 16, 21),
     "minecraft:element_0": new ColorRGBA(20, 20, 20),
-    "minecraft:yellow_flower": new ColorRGBA(41, 130, 19),
+    "minecraft:dandelion": new ColorRGBA(41, 130, 19),
     "minecraft:red_flower": new ColorRGBA(220, 220, 220),
     "minecraft:brown_mushroom": new ColorRGBA(148, 108, 84),
     "minecraft:red_mushroom": new ColorRGBA(190, 198, 164),

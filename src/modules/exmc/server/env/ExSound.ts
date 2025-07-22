@@ -7,7 +7,7 @@ import ExDimension from '../ExDimension.js';
 import ExSystem from '../../utils/ExSystem.js';
 import SetTimeOutSupport from '../../interface/SetTimeOutSupport.js';
 import ExGameServer from '../ExGameServer.js';
-import { MinecraftDimensionTypes } from '../../../vanilla-data/lib/mojang-dimension.js';
+import { MinecraftDimensionTypes } from '../../../vanilla-data/lib/index.js';
 export default class ExSound {
     soundId: string;
     long: number;

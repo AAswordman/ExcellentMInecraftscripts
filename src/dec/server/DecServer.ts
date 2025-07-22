@@ -466,13 +466,13 @@ export default class DecServer extends ExGameServer {
         })
 
         this.getEvents().events.afterProjectileHitEntity.subscribe(e => {
-            if(e.projectile.getComponent('type_family')?.hasTypeFamily('remove_on_hit')){
+            if(e.projectile.isValid && e.projectile.getComponent('type_family')?.hasTypeFamily('remove_on_hit')){
                 e.projectile.remove()
             }
         });
 
         this.getEvents().events.afterProjectileHitBlock.subscribe(e => {
-            if(e.projectile.getComponent('type_family')?.hasTypeFamily('remove_on_hit') || e.projectile.getComponent('type_family')?.hasTypeFamily('remove_on_hit_ground')){
+            if(e.projectile.isValid && e.projectile.getComponent('type_family')?.hasTypeFamily('remove_on_hit') || e.projectile.getComponent('type_family')?.hasTypeFamily('remove_on_hit_ground')){
                 e.projectile.remove()
             }
         });

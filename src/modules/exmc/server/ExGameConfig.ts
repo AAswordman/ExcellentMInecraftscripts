@@ -1,6 +1,6 @@
 import { world } from '@minecraft/server';
 import ExConfig from '../ExConfig.js';
-import { MinecraftDimensionTypes } from '../../vanilla-data/lib/mojang-dimension.js';
+import { MinecraftDimensionTypes } from '../../vanilla-data/lib/index.js';
 
 export default class ExGameConfig{
     static config: ExConfig;
