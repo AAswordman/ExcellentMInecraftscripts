@@ -1,4 +1,4 @@
-import { Dimension, EntityQueryOptions, Block, ItemStack, Entity, BlockType, ExplosionOptions, MolangVariableMap, BlockTypes, BlockFillOptions, SpawnEntityOptions } from '@minecraft/server';
+import { Dimension, EntityQueryOptions, Block, ItemStack, Entity, BlockType, ExplosionOptions, MolangVariableMap, BlockTypes, BlockFillOptions, SpawnEntityOptions, system } from '@minecraft/server';
 import { ExCommandNativeRunner } from '../interface/ExCommandRunner.js';
 import Vector3, { IVector3 } from "../utils/math/Vector3.js";
 import ExGameConfig from './ExGameConfig.js';
@@ -120,6 +120,15 @@ Dimension.prototype.spawnEntity = function (p: any, v: IVector3, options?: Spawn
     return entity;
 }
 
-Dimension.prototype.runCommandAsync = async function (str: string) {
-    return this.runCommand(str);
+Dimension.prototype.runCommandAsync = function (str: string) {
+    return new Promise((resolve, reject) => {
+        system.run(() => {
+            try {
+                let res = this.runCommand(str);
+                resolve(res);
+            } catch (e) {
+                reject(e);
+            }
+        });
+    });
 }
