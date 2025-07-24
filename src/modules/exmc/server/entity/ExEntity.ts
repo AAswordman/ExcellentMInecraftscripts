@@ -1,4 +1,4 @@
-import { Entity, EntityHealthComponent, EntityInventoryComponent, Dimension, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent, EntityDamageSource, EntityDamageCause, EquipmentSlot, TeleportOptions, EffectType, EntityAttributeComponent, EntityEquippableComponent, EntityProjectileComponent, ProjectileShootOptions, EntityComponentTypeMap, Player, EntityComponentReturnType } from '@minecraft/server';
+import { Entity, EntityHealthComponent, EntityInventoryComponent, Dimension, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent, EntityDamageSource, EntityDamageCause, EquipmentSlot, TeleportOptions, EffectType, EntityAttributeComponent, EntityEquippableComponent, EntityProjectileComponent, ProjectileShootOptions, EntityComponentTypeMap, Player, EntityComponentReturnType, system } from '@minecraft/server';
 import { ExCommandNativeRunner } from '../../interface/ExCommandRunner.js';
 import ExTagManager from '../../interface/ExTagManager.js';
 import ExScoresManager from './ExScoresManager.js';
@@ -110,8 +110,17 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         this._entity.removeTag(str);
         return str;
     }
-    async runCommandAsync(str: string) {
-        return this._entity.runCommand(str);
+    runCommandAsync(str: string) {
+        return new Promise((resolve, reject) => {
+            system.run(() => {
+                try {
+                    let res = this._entity.runCommand(str);
+                    resolve(res);
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        });
     }
     runCommand(str: string) {
         return this._entity.runCommand(str);
