@@ -1,4 +1,4 @@
-import { Player, world, Block, Direction, GameMode, Entity, ScriptEventSource, Dimension, DimensionType, DimensionTypes, system, ScriptEventCommandMessageAfterEvent, EntityQueryOptions, EntityApplyDamageOptions, EntityDamageCause, DisplaySlotId, ScoreboardObjectiveDisplayOptions, ScoreboardObjective, ItemStack, RawMessage, CommandPermissionLevel } from '@minecraft/server';
+import { Player, world, Block, Direction, GameMode, Entity, ScriptEventSource, Dimension, system, ScriptEventCommandMessageAfterEvent, EntityQueryOptions, EntityApplyDamageOptions, EntityDamageCause, DisplaySlotId, ScoreboardObjectiveDisplayOptions, ScoreboardObjective, ItemStack, RawMessage, CommandPermissionLevel } from '@minecraft/server';
 import ExConfig from "../../modules/exmc/ExConfig.js";
 import ExGameClient from "../../modules/exmc/server/ExGameClient.js";
 import DecClient from "./DecClient.js";
@@ -27,8 +27,6 @@ import { DecLeavesGolemBoss } from './entities/DecLeavesGolemBoss.js';
 import { DecEscapeSoulBoss3, DecEscapeSoulBoss4, DecEscapeSoulBoss5 } from './entities/DecEscapeSoulBoss.js';
 import DecBossController from './entities/DecBossController.js';
 import DecBossBarrier from './entities/DecBossBarrier.js';
-import ExDimension from '../../modules/exmc/server/ExDimension.js';
-import ExContext from '../../modules/exmc/server/ExGameObject.js';
 import { ignorn } from '../../modules/exmc/server/ExErrorQueue.js';
 
 export default class DecServer extends ExGameServer {
