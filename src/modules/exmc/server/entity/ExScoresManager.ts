@@ -115,7 +115,7 @@ export class Objective {
         return this.scoreboardObjective?.hasParticipant(participant) ?? false;
     }
     isValid(): boolean {
-        return this.scoreboardObjective?.isValid() ?? false;
+        return this.scoreboardObjective?.isValid ?? false;
     }
     removeParticipant(participant: Entity | ScoreboardIdentity | string): boolean {
         return this.scoreboardObjective?.removeParticipant(participant) ?? false;

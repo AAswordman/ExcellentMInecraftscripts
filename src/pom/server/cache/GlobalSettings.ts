@@ -68,6 +68,12 @@ export default class GlobalSettings extends GlobalScoreBoardCache {
     public set tpPointRecord(value: boolean) {
         this.setBoolean("tpPointRecord", value);
     }
+    public get tpPointRecordMaxNum() {
+        return this.getNumber("tpPointRecordMaxNum") || 15;
+    }
+    public set tpPointRecordMaxNum(value: number) {
+        this.setNumber("tpPointRecordMaxNum", value);
+    }
     public get damageShow() {
         return this.getBoolean("damageShow");
     }

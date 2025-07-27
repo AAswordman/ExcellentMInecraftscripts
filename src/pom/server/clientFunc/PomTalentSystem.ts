@@ -257,7 +257,7 @@ export default class PomTalentSystem extends GameController {
 
         //玩家攻击生物增伤
         this.getEvents().exEvents.afterPlayerHitEntity.subscribe((e) => {
-            if (e.damage > 10000000 || !(ignorn(() => e.hurtEntity.isValid()))) return;
+            if (e.damage > 10000000 || !(ignorn(() => e.hurtEntity.isValid))) return;
             let item = this.exPlayer.getBag().itemOnMainHand;
 
             let damageFac = 0;
@@ -451,7 +451,7 @@ export default class PomTalentSystem extends GameController {
                         if (clnE.damagingEntity) {
                             this.player.applyDamage(99999999, {
                                 "damagingEntity": clnE.damagingEntity,
-                                "damagingProjectile": clnE.damagingProjectile?.isValid() ?
+                                "damagingProjectile": clnE.damagingProjectile?.isValid ?
                                     clnE.damagingProjectile : (clnE.damagingEntity)
                             });
                         } else {
@@ -459,7 +459,7 @@ export default class PomTalentSystem extends GameController {
                         }
                     } else {
                         this.player.applyDamage(99999999, {
-                            "damagingEntity": clnE.damagingEntity?.isValid() ? clnE.damagingEntity : undefined,
+                            "damagingEntity": clnE.damagingEntity?.isValid ? clnE.damagingEntity : undefined,
                             "cause": clnE.cause
                         });
                     }
@@ -570,7 +570,7 @@ export default class PomTalentSystem extends GameController {
         this.skill_stateNum = [0, 0];
         let usetarget: Entity | undefined;
         const trackingArrow = (e: PlayerShootProjectileEvent) => {
-            if (usetarget?.isValid()) {
+            if (usetarget?.isValid) {
                 this.client.getServer().createEntityController(e.projectile, PomOccupationSkillTrack).setTarget(usetarget);
                 this.skill_stateNum[0] -= 1;
                 if (this.skill_stateNum[0] > 0) {
@@ -580,7 +580,7 @@ export default class PomTalentSystem extends GameController {
             }
         };
         const targetParticle = (e: TickEvent) => {
-            if (usetarget?.isValid()) {
+            if (usetarget?.isValid) {
                 ExDimension.getInstance(usetarget.dimension).spawnParticle("wb:skill_tracking_arrow_par", usetarget.location);
             }
         }

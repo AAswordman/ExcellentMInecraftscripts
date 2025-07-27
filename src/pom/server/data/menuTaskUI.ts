@@ -10,6 +10,7 @@ import { PomTaskJSON } from './tasks/PomTask.js';
 import { PomTasks, taskTranToNum } from "../../../dec/server/data/Task.js";
 import getCharByNum, { PROGRESS_CHAR } from "./getCharByNum.js";
 import taskProgress from "./tasks/taskProgress.js";
+import plotLine from "./plotLine.js";
 
 
 
@@ -306,7 +307,38 @@ export default function menuTaskUI(ctrl: GameController): MenuUIJson<PomClient> 
 
                 return arr;
             }
-        }
+        },
+        "story": {
+            "text": "story",
+            "default": "0",
+            "img": "textures/items/unknow_book.png",
+            "page": (client, ui) => {
+                let arr: MenuUIPage<PomClient> = {};
+                for (let i = 0; i < 3; i++) {
+                    let page: MenuUIAlertView<PomClient>[] = [
+                        {
+                            "type": "text_title",
+                            "msg": "Part " + "I".repeat(i + 1)
+                        },
+                        {
+                            "type": "padding"
+                        }
+                    ]
 
+                    for (let j = 0; j < plotLine[i].length; j++) {
+                        if (client.data.plotLine.part[i].includes(j)) page.push({
+                            "type": "text",
+                            "msg": plotLine[i][j]
+                        });
+                    }
+
+                    arr[i + ""] = {
+                        "text": "Part " + "I".repeat(i + 1),
+                        "page": page
+                    };
+                }
+                return arr;
+            }
+        }
     }
 }

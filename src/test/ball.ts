@@ -359,7 +359,7 @@ function ball_main() {
         }
 
     }
-
+    
     interface IVector3 {
         x: number;
         y: number;

@@ -1286,13 +1286,12 @@ export class PomGodOfGuardShadow extends ExEntityController {
         let target = new Vector3(this.entity.target?.location ?? Random.choice(Array.from(this.bossOri.barrier.getPlayers())).location);
 
         target = target.cpy().sub(startPos).normalize().scl(7).add(target).add((Math.random() - 1) * 2, 0, (Math.random() - 1) * 2);
-
         target.y = startPos.y;
 
         tmpV.set(target).sub(startPos);
         let rot = new Vector2(tmpV.rotateAngleY(), tmpV.rotateAngleX())
         let dic = new Vector3(target).sub(startPos).normalize();
-
+        
         this.attackLiner?.stop();
         this.attackLiner = ExSystem.timeLine(this, {
             "0.0": (time) => {
@@ -1482,7 +1481,7 @@ export class PomGodOfGuardShadow extends ExEntityController {
         if (e.damageSource.cause === EntityDamageCause.projectile) damage *= 0.2;
 
 
-        if (e.damageSource.cause !== EntityDamageCause.selfDestruct && e.damageSource.cause !== EntityDamageCause.suicide)
+        if (e.damageSource.cause !== EntityDamageCause.selfDestruct)
             this.bossOri.entity.applyDamage(damage, {
                 "cause": EntityDamageCause.charging,
                 "damagingEntity": e.damageSource.damagingEntity
@@ -1819,7 +1818,6 @@ export class PomGodOfGuardBoss2 extends PomBossController {
         this.shadow?.attackTimer?.stop();
 
         this.lazerState = true;
-
         this.attackTimer?.stop();
         this.attackTimer = ExSystem.tickTask(this, () => {
             this.entity.dimension.spawnParticle("wb:god_of_guard_lazer_pre_par", this.entity.location);
@@ -2562,7 +2560,7 @@ export class PomGodOfGuardBossPassive implements DisposeAble {
                     let loc = new Vector3(p.location);
                     let under = ignorn(() => ctrl.entity.dimension.getBlock(loc.sub(0, 1, 0)));
                     let getter = this.playerSkipperData.get(p)!;
-                    if (p.getGameMode() === GameMode.creative) continue;
+                    if (p.getGameMode() === GameMode.Creative) continue;
                     getter[1] -= getter[0].shift()!;
                     getter[0].push(
                         (under?.typeId === "minecraft:air" ? 1 : 0) +
@@ -2755,7 +2753,10 @@ export class PomGodOfGuardShootCenters {
                         "cause": d[1] as EntityDamageCause,
                         "damagingEntity": from
                     })
-                    p.applyKnockback(0, 0, 0.5, 0.2)
+                    p.applyKnockback({
+                        "x":0,
+                        "z":0,
+                    },0.5)
                 }
             }
         }

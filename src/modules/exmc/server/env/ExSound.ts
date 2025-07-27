@@ -1,4 +1,4 @@
-import { world, MinecraftDimensionTypes, Dimension } from '@minecraft/server';
+import { world,  Dimension } from '@minecraft/server';
 import TimeLoopTask from '../../utils/TimeLoopTask.js';
 import ExEventManager from '../../interface/ExEventManager.js';
 import Vector3, { IVector3 } from '../../utils/math/Vector3.js';
@@ -7,6 +7,7 @@ import ExDimension from '../ExDimension.js';
 import ExSystem from '../../utils/ExSystem.js';
 import SetTimeOutSupport from '../../interface/SetTimeOutSupport.js';
 import ExGameServer from '../ExGameServer.js';
+import { MinecraftDimensionTypes } from '../../../vanilla-data/lib/index.js';
 export default class ExSound {
     soundId: string;
     long: number;
@@ -33,7 +34,7 @@ export default class ExSound {
     }
     stop() {
         this.looper?.stop();
-        world.getDimension(MinecraftDimensionTypes.overworld).runCommandAsync("stopsound @a " + this.soundId);
+        world.getDimension(MinecraftDimensionTypes.Overworld).runCommandAsync("stopsound @a " + this.soundId);
     }
     delayStop(time: number) {
         this.isInDelayStop = true;

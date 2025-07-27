@@ -1,4 +1,4 @@
-import { Dimension, EntityQueryOptions, Block, ItemStack, Entity, BlockType, ExplosionOptions, MolangVariableMap, BlockTypes, BlockFillOptions, SpawnEntityOptions } from '@minecraft/server';
+import { Dimension, EntityQueryOptions, Block, ItemStack, Entity, BlockType, ExplosionOptions, MolangVariableMap, BlockTypes, BlockFillOptions, SpawnEntityOptions, system } from '@minecraft/server';
 import { ExCommandNativeRunner } from '../interface/ExCommandRunner.js';
 import Vector3, { IVector3 } from "../utils/math/Vector3.js";
 import ExGameConfig from './ExGameConfig.js';
@@ -90,8 +90,8 @@ export default class ExDimension implements ExCommandNativeRunner {
         }
     }
 
-    runCommandAsync(str: string) {
-        return this._dimension.runCommandAsync(str);
+    async runCommandAsync(str: string) {
+        return this._dimension.runCommand(str);
     }
     runCommand(str: string) {
         return this._dimension.runCommand(str);
@@ -104,5 +104,31 @@ export default class ExDimension implements ExCommandNativeRunner {
         }
         return (dimension[this.propertyNameCache] = new ExDimension(dimension));
     }
+}
 
+
+declare module "@minecraft/server" {
+    export interface Dimension {
+        spawnEntity(p: string, v: IVector3, options?: SpawnEntityOptions): Entity;
+        runCommandAsync(str: string): Promise<any>;
+    }
+}
+
+const oldMethod = Dimension.prototype.spawnEntity;
+Dimension.prototype.spawnEntity = function (p: any, v: IVector3, options?: SpawnEntityOptions) {
+    let entity = oldMethod.call(this, p, v, options);
+    return entity;
+}
+
+Dimension.prototype.runCommandAsync = function (str: string) {
+    return new Promise((resolve, reject) => {
+        system.run(() => {
+            try {
+                let res = this.runCommand(str);
+                resolve(res);
+            } catch (e) {
+                reject(e);
+            }
+        });
+    });
 }

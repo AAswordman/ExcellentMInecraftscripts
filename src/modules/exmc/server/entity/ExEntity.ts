@@ -1,4 +1,4 @@
-import { Entity, EntityHealthComponent, EntityInventoryComponent, Dimension, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent, EntityDamageSource, EntityDamageCause, EquipmentSlot, TeleportOptions, EffectType, EntityAttributeComponent, EntityEquippableComponent, EntityProjectileComponent, ProjectileShootOptions, EntityComponentTypeMap, Player } from '@minecraft/server';
+import { Entity, EntityHealthComponent, EntityInventoryComponent, Dimension, EntityVariantComponent, EntityMarkVariantComponent, EntityIsBabyComponent, EntityIsChargedComponent, EntityDamageSource, EntityDamageCause, EquipmentSlot, TeleportOptions, EffectType, EntityAttributeComponent, EntityEquippableComponent, EntityProjectileComponent, ProjectileShootOptions, EntityComponentTypeMap, Player, EntityComponentReturnType, system } from '@minecraft/server';
 import { ExCommandNativeRunner } from '../../interface/ExCommandRunner.js';
 import ExTagManager from '../../interface/ExTagManager.js';
 import ExScoresManager from './ExScoresManager.js';
@@ -37,7 +37,7 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         if (this._damage === undefined) {
             this._damage = damage;
             timeout.runTimeout(() => {
-                if (!this.entity.isValid()) return;
+                if (!this.entity.isValid) return;
                 let health = this.getComponent("minecraft:health")!;
                 if (health.currentValue > 0) health.setCurrentValue(Math.max(0.5, health.currentValue - (this._damage ?? 0)));
                 this._damage = undefined;
@@ -111,7 +111,16 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         return str;
     }
     runCommandAsync(str: string) {
-        return this._entity.runCommandAsync(str);
+        return new Promise((resolve, reject) => {
+            system.run(() => {
+                try {
+                    let res = this._entity.runCommand(str);
+                    resolve(res);
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        });
     }
     runCommand(str: string) {
         return this._entity.runCommand(str);
@@ -199,7 +208,7 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
         return this._entity.hasComponent(componentId);
     }
 
-    getComponent<T extends keyof EntityComponentTypeMap>(componentId: T): EntityComponentTypeMap[T] | undefined {
+    getComponent<T extends keyof EntityComponentTypeMap>(componentId: T): EntityComponentReturnType<T> | undefined {
         return this._entity.getComponent(componentId);
     }
     get health() {
@@ -272,7 +281,7 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
             console.warn('after2:'+proj_comp.owner.nameTag)
             proj_comp.shoot(view.normalize().scl(0.05), shootOpt);
             ExGame._runTimeout(() => {
-                if (falseIfError(() => proj.isValid())) proj_comp.shoot(view.normalize().scl(option.speed), shootOpt);
+                if (falseIfError(() => proj.isValid)) proj_comp.shoot(view.normalize().scl(option.speed), shootOpt);
             }, option.delay * 20);
         } else {
             proj_comp.shoot(view.normalize().scl(option.speed), shootOpt);

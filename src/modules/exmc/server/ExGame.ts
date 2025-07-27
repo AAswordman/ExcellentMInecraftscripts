@@ -2,7 +2,7 @@ import ExConfig from '../ExConfig.js';
 import ExGameClient from "./ExGameClient.js";
 import ExGameServer from "./ExGameServer.js";
 
-import { Player, ScriptEventCommandMessageAfterEvent, system, world } from "@minecraft/server";
+import { GameRules, Player, ScriptEventCommandMessageAfterEvent, system, world } from "@minecraft/server";
 import "../../reflect-metadata/Reflect.js";
 import '../utils/Console.js'
 
@@ -11,6 +11,7 @@ import MonitorManager from "../utils/MonitorManager.js";
 import { TickEvent } from "./events/events.js";
 import ExErrorQueue from "./ExErrorQueue.js";
 import ExContext from '../interface/ExContext.js';
+import lateinit from '../utils/lateinit.js';
 
 export default class ExGame {
 
@@ -111,7 +112,9 @@ export default class ExGame {
         });
     }
 
-    static gamerules = world.gameRules;
+    @lateinit(() => world.gameRules)
+    static gamerules: GameRules;
+    
     static _sleep(tickDelay: number): Promise<void> {
         return system.waitTicks(tickDelay);
     }
@@ -162,9 +165,19 @@ export default class ExGame {
     static runJob(r: () => Generator<void, void, void>) {
         system.runJob(r())
     }
+
+    static preparedServer: [typeof ExGameServer, ExConfig][] = [];
+    static {
+        world.afterEvents.worldLoad.subscribe(() => {
+            for (let [serverCons, config] of this.preparedServer) {
+                let server = new serverCons(config);
+                this.serverMap.set(serverCons, server);
+            }
+        });
+    }
+
     static createServer(serverCons: typeof ExGameServer, config: ExConfig) {
-        let server = new serverCons(config);
-        this.serverMap.set(serverCons, server);
+        this.preparedServer.push([serverCons, config]);
     }
     static register(arg0: string, event: (context: any) => void, config: ExConfig) {
         event(config.gameContext);

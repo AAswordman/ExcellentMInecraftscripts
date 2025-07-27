@@ -1,4 +1,4 @@
-import { MinecraftDimensionTypes, Block, EntityHurtAfterEvent, Entity, RawMessage, GameMode } from '@minecraft/server';
+import { Block, EntityHurtAfterEvent, Entity, RawMessage, GameMode } from '@minecraft/server';
 import GameController from "./GameController.js";
 import RuinsLoaction from "../serverFunc/ruins/RuinsLoaction.js";
 import { ExBlockArea } from '../../../modules/exmc/server/block/ExBlockArea.js';
@@ -9,7 +9,7 @@ import ExMessageAlert from '../../../modules/exmc/server/ui/ExMessageAlert.js';
 import ExActionAlert from '../../../modules/exmc/server/ui/ExActionAlert.js';
 import PomBossBarrier from '../entities/barrier/PomBossBarrier.js';
 import { Objective } from '../../../modules/exmc/server/entity/ExScoresManager.js';
-import { MinecraftBlockTypes, MinecraftEffectTypes } from '../../../modules/vanilla-data/lib/index.js';
+import { MinecraftBlockTypes,  MinecraftDimensionTypes,  MinecraftEffectTypes } from '../../../modules/vanilla-data/lib/index.js';
 import PomRuinCommon from '../serverFunc/ruins/PomRuinCommon.js';
 import ExGame from '../../../modules/exmc/server/ExGame.js';
 
@@ -79,7 +79,7 @@ export default class PomDimRuinsSystem extends GameController {
                                 "dec:ender_egg": 1,
                                 "dec:magic_crystal": 1
                             }
-                            if (this.exPlayer.gamemode == GameMode.creative || Array.from(Object.keys(useMap)).every(k => (useMap as any)[k] as number <= (itemMap.get(k) ?? 0))) {
+                            if (this.exPlayer.gamemode == GameMode.Creative || Array.from(Object.keys(useMap)).every(k => (useMap as any)[k] as number <= (itemMap.get(k) ?? 0))) {
                                 let ent = this.getExDimension().spawnEntity(id,
                                     ruin.getBossSpawnArea()!.center()
                                 );
@@ -124,7 +124,7 @@ export default class PomDimRuinsSystem extends GameController {
                             if (!v) {
                                 v = new Vector3(0, 255, 0);
                             }
-                            this.exPlayer.setPosition(v, this.getDimension(MinecraftDimensionTypes.overworld));
+                            this.exPlayer.setPosition(v, this.getDimension(MinecraftDimensionTypes.Overworld));
                         })
                         .button(this.lang.cancel, () => {
 
@@ -145,7 +145,7 @@ export default class PomDimRuinsSystem extends GameController {
                     if (!v) {
                         v = new Vector3(0, 255, 0);
                     }
-                    this.exPlayer.setPosition(v, this.getDimension(MinecraftDimensionTypes.overworld));
+                    this.exPlayer.setPosition(v, this.getDimension(MinecraftDimensionTypes.Overworld));
                 })
                 .show(this.player);
         }
@@ -184,7 +184,7 @@ export default class PomDimRuinsSystem extends GameController {
                 this.data.dimBackPoint = new Vector3(this.player.location).add(3, 2, 3);
                 this.client.cache.save();
                 this.exPlayer.setPosition(ExBlockArea.randomPoint(this.client.getServer().ruin_desertBoss.getPlayerSpawnArea(), 4),
-                    this.getDimension(MinecraftDimensionTypes.theEnd));
+                    this.getDimension(MinecraftDimensionTypes.TheEnd));
                 //未生成遗迹判断
                 if (((this.globalSettings.ruinsExsitsData >> RuinsLoaction.DESERT_RUIN_NUM) & 1) == 0) {
                     //generate
@@ -197,7 +197,7 @@ export default class PomDimRuinsSystem extends GameController {
                 this.client.cache.save();
                 this.exPlayer.addEffect(MinecraftEffectTypes.Resistance, 20 * 10, 10, true);
                 this.exPlayer.setPosition(ExBlockArea.randomPoint(this.client.getServer().ruin_stoneBoss.getPlayerSpawnArea(), 0),
-                    this.getDimension(MinecraftDimensionTypes.theEnd));
+                    this.getDimension(MinecraftDimensionTypes.TheEnd));
                 //未生成遗迹判断
                 if (((this.globalSettings.ruinsExsitsData >> RuinsLoaction.STONE_RUIN_NUM) & 1) == 0) {
                     //generate
@@ -210,7 +210,7 @@ export default class PomDimRuinsSystem extends GameController {
                 this.client.cache.save();
                 this.exPlayer.addEffect(MinecraftEffectTypes.Resistance, 20 * 10, 10, true);
                 this.exPlayer.setPosition(ExBlockArea.randomPoint(this.client.getServer().ruin_caveBoss.getPlayerSpawnArea(), 0),
-                    this.getDimension(MinecraftDimensionTypes.theEnd));
+                    this.getDimension(MinecraftDimensionTypes.TheEnd));
                 //未生成遗迹判断
                 if (((this.globalSettings.ruinsExsitsData >> RuinsLoaction.CAVE_RUIN_NUM) & 1) == 0) {
                     //generate
@@ -223,7 +223,7 @@ export default class PomDimRuinsSystem extends GameController {
                 this.client.cache.save();
                 this.exPlayer.addEffect(MinecraftEffectTypes.Resistance, 20 * 10, 10, true);
                 this.exPlayer.setPosition(ExBlockArea.randomPoint(this.client.getServer().ruin_ancientBoss.getPlayerSpawnArea(), 0),
-                    this.getDimension(MinecraftDimensionTypes.theEnd));
+                    this.getDimension(MinecraftDimensionTypes.TheEnd));
                 //未生成遗迹判断
                 if (((this.globalSettings.ruinsExsitsData >> RuinsLoaction.ANCIENT_RUIN_NUM) & 1) == 0) {
                     //generate
@@ -236,7 +236,7 @@ export default class PomDimRuinsSystem extends GameController {
                 this.client.cache.save();
                 this.exPlayer.addEffect(MinecraftEffectTypes.Resistance, 20 * 10, 10, true);
                 this.exPlayer.setPosition(ExBlockArea.randomPoint(this.client.getServer().ruin_mindBoss.getPlayerSpawnArea(), 0),
-                    this.getDimension(MinecraftDimensionTypes.theEnd));
+                    this.getDimension(MinecraftDimensionTypes.TheEnd));
                 //未生成遗迹判断
                 if (((this.globalSettings.ruinsExsitsData >> RuinsLoaction.MIND_RUIN_NUM) & 1) == 0) {
                     //generate
@@ -249,7 +249,7 @@ export default class PomDimRuinsSystem extends GameController {
                 this.client.cache.save();
                 this.exPlayer.addEffect(MinecraftEffectTypes.Resistance, 20 * 10, 10, true);
                 this.exPlayer.setPosition(ExBlockArea.randomPoint(this.client.getServer().ruin_guardBoss.getPlayerSpawnArea(), 0),
-                    this.getDimension(MinecraftDimensionTypes.theEnd));
+                    this.getDimension(MinecraftDimensionTypes.TheEnd));
                 //未生成遗迹判断
                 if (((this.globalSettings.ruinsExsitsData >> RuinsLoaction.GUARD_RUIN_NUM) & 1) == 0) {
                     //generate
@@ -261,27 +261,27 @@ export default class PomDimRuinsSystem extends GameController {
             if (!PomBossBarrier.isInBarrier(this.player)) {
                 this.desertRuinBackJudge.upDate(
                     (this.client.getServer().ruin_desertBoss.getBossSpawnArea()?.contains(tmpV) ?? false)
-                    && this.player.dimension.id === MinecraftDimensionTypes.theEnd
+                    && this.player.dimension.id === MinecraftDimensionTypes.TheEnd
                 );
                 this.stoneRuinBackJudge.upDate(
                     (this.client.getServer().ruin_stoneBoss.getBossSpawnArea()?.contains(tmpV) ?? false)
-                    && this.player.dimension.id === MinecraftDimensionTypes.theEnd
+                    && this.player.dimension.id === MinecraftDimensionTypes.TheEnd
                 );
                 this.caveRuinBackJudge.upDate(
                     (this.client.getServer().ruin_caveBoss.getBossSpawnArea()?.contains(tmpV) ?? false)
-                    && this.player.dimension.id === MinecraftDimensionTypes.theEnd
+                    && this.player.dimension.id === MinecraftDimensionTypes.TheEnd
                 );
                 this.ancientRuinBackJudge.upDate(
                     (this.client.getServer().ruin_ancientBoss.getBossSpawnArea()?.contains(tmpV) ?? false)
-                    && this.player.dimension.id === MinecraftDimensionTypes.theEnd
+                    && this.player.dimension.id === MinecraftDimensionTypes.TheEnd
                 );
                 this.mindRuinBackJudge.upDate(
                     (this.client.getServer().ruin_mindBoss.getBossSpawnArea()?.contains(tmpV) ?? false)
-                    && this.player.dimension.id === MinecraftDimensionTypes.theEnd
+                    && this.player.dimension.id === MinecraftDimensionTypes.TheEnd
                 );
                 this.guardRuinBackJudge.upDate(
                     (this.client.getServer().ruin_guardBoss.getBossSpawnArea()?.contains(tmpV) ?? false)
-                    && this.player.dimension.id === MinecraftDimensionTypes.theEnd
+                    && this.player.dimension.id === MinecraftDimensionTypes.TheEnd
                 );
             }
             let isInDesertRuin = false;
@@ -292,7 +292,7 @@ export default class PomDimRuinsSystem extends GameController {
             let isInMindRuin = false;
 
             //处于守卫遗迹
-            if (this.getDimension(MinecraftDimensionTypes.theEnd) === this.player.dimension
+            if (this.getDimension(MinecraftDimensionTypes.TheEnd) === this.player.dimension
                 && tmpV.x >= RuinsLoaction.DESERT_RUIN_LOCATION_START.x && tmpV.x <= RuinsLoaction.DESERT_RUIN_LOCATION_END.x
                 && tmpV.z >= RuinsLoaction.DESERT_RUIN_LOCATION_START.z && tmpV.z <= RuinsLoaction.DESERT_RUIN_LOCATION_END.z) {
                 if (tmpV.y < RuinsLoaction.DESERT_RUIN_LOCATION_START.y - 2) {
@@ -315,7 +315,7 @@ export default class PomDimRuinsSystem extends GameController {
 
 
             //处于守卫遗迹
-            if (this.getDimension(MinecraftDimensionTypes.theEnd) === this.player.dimension
+            if (this.getDimension(MinecraftDimensionTypes.TheEnd) === this.player.dimension
                 && tmpV.x >= RuinsLoaction.GUARD_RUIN_LOCATION_START.x && tmpV.x <= RuinsLoaction.GUARD_RUIN_LOCATION_END.x
                 && tmpV.z >= RuinsLoaction.GUARD_RUIN_LOCATION_START.z && tmpV.z <= RuinsLoaction.GUARD_RUIN_LOCATION_END.z) {
                 if (tmpV.y < RuinsLoaction.GUARD_RUIN_LOCATION_START.y - 2) {
@@ -329,7 +329,7 @@ export default class PomDimRuinsSystem extends GameController {
             }
 
             //处于石头遗迹
-            if (this.getDimension(MinecraftDimensionTypes.theEnd) === this.player.dimension
+            if (this.getDimension(MinecraftDimensionTypes.TheEnd) === this.player.dimension
                 && tmpV.x >= RuinsLoaction.STONE_RUIN_LOCATION_START.x && tmpV.x <= RuinsLoaction.STONE_RUIN_LOCATION_END.x
                 && tmpV.z >= RuinsLoaction.STONE_RUIN_LOCATION_START.z && tmpV.z <= RuinsLoaction.STONE_RUIN_LOCATION_END.z) {
                 if (tmpV.y < RuinsLoaction.STONE_RUIN_LOCATION_START.y - 2) {
@@ -343,7 +343,7 @@ export default class PomDimRuinsSystem extends GameController {
             }
 
             //处于洞穴遗迹
-            if (this.getDimension(MinecraftDimensionTypes.theEnd) === this.player.dimension
+            if (this.getDimension(MinecraftDimensionTypes.TheEnd) === this.player.dimension
                 && tmpV.x >= RuinsLoaction.CAVE_RUIN_LOCATION_START.x && tmpV.x <= RuinsLoaction.CAVE_RUIN_LOCATION_END.x
                 && tmpV.z >= RuinsLoaction.CAVE_RUIN_LOCATION_START.z && tmpV.z <= RuinsLoaction.CAVE_RUIN_LOCATION_END.z) {
 
@@ -353,7 +353,7 @@ export default class PomDimRuinsSystem extends GameController {
 
             }
             //处于远古遗迹
-            if (this.getDimension(MinecraftDimensionTypes.theEnd) === this.player.dimension
+            if (this.getDimension(MinecraftDimensionTypes.TheEnd) === this.player.dimension
                 && tmpV.x >= RuinsLoaction.ANCIENT_RUIN_LOCATION_START.x && tmpV.x <= RuinsLoaction.ANCIENT_RUIN_LOCATION_END.x
                 && tmpV.z >= RuinsLoaction.ANCIENT_RUIN_LOCATION_START.z && tmpV.z <= RuinsLoaction.ANCIENT_RUIN_LOCATION_END.z) {
 
@@ -363,7 +363,7 @@ export default class PomDimRuinsSystem extends GameController {
 
             }
             //处于内心遗迹
-            if (this.getDimension(MinecraftDimensionTypes.theEnd) === this.player.dimension
+            if (this.getDimension(MinecraftDimensionTypes.TheEnd) === this.player.dimension
                 && tmpV.x >= RuinsLoaction.MIND_RUIN_LOCATION_START.x && tmpV.x <= RuinsLoaction.MIND_RUIN_LOCATION_END.x
                 && tmpV.z >= RuinsLoaction.MIND_RUIN_LOCATION_START.z && tmpV.z <= RuinsLoaction.MIND_RUIN_LOCATION_END.z) {
 
@@ -382,7 +382,7 @@ export default class PomDimRuinsSystem extends GameController {
 
             //设置游戏模式
             this.isInRuinJudge = isInDesertRuin || isInStoneRuin || isInCaveRuin || isInAncientRuin || isInMindRuin || isInGuardRuin
-            if (this.getDimension().id === MinecraftDimensionTypes.theEnd) {
+            if (this.getDimension().id === MinecraftDimensionTypes.TheEnd) {
                 let loc = this.player.location;
                 if ((!this.isInRuinJudge) && (15000 <= loc.x && loc.x <= 20000 && loc.z >= 15000 && loc.z <= 20000)) {
                     if (warningRuinTimes == 5) {
@@ -422,16 +422,16 @@ export default class PomDimRuinsSystem extends GameController {
         // this.getEvents().exEvents.itemOnHandChange.subscribe((e) => {
         //     this.sayTo(e.afterItem?.typeId + "");
         // });
-        this.getEvents().exEvents.beforeOnceItemUseOn.subscribe(e => {
+        this.getEvents().exEvents.beforeOncePlayerInteractWithBlock.subscribe(e => {
             let block = e.block;
-            if (e.itemStack.typeId === "wb:start_key") {
+            if (e.itemStack?.typeId === "wb:start_key") {
                 this.run(() => {
                     if (block?.typeId === "wb:block_magic_equipment") {
                         let p = this.client.getServer().portal_desertBoss;
                         let v2 = new Vector3(e.block).add(2, 2, 2);
                         let v1 = new Vector3(e.block).sub(2, 0, 2);
                         let m = p.setArea(new ExBlockArea(v1, v2, true))
-                            .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
+                            .setDimension(this.getDimension(MinecraftDimensionTypes.Overworld))
                             .find();
                         if (m) {
                             this.getDimension().playSound("game.portal.active", e.block, {
@@ -456,7 +456,7 @@ export default class PomDimRuinsSystem extends GameController {
 
                         let p = this.client.getServer().portal_stoneBoss;
                         let m = p.setArea(new ExBlockArea(v1, v2, true))
-                            .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
+                            .setDimension(this.getDimension(MinecraftDimensionTypes.Overworld))
                             .find();
                         if (m) {
                             this.getDimension().playSound("game.portal.active", e.block, {
@@ -477,7 +477,7 @@ export default class PomDimRuinsSystem extends GameController {
                         const v1 = new Vector3(e.block).sub(2, 0, 2);
                         let p = this.client.getServer().portal_caveBoss;
                         let m = p.setArea(new ExBlockArea(v1, v2, true))
-                            .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
+                            .setDimension(this.getDimension(MinecraftDimensionTypes.Overworld))
                             .find();
                         if (m) {
                             this.getDimension().playSound("game.portal.active", e.block, {
@@ -497,7 +497,7 @@ export default class PomDimRuinsSystem extends GameController {
                         const v1 = new Vector3(e.block).sub(2, 0, 2);
                         let p = this.client.getServer().portal_ancientBoss;
                         let m = p.setArea(new ExBlockArea(v1, v2, true))
-                            .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
+                            .setDimension(this.getDimension(MinecraftDimensionTypes.Overworld))
                             .find();
                         if (m) {
                             this.getDimension().playSound("game.portal.active", e.block, {
@@ -519,7 +519,7 @@ export default class PomDimRuinsSystem extends GameController {
                         let v1 = new Vector3(e.block).sub(2, 0, 2);
                         let p = this.client.getServer().portal_mindBoss;
                         let m = p.setArea(new ExBlockArea(v1, v2, true))
-                            .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
+                            .setDimension(this.getDimension(MinecraftDimensionTypes.Overworld))
                             .find();
                         if (m) {
                             this.getDimension().playSound("game.portal.active", e.block, {
@@ -538,7 +538,7 @@ export default class PomDimRuinsSystem extends GameController {
                             v1 = new Vector3(e.block).sub(2, 0, 2);
                             v2 = new Vector3(e.block).add(2, 2, 2);
                             m = p.setArea(new ExBlockArea(v1, v2, true))
-                                .setDimension(this.getDimension(MinecraftDimensionTypes.overworld))
+                                .setDimension(this.getDimension(MinecraftDimensionTypes.Overworld))
                                 .find();
                             if (m) {
                                 this.getDimension().playSound("game.portal.active", e.block, {

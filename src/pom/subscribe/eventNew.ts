@@ -1,4 +1,4 @@
-import { world, BlockPermutation, Block, Player, Entity, ItemStack, EquipmentSlot, Dimension } from '@minecraft/server';
+import { world, BlockPermutation, Block, Player, Entity, ItemStack, EquipmentSlot, Dimension, GameMode, system } from '@minecraft/server';
 import { fileProvider, JSONObject } from '../../filepack/index.js';
 import ExPlayer from '../../modules/exmc/server/entity/ExPlayer.js';
 import Vector3 from '../../modules/exmc/utils/math/Vector3.js';
@@ -10,6 +10,8 @@ import ExSystem from '../../modules/exmc/utils/ExSystem.js';
 import ExScoresManager, { Objective } from '../../modules/exmc/server/entity/ExScoresManager.js';
 import PomServer from '../server/PomServer.js';
 import ExContext from '../../modules/exmc/server/ExGameObject.js';
+import ExGameConfig from '../../modules/exmc/server/ExGameConfig.js';
+import DecGlobal from '../../dec/server/DecGlobal.js';
 
 const ex = (name: string) => "ex:" + name;
 const minecraft = (name: string) => "minecraft:" + name;
@@ -95,6 +97,15 @@ function molangCalculate(molang: string | number, option: TriggerOption) {
         },
         get block() {
             return option.triggerBlock;
+        },
+        get isDec() {
+            return DecGlobal.isDec();
+        },
+        get triggerEntity() {
+            return option.triggerEntity;
+        },
+        get player() {
+            return option.triggerEntity;
         }
     };
     const query = {
@@ -212,7 +223,7 @@ type EventUser = {
     };
     post_message?: {
         message: any[];
-        sign: string;
+        sign?: string;
     };
     play_sound?: {
         target?: string;
@@ -245,6 +256,7 @@ type EventUser = {
         type: string;
     }
     shoot?: {
+        delay_ticks: number;
         projectile: string;
         launch_power?: number;
     }
@@ -347,7 +359,14 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
             if (item) {
                 let damageComp = item.getComponent("durability");
                 if (damageComp) {
-                    damageComp.damage += 1;
+                    let damage = damageComp.damage;
+                    damage += 1;
+                    if (damage >= damageComp.maxDurability) {
+                        bag.clearItem(item.typeId, 1);
+                    } else {
+                        damageComp.damage = damage;
+                        bag.itemOnMainHand = item;
+                    }
                 } else {
                     bag.clearItem(item.typeId, 1);
                 }
@@ -358,7 +377,7 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
             for (let [i, e] of post.message.entries()) {
                 post.message[i] = typeof e === "string" ? molangCalculate(e, option) : e;
             }
-            ExGame.postMessageToServer(post.sign, post.message);
+            if (post.sign) ExGame.postMessageToServer(post.sign, post.message);
         }
     } else if (option.triggerItem && option.triggerEntity) {
         if (eventUser.condition) {
@@ -383,21 +402,31 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
         if (eventUser.play_sound) {
             option.triggerEntity.dimension.playSound(eventUser.play_sound.sound, pos);
         }
-
         if (eventUser.shoot) {
-            let proj = (idEntityMap.get(eventUser.shoot.projectile) as any)?.["minecraft:entity"]?.["components"]?.['minecraft:projectile'];
-            let power = proj?.['power']
-            let uncertaintyBase = proj?.['uncertaintyBase']
-            ExEntity.getInstance(option.triggerEntity).shootProj(eventUser.shoot.projectile, {
-                "speed": (eventUser.shoot.launch_power ?? 1) *
-                    (power ?? 1),
-                "uncertainty": uncertaintyBase ?? 0
-            });
+            const shootConfig = eventUser.shoot;
+            let proj = (idEntityMap.get(shootConfig.projectile) as any)?.["minecraft:entity"]?.["components"]?.['minecraft:projectile'];
+            let power = proj?.['power'];
+            let uncertaintyBase = proj?.['uncertaintyBase'];
+
+            system.runTimeout(() => {
+                ExEntity.getInstance(<Entity>option.triggerEntity).shootProj(shootConfig.projectile, {
+                    "speed": (shootConfig.launch_power ?? 1) * (power ?? 1),
+                    "uncertainty": uncertaintyBase ?? 0
+                });
+            }, shootConfig.delay_ticks ?? 0);
         }
         if (eventUser.damage) {
             let damageComp = option.triggerItem.getComponent("durability");
-            if (damageComp) {
-                damageComp.damage += eventUser.damage.amount;
+            if (damageComp && !(option.triggerEntity instanceof Player && option.triggerEntity.getGameMode() == GameMode.Creative)) {
+                let bag = ExEntity.getInstance(option.triggerEntity).getBag();
+                let damage = damageComp.damage;
+                damage += eventUser.damage.amount;
+                if (damage >= damageComp.maxDurability) {
+                    bag.clearItem(option.triggerItem.typeId, 1);
+                } else {
+                    damageComp.damage = damage;
+                    bag.itemOnMainHand = option.triggerItem;
+                }
             }
 
         }
@@ -465,7 +494,7 @@ export default (context: ExContext) => {
             console.warn(fpath);
         }
     }
-    world.beforeEvents.worldInitialize.subscribe(initEvent => {
+    system.beforeEvents.startup.subscribe(initEvent => {
         initEvent.blockComponentRegistry.registerCustomComponent(ex(onStepOnCompName), {
             onStepOn: e => {
                 if (e.entity) {
@@ -508,7 +537,7 @@ export default (context: ExContext) => {
             }
         });
         initEvent.blockComponentRegistry.registerCustomComponent(ex(onPlayerDestroyedCompName), {
-            onPlayerDestroy: e => {
+            onPlayerBreak: e => {
                 if (e) {
                     let option = { triggerBlock: e.block, triggerEntity: e.player, triggerType: onPlayerDestroyedCompName };
                     const triggerComp = findTriggerComp(option) as onPlayerDestroyedCompType | undefined;

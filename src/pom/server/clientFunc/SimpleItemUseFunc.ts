@@ -1,4 +1,4 @@
-import { EntityDamageCause, ItemType, ItemStack, ItemTypes, MinecraftDimensionTypes, BiomeType, BiomeTypes, Entity, MolangVariableMap, world, EntityHealthComponent, EntityComponentTypes } from '@minecraft/server';
+import { EntityDamageCause, ItemType, ItemStack, ItemTypes,  Entity, MolangVariableMap, world, BiomeTypes } from '@minecraft/server';
 import { ModalFormData } from "@minecraft/server-ui";
 import Vector3 from '../../../modules/exmc/utils/math/Vector3.js';
 import ExDimension from '../../../modules/exmc/server/ExDimension.js';
@@ -7,7 +7,7 @@ import menuFunctionUI from "../data/menuFunctionUI.js";
 import MenuUIAlert from "../ui/MenuUIAlert.js";
 import GameController from "./GameController.js";
 import RuinsLoaction from '../serverFunc/ruins/RuinsLoaction.js';
-import { MinecraftCameraPresetsTypes, MinecraftEffectTypes } from '../../../modules/vanilla-data/lib/index.js';
+import { MinecraftCameraPresetsTypes, MinecraftDimensionTypes, MinecraftEffectTypes } from '../../../modules/vanilla-data/lib/index.js';
 import { MinecraftBiomeTypes } from '../../../modules/vanilla-data/lib/index.js';
 import ExEntity from '../../../modules/exmc/server/entity/ExEntity.js';
 import ExSystem from '../../../modules/exmc/utils/ExSystem.js';
@@ -17,11 +17,13 @@ import { falseIfError } from '../../../modules/exmc/utils/tool.js';
 import ExEntityQuery from '../../../modules/exmc/server/env/ExEntityQuery.js';
 import MathUtil from '../../../modules/exmc/utils/math/MathUtil.js';
 import { TickEvent } from '../../../modules/exmc/server/events/events.js';
+import plotLine from '../data/plotLine.js';
+import Random from '../../../modules/exmc/utils/Random.js';
 
 export default class SimpleItemUseFunc extends GameController {
     worldExploreTimer?: TickDelayTask;
     inkSwordsSkill = false;
-    inkSwordsSkillTask = ExSystem.tickTask(this,() => {
+    inkSwordsSkillTask = ExSystem.tickTask(this, () => {
         this.inkSwordsSkill = false;
          //主目标倍率
     }).delay(2 * 20);       
@@ -40,7 +42,7 @@ export default class SimpleItemUseFunc extends GameController {
 
         this.getEvents().exEvents.afterPlayerBreakBlock.subscribe(e => {
             const itemId = this.exPlayer.getBag().itemOnMainHand?.typeId;
-            if ((e.dimension === this.getDimension(MinecraftDimensionTypes.theEnd) && RuinsLoaction.isInProtectArea(e.block)) || this.exPlayer.getScoresManager().getScore("i_inviolable") > 1) return;
+            if ((e.dimension === this.getDimension(MinecraftDimensionTypes.TheEnd) && RuinsLoaction.isInProtectArea(e.block)) || this.exPlayer.getScoresManager().getScore("i_inviolable") > 1) return;
             if (!this.globalSettings.chainMining) return;
             if (itemId === "wb:axex_equipment_a") {
                 if (e.brokenBlockPermutation.hasTag("log")) {
@@ -64,20 +66,20 @@ export default class SimpleItemUseFunc extends GameController {
                 }
             }
         });
-        this.getEvents().exEvents.beforeItemUseOn.subscribe(e => {
-            if (e.itemStack.typeId === "wb:technology_world_explorer") {
+        this.getEvents().exEvents.beforePlayerInteractWithBlock.subscribe(e => {
+            if (e.itemStack?.typeId === "wb:technology_world_explorer") {
                 this.sayTo(e.block?.typeId ?? "");
             }
         });
+        
         this.getEvents().exEvents.beforeItemUse.subscribe((e) => {
             const item = e.itemStack;
-
             if (item.typeId == "wb:power") {
                 if (!this.data.lang) {
                     this.runTimeout(() => {
                         new ModalFormData()
                             .title("Choose a language")
-                            .dropdown("Language List", ["English", "简体中文"], 0)
+                            .dropdown("Language List", ["English", "简体中文"], {"defaultValueIndex":0})
                             .show(this.player).then((e) => {
                                 if (!e.canceled) {
                                     this.data.lang = (e.formValues && e.formValues[0] == 0) ? "en" : "zh";
@@ -121,8 +123,8 @@ export default class SimpleItemUseFunc extends GameController {
                             }));
 
                             const dic = new Vector3(pos).sub(pPos).normalize().scl(1 / 10)
-                            this.worldExploreTimer = ExSystem.tickTask(this,() => {
-                                if (falseIfError(() => ball.entity.isValid())) {
+                            this.worldExploreTimer = ExSystem.tickTask(this, () => {
+                                if (falseIfError(() => ball.entity.isValid)) {
                                     pPos.add(dic);
                                     ball.setPosition(pPos.cpy().add(0, 1.5, 0));
                                     if (pPos.distance(pos) < 2048) {
@@ -137,14 +139,16 @@ export default class SimpleItemUseFunc extends GameController {
                                 itemDim.spawnItem(item, pPos);
                                 ball.entity.remove();
                             }, 5000)
-                            
+
                         }
                     } else {
                         new ModalFormData()
                             .title(this.lang.chooseBossToFindBiomes)
                             .dropdown(this.lang.chooseBoss,
                                 boss.map(e => e[0])
-                                , 0)
+                                , {
+                                    "defaultValueIndex": 0
+                                })
                             .show(this.player).then((e) => {
                                 if (!e.canceled && e.formValues) {
                                     // let boimes = BiomeTypes.get(boss[e.formValues[0] as number ?? 0][1])!;
@@ -166,7 +170,7 @@ export default class SimpleItemUseFunc extends GameController {
                     this.inkSwordsSkill = true;
                     this.inkSwordsSkillTask.startOnce();
                     let dic = this.player.getViewDirection();
-                    this.player.applyKnockback(dic.x, dic.z, 7, 0);
+                    this.player.applyKnockback({x:dic.x, z:dic.z}, 7);
                     let move = this.player.getComponent("minecraft:movement");
                     move?.setCurrentValue(MathUtil.clamp(move.currentValue - 0.1, 0.1, 0.7))
                     this.player.addEffect(MinecraftEffectTypes.Resistance, 10, {
@@ -243,7 +247,7 @@ export default class SimpleItemUseFunc extends GameController {
                                 "damagingEntity": this.player
                             });
                             let direction = tmpV.set(e.location).sub(this.player.location).normalize();
-                            e.applyKnockback(direction.x, direction.z, 1.2, 0.5);
+                            e.applyKnockback({x:direction.x, z:direction.z}, 1.2);
                             if (use_time > 2) {
                                 e.addEffect(MinecraftEffectTypes.Slowness, 3 * 20, {
                                     "amplifier": 255,
@@ -338,7 +342,7 @@ export default class SimpleItemUseFunc extends GameController {
                                     "damagingEntity": this.player
                                 });
                                 let direction = tmpV.set(e.location).sub(this.player.location).normalize();
-                                e.applyKnockback(direction.x, direction.z, 1.5, 0.7);
+                                e.applyKnockback({x:direction.x, z:direction.z}, 1.5);
                             } catch (e) { }
                         }
                         this.exPlayer.removeTag("skill_user");
@@ -406,4 +410,28 @@ export default class SimpleItemUseFunc extends GameController {
         this.exPlayer.dimension.spawnEntity("wb:ball_jet_pack", this.exPlayer.position.sub(this.exPlayer.viewDirection.scl(2)));
     }
 
+    unknownBook() {
+        let remainArr: [number, number][] = [];
+        // 遍历所有剧情部分
+        for (let i = 0; i < plotLine.length; i++) {
+            // 遍历每个部分的所有剧情段落
+            for (let j = 0; j < plotLine[i].length; j++) {
+                // 如果这段剧情还没被选择过，加入到remainArr
+                if (!this.data.plotLine.part[i].includes(j)) {
+                    remainArr.push([i, j]);
+                }
+            }
+        }
+        
+        // 如果没有剩余的剧情，直接返回
+        if (remainArr.length === 0) return;
+        
+        // 随机选择一个剩余的剧情
+        let choice = Random.choice(remainArr);
+        let [a, b] = choice;
+        
+        // 展示剧情并记录
+        this.sayTo(plotLine[a][b]);
+        this.data.plotLine.part[a].push(b);
+    }
 }

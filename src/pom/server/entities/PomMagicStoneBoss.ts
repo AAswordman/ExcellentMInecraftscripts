@@ -1,10 +1,6 @@
 import { Entity, EntityDieAfterEvent, EntityHurtAfterEvent, world } from '@minecraft/server';
-import ExGameServer from '../../../modules/exmc/server/ExGameServer.js';
-import ExEntityController from '../../../modules/exmc/server/entity/ExEntityController.js';
-import ExGameConfig from '../../../modules/exmc/server/ExGameConfig.js';
 import PomBossController from './PomBossController.js';
 import PomServer from '../PomServer.js';
-import PomClient from '../PomClient.js';
 
 export default class PomMagicStoneBoss extends PomBossController {
     static typeId = "wb:magic_stoneman";
