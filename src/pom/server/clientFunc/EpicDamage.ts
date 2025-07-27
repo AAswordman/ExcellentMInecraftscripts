@@ -21,7 +21,6 @@ import ItemTagComponent, { ItemTagComponentType } from '../data/ItemTagComponent
 import { get } from 'http';
 import { IVector3 } from '../../../modules/exmc/utils/math/Vector3';
 import Vector2 from '../../../modules/exmc/utils/math/Vector2.js';
-import { NONAME } from 'dns';
 
 export default class EpicItemUse extends GameController {
 
@@ -101,37 +100,6 @@ export default class EpicItemUse extends GameController {
     }
     this.getDimension().spawnParticle(id, finloc)
   }
-  witherCount(target : Entity , MaxTime : number){
-    let lv = (target.getEffect("wither")?.amplifier || -1) + 1;
-    let dur = (target.getEffect("wither")?.duration || 0)/20;
-    let trans = 0;
-    if (dur > MaxTime){
-      dur = MaxTime;
-    }
-    if(lv > 0 && lv <=3){
-      trans = (lv == 3) ? 2*dur : 0.5*lv*dur
-    }
-    else if(lv >= 4){
-      trans = (2+0.25*(lv-3)) * dur;
-    }
-    return trans
-  }
-  witherBurst(target : Entity , Power : number , MaxTime : number){
-    let lv = (target.getEffect("wither")?.amplifier || -1) + 1;
-    let dur = (target.getEffect("wither")?.duration || 0)/20;
-    const loc = new Vector3(target.location)
-    let Dam = Power * this.witherCount(target,MaxTime)
-    target.applyDamage(Dam, {
-      "cause": EntityDamageCause.wither
-    });
-    target.removeEffect("wither");
-    if (dur > MaxTime && lv > 0){
-      dur -= MaxTime;
-      target.addEffect("wither",dur * 20,{"amplifier": lv-1,"showParticles":true})
-    }
-    this.spawnPar("minecraft:sonic_explosion",loc,new Vector3(0,0,0))
-    this.getDimension().playSound("mob.warden.sonic_boom",loc,{"volume":50});
-  }
   onJoin(): void {
 
     this.getEvents().exEvents.afterPlayerHitEntity.subscribe(event => {
@@ -182,25 +150,21 @@ export default class EpicItemUse extends GameController {
         {
           //倍率
           const dam1 = 1.0* atk;
+          this.runTimeout(() => {
             const loc = new Vector3(target.location)
             const face = new Vector3(target.getViewDirection());
-            const lv = (target.getEffect("wither")?.amplifier || -1)+1;
-            const dur = (target.getEffect("wither")?.duration || 0)/20;
-            this.runTimeout(() => {
+            const lv = target.getEffect("wither")?.amplifier || 0;
+            const dur = target.getEffect("wither")?.duration || 0;
             if (dur > 0) {
-            let s = dur + 6;
-            target.addEffect("wither",s * 20,{"amplifier": 1,"showParticles":true})
+            let s = dur + 6 * 20;
+            target.addEffect("wither",s,{"amplifier": 1,"showParticles":true})
             }
             else
             {
             target.addEffect("wither",6 * 20,{"amplifier": 1,"showParticles":true})
             }
           }, 0);
-          this.runTimeout(() => {
-            if (dur > 20) {
-              this.witherBurst(target,1.0,120)
-            }
-          }, 500);
+          
         }
         break
     }
