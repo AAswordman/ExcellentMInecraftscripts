@@ -141,6 +141,8 @@ export default class PomTalentSystem extends GameController {
 
     attackCooldown: number = 0;
     maxAttackCooldown: number = 0;
+    itemMaxAttackCooldown: number = 0;
+
     attackCooldownLooper = ExSystem.tickTask(this,() => {
         const maxFrame = 30;
         if (this.attackCooldown < -10) {
@@ -156,6 +158,14 @@ export default class PomTalentSystem extends GameController {
         this.maxAttackCooldown = cooldown;
         this.attackCooldownLooper.start();
     }
+
+    bindingItemCooldown(id:string,maxCooldown:number){
+        this.cooldownMap.set(id,maxCooldown);
+    }
+
+
+
+    cooldownMap = new Map<string,number>();
 
 
     chooseArmor(a: ArmorData) {
@@ -371,7 +381,7 @@ export default class PomTalentSystem extends GameController {
             }
             target.removeHealth(this, damage);
             ignornAttackSend = true;
-            this.setCooldown(10);
+            this.setCooldown(this.itemMaxAttackCooldown);
         });
 
         let lastResist = 0;
@@ -478,6 +488,7 @@ export default class PomTalentSystem extends GameController {
         });
 
         let lastListener = (d: [number,Entity|undefined]) => { };
+
 
         this.getEvents().exEvents.afterItemOnHandChange.subscribe((e) => {
             let bag = this.exPlayer.getBag();
@@ -601,6 +612,17 @@ export default class PomTalentSystem extends GameController {
             }
         });
 
+        //binging cooldown
+        this.itemMaxAttackCooldown = 10;
+
+        this.getEvents().exEvents.afterItemOnHandChange.subscribe((e) => {
+            if(e.afterItem && this.cooldownMap.has(e.afterItem.typeId)){
+                this.itemMaxAttackCooldown = this.cooldownMap.get(e.afterItem.typeId)!;
+            } else {
+                this.itemMaxAttackCooldown = 10;
+            }
+        });
+
 
         //debugger
         let testCauseDamage = 0;
@@ -661,6 +683,11 @@ export default class PomTalentSystem extends GameController {
     debugger = false;
     hasBeenDamaged = new MonitorManager<[number,Entity|undefined]>();
     hasCauseDamage = new MonitorManager<[number,Entity]>();
+
+    
+    setItemMaxCooldown(cooldown:number){
+        this.itemMaxAttackCooldown = cooldown;
+    }
 
     onLoad(): void {
 

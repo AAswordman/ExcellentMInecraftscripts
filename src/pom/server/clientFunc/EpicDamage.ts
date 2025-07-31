@@ -1,4 +1,4 @@
-import { EntityDamageCause, ItemType, ItemStack, ItemTypes, MinecraftDimensionTypes, BiomeType, BiomeTypes, Entity, MolangVariableMap, world, EntityHealthComponent, EntityComponentTypes, EnchantmentTypes, Player, GameMode, Effect } from '@minecraft/server';
+import { EntityDamageCause, ItemType, ItemStack, ItemTypes, BiomeType, BiomeTypes, Entity, MolangVariableMap, world, EntityHealthComponent, EntityComponentTypes, EnchantmentTypes, Player, GameMode, Effect } from '@minecraft/server';
 import { ModalFormData } from "@minecraft/server-ui";
 import Vector3 from '../../../modules/exmc/utils/math/Vector3.js';
 import ExDimension from '../../../modules/exmc/server/ExDimension.js';
@@ -206,7 +206,7 @@ export default class EpicItemUse extends GameController {
                     "damagingEntity": this.player
                   });
                   let direction = tmpV.set(entity.location).sub(this.player.location).normalize();
-                  entity.applyKnockback(direction.x, direction.z, 1, 0.5);
+                  entity.applyKnockback({x:direction.x, z:direction.z}, 1);
                   if (echoRecord >= 3) {
                     entity.setDynamicProperty('echo_record', echoRecord-3);
                     shock_entity.push(entity);
@@ -244,7 +244,7 @@ export default class EpicItemUse extends GameController {
                     "damagingEntity": this.player
                   });
                   let direction = tmpV.set(entity.location).sub(this.player.location).normalize();
-                  entity.applyKnockback(direction.x, direction.z, 1.0, 0.5);
+                  entity.applyKnockback({x:direction.x, z:direction.z}, 1.0);
               }
               catch (e) { }
             }
@@ -274,7 +274,7 @@ export default class EpicItemUse extends GameController {
                     "damagingEntity": this.player
                   });
                   let direction = tmpV.set(entity.location).sub(this.player.location).normalize();
-                  entity.applyKnockback(direction.x, direction.z, 0.5, 0.2);
+                  entity.applyKnockback({x:direction.x, z:direction.z}, 0.5);
                   if (echoRecord >= 5) {
                     shock_entity.push(entity);
                     entity.addEffect("slowness",4 * 20,

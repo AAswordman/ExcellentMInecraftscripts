@@ -280,4 +280,10 @@ export default class PomClient extends ExGameClient<PomTransmission> {
     unknownBook() {
         this.itemUseFunc.unknownBook();
     }
+
+    @receiveMessage("setItemMaxCooldown")
+    setItemMaxCooldown(cooldown:number){
+        this.talentSystem.setItemMaxCooldown(cooldown);
+    }
+
 }
