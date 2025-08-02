@@ -34,7 +34,7 @@ export default class EpicItemUse extends GameController {
   }
   getEnchantLevel(id : string): number {
     const item = this.getItem();
-    if (item?.hasComponentById("minecraft:enchantable"))
+    if (item && item?.hasComponentById("minecraft:enchantable"))
       return item?.getComponentById("minecraft:enchantable")?.getEnchantment(id)?.level ?? 0;
     else
       return 0
