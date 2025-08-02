@@ -34,13 +34,16 @@ export default class EpicItemUse extends GameController {
   }
   getEnchantLevel(id : string): number {
     const item = this.getItem();
-    return item?.getComponentById("minecraft:enchantable")!.getEnchantment(id)?.level || 0;
+    if (item?.hasComponentById("minecraft:enchantable"))
+      return item?.getComponentById("minecraft:enchantable")?.getEnchantment(id)?.level ?? 0;
+    else
+      return 0
   }
   getAttack(item : ItemStack | undefined): number {
     if (item != undefined)
     {
     const comp = new ItemTagComponent(item);
-    return comp?.getComponentWithGroup("base_attack")+1;
+    return comp?.getComponentWithGroup("base_attack") + 1;
     }
     else
     return 1
