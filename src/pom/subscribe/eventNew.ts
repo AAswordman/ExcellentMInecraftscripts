@@ -44,7 +44,7 @@ type diggerCompType = {
 const diggerCompName = "digger";
 
 type foodCompType = {
-    "on_consume": CompTriggerCommon;
+    "on_consume"?: CompTriggerCommon;
     "using_converts_to"?: string;
 }
 const foodCompName = "food";
@@ -674,7 +674,7 @@ export default (context: ExContext) => {
             lastSelectItemSlot.set(e.source, [e.source.selectedSlotIndex, e.itemStack.typeId]);
             let option = { triggerItem: e.itemStack, triggerEntity: e.source, triggerType: foodCompName }
             const triggerComp = findTriggerComp(option) as foodCompType | undefined;
-            if (triggerComp) {
+            if (triggerComp && triggerComp.on_consume) {
                 emitEvent(triggerComp.on_consume.event, option);
             }
             if (triggerComp?.using_converts_to) {

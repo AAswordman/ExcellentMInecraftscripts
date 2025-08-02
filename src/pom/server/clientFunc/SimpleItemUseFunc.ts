@@ -66,7 +66,7 @@ export default class SimpleItemUseFunc extends GameController {
                 }
             }
         });
-        this.getEvents().exEvents.beforePlayerInteractWithBlock.subscribe(e => {
+        this.getEvents().exEvents.beforeOncePlayerInteractWithBlock.subscribe(e => {
             if (e.itemStack?.typeId === "wb:technology_world_explorer") {
                 this.sayTo(e.block?.typeId ?? "");
             }
