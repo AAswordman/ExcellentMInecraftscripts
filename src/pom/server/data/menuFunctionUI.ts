@@ -1805,34 +1805,34 @@ ${lang.size}: ${areaMsg?.[0].getWidth().toString()}
                     ]
                 }
             }
-        },
-
-        "TEST": {
-            "img": "textures/items/wet_paper",
-            "text": lang.menuUIMsgBailan1,
-            "default": "1",
-            "page": {
-                "1": {
-                    "text": lang.menuUISubtitleGonggao,
-                    "page": [
-                        {
-                            "type": "padding"
-                        },
-                        {
-                            "type": "text",
-                            "msg": lang.menuUIMsgGonggao1
-                        },
-                        {
-                            "type": "gif_test",
-                        },
-                        {
-                            "type": "testP",
-                            "msg": lang.menuUIMsgGonggao1
-                        }
-                    ]
-                }
-            }
         }
+
+        // "TEST": {
+        //     "img": "textures/items/wet_paper",
+        //     "text": lang.menuUIMsgBailan1,
+        //     "default": "1",
+        //     "page": {
+        //         "1": {
+        //             "text": lang.menuUISubtitleGonggao,
+        //             "page": [
+        //                 {
+        //                     "type": "padding"
+        //                 },
+        //                 {
+        //                     "type": "text",
+        //                     "msg": lang.menuUIMsgGonggao1
+        //                 },
+        //                 {
+        //                     "type": "gif_test",
+        //                 },
+        //                 {
+        //                     "type": "testP",
+        //                     "msg": lang.menuUIMsgGonggao1
+        //                 }
+        //             ]
+        //         }
+        //     }
+        // }
 
     }
 }
