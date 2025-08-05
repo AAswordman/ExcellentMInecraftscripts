@@ -365,7 +365,9 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
                         bag.clearItem(item.typeId, 1);
                     } else {
                         damageComp.damage = damage;
-                        bag.itemOnMainHand = item;
+                        if (bag.itemOnMainHand?.typeId === item.typeId) {
+                            bag.itemOnMainHand = item;
+                        }
                     }
                 } else {
                     bag.clearItem(item.typeId, 1);
@@ -425,7 +427,9 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
                     bag.clearItem(option.triggerItem.typeId, 1);
                 } else {
                     damageComp.damage = damage;
-                    bag.itemOnMainHand = option.triggerItem;
+                    if (bag.itemOnMainHand?.typeId === option.triggerItem.typeId) {
+                        bag.itemOnMainHand = option.triggerItem;
+                    }
                 }
             }
 
