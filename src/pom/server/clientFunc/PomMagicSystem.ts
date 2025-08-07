@@ -38,11 +38,13 @@ export default class PomMagicSystem extends GameController {
     isProtected = false;
     gameMaxHealth = 30;
     scoresManager = this.exPlayer.getScoresManager();
-    wbflLooper = ExSystem.tickTask(this, () => {
-        if (this.scoresManager.getScore("wbfl") < this.wbflMax) this.scoresManager.addScore("wbfl", 2);
-    }).delay(5 * 20);
     wbflDefaultMax = 120;
     wbflMax = this.wbflDefaultMax;
+    wbflLooper = ExSystem.tickTask(this, () => {
+        this.scoresManager.setScore("wbflMax", this.wbflMax);
+        if (this.scoresManager.getScore("wbfl") < this.wbflMax) 
+            this.scoresManager.addScore("wbfl", 2);
+    }).delay(5 * 20);
     experienceAddLooper = ExSystem.tickTask(this, () => {
         this.data.gameExperience += 1;
     }).delay(12 * 20);

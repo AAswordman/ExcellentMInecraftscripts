@@ -44,7 +44,7 @@ type diggerCompType = {
 const diggerCompName = "digger";
 
 type foodCompType = {
-    "on_consume": CompTriggerCommon;
+    "on_consume"?: CompTriggerCommon;
     "using_converts_to"?: string;
 }
 const foodCompName = "food";
@@ -365,7 +365,9 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
                         bag.clearItem(item.typeId, 1);
                     } else {
                         damageComp.damage = damage;
-                        bag.itemOnMainHand = item;
+                        if (bag.itemOnMainHand?.typeId === item.typeId) {
+                            bag.itemOnMainHand = item;
+                        }
                     }
                 } else {
                     bag.clearItem(item.typeId, 1);
@@ -425,7 +427,9 @@ function handleEventUser(eventUser: EventUser, option: TriggerOption) {
                     bag.clearItem(option.triggerItem.typeId, 1);
                 } else {
                     damageComp.damage = damage;
-                    bag.itemOnMainHand = option.triggerItem;
+                    if (bag.itemOnMainHand?.typeId === option.triggerItem.typeId) {
+                        bag.itemOnMainHand = option.triggerItem;
+                    }
                 }
             }
 
@@ -676,10 +680,8 @@ export default (context: ExContext) => {
             lastSelectItemSlot.set(e.source, [e.source.selectedSlotIndex, e.itemStack.typeId]);
             let option = { triggerItem: e.itemStack, triggerEntity: e.source, triggerType: foodCompName }
             const triggerComp = findTriggerComp(option) as foodCompType | undefined;
-            if (triggerComp) {
-                if (triggerComp.on_consume) {
-                    emitEvent(triggerComp.on_consume.event, option);
-                }
+            if (triggerComp && triggerComp.on_consume) {
+                emitEvent(triggerComp.on_consume.event, option);
             }
             if (triggerComp?.using_converts_to) {
                 ExPlayer.getInstance(e.source).getBag().addItem(new ItemStack(triggerComp.using_converts_to));

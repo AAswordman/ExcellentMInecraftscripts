@@ -13,10 +13,18 @@ import ExEntityQuery from '../env/ExEntityQuery.js';
 import ExSystem from '../../utils/ExSystem.js';
 import ExGame from '../ExGame.js';
 import { falseIfError } from '../../utils/tool.js';
+import { StatusManager } from '../../../../pom/server/clientFunc/StatusManager.js';
+import { PoisonStatus } from '../../../../pom/server/clientFunc/EpicStatus';
 
 export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
+
+    public statusManager: StatusManager = new StatusManager(this)
     public command = new ExCommand(this);
 
+    public applyStatus(id: string, dur: number){
+        const newStatus = new PoisonStatus(dur);
+        this.statusManager.addStatus(newStatus);
+    }
 
     public damage(d: number, source?: EntityDamageSource) {
         this.entity.applyDamage(d, source)
@@ -312,6 +320,8 @@ export default class ExEntity implements ExCommandNativeRunner, ExTagManager {
     getMarkVariant() {
         return this.getComponent("minecraft:variant")?.value ?? 0;
     }
+
+    
 }
 /**
  * 实体射击选项

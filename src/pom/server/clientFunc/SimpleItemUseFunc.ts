@@ -25,7 +25,17 @@ export default class SimpleItemUseFunc extends GameController {
     inkSwordsSkill = false;
     inkSwordsSkillTask = ExSystem.tickTask(this, () => {
         this.inkSwordsSkill = false;
-    }).delay(2 * 20);
+         //主目标倍率
+    }).delay(2 * 20);       
+
+    getItem(): ItemStack | undefined {
+        return this.exPlayer.getBag().itemOnMainHand;
+    }
+    
+    isHoldingItem(id: string): boolean {
+        const item = this.getItem();
+        return item?.typeId === id;
+    }
 
     onJoin(): void {
         //连锁挖矿
@@ -56,7 +66,7 @@ export default class SimpleItemUseFunc extends GameController {
                 }
             }
         });
-        this.getEvents().exEvents.beforePlayerInteractWithBlock.subscribe(e => {
+        this.getEvents().exEvents.beforeOncePlayerInteractWithBlock.subscribe(e => {
             if (e.itemStack?.typeId === "wb:technology_world_explorer") {
                 this.sayTo(e.block?.typeId ?? "");
             }
@@ -287,6 +297,7 @@ export default class SimpleItemUseFunc extends GameController {
                     .facingByLTF(new Vector3(0, 1, 3), this.player.getViewDirection()).position,
                     map)
             }
+
         });
         this.getEvents().exEvents.tick.subscribe(e => {
             if (this.exPlayer.getBag().itemOnMainHand?.typeId === "wb:sword_ink_g" && !this.inkSwordsSkill) {
@@ -295,7 +306,7 @@ export default class SimpleItemUseFunc extends GameController {
         });
 
         this.getEvents().exEvents.beforeItemUse.subscribe(e => {
-            const item = e.itemStack;
+         /* const item = e.itemStack;
             const wbfl = this.exPlayer.getScoresManager().getScore("wbfl");
             if (item.typeId === "epic:echoing_scream_saber" && wbfl >= 25) {
                 const cd = this.player.getItemCooldown(e.itemStack.getComponent('minecraft:cooldown')!.cooldownCategory);
@@ -338,7 +349,7 @@ export default class SimpleItemUseFunc extends GameController {
                         this.exPlayer.getScoresManager().removeScore("wbfl", 25);
                     }, 150);
                 }
-            }
+            } */
         });
     }
     chainDigging(v: Vector3, idType: string, times: number, posData?: Set<string>) {

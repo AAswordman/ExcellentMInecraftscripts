@@ -39,7 +39,7 @@ export default class DecClient extends ExGameClient {
             }
         }
     }
-
+    
     override onJoin(): void {
         super.onJoin();
         this.exPlayer.command.runAsync('fog @s remove \"night_event\"')

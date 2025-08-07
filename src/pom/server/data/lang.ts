@@ -274,8 +274,8 @@ Our Team
 Special Thanks
 BunBun不是笨笨    在矿里的小金呀
 `,
-    "bugAndIssueLink": "bug反馈和意见提交可以访问：https://github.com/AAswordman/ThePoetryOfWinter/issues。二维码如下：",
-    "noticeLink": "你可以在这里找到我们的网页/公告和最新内容，以及我们的团队和开发者：https://github.com/AAswordman/ThePoetryOfWinter。二维码如下：",
+    "bugAndIssueLink": "bug反馈和意见提交可以访问：https://github.com/DEC-Development/ThePoetryOfWinter/issues。二维码如下：",
+    "noticeLink": "你可以在这里找到我们的网页/公告和最新内容，以及我们的团队和开发者：https://github.com/DEC-Development/ThePoetryOfWinter。二维码如下：",
     "gameDifficulty": "游戏难度",
     "personalInformation": "个人信息",
     "nowExpeiencePoints": "当前等级积分",
@@ -815,7 +815,7 @@ BunBun不是笨笨    在矿里的小金呀
     "menuUIMsgBailan101": "Personal settings",
     "menuUIMsgBailan102": "language selection",
     "menuUIMsgBailan103": "How can I contact the creator?",
-    "menuUIMsgBailan104": "Twitter: @le_lyii or @EAT_YOUR_PANTS     (issues)Github: https://github.com/AAswordman/ThePoetryOfWinter",
+    "menuUIMsgBailan104": "Twitter: @le_lyii or @EAT_YOUR_PANTS     (issues)Github: https://github.com/DEC-Development/ThePoetryOfWinter",
     "yes": "Yes",
     "no": "No",
     "operation": "Operation",
@@ -910,8 +910,8 @@ Our Team
 Special Thanks
 BunBun不是笨笨 - In the mine, little gold
 `,
-    "bugAndIssueLink": "Bug feedback and suggestion can be accessed at: https://github.com/AAswordman/ThePoetryOfWinter/issues. QR code is as follows:",
-    "noticeLink": "You can find our website/announcements and latest content, as well as our team and developers here: https://github.com/AAswordman/ThePoetryOfWinter. QR code is as follows:",
+    "bugAndIssueLink": "Bug feedback and suggestion can be accessed at: https://github.com/DEC-Development/ThePoetryOfWinter/issues. QR code is as follows:",
+    "noticeLink": "You can find our website/announcements and latest content, as well as our team and developers here: https://github.com/DEC-Development/ThePoetryOfWinter. QR code is as follows:",
     "gameDifficulty": "Game Difficulty",
     "personalInformation": "Personal Information",
     "nowExpeiencePoints": "Current Level Points",
