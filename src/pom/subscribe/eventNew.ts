@@ -664,7 +664,9 @@ export default (context: ExContext) => {
             let option = { triggerItem: e.itemStackBeforeBreak, triggerEntity: e.player, triggerType: diggerCompName }
             const triggerComp = findTriggerComp(option) as diggerCompType | undefined;
             if (triggerComp) {
-                emitEvent(triggerComp.on_dig.event, option);
+                if (triggerComp.on_dig) {
+                    emitEvent(triggerComp.on_dig.event, option);
+                }
             }
         }
     });
@@ -675,10 +677,12 @@ export default (context: ExContext) => {
             let option = { triggerItem: e.itemStack, triggerEntity: e.source, triggerType: foodCompName }
             const triggerComp = findTriggerComp(option) as foodCompType | undefined;
             if (triggerComp) {
-                emitEvent(triggerComp.on_consume.event, option);
+                if (triggerComp.on_consume) {
+                    emitEvent(triggerComp.on_consume.event, option);
+                }
             }
             if (triggerComp?.using_converts_to) {
-                ExPlayer.getInstance(e.source).getBag().itemOnMainHand = new ItemStack(triggerComp.using_converts_to);
+                ExPlayer.getInstance(e.source).getBag().addItem(new ItemStack(triggerComp.using_converts_to));
             }
         }
     });

@@ -605,10 +605,10 @@ export default class DecServer extends ExGameServer {
                 let power = Number(e.message)
                 let p = (<Entity>e.sourceEntity)
                 let r = p.getViewDirection()
-                if (power < 0) {
-                    p.applyKnockback({x: r.x, z:r.z}, power)
+                if (power > 0) {
+                    p.applyKnockback({x: r.x * power, z:r.z * power}, 0)
                 } else {
-                    p.applyKnockback({x: -r.x, z: -r.z}, -power)
+                    p.applyKnockback({x: -r.x * power, z: -r.z * power}, 0)
                 }
             } else if (e.id == 'dec:sustain_particle') {
                 //格式：粒子id;重复生成次数;生成间隔刻
